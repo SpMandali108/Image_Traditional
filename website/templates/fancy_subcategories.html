@@ -248,7 +248,7 @@
     box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(201,168,76,0.05);
     overflow: hidden;
     transition: border-color 0.2s, box-shadow 0.2s;
-    min-width: 0; /* prevent flex overflow */
+    min-width: 0;
   }
 
   .it-search-box:focus-within {
@@ -265,7 +265,7 @@
 
   .it-search-box input {
     flex: 1;
-    min-width: 0; /* critical: allows input to shrink below its content size */
+    min-width: 0;
     border: none;
     outline: none;
     font-family: var(--font-body);
@@ -279,7 +279,7 @@
   .it-search-box input::placeholder { color: var(--text-soft); }
 
   .it-search-btn {
-    flex-shrink: 0; /* never shrink the button */
+    flex-shrink: 0;
     margin: 6px;
     padding: 9px 18px;
     background: linear-gradient(135deg, var(--gold), var(--gold-dim));
@@ -302,22 +302,21 @@
     box-shadow: 0 4px 16px rgba(201,168,76,0.3);
   }
 
-  /* on very small screens, collapse button to icon only */
   @media (max-width: 360px) {
     .it-search-btn {
       padding: 9px 12px;
       letter-spacing: 0;
-      font-size: 0; /* hide text */
+      font-size: 0;
     }
     .it-search-btn::after {
-      content: '\f002'; /* fa magnifying glass unicode */
+      content: '\f002';
       font-family: 'Font Awesome 6 Free';
       font-weight: 900;
       font-size: 13px;
     }
     .it-search-box i {
       padding: 0 8px 0 12px;
-      display: none; /* hide duplicate icon */
+      display: none;
     }
   }
 
@@ -483,12 +482,20 @@
   .it-card:hover::after  { transform: scaleX(1); }
   .it-card:active { transform: translateY(-5px) scale(1.0); }
 
+  /* ── Icon Ring — PERMANENT golden border ─────────────── */
   .it-card-icon-ring {
     width: 88px;
     height: 88px;
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, rgba(201,168,76,0.12), rgba(27,79,158,0.1));
-    border: 1px solid rgba(201,168,76,0.2);
+    background: radial-gradient(circle at 35% 35%, rgba(201,168,76,0.15), rgba(27,79,158,0.12));
+    /* permanent solid gold border */
+    border: 2px solid var(--gold);
+    /* layered glow rings: tight inner ring + soft outer halo */
+    box-shadow:
+      0 0 0 4px rgba(201,168,76,0.14),
+      0 0 0 7px rgba(201,168,76,0.06),
+      0 0 18px rgba(201,168,76,0.30),
+      inset 0 0 10px rgba(201,168,76,0.10);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -499,11 +506,15 @@
     flex-shrink: 0;
   }
 
-  /* subtle gold ring glow on hover */
+  /* enhanced on hover — border brightens, glow expands */
   .it-card:hover .it-card-icon-ring {
     transform: scale(1.1) rotate(-3deg);
-    border-color: rgba(201,168,76,0.5);
-    box-shadow: 0 0 24px rgba(201,168,76,0.15);
+    border-color: var(--gold-bright);
+    box-shadow:
+      0 0 0 5px rgba(201,168,76,0.26),
+      0 0 0 10px rgba(201,168,76,0.10),
+      0 0 34px rgba(201,168,76,0.55),
+      inset 0 0 16px rgba(201,168,76,0.18);
   }
 
   .it-card-icon-ring img {
@@ -527,9 +538,8 @@
     letter-spacing: 0.04em;
   }
 
-  /* desktop: body wrapper is transparent passthrough */
   .it-card-body {
-    display: contents; /* children behave as direct card children on desktop */
+    display: contents;
   }
 
   .it-card-cta {
@@ -687,7 +697,6 @@
     .it-hero-stats { flex-direction: column; }
     .it-hero-stat + .it-hero-stat::before { display: none; }
 
-    /* ── Single-column vertical cards — one per row, like the reference ── */
     .it-grid {
       grid-template-columns: 1fr;
       gap: 14px;
@@ -748,7 +757,6 @@
       margin-bottom: 4px;
     }
 
-    /* full-width solid gold button */
     .it-card-cta {
       display: flex;
       justify-content: center;
