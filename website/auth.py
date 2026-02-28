@@ -2075,7 +2075,7 @@ def catalogue():
         "Freedom Fighter":    "Freedom Fighter.png",
         "Regional":           "Regional.png",
         "Wild Animals":       "Wild Animal.png",
-        "Domestic Animals":   "Domestic Animal.png",
+        "Domestic Animals":   "Domestic git Animal.png",
         "Water Animals":      "Water Animal.png",
         "Insects":            "Insect.png",
         "Birds":              "Bird.png",
