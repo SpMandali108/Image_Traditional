@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+{% block title %}Fancy Dress Admin{% endblock %}
+
+{% block logo_link %}
+<a href="/admin" class="logo">
+    <img src="{{ url_for('static', filename='favicon.png') }}" alt="Image Traditional Logo">
+    <span class="logo-text">Image Traditional</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<style>
+/* Fix logo hover - prevent red background */
+.logo:hover {
+    background:transparent !important;
+    opacity:0.9;
+}
+
+/* Root variables */
+:root {
+    --navy: #0a1628;
+    --dark-blue: #0d1b2a;
+    --medium-blue: #1a2332;
+    --accent-blue: #1e3a5f;
+    --gold: #d4af37;
+    --light-gold: #f0d785;
+    --pale-gold: #fef9e7;
+}
+
+/* Main container */
+.formal-admin {
+    min-height: calc(100vh - 80px);
+    background: linear-gradient(135deg, var(--navy) 0%, var(--dark-blue) 50%, #0f1c3f 100%);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header section */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.5);
+}
+
+.admin-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-title h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin: 0;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+}
+
+.title-icon {
+    font-size: 2.5rem;
+    filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.5));
+}
+
+/* Switch button */
+.switch-btn {
+    background: linear-gradient(135deg, var(--gold), #aa8a2e);
+    color: var(--navy);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+}
+
+.switch-btn:hover {
+    background: linear-gradient(135deg, var(--light-gold), var(--gold));
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+    transform: translateY(-2px);
+}
+
+/* Grid container */
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 1.5rem;
+    flex: 1;
+}
+
+/* Cards */
+.admin-card {
+    background: rgba(13, 27, 42, 0.9);
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    border-radius: 15px;
+    padding: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.admin-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--gold), var(--light-gold), var(--gold));
+}
+
+.admin-card:hover {
+    border-color: var(--gold);
+    background: rgba(13, 27, 42, 1);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(212, 175, 55, 0.3);
+}
+
+/* Card header */
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.card-icon {
+    font-size: 2.5rem;
+    filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.4));
+}
+
+.card-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin: 0;
+}
+
+/* Card content */
+.card-content p {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+/* Card footer */
+.card-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.card-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.5rem;
+    background: linear-gradient(135deg, var(--accent-blue), #2a4a6f);
+    color: var(--gold);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.card-btn:hover {
+    background: linear-gradient(135deg, #2a4a6f, var(--accent-blue));
+    border-color: var(--gold);
+    color: var(--light-gold);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+/* Prevent card click when clicking button */
+.card-btn:hover {
+    z-index: 10;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .admin-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+    
+    .admin-card {
+        padding: 1.5rem;
+    }
+    
+    .admin-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+}
+
+@media (max-width: 640px) {
+    .formal-admin {
+        padding: 1rem;
+    }
+    
+    .admin-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+    }
+    
+    .admin-title h1 {
+        font-size: 1.5rem;
+    }
+    
+    .title-icon {
+        font-size: 2rem;
+    }
+    
+    .admin-card {
+        padding: 1.25rem;
+    }
+    
+    .card-header h3 {
+        font-size: 1.25rem;
+    }
+}
+</style>
+
+<div class="formal-admin">
+
+    <!-- HEADER -->
+    <div class="admin-header">
+        <div class="admin-title">
+            <span class="title-icon">🎭</span>
+            <h1>Fancy Dress Administration</h1>
+        </div>
+
+        <!-- SWITCH BUTTON -->
+        <a href="/navaratri_admin" class="switch-btn">
+            🪔 Switch to Navaratri
+        </a>
+    </div>
+
+    <!-- NAVIGATION GRID -->
+    <div class="admin-grid">
+
+        <!-- Fancy Bookings -->
+        <div class="admin-card" onclick="window.location.href='/fancy'">
+            <div>
+                <div class="card-header">
+                    <span class="card-icon">🎭</span>
+                    <h3>Fancy Bookings</h3>
+                </div>
+                <div class="card-content">
+                    <p>Create and manage fancy dress bookings. Add new customers, assign costumes, and track rental periods.</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/fancy" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
+            </div>
+        </div>
+
+        <!-- Bookings Listing -->
+        <div class="admin-card" onclick="window.location.href='/fancy_listing'">
+            <div>
+                <div class="card-header">
+                    <span class="card-icon">📋</span>
+                    <h3>Bookings Listing</h3>
+                </div>
+                <div class="card-content">
+                    <p>View comprehensive lists of all fancy dress bookings and customer information with advanced filtering options.</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/fancy_listing" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
+            </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div class="admin-card" onclick="window.location.href='/fancy_calendar'">
+            <div>
+                <div class="card-header">
+                    <span class="card-icon">🗓️</span>
+                    <h3>Calendar View</h3>
+                </div>
+                <div class="card-content">
+                    <p>Track bookings, returns, and availability through an intuitive calendar interface for better planning.</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/fancy_calendar" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
+            </div>
+        </div>
+
+        <!-- Inventory -->
+        <div class="admin-card" onclick="window.location.href='/fancy_inventory'">
+            <div>
+                <div class="card-header">
+                    <span class="card-icon">📦</span>
+                    <h3>Inventory</h3>
+                </div>
+                <div class="card-content">
+                    <p>Manage your costume inventory with searchable lists. Track stock levels, colors, sizes, and categories efficiently.</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/fancy_inventory" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
+            </div>
+        </div>
+
+        <!-- Analytics Dashboard -->
+        <div class="admin-card" onclick="window.location.href='/fancy_dashboard'">
+            <div>
+                <div class="card-header">
+                    <span class="card-icon">📊</span>
+                    <h3>Analytics Dashboard</h3>
+                </div>
+                <div class="card-content">
+                    <p>Access comprehensive analytics, performance metrics, and insights to optimize your business operations.</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/fancy_dashboard" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

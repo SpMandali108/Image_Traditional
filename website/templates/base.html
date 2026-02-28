@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>{% block title %}Image Traditional | Traditional Dress Rentals for Festivals{% endblock %}</title>
+  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{% block description %}Explore traditional dress rentals for festivals and events. Image Traditional offers Kediya, Chaniya Choli, and Fancy Dresses for all ages. Book now for Navratri!{% endblock %}">
+  <meta name="google-site-verification" content="rblFv2qDddK7ALu3uQhHjVXBk0ucyy6hkBWO735_ZUw" />
+  {% block robots %}{% endblock %}
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+  
+
+  <style>
+    :root {
+      --primary-bg: #ffffff;
+      --secondary-bg: #f8fafc;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --border-color: #e2e8f0;
+      --accent-color: #1a1a2e;
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .dark-theme {
+      --primary-bg: #0f172a;
+      --secondary-bg: #1e293b;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --border-color: #334155;
+      --accent-color: #f8fafc;
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--secondary-bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+      transition: all 0.3s ease;
+    }
+
+    /* Header Styles */
+    .main-header {
+      background: var(--primary-bg);
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo img {
+      height: 40px;
+      width: 40px;
+      border-radius: 50%;
+      margin-right: 0.75rem;
+      object-fit: cover;
+    }
+
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Contact Dropdown */
+    .contact-dropdown {
+      position: relative;
+    }
+
+    .contact-btn {
+      background: var(--primary-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .contact-btn:hover {
+      background: var(--secondary-bg);
+      transform: translateY(-1px);
+    }
+
+    .contact-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--primary-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      box-shadow: var(--shadow-lg);
+      min-width: 250px;
+      z-index: 1001;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.2s ease;
+      margin-top: 0.5rem;
+    }
+
+    .contact-menu.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .contact-item {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: background 0.2s ease;
+    }
+
+    .contact-item:hover {
+      background: var(--secondary-bg);
+    }
+
+    .contact-item:last-child {
+      border-bottom: none;
+    }
+
+    .contact-item i {
+      width: 16px;
+      color: var(--text-secondary);
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      width: 48px;
+      height: 24px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: var(--secondary-bg);
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle-slider {
+      width: 18px;
+      height: 18px;
+      background: var(--primary-bg);
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.7rem;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+    }
+
+    .dark-theme .theme-toggle-slider {
+      transform: translateX(24px);
+    }
+
+    /* Admin Action Buttons */
+    .admin-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .admin-btn {
+      background: linear-gradient(135deg, #0a1929 0%, #1a2942 100%);
+      color: #d4af37;
+      border: 2px solid #d4af37;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+    }
+
+    .admin-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+      background: linear-gradient(135deg, #d4af37 0%, #f4d35e 100%);
+      color: #0a1929;
+      border-color: #f4d35e;
+    }
+
+    .admin-btn.logout-btn {
+      background: linear-gradient(135deg, #1a2942 0%, #0a1929 100%);
+      border-color: #d4af37;
+    }
+
+    .admin-btn.logout-btn:hover {
+      background: linear-gradient(135deg, #d4af37 0%, #f4d35e 100%);
+      color: #0a1929;
+      border-color: #f4d35e;
+    }
+
+    .admin-btn.panel-btn {
+      background: linear-gradient(135deg, #0a1929 0%, #2d3f5f 100%);
+      border-color: #d4af37;
+    }
+
+    .admin-btn.panel-btn:hover {
+      background: linear-gradient(135deg, #d4af37 0%, #f4d35e 100%);
+      color: #0a1929;
+      border-color: #f4d35e;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+      width: 100%;
+    }
+
+    /* Alerts */
+    .alert {
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border: none;
+      position: relative;
+    }
+
+    .alert-success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .alert-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .dark-theme .alert-success {
+      background: #14532d;
+      color: #bbf7d0;
+    }
+
+    .dark-theme .alert-danger {
+      background: #7f1d1d;
+      color: #fecaca;
+    }
+
+    .alert .btn-close {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+    }
+
+    /* Responsive Design */
+    @media (min-width: 640px) {
+      .header-content {
+        padding: 1rem 1.5rem;
+      }
+
+      .logo img {
+        height: 48px;
+        width: 48px;
+        margin-right: 1rem;
+      }
+
+      .logo-text {
+        font-size: 1.5rem;
+      }
+
+      .header-controls {
+        gap: 1rem;
+      }
+
+      .contact-btn {
+        font-size: 1rem;
+        padding: 0.625rem 1.25rem;
+      }
+
+      .admin-btn {
+        font-size: 1rem;
+        padding: 0.625rem 1.25rem;
+      }
+
+      .theme-toggle {
+        width: 56px;
+        height: 28px;
+        border-radius: 14px;
+      }
+
+      .theme-toggle-slider {
+        width: 22px;
+        height: 22px;
+        font-size: 0.75rem;
+      }
+
+      .dark-theme .theme-toggle-slider {
+        transform: translateX(28px);
+      }
+
+      .main-content {
+        padding: 1.5rem;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .header-content {
+        padding: 1.25rem 2rem;
+      }
+
+      .logo img {
+        height: 56px;
+        width: 56px;
+      }
+
+      .logo-text {
+        font-size: 1.75rem;
+      }
+
+      .main-content {
+        padding: 2rem;
+      }
+    }
+
+    /* Hide text on very small screens */
+    @media (max-width: 580px) {
+      .contact-btn .btn-text,
+      .admin-btn .btn-text {
+        display: none;
+      }
+
+      .contact-btn,
+      .admin-btn {
+        padding: 0.5rem;
+      }
+
+      .logo-text {
+        font-size: 1.125rem;
+      }
+
+      .header-controls {
+        gap: 0.5rem;
+      }
+
+      .admin-actions {
+        gap: 0.4rem;
+      }
+    }
+  </style>
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ABC1234567"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-YN2S7P00FT');
+</script>
+
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<header class="main-header">
+  <div class="header-content">
+    {% block logo_link %}
+<!-- Default: no link -->
+<div class="logo">
+  <img src="{{ url_for('static', filename='favicon.png') }}" alt="Image Traditional Logo">
+  <span class="logo-text">Image Traditional</span>
+</div>
+{% endblock %}
+
+
+    <div class="header-controls">
+      <!-- Contact dropdown -->
+      <div class="contact-dropdown">
+        <button class="contact-btn" onclick="toggleContactMenu()">
+          <i class="fas fa-phone"></i>
+          <span class="btn-text">Contact</span>
+        </button>
+        <div class="contact-menu" id="contactMenu">
+          <a href="tel:+919428610384" class="contact-item">
+            <i class="fas fa-phone-alt"></i>
+            <span>+91-9428610384</span>
+          </a>
+          <a href="mailto:imagetraditional@gmail.com" class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <span>Email Us</span>
+          </a>
+          <a href="https://instagram.com/image_traditional" target="_blank" class="contact-item">
+            <i class="fab fa-instagram"></i>
+            <span>Instagram</span>
+          </a>
+          <a href="https://maps.app.goo.gl/r7WC2NV9fb8JtB5c7?g_st=aw" target="_blank" class="contact-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Find Us</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Theme toggle -->
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <div class="theme-toggle-slider">
+          <span id="theme-icon">🌙</span>
+        </div>
+      </button>
+
+      <!-- Admin Actions (only when logged in) -->
+      {% if session.logged_in %}
+      <div class="admin-actions">
+        <a href="{{ url_for('auth.admin') }}" class="admin-btn panel-btn">
+          <i class="fas fa-tachometer-alt"></i>
+          <span class="btn-text">Admin Panel</span>
+        </a>
+        <a href="{{ url_for('auth.logout') }}" class="admin-btn logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="btn-text">Logout</span>
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<!-- Alerts -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="container-fluid">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
+          <strong>{{ 'Error!' if category == 'error' else 'Success!' }}</strong> {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- Main Content -->
+<main class="main-content">
+  {% block content %}{% endblock %}
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Theme management
+  function toggleTheme() {
+    const body = document.body;
+    const isDark = body.classList.toggle('dark-theme');
+    const icon = document.getElementById('theme-icon');
+    
+    icon.textContent = isDark ? '☀️' : '🌙';
+    
+    // Save theme preference
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }
+
+  // Load saved theme
+  function loadTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+      document.body.classList.add('dark-theme');
+      document.getElementById('theme-icon').textContent = '☀️';
+    }
+  }
+
+  // Contact menu management
+  function toggleContactMenu() {
+    const menu = document.getElementById('contactMenu');
+    menu.classList.toggle('active');
+  }
+
+  // Close contact menu when clicking outside
+  function closeContactMenu(event) {
+    const dropdown = document.querySelector('.contact-dropdown');
+    if (!dropdown.contains(event.target)) {
+      document.getElementById('contactMenu').classList.remove('active');
+    }
+  }
+
+  // Auto-dismiss alerts
+  function setupAlerts() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+      setTimeout(() => {
+        if (alert.parentNode) {
+          alert.remove();
+        }
+      }, 5000);
+    });
+  }
+
+  // Close menus on escape key
+  function handleKeyPress(event) {
+    if (event.key === 'Escape') {
+      const contactMenu = document.getElementById('contactMenu');
+      
+      if (contactMenu && contactMenu.classList.contains('active')) {
+        contactMenu.classList.remove('active');
+      }
+    }
+  }
+
+  // Initialize everything when DOM is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    loadTheme();
+    setupAlerts();
+    
+    // Event listeners
+    document.addEventListener('click', closeContactMenu);
+    document.addEventListener('keydown', handleKeyPress);
+  });
+</script>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

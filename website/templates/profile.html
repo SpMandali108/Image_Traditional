@@ -1,0 +1,528 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Profile | Image Traditional{% endblock %}
+
+{% block robots %}
+  <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block logo_link %}
+<a href="/admin" class="logo">
+    <img src="{{ url_for('static', filename='favicon.png') }}" alt="Image Traditional Logo">
+    <span class="logo-text">Image Traditional</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+  <!-- Header -->
+  <div class="header-section">
+    <h1 class="page-title">👤 Customer Profile</h1>
+    <p class="page-subtitle">Search and manage customer information</p>
+  </div>
+
+  {% if customer %}
+  <!-- Customer Information -->
+  <div class="content-grid">
+    <!-- Personal Details -->
+    <div class="card">
+      <div class="card-header">
+        <h3>👤 Personal Information</h3>
+      </div>
+      <div class="card-body">
+        <div class="info-item">
+          <label>Full Name</label>
+          <span>{{ customer.Name }}</span>
+        </div>
+        <div class="info-item">
+          <label>Mobile</label>
+          <span>{{ customer.mobile }}</span>
+        </div>
+        <div class="info-item">
+          <label>Address</label>
+          <span>{{ customer.address or 'Not provided' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Reference</label>
+          <span>{{ customer.reference or 'Not provided' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Group</label>
+          <span class="group-tag">{{ customer.group or 'Not specified' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Deposit</label>
+          <span>{{ customer.deposit or 'Not provided' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Summary -->
+    <div class="card">
+      <div class="card-header">
+        <h3>💳 Payment Overview</h3>
+      </div>
+      <div class="card-body">
+        <div class="payment-summary">
+          <div class="amount-row total">
+            <span class="amount-label">Total Amount</span>
+            <span class="amount-value">₹{{ customer.total_price }}</span>
+          </div>
+          
+          <div class="amount-row paid" onclick="window.location.href='{{ url_for('auth.pay_remaining', mobile=customer.mobile) }}'">
+            <span class="amount-label">Amount Paid</span>
+            <span class="amount-value">₹{{ customer.given_price }}</span>
+          </div>
+          
+          <div class="amount-row remaining">
+            <span class="amount-label">Remaining</span>
+            <span class="amount-value">₹{{ customer.remaining }}</span>
+          </div>
+        </div>
+        
+        <div class="progress-section">
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: {{ (customer.given_price / customer.total_price * 100) if customer.total_price > 0 else 0 }}%"></div>
+          </div>
+          <div class="progress-text">
+            {{ "%.1f"|format((customer.given_price / customer.total_price * 100) if customer.total_price > 0 else 0) }}% Completed
+          </div>
+        </div>
+        
+        {% if customer.remaining > 0 %}
+        <div class="status-tag pending">⚠️ Payment Pending: ₹{{ customer.remaining }}</div>
+        {% else %}
+        <div class="status-tag complete">✅ Payment Complete</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if customer.bookings %}
+  <!-- Booking History -->
+  <div class="card">
+    <div class="card-header">
+      <h3>📅 Booking History</h3>
+      <span class="booking-count">{{ customer.bookings|length }} booking(s)</span>
+    </div>
+    <div class="card-body">
+      <div class="bookings-list">
+        {% for date, items in customer.bookings.items() %}
+<div class="booking-group">
+  <div class="booking-date">📆 {{ date }}</div>
+  <div class="booking-items">
+    {% for item in items %}
+    <div class="booking-item">
+      • 
+      <a href="{{ url_for('auth.code_detail', code=item) }}" class="text-decoration-none text-blue-600 hover:text-blue-800">
+        {{ item }}
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endfor %}
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Download Section -->
+  <div class="action-section">
+    <form method="POST" action="{{ url_for('auth.download_customer') }}">
+      <input type="hidden" name="mobile" value="{{ customer.mobile }}">
+      <button type="submit" class="download-btn">
+        ⬇️ Download Profile
+      </button>
+    </form>
+  </div>
+  {% endif %}
+
+  {% elif request.method == 'POST' %}
+  <!-- Not Found -->
+  <div class="not-found">
+    <div class="not-found-content">
+      <div class="not-found-icon">🔍</div>
+      <h3>Customer Not Found</h3>
+      <p>We couldn't find a customer with that mobile number. Please check and try again.</p>
+      <div class="suggestions">
+        <strong>Suggestions:</strong>
+        <ul>
+          <li>Verify the mobile number is correct</li>
+          <li>Try searching without country code</li>
+          <li>Contact support if the issue persists</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  .profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.5;
+  }
+
+  /* Header */
+  .header-section {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 30px 0;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    border-radius: 12px;
+    color: white;
+  }
+
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+  }
+
+  .page-subtitle {
+    font-size: 1.1rem;
+    margin: 0;
+    opacity: 0.9;
+  }
+
+  /* Content Grid */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  /* Cards */
+  .card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: #f9fafb;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+  }
+
+  .card-body {
+    padding: 24px;
+  }
+
+  /* Info Items */
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .info-item:last-child {
+    border-bottom: none;
+  }
+
+  .info-item label {
+    font-weight: 500;
+    color: #6b7280;
+  }
+
+  .info-item span {
+    font-weight: 600;
+    color: #111827;
+    text-align: right;
+  }
+
+  .group-tag {
+    background: #3b82f6;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+  }
+
+  /* Payment Summary */
+  .payment-summary {
+    margin-bottom: 20px;
+  }
+
+  .amount-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .amount-row:hover {
+    transform: translateX(4px);
+  }
+
+  .amount-row.total {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+  }
+
+  .amount-row.paid {
+    background: #f0fdf4;
+    border-left: 4px solid #22c55e;
+  }
+
+  .amount-row.remaining {
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+  }
+
+  .amount-label {
+    font-weight: 500;
+    color: #6b7280;
+  }
+
+  .amount-value {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: #111827;
+  }
+
+  /* Progress */
+  .progress-section {
+    margin-bottom: 16px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: #22c55e;
+    border-radius: 4px;
+    transition: width 1s ease;
+  }
+
+  .progress-text {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+  }
+
+  /* Status Tags */
+  .status-tag {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-align: center;
+  }
+
+  .status-tag.pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .status-tag.complete {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  /* Booking Count */
+  .booking-count {
+    background: #4f46e5;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  /* Bookings */
+  .bookings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .booking-group {
+    border-left: 3px solid #4f46e5;
+    padding-left: 16px;
+  }
+
+  .booking-date {
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+  }
+
+  .booking-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .booking-item {
+    color: #6b7280;
+    padding: 4px 0;
+  }
+
+  /* Action Section */
+  .action-section {
+    text-align: center;
+    margin-top: 30px;
+  }
+
+  .download-btn {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .download-btn:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+  }
+
+  /* Not Found */
+  .not-found {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+
+  .not-found-content {
+    text-align: center;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+  }
+
+  .not-found-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  .not-found-content h3 {
+    color: #dc2626;
+    margin: 0 0 12px 0;
+    font-size: 1.5rem;
+  }
+
+  .not-found-content p {
+    color: #6b7280;
+    margin: 0 0 20px 0;
+  }
+
+  .suggestions {
+    text-align: left;
+  }
+
+  .suggestions strong {
+    color: #111827;
+  }
+
+  .suggestions ul {
+    margin: 8px 0 0 0;
+    color: #6b7280;
+  }
+
+  .suggestions li {
+    margin-bottom: 4px;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .profile-container {
+      padding: 16px;
+    }
+
+    .page-title {
+      font-size: 2rem;
+    }
+
+    .content-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .card-header, .card-body {
+      padding: 16px;
+    }
+
+    .amount-row {
+      padding: 12px;
+    }
+
+    .info-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .info-item span {
+      text-align: left;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .header-section {
+      padding: 20px;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+    }
+
+    .card-header {
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .download-btn {
+      width: 100%;
+    }
+  }
+</style>
+
+{% endblock %}
