@@ -1,4 +1,4 @@
-/* ── CSS Variables (permanent dark) ── */
+/* ── CSS Variables ── */
 :root {
   --bg: #0f172a;
   --surface: #1e293b;
@@ -9,7 +9,7 @@
   --gold-dark: #b8961e;
   --navy: #0a1929;
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-md: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
   --radius: 8px;
   --transition: 0.2s ease;
 }
@@ -38,11 +38,6 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
-}
-.icon {
-  display: inline-block;
-  width: 20px;
-  text-align: center;
 }
 
 .header-content {
@@ -86,24 +81,34 @@ body {
   gap: 0.6rem;
 }
 
-/* ── Contact Dropdown ── */
+/* ── Icon ── */
+.icon {
+  display: inline-block;
+  width: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* ── Contact Dropdown Wrapper ── */
 .contact-dropdown {
   position: relative;
 }
 
+/* ── Contact Button ── */
 .contact-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 6px;
   background: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
-  padding: 0.45rem 0.9rem;
+  padding: 6px 12px;
   border-radius: var(--radius);
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-family: 'Inter', sans-serif;
-  transition: background var(--transition), border-color var(--transition);
+  font-weight: 500;
+  transition: all var(--transition);
 }
 
 .contact-btn:hover {
@@ -111,52 +116,82 @@ body {
   border-color: var(--muted);
 }
 
+/* ── Dropdown Menu ── */
 .contact-menu {
   position: absolute;
-  top: calc(100% + 0.4rem);
+  top: calc(100% + 8px);
   right: 0;
+  width: 272px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: 14px;
   box-shadow: var(--shadow-md);
-  min-width: 220px;
-  z-index: 1001;
+  padding: 10px;
+  z-index: 9999;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-6px);
-  transition: opacity var(--transition), transform var(--transition), visibility var(--transition);
+  transform: translateY(-6px) scale(0.98);
+  transform-origin: top right;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+
+  /* 2x2 grid */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
 }
 
 .contact-menu.open {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
+/* ── Each Contact Card ── */
 .contact-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.65rem 1rem;
-  color: var(--text);
+  gap: 9px;
+  padding: 16px 10px 13px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
   text-decoration: none;
-  font-size: 0.875rem;
-  border-bottom: 1px solid var(--border);
-  transition: background var(--transition);
-}
-
-.contact-item:last-child {
-  border-bottom: none;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-align: center;
 }
 
 .contact-item:hover {
-  background: var(--bg);
+  background: rgba(212, 175, 55, 0.06);
+  border-color: rgba(212, 175, 55, 0.22);
+  transform: none;
 }
 
-.contact-item i {
-  width: 16px;
-  color: var(--muted);
-  text-align: center;
+/* ── Icon inside card ── */
+.contact-item .icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(212, 175, 55, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: background 0.15s;
+}
+
+.contact-item:hover .icon {
+  background: rgba(212, 175, 55, 0.18);
+}
+
+/* ── Text inside card ── */
+.contact-item span:last-child {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.3;
 }
 
 /* ── Admin Buttons ── */
@@ -187,7 +222,7 @@ body {
 .admin-btn:hover {
   background: var(--gold);
   color: var(--navy);
-  box-shadow: 0 0 0 3px rgba(212,175,55,0.2);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
 /* ── Alerts ── */
@@ -203,9 +238,6 @@ body {
   padding: 0.85rem 1rem;
   border: none;
   font-size: 0.9rem;
-}
-
-.alert-success {
   background: #14532d;
   color: #bbf7d0;
 }
@@ -226,54 +258,22 @@ body {
 
 /* ── Responsive ── */
 @media (min-width: 640px) {
-  .header-content {
-    padding: 0.9rem 1.75rem;
-  }
-
-  .logo img {
-    height: 46px;
-    width: 46px;
-  }
-
-  .logo-text {
-    font-size: 1.5rem;
-  }
-
-  .main-content {
-    padding: 2rem 1.75rem;
-  }
+  .header-content { padding: 0.9rem 1.75rem; }
+  .logo img { height: 46px; width: 46px; }
+  .logo-text { font-size: 1.5rem; }
+  .main-content { padding: 2rem 1.75rem; }
 }
 
 @media (min-width: 768px) {
-  .header-content {
-    padding: 1rem 2rem;
-  }
-
-  .logo img {
-    height: 52px;
-    width: 52px;
-  }
-
-  .logo-text {
-    font-size: 1.75rem;
-  }
+  .header-content { padding: 1rem 2rem; }
+  .logo img { height: 52px; width: 52px; }
+  .logo-text { font-size: 1.75rem; }
 }
 
 @media (max-width: 540px) {
-  .btn-text {
-    display: none;
-  }
-
-  .contact-btn,
-  .admin-btn {
-    padding: 0.45rem 0.55rem;
-  }
-
-  .logo-text {
-    font-size: 1.1rem;
-  }
-
-  .header-controls {
-    gap: 0.4rem;
-  }
-}
+  .btn-text { display: none; }
+  .contact-btn, .admin-btn { padding: 0.45rem 0.55rem; }
+  .logo-text { font-size: 1.1rem; }
+  .header-controls { gap: 0.4rem; }
+  .contact-menu { width: 240px; }
+}   
