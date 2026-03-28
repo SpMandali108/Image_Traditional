@@ -786,7 +786,7 @@ def download_customer():
 
     class PDF(FPDF):
         def header(self):
-            logo_path = os.path.join(os.path.dirname(__file__), "static", "favicon.png")
+            logo_path = os.path.join(os.path.dirname(__file__), "static", "Home_Img/favicon.png")
             if os.path.exists(logo_path):
                 self.image(logo_path, 13, 5, 15)
 

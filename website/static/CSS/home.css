@@ -1,0 +1,105 @@
+:root {
+    --dark-blue: #0a1929;
+    --medium-blue: #1a2942;
+    --light-blue: #2d3f5f;
+    --gold: #d4af37;
+    --light-gold: #f4d35e;
+    --text-light: #e8eaf6;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, var(--dark-blue), var(--medium-blue), var(--light-blue));
+    padding: 60px 20px;
+    min-height: 90vh;
+    text-align: center;
+}
+
+.hero-content {
+    max-width: 1200px;
+    margin: auto;
+}
+
+.hero-logo {
+    margin-bottom: 20px;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    color: var(--gold);
+    margin-bottom: 15px;
+}
+
+.hero-description {
+    color: var(--text-light);
+    margin-bottom: 30px;
+}
+
+.top-nav-buttons {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.nav-btn {
+    background: var(--gold);
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--dark-blue);
+    font-weight: bold;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.category-card {
+    background: var(--medium-blue);
+    padding: 20px;
+    border-radius: 15px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+}
+
+.category-image {
+    width: 100%;
+    height: 220px;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.category-title {
+    color: var(--gold);
+    margin-top: 10px;
+}
+
+.category-description {
+    color: var(--text-light);
+}
+
+.category-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: var(--gold);
+    color: var(--dark-blue);
+    border-radius: 8px;
+}
+
+.instagram-section {
+    margin-top: 40px;
+}
+
+.instagram-btn {
+    padding: 12px 24px;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    text-decoration: none;
+}
