@@ -1,5 +1,5 @@
 {% extends "general/base.html" %}
-{% block title %}Navaratri Admin{% endblock %}
+{% block title %}Navaratri  Administration{% endblock %}
 
 {% block logo_link %}
 <a href="/admin" class="logo">
@@ -10,195 +10,379 @@
 
 {% block content %}
 <style>
-.nav-admin {
-    max-width: 1300px;
-    margin: auto;
-    padding: 2rem;
+/* Fix logo hover - prevent red background */
+.logo:hover {
+    background:transparent !important;
+    opacity:0.9;
 }
 
-/* Header */
-.nav-header {
+/* Root variables */
+:root {
+    --navy: #0a1628;
+    --dark-blue: #0d1b2a;
+    --medium-blue: #1a2332;
+    --accent-blue: #1e3a5f;
+    --gold: #d4af37;
+    --light-gold: #f0d785;
+    --pale-gold: #fef9e7;
+}
+
+/* Main container */
+.formal-admin {
+    min-height: calc(100vh - 80px);
+    background: linear-gradient(135deg, var(--navy) 0%, var(--dark-blue) 50%, #0f1c3f 100%);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header section */
+.admin-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.5);
 }
 
-.nav-header h2 {
-    font-weight: 800;
-    color: #2b6dd8;
-}
-
-.header-actions {
+.admin-title {
     display: flex;
-    gap: 0.8rem;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-title h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin: 0;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+}
+
+.title-icon {
+    font-size: 2.5rem;
+    filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.5));
 }
 
 /* Switch button */
 .switch-btn {
-    background: linear-gradient(135deg, #8b5cf6, #6366f1);
-    color: white;
-    padding: 0.55rem 1.2rem;
-    border-radius: 25px;
+    background: linear-gradient(135deg, var(--gold), #aa8a2e);
+    color: var(--navy);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
     font-weight: 700;
+    font-size: 0.95rem;
     text-decoration: none;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
 }
 
 .switch-btn:hover {
-    opacity: 0.9;
+    background: linear-gradient(135deg, var(--light-gold), var(--gold));
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+    transform: translateY(-2px);
 }
 
-/* Grid */
-.nav-grid {
+/* Grid container */
+.admin-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 1.5rem;
+    flex: 1;
 }
 
 /* Cards */
-.nav-card {
-    background: white;
-    border-radius: 18px;
-    padding: 2.2rem 1.8rem;
-    text-align: center;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+.admin-card {
+    background: rgba(13, 27, 42, 0.9);
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    border-radius: 15px;
+    padding: 2rem;
     cursor: pointer;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-.nav-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 22px 55px rgba(0,0,0,0.18);
+.admin-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--gold), var(--light-gold), var(--gold));
 }
 
-/* Icon */
-.nav-icon {
-    font-size: 3rem;
+.admin-card:hover {
+    border-color: var(--gold);
+    background: rgba(13, 27, 42, 1);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(212, 175, 55, 0.3);
+}
+
+/* Card header */
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     margin-bottom: 1rem;
 }
 
-.nav-card h4 {
-    font-weight: 800;
-    margin-bottom: 0.6rem;
-    color:#355eb6;
+.card-icon {
+    font-size: 2.5rem;
+    filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.4));
 }
 
-.nav-card p {
-    color: #64748b;
-    font-weight: 600;
-    margin-bottom: 1.4rem;
-}
-
-.go-btn {
-    display: inline-block;
-    padding: 0.55rem 1.4rem;
-    border-radius: 25px;
+.card-header h3 {
+    font-size: 1.5rem;
     font-weight: 700;
-    color: white;
-    text-decoration: none;
+    color: var(--gold);
+    margin: 0;
 }
 
-/* Card colors */
-.booking { border-top: 6px solid #22c55e; }
-.booking .go-btn { background: linear-gradient(135deg,#22c55e,#16a34a); }
+/* Card content */
+.card-content p {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
 
-.listing { border-top: 6px solid #0ea5e9; }
-.listing .go-btn { background: linear-gradient(135deg,#0ea5e9,#0284c7); }
+/* Card footer */
+.card-footer {
+    display: flex;
+    justify-content: flex-end;
+}
 
-.calendar { border-top: 6px solid #f59e0b; }
-.calendar .go-btn { background: linear-gradient(135deg,#f59e0b,#f97316); }
+.card-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.5rem;
+    background: linear-gradient(135deg, var(--accent-blue), #2a4a6f);
+    color: var(--gold);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
 
-.dashboard { border-top: 6px solid #6366f1; }
-.dashboard .go-btn { background: linear-gradient(135deg,#6366f1,#4f46e5); }
+.card-btn:hover {
+    background: linear-gradient(135deg, #2a4a6f, var(--accent-blue));
+    border-color: var(--gold);
+    color: var(--light-gold);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
 
-.available { border-top: 6px solid #14b8a6; }
-.available .go-btn { background: linear-gradient(135deg,#14b8a6,#0d9488); }
+/* Prevent card click when clicking button */
+.card-btn:hover {
+    z-index: 10;
+}
 
-.check { border-top: 6px solid #ec4899; }
-.check .go-btn { background: linear-gradient(135deg,#ec4899,#db2777); }
+/* Responsive */
+@media (max-width: 1024px) {
+    .admin-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+    
+    .admin-card {
+        padding: 1.5rem;
+    }
+    
+    .admin-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+}
 
-.storage { border-top: 6px solid #8b5cf6; }
-.storage .go-btn { background: linear-gradient(135deg,#8b5cf6,#7c3aed); }
+@media (max-width: 640px) {
+    .formal-admin {
+        padding: 1rem;
+    }
+    
+    .admin-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+    }
+    
+    .admin-title h1 {
+        font-size: 1.5rem;
+    }
+    
+    .title-icon {
+        font-size: 2rem;
+    }
+    
+    .admin-card {
+        padding: 1.25rem;
+    }
+    
+    .card-header h3 {
+        font-size: 1.25rem;
+    }
+}
 </style>
 
-<div class="nav-admin">
+<div class="formal-admin">
 
     <!-- HEADER -->
-    <div class="nav-header">
-        <h2>🪔 Navaratri Admin</h2>
-
-        <div class="header-actions">
-            <a href="/fancy_admin" class="switch-btn">🎭 Fancy Admin</a>
+    <div class="admin-header">
+        <div class="admin-title">
+            <span class="title-icon">🎭</span>
+            <h1>Navaratri Administration</h1>
         </div>
+
+        <!-- SWITCH BUTTON -->
+        <a href="/fancy_admin" class="switch-btn">
+            🪔 Switch to Fancy Dress
+        </a>
     </div>
 
-    <!-- NAV GRID -->
-    <div class="nav-grid">
+    <!-- NAVIGATION GRID -->
+    <div class="admin-grid">
 
-        <!-- Booking -->
-        <div class="nav-card booking" onclick="window.location.href='/book'">
-            <div class="nav-icon">📝</div>
-            <h4>Booking</h4>
-            <p>Create new Navaratri bookings.</p>
-            <a href="/book" class="go-btn">Open →</a>
+        <!-- Navaratri Bookings -->
+        <div class="admin-card" onclick="window.location.href='/book'">
+            <div>
+                <div class="card-header">
+                    <span class="card-icon">✏️</span>
+                    <h3>Booking</h3>
+                </div>
+                <div class="card-content">
+                    <p>Create New Navaratri Dress Bookings For Customers. Assign Outfits, Set Rental Dates, And Record Customer Details Seamlessly.</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/book" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
+            </div>
         </div>
 
-        <!-- Listing -->
-        <div class="nav-card listing" onclick="window.location.href='/listing'">
-            <div class="nav-icon">📋</div>
-            <h4>Listing</h4>
-            <p>View all Navaratri bookings.</p>
-            <a href="/listing" class="go-btn">Open →</a>
+        <!-- Booking Listing -->
+        <div class="admin-card" onclick="window.location.href='/listing'">
+            <div>
+                <div class="card-header">
+                    <span class="card-icon">📋</span>
+                    <h3>Booking Listing</h3>
+                </div>
+                <div class="card-content">
+                    <p>View And Manage All Recorded Bookings With Advanced Filtering Options And Comprehensive Customer Information.</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/listing" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
+            </div>
         </div>
 
-        <!-- Calendar -->
-        <div class="nav-card calendar" onclick="window.location.href='/calendar'">
-            <div class="nav-icon">🗓️</div>
-            <h4>Calendar</h4>
-            <p>View bookings on calendar.</p>
-            <a href="/calendar" class="go-btn">Open →</a>
+        <!-- Booking Calendar -->
+        <div class="admin-card" onclick="window.location.href='/calendar'">
+            <div>
+                <div class="card-header">
+                    <span class="card-icon">📅</span>
+                    <h3>Booking Calendar</h3>
+                </div>
+                <div class="card-content">
+                    <p>Track Bookings, Returns, And Avaibility Through An Intutive Calendar Interface For Smarter Daily Planning.</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/calendar" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
+            </div>
         </div>
 
-        <!-- Dashboard -->
-        <div class="nav-card dashboard" onclick="window.location.href='/navaratri_dashboard'">
-            <div class="nav-icon">📊</div>
-            <h4>Dashboard</h4>
-            <p>Navaratri analytics & insights.</p>
-            <a href="/navaratri_dashboard" class="go-btn">Open →</a>
+        <!-- Analytics Dashboard -->
+        <div class="admin-card" onclick="window.location.href='/navaratri_dashboard'">
+            <div>
+                <div class="card-header">
+                    <span class="card-icon">📊</span>
+                    <h3>Analytics Dashboard</h3>
+                </div>
+                <div class="card-content">
+                    <p>Access comprehensive analytics, performance metrics, booking trends, and insights to optimise your business operations.</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/navaratri_dashboard" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
+            </div>
         </div>
 
         <!-- Available List -->
-        <div class="nav-card available" onclick="window.location.href='/available'">
-            <div class="nav-icon">✅</div>
-            <h4>Available List</h4>
-            <p>Check available dresses.</p>
-            <a href="/available" class="go-btn">Open →</a>
+        <div class="admin-card" onclick="window.location.href='/available'">
+            <div>
+                <div class="card-header">
+                    <span class="card-icon">🔓</span>
+                    <h3>Available List</h3>
+                </div>
+                <div class="card-content">
+                    <p>See which dresses are currently available for rental. Get a quick overview of stock ready for upcoming bookings.</</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/available" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
+            </div>
         </div>
 
-        <!-- Check Availability -->
-        <div class="nav-card check" onclick="window.location.href='/check'">
-            <div class="nav-icon">🔍</div>
-            <h4>Check Availability</h4>
-            <p>Check availability by date.</p>
-            <a href="/check" class="go-btn">Open →</a>
+        <!-- Check Avaibility -->
+        <div class="admin-card" onclick="window.location.href='/check'">
+            <div>
+                <div class="card-header">
+                    <span class="card-icon">🔍</span>
+                    <h3>Check Avaibility</h3>
+                </div>
+                <div class="card-content">
+                    <p>Check availability by a specific date to quickly identify which outfits are free for a customer's chosen period.</</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/check" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
+            </div>
         </div>
 
         <!-- Storage Manager -->
-        <div class="nav-card storage" onclick="window.location.href='/Storage'">
-            <div class="nav-icon">📦</div>
-            <h4>Storage Manager</h4>
-            <p>Manage stock & storage.</p>
-            <a href="/Storage" class="go-btn">Open →</a>
+        <div class="admin-card" onclick="window.location.href='/Storage'">
+            <div>
+                <div class="card-header">
+                    <span class="card-icon">📦</span>
+                    <h3>Storage Manager</h3>
+                </div>
+                <div class="card-content">
+                    <p>See and manage which products are stored where and in which container.</</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/Storage" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
+            </div>
+        </div>
+        <!-- Products -->
+        <div class="admin-card" onclick="window.location.href='/product'">
+            <div>
+                <div class="card-header">
+                    <span class="card-icon">🏷️</span>
+                    <h3>Product</h3>
+                </div>
+                <div class="card-content">
+                    <p>Add, edit, and organise product listings. Manage dress categories, pricing, descriptions, and product images with ease.</</</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="/product" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
+            </div>
         </div>
 
-        <div class="nav-card storage" onclick="window.location.href='/product'">
-            <div class="nav-icon">📦</div>
-            <h4>Products</h4>
-            <p>Manage stock & storage.</p>
-            <a href="/product" class="go-btn">Open →</a>
-        </div>
 
+
+        
     </div>
 
 </div>

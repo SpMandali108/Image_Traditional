@@ -120,6 +120,64 @@ def book():
 
     return render_template("navaratri/book.html")
 
+@navaratri.route("/listing",methods=['GET', 'POST'])
+def listing():
+    if not session.get('logged_in'):
+        return redirect(url_for('navaratri.login'))
+
+    bookings = list(collection.find())
+    for b in bookings:
+        b['remaining'] = b.get('total_price', 0) - b.get('given_price', 0)
+
+    return render_template("navaratri/listing.html", bookings=bookings)
+
+@navaratri.route('/calendar', methods=['GET', 'POST'])
+def calendar():
+    if not session.get('logged_in'):
+        return redirect(url_for('navaratri.login'))
+
+    date = None
+    bookings_on_date = []
+
+    if request.method == 'POST':
+        date = request.form.get('date')  # Example: "2025-08-29"
+        if date:
+            try:
+                # Convert YYYY-MM-DD → DD-MM-YY
+                date_obj = datetime.strptime(date, "%Y-%m-%d")
+                formatted_date = date_obj.strftime("%d-%m-%y")
+            except ValueError:
+                # If already DD-MM-YY
+                formatted_date = date  
+
+            print("DEBUG: input =", date)
+            print("DEBUG: formatted =", formatted_date)
+
+            # ✅ Use formatted_date for querying Mongo
+            customers = collection.find({f"bookings.{formatted_date}": {"$exists": True}})
+            
+            bookings_on_date = []
+            for c in customers:
+                entry = {
+                    "Name": c.get("Name"),
+                    "mobile": c.get("mobile"),
+                    "address": c.get("address", ""),
+                    "deposit": c.get("deposit", "Not provided"),
+                    "group": c.get("group", ""),
+                    "reference": c.get("reference", ""),
+                    "products": c["bookings"].get(formatted_date, []),
+                    "total_price": c.get("total_price", 0),
+                    "given_price": c.get("given_price", 0),
+                    "remaining": c.get("total_price", 0) - c.get("given_price", 0)
+                }
+                bookings_on_date.append(entry)
+
+    return render_template(
+        "navaratri/calendar.html",
+        date=date,  # Keep original input date for display
+        bookings=bookings_on_date
+    )
+
 @navaratri.route('/modify', methods=['GET', 'POST'])
 def modify():
     if not session.get('logged_in'):
@@ -415,53 +473,6 @@ def check():
         return redirect(url_for('navaratri.check'))
     
     return render_template("navaratri/check.html")
-
-@navaratri.route('/calendar', methods=['GET', 'POST'])
-def calendar():
-    if not session.get('logged_in'):
-        return redirect(url_for('navaratri.login'))
-
-    date = None
-    bookings_on_date = []
-
-    if request.method == 'POST':
-        date = request.form.get('date')  # Example: "2025-08-29"
-        if date:
-            try:
-                # Convert YYYY-MM-DD → DD-MM-YY
-                date_obj = datetime.strptime(date, "%Y-%m-%d")
-                formatted_date = date_obj.strftime("%d-%m-%y")
-            except ValueError:
-                # If already DD-MM-YY
-                formatted_date = date  
-
-            print("DEBUG: input =", date)
-            print("DEBUG: formatted =", formatted_date)
-
-            # ✅ Use formatted_date for querying Mongo
-            customers = collection.find({f"bookings.{formatted_date}": {"$exists": True}})
-            
-            bookings_on_date = []
-            for c in customers:
-                entry = {
-                    "Name": c.get("Name"),
-                    "mobile": c.get("mobile"),
-                    "address": c.get("address", ""),
-                    "deposit": c.get("deposit", "Not provided"),
-                    "group": c.get("group", ""),
-                    "reference": c.get("reference", ""),
-                    "products": c["bookings"].get(formatted_date, []),
-                    "total_price": c.get("total_price", 0),
-                    "given_price": c.get("given_price", 0),
-                    "remaining": c.get("total_price", 0) - c.get("given_price", 0)
-                }
-                bookings_on_date.append(entry)
-
-    return render_template(
-        "navaratri/calendar.html",
-        date=date,  # Keep original input date for display
-        bookings=bookings_on_date
-    )
 
     
 @navaratri.route('/dashboard')
@@ -853,16 +864,6 @@ def export_bookings():
         mimetype="text/csv",
         headers={"Content-Disposition": "attachment;filename=bookings_export.csv"}
     )
-@navaratri.route("/listing",methods=['GET', 'POST'])
-def listing():
-    if not session.get('logged_in'):
-        return redirect(url_for('navaratri.login'))
-
-    bookings = list(collection.find())
-    for b in bookings:
-        b['remaining'] = b.get('total_price', 0) - b.get('given_price', 0)
-
-    return render_template("navaratri/listing.html", bookings=bookings)
 
 
 @navaratri.route("/download-bill", methods=["GET", "POST"])
