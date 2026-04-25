@@ -1,0 +1,50 @@
+Shop Name: Image Traditional
+Location: Ahmedabad, Gujarat
+Timings: 9:00 AM to 9:00 PM
+Contact: 9428610384
+
+Service: Rental of Kediya
+Service: Rental of Chaniya Choli
+Service: Rental of Fancy Dress
+Service: Sublimation Printing
+
+Printing Item: T-shirt
+Printing Item: Mug
+Printing Item: Keychain
+Printing Item: Pillow
+Printing Item: Bottle
+Printing Item: Corporate Gift
+
+Kediya Type: 3-piece
+Kediya Type: 4-piece
+Kediya Type: 5-piece
+Kediya Type: Kachhi
+Kediya Type: Bharwadiya
+Kediya Type: Ramleela
+Kediya Type: Group
+
+Chaniya Choli Type: Long
+Chaniya Choli Type: Short
+Chaniya Choli Type: Full Gher
+Chaniya Choli Type: Kachhi
+Chaniya Choli Type: Group
+
+Fancy Dress Category: Bhagwan
+Fancy Dress Category: Mataji
+Fancy Dress Category: Profession
+Fancy Dress Category: Freedom Fighter
+Fancy Dress Category: Animals
+Fancy Dress Category: Birds
+Fancy Dress Category: Cartoon
+Fancy Dress Category: Superhero
+Fancy Dress Category: Halloween
+Fancy Dress Category: Mahabharat
+Fancy Dress Category: Ramayan
+Fancy Dress Category: Bollywood
+Fancy Dress Category: Historical Character
+
+Kediya Price: ₹500 to ₹3500 per day depending on design
+Chaniya Choli Price: ₹500 to ₹3500 per day depending on design
+Fancy Dress Price: starting from ₹200 per day depending on costume
+
+Policy: Wedding rentals are not available

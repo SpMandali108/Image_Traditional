@@ -44,6 +44,7 @@ bags = db["bags"]
 products = db["Storage"]
 fcustomers = db["Fancy_Customers"]
 finventory = db["Fancy_Inventory"]
+cache_collection = db["chat_cache"]
 
 ADMIN_ID = os.environ.get("ADMIN_ID")
 ADMIN_PASS = os.environ.get("ADMIN_PASS")

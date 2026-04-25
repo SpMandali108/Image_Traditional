@@ -1,95 +1,153 @@
-{% extends "general/base.html" %}
-
-{% block title %}Home | Image Traditional{% endblock %}
-
-{% block description %}
-Image Traditional offers vibrant Kediya, Chaniya Choli, and Fancy Dress rentals for Navratri and cultural events. Celebrate tradition with us!
-{% endblock %}
-
-{% block content %}
+{% extends "general/base.html" %} {% block title %}Home | Image Traditional{%
+endblock %} {% block description %} Image Traditional offers vibrant Kediya,
+Chaniya Choli, and Fancy Dress rentals for Navratri and cultural events.
+Celebrate tradition with us! {% endblock %} {% block content %}
 
 <!-- External CSS -->
-<link rel="stylesheet" href="{{ url_for('static', filename='CSS/home.css') }}">
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='CSS/home.css') }}"
+/>
+
+<script src="{{ url_for('static', filename='JS/home.js') }}"></script>
 
 <div class="hero-section">
+  {% if session.get('user_id') %}
+  <div class="top-nav-buttons">
+    <a href="{{ url_for('general.fancy_admin') }}" class="nav-btn"
+      >🎭 Admin Panel</a
+    >
+    <a href="{{ url_for('auth.logout') }}" class="nav-btn">🚪 Logout</a>
+  </div>
+  {% endif %}
 
-    {% if session.get('user_id') %}
-    <div class="top-nav-buttons">
-        <a href="{{ url_for('general.fancy_admin') }}" class="nav-btn">🎭 Admin Panel</a>
-        <a href="{{ url_for('auth.logout') }}" class="nav-btn">🚪 Logout</a>
+  <div class="hero-content">
+    <img
+      src="{{ url_for('static', filename='Home_Img/favicon.png') }}"
+      alt="Image Traditional Logo"
+      class="hero-logo"
+      width="100"
+      height="100"
+      loading="eager"
+    />
+
+    <h1 class="hero-title">Celebrate Navratri with Image Traditional</h1>
+
+    <p class="hero-description">
+      Discover the elegance of tradition with our exclusive rental collection of
+      <strong>Kediya</strong>, <strong>Chaniya Choli</strong>, and
+      <strong>Fancy Dresses</strong>.
+    </p>
+
+    <!-- Category Cards -->
+    <div class="category-grid">
+      <!-- Fancy Dresses -->
+      <a href="{{ url_for('general.catalogue') }}" class="category-card">
+        <img
+          src="{{ url_for('static', filename='Home_Img/costume.webp') }}"
+          alt="Fancy Dress"
+          class="category-image"
+          width="300"
+          height="220"
+          loading="eager"
+        />
+        <h3 class="category-title">Fancy Dresses</h3>
+        <p class="category-description">Perfect for school events and plays.</p>
+        <span class="category-btn">View Catalogue</span>
+      </a>
+
+      <!-- Kediya -->
+      <a href="{{ url_for('general.kediya') }}" class="category-card">
+        <img
+          src="{{ url_for('static', filename='Home_Img/kediya.webp') }}"
+          alt="Kediya"
+          class="category-image"
+          width="300"
+          height="220"
+          loading="lazy"
+        />
+        <h3 class="category-title">Kediya</h3>
+        <p class="category-description">Perfect for Navratri events.</p>
+        <span class="category-btn">View Catalogue</span>
+      </a>
+
+      <!-- Chaniya Choli -->
+      <a href="{{ url_for('general.choli') }}" class="category-card">
+        <img
+          src="{{ url_for('static', filename='Home_Img/choli.webp') }}"
+          alt="Chaniya Choli"
+          class="category-image"
+          width="300"
+          height="220"
+          loading="lazy"
+        />
+        <h3 class="category-title">Chaniya Choli</h3>
+        <p class="category-description">Elegant traditional outfits.</p>
+        <span class="category-btn">View Catalogue</span>
+      </a>
     </div>
-    {% endif %}
 
-    <div class="hero-content">
-
-        <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}"
-             alt="Image Traditional Logo"
-             class="hero-logo"
-             width="100"
-             height="100"
-             loading="eager">
-
-        <h1 class="hero-title">Celebrate Navratri with Image Traditional</h1>
-
-        <p class="hero-description">
-            Discover the elegance of tradition with our exclusive rental collection of 
-            <strong>Kediya</strong>, <strong>Chaniya Choli</strong>, and <strong>Fancy Dresses</strong>.
-        </p>
-
-        <!-- Category Cards -->
-        <div class="category-grid">
-
-            <!-- Fancy Dresses -->
-            <a href="{{ url_for('general.catalogue') }}" class="category-card">
-                <img src="{{ url_for('static', filename='Home_Img/costume.webp') }}"
-                     alt="Fancy Dress"
-                     class="category-image"
-                     width="300"
-                     height="220"
-                     loading="eager">
-                <h3 class="category-title">Fancy Dresses</h3>
-                <p class="category-description">Perfect for school events and plays.</p>
-                <span class="category-btn">View Catalogue</span>
-            </a>
-
-            <!-- Kediya -->
-            <a href="{{ url_for('general.kediya') }}" class="category-card">
-                <img src="{{ url_for('static', filename='Home_Img/kediya.webp') }}"
-                     alt="Kediya"
-                     class="category-image"
-                     width="300"
-                     height="220"
-                     loading="lazy">
-                <h3 class="category-title">Kediya</h3>
-                <p class="category-description">Perfect for Navratri events.</p>
-                <span class="category-btn">View Catalogue</span>
-            </a>
-
-            <!-- Chaniya Choli -->
-            <a href="{{ url_for('general.choli') }}" class="category-card">
-                <img src="{{ url_for('static', filename='Home_Img/choli.webp') }}"
-                     alt="Chaniya Choli"
-                     class="category-image"
-                     width="300"
-                     height="220"
-                     loading="lazy">
-                <h3 class="category-title">Chaniya Choli</h3>
-                <p class="category-description">Elegant traditional outfits.</p>
-                <span class="category-btn">View Catalogue</span>
-            </a>
-
-        </div>
-
-        <!-- Instagram -->
-        <div class="instagram-section">
-            <a href="https://www.instagram.com/image_traditional"
-               target="_blank"
-               class="instagram-btn">
-                📸 Visit Us on Instagram
-            </a>
-        </div>
-
+    <!-- Instagram -->
+    <div class="instagram-section">
+      <a
+        href="https://www.instagram.com/image_traditional"
+        target="_blank"
+        class="instagram-btn"
+      >
+        📸 Visit Us on Instagram
+      </a>
     </div>
+  </div>
+
+  <!-- Chat FAB -->
+<button id="chat-fab" onclick="toggleChat()" aria-label="Open chat">
+  <svg class="icon-chat" width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+      stroke="#0a1929" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <svg class="icon-close" width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path d="M18 6L6 18M6 6l12 12" stroke="#0a1929" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>
+  <div id="chat-badge">1</div>
+</button>
+
+<button id="chat-fab" onclick="toggleChat()">
+  <svg class="icon-chat" width="24" height="24" viewBox="0 0 24 24">
+    <path fill="#0a1929"
+      d="M21 6h-18v12h4v4l4-4h10z"/>
+  </svg>
+
+  <svg class="icon-close" width="20" height="20" viewBox="0 0 24 24">
+    <path fill="#0a1929"
+      d="M18 6L6 18M6 6l12 12" stroke="#0a1929" stroke-width="2"/>
+  </svg>
+
+  <div id="chat-badge">1</div>
+</button>
+
+<!-- Chat Box -->
+<div id="chat-box">
+  <div id="chat-header">
+    <div class="chat-avatar">✨</div>
+    <div class="chat-header-info">
+      <strong>Image Traditional</strong>
+      <span>AI Assistant</span>
+    </div>
+    <div class="online-dot"></div>
+  </div>
+  <div id="chat-messages">
+    <div class="msg bot">Kem cho! 👋 Looking for Kediya, Chaniya Choli, or Fancy Dress? I'm here to help!</div>
+  </div>
+  <div id="chat-input-row">
+    <input id="user-input" placeholder="Ask something..." onkeydown="if(event.key==='Enter') sendMessage()" />
+    <button id="send-btn" onclick="sendMessage()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13"
+          stroke="#0a1929" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+</div>
 </div>
 
 {% endblock %}
