@@ -6,7 +6,7 @@ import os
 from .fancy.froutes import fancy
 from .navaratri.nroutes import navaratri
 from .general.groutes import general
-from website.chatbot.chat import chatbot
+
 
 load_dotenv()
 
@@ -22,7 +22,7 @@ def create_app():
     app.register_blueprint(fancy,url_prefix='/')
     app.register_blueprint(navaratri,url_prefix='/')
     app.register_blueprint(general,url_prefix='/')
-    app.register_blueprint(chatbot,url_prefix = '/')
+
 
    
     return app
