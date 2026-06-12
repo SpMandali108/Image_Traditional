@@ -7,6 +7,11 @@ from bson.objectid import ObjectId
 import re
 from flask import current_app, render_template, abort
 from werkzeug.utils import secure_filename
+from website.fancy.fcycle import (
+    get_all_cycles,
+    get_selected_cycle,
+    get_active_cycle
+)
 
 general = Blueprint('general',__name__)
 
@@ -32,11 +37,26 @@ def robots():
     return "Sitemap: https://image-traditional.onrender.com/sitemap.xml", 200, {'Content-Type': 'text/plain'}
 
 
+
+
 @general.route('/fancy_admin')
 def fancy_admin():
+
     if not session.get('logged_in'):
         return redirect(url_for('auth.login'))
-    return render_template("fancy/fancy_admin.html")
+
+    cycles = get_all_cycles()
+
+    selected_cycle = get_selected_cycle()
+
+    active_cycle = get_active_cycle()
+
+    return render_template(
+        "fancy/fancy_admin.html",
+        cycles=cycles,
+        selected_cycle=selected_cycle,
+        active_cycle=active_cycle
+    )
 
 @general.route('/navaratri_admin')
 def navaratri_admin():

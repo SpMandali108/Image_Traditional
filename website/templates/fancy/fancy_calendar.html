@@ -14,491 +14,654 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
 <style>
+/* ── Design Tokens ───────────────────────────────────────────── */
 :root {
-    --navy-dark: #0a1628;
-    --navy-medium: #1a2942;
-    --navy-light: #2a3f5f;
-    --gold: #d4af37;
-    --gold-light: #f4d03f;
-    --gold-dark: #b8941e;
-    --white: #ffffff;
-    --gray-light: #e0e0e0;
-    --gray-medium: #a0a0a0;
-    --success: #2ecc71;
-    --danger: #e74c3c;
-    --warning: #f39c12;
+    --dark-blue:       #0a1628;
+    --medium-blue:     #1a2942;
+    --light-blue:      #2a3f5f;
+    --gold:            #d4af37;
+    --light-gold:      #f4d35e;
+    --gold-dark:       #b8941e;
+    --text-light:      #e8eaf6;
+    --text-muted:      rgba(232, 234, 246, 0.55);
+    --border-subtle:   rgba(212, 175, 55, 0.18);
+    --border-strong:   rgba(212, 175, 55, 0.38);
+    --success:         #2ecc71;
+    --danger:          #e74c3c;
+    --shadow-card:     0 4px 24px rgba(0, 0, 0, 0.38);
+    --radius-card:     10px;
+    --radius-sm:       5px;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-medium) 100%);
-    color: var(--white);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(145deg, var(--dark-blue) 0%, var(--medium-blue) 100%);
+    color: var(--text-light);
+    font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
     min-height: 100vh;
 }
 
-.calendar-content-wrapper {
-    padding: 2rem;
-    max-width: 1800px;
+.cal-wrapper {
+    max-width: 1760px;
     margin: 0 auto;
+    padding: 2.75rem 2rem 5rem;
 }
 
 .page-header {
-    text-align: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 2px solid var(--gold);
+    background: var(--medium-blue);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    margin-bottom: 2.25rem;
+}
+
+.page-header-accent {
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--light-gold) 60%, transparent 100%);
+}
+
+.page-header-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.75rem 2.5rem;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.page-header-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.page-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
 }
 
 .page-title {
-    font-size: 2.5rem;
-    color: var(--gold);
+    font-size: 1.9rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    color: var(--text-light);
+    letter-spacing: -0.01em;
+    line-height: 1.15;
 }
 
 .page-subtitle {
-    font-size: 1.1rem;
-    color: var(--gray-light);
-    font-weight: 300;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
 }
 
-.calendar-layout {
+.cal-layout {
     display: grid;
-    grid-template-columns: 1fr 350px;
+    grid-template-columns: 1fr 340px;
     gap: 1.5rem;
-    margin-bottom: 2rem;
+    align-items: start;
 }
 
-.calendar-main {
+.cal-main {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
 .card {
-    background: var(--navy-light);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(212, 175, 55, 0.2);
+    background: var(--medium-blue);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
 }
 
 .card-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+    justify-content: space-between;
+    padding: 1.1rem 1.75rem;
+    background: rgba(10, 22, 40, 0.4);
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .card-title {
-    font-size: 1.5rem;
-    color: var(--gold);
-    font-weight: 600;
-}
-
-.section-title {
-    font-size: 1.2rem;
-    color: var(--gold);
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.select-all-label {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    color: var(--gray-light);
-    font-size: 0.9rem;
-    cursor: pointer;
-    user-select: none;
+    gap: 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
 }
 
-.select-all-checkbox {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: var(--gold);
+.card-title-bar {
+    width: 3px;
+    height: 14px;
+    background: var(--gold);
+    border-radius: 2px;
+    flex-shrink: 0;
 }
 
-.select-all-label:hover {
-    color: var(--gold-light);
+.card-body {
+    padding: 1.5rem 1.75rem;
 }
 
-.batch-actions {
-    display: flex;
-    gap: 0.75rem;
+.cal-container {
+    padding: 1.25rem 1.5rem 1.5rem;
 }
 
-.btn-modern {
-    padding: 0.6rem 1.2rem;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
+.fc { color: var(--text-light); }
+
+.fc .fc-button-primary {
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    color: var(--gold);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.45rem 0.9rem;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s, border-color 0.2s;
 }
 
-.btn-small {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
+.fc .fc-button-primary:hover,
+.fc .fc-button-primary:focus {
+    background: rgba(212, 175, 55, 0.12);
+    border-color: var(--gold);
+    color: var(--light-gold);
+    box-shadow: none;
 }
 
-.btn-success {
-    background: var(--success);
-    color: var(--white);
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: var(--gold);
+    color: var(--light-gold);
+    box-shadow: none;
 }
 
-.btn-success:hover:not(:disabled) {
-    background: #27ae60;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(46, 204, 113, 0.3);
-}
-
-.btn-danger {
-    background: var(--danger);
-    color: var(--white);
-}
-
-.btn-danger:hover:not(:disabled) {
-    background: #c0392b;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
-}
-
-.btn-modern:disabled {
-    opacity: 0.5;
+.fc .fc-button-primary:disabled {
+    opacity: 0.4;
     cursor: not-allowed;
 }
 
-.booking-card {
-    background: var(--navy-medium);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-left: 3px solid var(--gold);
-    transition: all 0.3s ease;
+.fc .fc-toolbar-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-light);
 }
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+    border-color: rgba(212, 175, 55, 0.12);
+}
+
+.fc .fc-daygrid-day-number {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.4rem 0.5rem;
+}
+
+.fc .fc-col-header-cell-cushion {
+    color: var(--gold);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.6rem 0.5rem;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+    background: rgba(212, 175, 55, 0.08);
+}
+
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+    color: var(--gold);
+}
+
+.fc .fc-bg-event {
+    background: var(--gold);
+    opacity: 0.18;
+}
+
+.booking-card {
+    background: rgba(10, 22, 40, 0.45);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--gold);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.1rem;
+    margin-bottom: 0.85rem;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.booking-card:last-child { margin-bottom: 0; }
 
 .booking-card:hover {
-    transform: translateX(5px);
-    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+    border-left-color: var(--light-gold);
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.15);
+    transform: translateX(3px);
 }
 
-.booking-card:last-child {
-    margin-bottom: 0;
+.booking-card.overdue-card {
+    border-left-color: var(--danger);
+}
+
+.booking-card.overdue-card:hover {
+    border-left-color: #ff6b5b;
+    box-shadow: 0 4px 16px rgba(231, 76, 60, 0.18);
 }
 
 .booking-header {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
+    gap: 0.65rem;
+    margin-bottom: 0.6rem;
 }
 
-.booking-checkbox-day,
-.booking-checkbox-upcoming,
-.booking-checkbox-overdue {
-    width: 18px;
-    height: 18px;
+.booking-checkbox {
+    width: 16px;
+    height: 16px;
     cursor: pointer;
     accent-color: var(--gold);
+    flex-shrink: 0;
 }
 
 .booking-name {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--gold-light);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--light-gold);
+    letter-spacing: 0.01em;
+    flex: 1;
+}
+
+.overdue-badge {
+    display: inline-block;
+    padding: 0.18rem 0.6rem;
+    background: rgba(231, 76, 60, 0.2);
+    border: 1px solid rgba(231, 76, 60, 0.5);
+    border-radius: 20px;
+    color: #ff6b5b;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
 }
 
 .booking-info {
-    color: var(--gray-light);
-    font-size: 0.9rem;
-    line-height: 1.6;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.65;
     margin-bottom: 0.75rem;
-    padding-left: 1.75rem;
+    padding-left: 1.55rem;
+}
+
+.booking-info strong {
+    color: var(--text-light);
+    font-weight: 600;
 }
 
 .booking-actions {
     display: flex;
     gap: 0.5rem;
-    padding-left: 1.75rem;
+    padding-left: 1.55rem;
+    flex-wrap: wrap;
 }
 
-.sidebar-section {
-    margin-bottom: 1.5rem;
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.42rem 0.85rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, box-shadow 0.18s, transform 0.12s;
+    white-space: nowrap;
 }
 
-.sidebar-section:last-child {
-    margin-bottom: 0;
+.btn:active { transform: translateY(1px); }
+
+.btn-taken {
+    background: rgba(46, 204, 113, 0.12);
+    border-color: rgba(46, 204, 113, 0.35);
+    color: #2ecc71;
 }
 
-.overdue-card {
-    border-left-color: var(--danger);
+.btn-taken:hover:not(:disabled) {
+    background: rgba(46, 204, 113, 0.22);
+    border-color: #2ecc71;
+    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.2);
 }
 
-.overdue-badge {
-    background: var(--danger);
-    color: var(--white);
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    display: inline-block;
-    margin-left: 0.5rem;
+.btn-returned {
+    background: rgba(231, 76, 60, 0.12);
+    border-color: rgba(231, 76, 60, 0.35);
+    color: #e74c3c;
 }
 
-.empty-state {
-    text-align: center;
-    padding: 2rem;
-    color: var(--gray-medium);
-    font-style: italic;
+.btn-returned:hover:not(:disabled) {
+    background: rgba(231, 76, 60, 0.22);
+    border-color: #e74c3c;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
 }
+
+.btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-batch-taken {
+    background: rgba(46, 204, 113, 0.1);
+    border-color: rgba(46, 204, 113, 0.3);
+    color: #2ecc71;
+    font-size: 0.7rem;
+}
+
+.btn-batch-taken:hover {
+    background: rgba(46, 204, 113, 0.2);
+    border-color: #2ecc71;
+}
+
+.btn-batch-returned {
+    background: rgba(231, 76, 60, 0.1);
+    border-color: rgba(231, 76, 60, 0.3);
+    color: #e74c3c;
+    font-size: 0.7rem;
+}
+
+.btn-batch-returned:hover {
+    background: rgba(231, 76, 60, 0.2);
+    border-color: #e74c3c;
+}
+
+.batch-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.cal-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.select-all-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.select-all-row input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--gold);
+    cursor: pointer;
+}
+
+.select-all-row span {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    transition: color 0.15s;
+}
+
+.select-all-row:hover span { color: var(--gold); }
 
 .scrollable-list {
-    max-height: 500px;
+    max-height: 480px;
     overflow-y: auto;
-    padding-right: 0.5rem;
+    padding-right: 0.4rem;
 }
 
-.scrollable-list::-webkit-scrollbar {
-    width: 8px;
-}
-
-.scrollable-list::-webkit-scrollbar-track {
-    background: var(--navy-medium);
-    border-radius: 4px;
-}
-
+.scrollable-list::-webkit-scrollbar { width: 5px; }
+.scrollable-list::-webkit-scrollbar-track { background: transparent; }
 .scrollable-list::-webkit-scrollbar-thumb {
-    background: var(--gold);
-    border-radius: 4px;
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 3px;
+}
+.scrollable-list::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+.empty-state {
+    padding: 2.5rem 1rem;
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
 }
 
-.scrollable-list::-webkit-scrollbar-thumb:hover {
-    background: var(--gold-light);
-}
-
-#calendar {
-    background: var(--navy-medium);
-    border-radius: 8px;
-    padding: 1rem;
-}
-
-.fc {
-    color: var(--white);
-}
-
-.fc .fc-button-primary {
-    background-color: var(--gold);
-    border-color: var(--gold-dark);
-    color: var(--navy-dark);
-}
-
-.fc .fc-button-primary:hover {
-    background-color: var(--gold-light);
-    border-color: var(--gold);
-}
-
-.fc .fc-button-primary:disabled {
-    background-color: var(--gold-dark);
-    border-color: var(--gold-dark);
-    opacity: 0.6;
-}
-
-.fc-theme-standard td,
-.fc-theme-standard th {
-    border-color: rgba(212, 175, 55, 0.2);
-}
-
-.fc .fc-daygrid-day-number {
-    color: var(--white);
-}
-
-.fc .fc-col-header-cell-cushion {
-    color: var(--gold);
-}
-
-.fc .fc-daygrid-day.fc-day-today {
-    background-color: rgba(212, 175, 55, 0.1);
-}
-
-.fc .fc-bg-event {
-    background: var(--gold);
-    opacity: 0.3;
+.card-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 0 1.75rem;
 }
 
 @media (max-width: 1200px) {
-    .calendar-layout {
-        grid-template-columns: 1fr;
-    }
+    .cal-layout { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
-    .calendar-content-wrapper {
-        padding: 1rem;
-    }
+    .cal-wrapper { padding: 1.25rem 1rem 3rem; }
+    .page-header-body { padding: 1.25rem 1.5rem; }
+    .page-title { font-size: 1.45rem; }
+    .card-body { padding: 1.1rem 1.25rem; }
+    .booking-actions { flex-direction: column; }
+    .batch-bar { flex-direction: column; align-items: flex-start; }
+}
 
-    .page-title {
-        font-size: 1.8rem;
-    }
+@media (max-width: 480px) {
+    .cal-wrapper { padding: 0.75rem 0.75rem 3rem; }
+}
 
-    .batch-actions {
-        flex-direction: column;
-    }
-
-    .booking-actions {
-        flex-direction: column;
-    }
+@media (prefers-reduced-motion: reduce) {
+    .booking-card, .btn { transition: none; }
 }
 </style>
 
-<div class="calendar-content-wrapper">
+<div class="cal-wrapper">
+
+    <!-- ── Page Header ──────────────────────────────────────── -->
     <div class="page-header">
-        <h1 class="page-title">Luxury Booking Calendar</h1>
-        <p class="page-subtitle">Premium Costume Management System</p>
+        <div class="page-header-accent"></div>
+        <div class="page-header-body">
+            <div class="page-header-identity">
+                <span class="page-eyebrow">Image Traditional &mdash; Rental Management System</span>
+                <h1 class="page-title">Booking Calendar</h1>
+                <span class="page-subtitle">Schedule &amp; Return Status Overview</span>
+            </div>
+        </div>
     </div>
 
-    <div class="calendar-layout">
-        <!-- MAIN CALENDAR SECTION -->
-        <div class="calendar-main">
+    <div class="cal-layout">
+
+        <!-- ── Main Column ──────────────────────────────────── -->
+        <div class="cal-main">
+
+            <!-- Calendar -->
             <div class="card">
-                <div id="calendar"></div>
+                <div class="card-header">
+                    <span class="card-title">
+                        <span class="card-title-bar"></span>
+                        Monthly View
+                    </span>
+                </div>
+                <div class="cal-container">
+                    <div id="calendar"></div>
+                </div>
             </div>
 
+            <!-- Selected Date Bookings -->
             {% if selected_date %}
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">{{ selected_date }}</h2>
+                    <span class="card-title">
+                        <span class="card-title-bar"></span>
+                        Bookings — {{ selected_date }}
+                    </span>
                     {% if day_bookings %}
-                    <div class="batch-actions">
-                        <button type="button" class="btn-modern btn-success btn-small"
+                    <div class="batch-bar">
+                        <button type="button" class="btn btn-batch-taken"
                                 onclick="batchAction('taken','day')">Mark Selected Taken</button>
-                        <button type="button" class="btn-modern btn-danger btn-small"
+                        <button type="button" class="btn btn-batch-returned"
                                 onclick="batchAction('returned','day')">Mark Selected Returned</button>
                     </div>
                     {% endif %}
                 </div>
-
-                {% if day_bookings %}
-                    {% for b in day_bookings %}
-                    <div class="booking-card">
-                        <div class="booking-header">
-                            <input type="checkbox" class="booking-checkbox-day"
-                                   value="{{ b._id }}|{{ b.season }}">
-                            <span class="booking-name">{{ b.name }}</span>
+                <div class="card-body">
+                    {% if day_bookings %}
+                        {% for b in day_bookings %}
+                        <div class="booking-card">
+                            <div class="booking-header">
+                                <input type="checkbox" class="booking-checkbox booking-checkbox-day"
+                                       value="{{ b._id }}|{{ b.cycle_id }}">
+                                <span class="booking-name">{{ b.name }}</span>
+                            </div>
+                            <div class="booking-info">
+                                <strong>Costume:</strong> {{ b.costume }}<br>
+                                <strong>Period:</strong> {{ b.start_date }} — {{ b.end_date }}
+                            </div>
+                            <div class="booking-actions">
+                                <button type="button" class="btn btn-taken"
+                                    onclick="markStatus('{{ b._id }}','{{ b.cycle_id }}','taken',this)"
+                                    {% if b.taken %}disabled{% endif %}>Taken</button>
+                                <button type="button" class="btn btn-returned"
+                                    onclick="markStatus('{{ b._id }}','{{ b.cycle_id }}','returned',this)"
+                                    {% if b.returned %}disabled{% endif %}>Returned</button>
+                            </div>
                         </div>
-                        <div class="booking-info">
-                            Costume: {{ b.costume }}<br>
-                            Period: {{ b.start_date }} to {{ b.end_date }}
-                        </div>
-                        <div class="booking-actions">
-                            <button type="button" class="btn-modern btn-success btn-small"
-                                onclick="markStatus('{{ b._id }}','{{ b.season }}','taken',this)"
-                                {% if b.taken %}disabled{% endif %}>Mark Taken</button>
-                            <button type="button" class="btn-modern btn-danger btn-small"
-                                onclick="markStatus('{{ b._id }}','{{ b.season }}','returned',this)"
-                                {% if b.returned %}disabled{% endif %}>Mark Returned</button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-state">No bookings for this date</div>
-                {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">No bookings for this date</div>
+                    {% endif %}
+                </div>
             </div>
             {% endif %}
+
         </div>
 
-        <!-- SIDEBAR -->
-        <div class="calendar-sidebar">
-            <div class="card sidebar-section">
-                <h2 class="section-title">Upcoming Bookings</h2>
-                {% if upcoming %}
-                    {% for b in upcoming %}
-                    <div class="booking-card">
-                        <div class="booking-header">
-                            <input type="checkbox" class="booking-checkbox-upcoming"
-                                   value="{{ b._id }}|{{ b.season }}">
-                            <span class="booking-name">{{ b.name }}</span>
+        <!-- ── Sidebar ──────────────────────────────────────── -->
+        <div class="cal-sidebar">
+
+            <!-- Upcoming Bookings -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">
+                        <span class="card-title-bar"></span>
+                        Upcoming Bookings
+                    </span>
+                    {% if upcoming %}
+                    <span style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;color:var(--text-muted);text-transform:uppercase;">
+                        {{ upcoming|length }} scheduled
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if upcoming %}
+                        {% for b in upcoming %}
+                        <div class="booking-card">
+                            <div class="booking-header">
+                                <input type="checkbox" class="booking-checkbox booking-checkbox-upcoming"
+                                       value="{{ b._id }}|{{ b.cycle_id }}">
+                                <span class="booking-name">{{ b.name }}</span>
+                            </div>
+                            <div class="booking-info">
+                                <strong>Costume:</strong> {{ b.costume }}<br>
+                                <strong>Period:</strong> {{ b.start_date }} — {{ b.end_date }}
+                            </div>
+                            <div class="booking-actions">
+                                <button type="button" class="btn btn-taken"
+                                    onclick="markStatus('{{ b._id }}','{{ b.cycle_id }}','taken',this)"
+                                    {% if b.taken %}disabled{% endif %}>Taken</button>
+                                <button type="button" class="btn btn-returned"
+                                    onclick="markStatus('{{ b._id }}','{{ b.cycle_id }}','returned',this)"
+                                    {% if b.returned %}disabled{% endif %}>Returned</button>
+                            </div>
                         </div>
-                        <div class="booking-info">
-                            {{ b.costume }}<br>
-                            {{ b.start_date }} to {{ b.end_date }}
-                        </div>
-                        <div class="booking-actions">
-                            <button type="button" class="btn-modern btn-success btn-small"
-                                onclick="markStatus('{{ b._id }}','{{ b.season }}','taken',this)"
-                                {% if b.taken %}disabled{% endif %}>Mark Taken</button>
-                            <button type="button" class="btn-modern btn-danger btn-small"
-                                onclick="markStatus('{{ b._id }}','{{ b.season }}','returned',this)"
-                                {% if b.returned %}disabled{% endif %}>Mark Returned</button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-state">No upcoming bookings</div>
-                {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">No upcoming bookings</div>
+                    {% endif %}
+                </div>
             </div>
 
-            <div class="card sidebar-section">
-                <div class="section-header">
-                    <h2 class="section-title">Overdue Returns</h2>
+            <!-- Overdue Returns -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">
+                        <span class="card-title-bar"></span>
+                        Overdue Returns
+                    </span>
                     {% if not_returned %}
-                    <label class="select-all-label">
-                        <input type="checkbox" id="select-all-overdue" class="select-all-checkbox">
+                    <label class="select-all-row">
+                        <input type="checkbox" id="select-all-overdue">
                         <span>Select All</span>
                     </label>
                     {% endif %}
                 </div>
+
                 {% if not_returned %}
+                <div class="card-body" style="padding-bottom: 0;">
                     <div class="scrollable-list">
                         {% for b in not_returned %}
                         <div class="booking-card overdue-card">
                             <div class="booking-header">
-                                <input type="checkbox" class="booking-checkbox-overdue"
-                                       value="{{ b._id }}|{{ b.season }}">
+                                <input type="checkbox" class="booking-checkbox booking-checkbox-overdue"
+                                       value="{{ b._id }}|{{ b.cycle_id }}">
                                 <span class="booking-name">{{ b.name }}</span>
-                                <span class="overdue-badge">OVERDUE</span>
+                                <span class="overdue-badge">Overdue</span>
                             </div>
                             <div class="booking-info">
-                                {{ b.costume }}<br>
-                                {{ b.start_date }} to {{ b.end_date }}
+                                <strong>Costume:</strong> {{ b.costume }}<br>
+                                <strong>Period:</strong> {{ b.start_date }} — {{ b.end_date }}
                             </div>
                             <div class="booking-actions">
-                                <button type="button" class="btn-modern btn-danger btn-small"
-                                    onclick="markStatus('{{ b._id }}','{{ b.season }}','returned',this)">
+                                <button type="button" class="btn btn-returned"
+                                    onclick="markStatus('{{ b._id }}','{{ b.cycle_id }}','returned',this)">
                                     Mark Returned
                                 </button>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
-                    <div class="batch-actions" style="margin-top: 1rem;">
-                        <button type="button" class="btn-modern btn-danger btn-small"
-                                onclick="batchAction('returned','overdue')" style="width: 100%;">
-                            Mark All Selected Returned
-                        </button>
-                    </div>
+                </div>
+                <div class="card-divider"></div>
+                <div class="card-body" style="padding-top: 1rem;">
+                    <button type="button" class="btn btn-batch-returned"
+                            onclick="batchAction('returned','overdue')"
+                            style="width:100%; justify-content:center;">
+                        Mark Selected as Returned
+                    </button>
+                </div>
                 {% else %}
+                <div class="card-body">
                     <div class="empty-state">No overdue returns</div>
+                </div>
                 {% endif %}
             </div>
+
         </div>
     </div>
 </div>
@@ -506,109 +669,83 @@ body {
 <script>
 let pendingActions = [];
 
-function markStatus(id, season, field, btn) {
-    // For overdue items, when marking as returned, also mark as taken
+function markStatus(id, cycleId, field, btn) {
     if (field === 'returned') {
         const overdueCard = btn.closest('.overdue-card');
         if (overdueCard) {
-            pendingActions.push({ bookingId: id, season, field: 'taken', value: true });
+            pendingActions.push({ bookingId: id, cycleId, field: 'taken', value: true });
         }
     }
-    
-    pendingActions.push({ bookingId: id, season, field, value: true });
+    pendingActions.push({ bookingId: id, cycleId, field, value: true });
     btn.disabled = true;
-    btn.textContent = 'Pending...';
+    btn.textContent = 'Saving…';
     submit(true);
 }
 
 function batchAction(field, section) {
     const checkboxes = document.querySelectorAll(`.booking-checkbox-${section}:checked`);
-    
     if (checkboxes.length === 0) {
-        alert('Please select at least one booking');
+        alert('Select at least one booking first.');
         return;
     }
-    
     checkboxes.forEach(cb => {
-        const [id, season] = cb.value.split('|');
-        
-        // For overdue items, when marking as returned, also mark as taken
+        const [id, cycleId] = cb.value.split('|');
         if (field === 'returned' && section === 'overdue') {
-            pendingActions.push({ bookingId: id, season, field: 'taken', value: true });
+            pendingActions.push({ bookingId: id, cycleId, field: 'taken', value: true });
         }
-        
-        pendingActions.push({ bookingId: id, season, field, value: true });
+        pendingActions.push({ bookingId: id, cycleId, field, value: true });
         cb.checked = false;
     });
-    
     submit(true);
 }
 
 function submit(reload) {
     if (pendingActions.length === 0) return;
-    
     fetch(location.href, {
-        method: "POST",
+        method: 'POST',
         body: (() => {
             const f = new FormData();
-            f.append("actions", JSON.stringify(pendingActions));
+            f.append('actions', JSON.stringify(pendingActions));
             return f;
         })()
     })
     .then(r => r.json())
-    .then(() => {
-        if (reload) {
-            location.reload();
-        }
-    })
+    .then(() => { if (reload) location.reload(); })
     .catch(err => {
         console.error('Error:', err);
-        alert('An error occurred. Please try again.');
-        if (reload) {
-            location.reload();
-        }
+        if (reload) location.reload();
     });
-    
     pendingActions = [];
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const calendar = new FullCalendar.Calendar(document.getElementById("calendar"), {
-        initialView: "dayGridMonth",
+document.addEventListener('DOMContentLoaded', () => {
+    const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        initialView: 'dayGridMonth',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
             right: 'dayGridMonth,dayGridWeek'
         },
-        dateClick: info => {
-            location.href = "?date=" + info.dateStr;
-        },
+        dateClick: info => { location.href = '?date=' + info.dateStr; },
         events: {{ booked_dates|tojson }}.map(d => ({
             start: d,
-            display: "background"
+            display: 'background'
         }))
     });
-    
     calendar.render();
-    
-    // Select all functionality for overdue section
-    const selectAllOverdue = document.getElementById('select-all-overdue');
-    if (selectAllOverdue) {
-        selectAllOverdue.addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('.booking-checkbox-overdue');
-            checkboxes.forEach(cb => {
-                cb.checked = this.checked;
-            });
+
+    const selectAll = document.getElementById('select-all-overdue');
+    if (selectAll) {
+        const boxes = document.querySelectorAll('.booking-checkbox-overdue');
+        selectAll.addEventListener('change', function () {
+            boxes.forEach(cb => cb.checked = this.checked);
         });
-        
-        // Update select-all checkbox when individual checkboxes change
-        const overdueCheckboxes = document.querySelectorAll('.booking-checkbox-overdue');
-        overdueCheckboxes.forEach(cb => {
-            cb.addEventListener('change', function() {
-                const allChecked = Array.from(overdueCheckboxes).every(checkbox => checkbox.checked);
-                const anyChecked = Array.from(overdueCheckboxes).some(checkbox => checkbox.checked);
-                selectAllOverdue.checked = allChecked;
-                selectAllOverdue.indeterminate = anyChecked && !allChecked;
+        boxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                const allChecked = Array.from(boxes).every(b => b.checked);
+                const anyChecked = Array.from(boxes).some(b => b.checked);
+                selectAll.checked = allChecked;
+                selectAll.indeterminate = anyChecked && !allChecked;
             });
         });
     }

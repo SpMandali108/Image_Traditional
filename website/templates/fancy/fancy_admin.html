@@ -10,330 +10,501 @@
 
 {% block content %}
 <style>
-/* Fix logo hover - prevent red background */
-.logo:hover {
-    background:transparent !important;
-    opacity:0.9;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap');
 
-/* Root variables */
+.logo:hover { background: transparent !important; opacity: .9; }
+
 :root {
-    --navy: #0a1628;
-    --dark-blue: #0d1b2a;
-    --medium-blue: #1a2332;
-    --accent-blue: #1e3a5f;
-    --gold: #d4af37;
-    --light-gold: #f0d785;
-    --pale-gold: #fef9e7;
+    --navy:     #0a1628;
+    --surface:  #0f1e32;
+    --card:     #111f33;
+    --card-h:   #152540;
+    --gold:     #d4af37;
+    --gold-lt:  #e8c84a;
+    --gold-dk:  #a88c2c;
+    --gold-bg:  rgba(212,175,55,.08);
+    --gold-bd:  rgba(212,175,55,.22);
+    --gold-bd-h:rgba(212,175,55,.5);
+    --white:    #f0f4f8;
+    --text:     #b8c5d4;
+    --muted:    #5e7490;
+    --danger:   #e05252;
+    --danger-bg:rgba(224,82,82,.1);
+    --danger-bd:rgba(224,82,82,.3);
+    --green:    #3ecf8e;
+    --green-bg: rgba(62,207,142,.1);
+    --green-bd: rgba(62,207,142,.25);
+    --amber:    #f5a623;
+    --amber-bg: rgba(245,166,35,.1);
+    --amber-bd: rgba(245,166,35,.25);
+    --r4: 4px; --r8: 8px; --r12: 12px;
+    --t: .18s ease;
 }
 
-/* Main container */
-.formal-admin {
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.adm {
     min-height: calc(100vh - 80px);
-    background: linear-gradient(135deg, var(--navy) 0%, var(--dark-blue) 50%, #0f1c3f 100%);
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
+    background: var(--navy);
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
 }
 
-/* Header section */
-.admin-header {
+/* ── TOPBAR ── */
+.adm-nav {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 2px solid rgba(212, 175, 55, 0.5);
+    padding: 0 2rem;
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--gold-bd);
+    flex-wrap: wrap;
+    gap: .5rem;
 }
 
-.admin-title {
+.adm-brand {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: .6rem;
 }
 
-.admin-title h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--gold);
-    margin: 0;
-    letter-spacing: 0.5px;
-    text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+.adm-brand-icon {
+    width: 32px; height: 32px;
+    background: var(--gold-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r8);
+    display: grid; place-items: center;
+    font-size: 1rem;
 }
 
-.title-icon {
-    font-size: 2.5rem;
-    filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.5));
+.adm-brand h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: .2px;
 }
 
-/* Switch button */
+.adm-brand h1 span { color: var(--gold); }
+
 .switch-btn {
-    background: linear-gradient(135deg, var(--gold), #aa8a2e);
-    color: var(--navy);
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 0.95rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-}
-
-.switch-btn:hover {
-    background: linear-gradient(135deg, var(--light-gold), var(--gold));
-    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
-    transform: translateY(-2px);
-}
-
-/* Grid container */
-.admin-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-    gap: 1.5rem;
-    flex: 1;
-}
-
-/* Cards */
-.admin-card {
-    background: rgba(13, 27, 42, 0.9);
-    border: 2px solid rgba(212, 175, 55, 0.3);
-    border-radius: 15px;
-    padding: 2rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    backdrop-filter: blur(10px);
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-.admin-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, var(--gold), var(--light-gold), var(--gold));
-}
-
-.admin-card:hover {
-    border-color: var(--gold);
-    background: rgba(13, 27, 42, 1);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(212, 175, 55, 0.3);
-}
-
-/* Card header */
-.card-header {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 1rem;
+    gap: .4rem;
+    padding: .35rem .9rem;
+    background: transparent;
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r4);
+    color: var(--gold);
+    font-size: .78rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: var(--t);
+}
+.switch-btn:hover { background: var(--gold-bg); border-color: var(--gold-bd-h); color: var(--gold-lt); }
+
+/* ── BODY ── */
+.adm-body { padding: 1.75rem 2rem 3rem; }
+
+/* ── SECTION TITLE ── */
+.sec-title {
+    font-size: .65rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: .75rem;
+}
+
+/* ── CYCLE BLOCK ── */
+.cycle-block {
+    background: var(--card);
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r12);
+    overflow: hidden;
     margin-bottom: 1rem;
 }
 
-.card-icon {
-    font-size: 2.5rem;
-    filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.4));
-}
-
-.card-header h3 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--gold);
-    margin: 0;
-}
-
-/* Card content */
-.card-content p {
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 1rem;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-}
-
-/* Card footer */
-.card-footer {
+.cycle-top {
     display: flex;
-    justify-content: flex-end;
+    align-items: stretch;
+    border-bottom: 1px solid var(--gold-bd);
+    flex-wrap: wrap;
 }
 
-.card-btn {
+.cycle-info {
+    flex: 1;
+    padding: 1.1rem 1.4rem;
+    border-right: 1px solid var(--gold-bd);
+    min-width: 200px;
+}
+
+.cycle-info-row {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .28rem 0;
+    font-size: .82rem;
+}
+
+.ci-label {
+    color: var(--muted);
+    min-width: 90px;
+    font-size: .75rem;
+}
+
+.ci-value { color: var(--white); font-weight: 500; }
+
+.badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.65rem 1.5rem;
-    background: linear-gradient(135deg, var(--accent-blue), #2a4a6f);
-    color: var(--gold);
-    border: 1px solid rgba(212, 175, 55, 0.4);
-    border-radius: 6px;
+    gap: .25rem;
+    padding: .12rem .5rem;
+    border-radius: var(--r4);
+    font-size: .68rem;
     font-weight: 600;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+}
+.badge-active { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+.badge-edit   { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-bd); }
+.badge-locked { background: rgba(255,255,255,.05); color: var(--muted); border: 1px solid rgba(255,255,255,.1); }
+
+.cycle-select-wrap {
+    padding: 1.1rem 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+    flex: 1;
+    min-width: 260px;
+}
+
+.cycle-bottom {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .8rem 1.4rem;
+    flex-wrap: wrap;
+}
+
+/* ── NEW CYCLE ROW ── */
+.new-cycle-row {
+    background: var(--card);
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r12);
+    padding: .85rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.75rem;
+}
+
+.row-label {
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    padding-right: .25rem;
+    border-right: 1px solid var(--gold-bd);
+    margin-right: .1rem;
+}
+
+/* ── FORM ELEMENTS ── */
+.f-select, .f-input {
+    padding: .5rem .85rem;
+    background: rgba(10,22,40,.8);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: var(--r8);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: .8rem;
+    outline: none;
+    transition: var(--t);
+}
+.f-select { cursor: pointer; }
+.f-select:hover, .f-input:hover { border-color: rgba(255,255,255,.2); }
+.f-select:focus, .f-input:focus { border-color: var(--gold-bd-h); }
+.f-select option { background: #0d1b2a; }
+.f-input { flex: 1; min-width: 150px; }
+.f-input::placeholder { color: var(--muted); }
+
+/* ── BUTTONS ── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .5rem 1rem;
+    border-radius: var(--r8);
+    font-family: 'Inter', sans-serif;
+    font-size: .78rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
     text-decoration: none;
-    transition: all 0.3s ease;
-    font-size: 0.95rem;
+    transition: var(--t);
+    white-space: nowrap;
+    line-height: 1;
 }
-
-.card-btn:hover {
-    background: linear-gradient(135deg, #2a4a6f, var(--accent-blue));
+.btn-gold {
+    background: var(--gold);
+    color: var(--navy);
     border-color: var(--gold);
-    color: var(--light-gold);
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+.btn-gold:hover { background: var(--gold-lt); border-color: var(--gold-lt); }
+.btn-ghost {
+    background: transparent;
+    color: var(--gold);
+    border-color: var(--gold-bd);
+}
+.btn-ghost:hover { background: var(--gold-bg); border-color: var(--gold-bd-h); color: var(--gold-lt); }
+.btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border-color: var(--danger-bd);
+}
+.btn-danger:hover { background: var(--danger-bg); }
+
+/* ── MODULE GRID ── */
+.mod-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: .75rem;
 }
 
-/* Prevent card click when clicking button */
-.card-btn:hover {
-    z-index: 10;
+.mod-card {
+    background: var(--card);
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r12);
+    padding: 1.25rem 1.4rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: background var(--t), border-color var(--t), transform var(--t);
+    position: relative;
+}
+.mod-card:hover {
+    background: var(--card-h);
+    border-color: var(--gold-bd-h);
+    transform: translateY(-1px);
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-    .admin-grid {
-        grid-template-columns: 1fr;
-        gap: 1.25rem;
-    }
-    
-    .admin-card {
-        padding: 1.5rem;
-    }
-    
-    .admin-header {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
+.mod-icon {
+    width: 42px; height: 42px;
+    background: var(--gold-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r8);
+    display: grid;
+    place-items: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    transition: background var(--t), border-color var(--t);
+}
+.mod-card:hover .mod-icon {
+    background: rgba(212,175,55,.14);
+    border-color: var(--gold-bd-h);
 }
 
-@media (max-width: 640px) {
-    .formal-admin {
-        padding: 1rem;
-    }
-    
-    .admin-header {
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-    }
-    
-    .admin-title h1 {
-        font-size: 1.5rem;
-    }
-    
-    .title-icon {
-        font-size: 2rem;
-    }
-    
-    .admin-card {
-        padding: 1.25rem;
-    }
-    
-    .card-header h3 {
-        font-size: 1.25rem;
-    }
+.mod-text { flex: 1; min-width: 0; }
+
+.mod-text h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: .95rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: .2rem;
+    line-height: 1.2;
+}
+
+.mod-text p {
+    font-size: .73rem;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.mod-arrow {
+    color: var(--muted);
+    font-size: 1rem;
+    transition: color var(--t), transform var(--t);
+    flex-shrink: 0;
+}
+.mod-card:hover .mod-arrow {
+    color: var(--gold);
+    transform: translateX(2px);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+    .adm-nav { padding: 0 1rem; height: auto; padding-top: .5rem; padding-bottom: .5rem; }
+    .adm-body { padding: 1.25rem 1rem 2rem; }
+    .cycle-top { flex-direction: column; }
+    .cycle-info { border-right: none; border-bottom: 1px solid var(--gold-bd); }
+    .f-select { min-width: auto; flex: 1; }
+    .new-cycle-row { flex-direction: column; align-items: stretch; }
+    .row-label { border-right: none; border-bottom: 1px solid var(--gold-bd); padding-bottom: .5rem; }
+    .mod-grid { grid-template-columns: 1fr; }
 }
 </style>
 
-<div class="formal-admin">
+<div class="adm">
 
-    <!-- HEADER -->
-    <div class="admin-header">
-        <div class="admin-title">
-            <span class="title-icon">🎭</span>
-            <h1>Fancy Dress Administration</h1>
+    <!-- NAV -->
+    <nav class="adm-nav">
+        <div class="adm-brand">
+            <div class="adm-brand-icon">🎭</div>
+            <h1>Fancy Dress <span>Admin</span></h1>
+        </div>
+        <a href="/navaratri_admin" class="switch-btn">🪔 Switch to Navaratri</a>
+    </nav>
+
+    <div class="adm-body">
+
+        <!-- CYCLE MANAGEMENT -->
+        <p class="sec-title">Cycle Management</p>
+        <div class="cycle-block">
+
+            <!-- Info + Select -->
+            <div class="cycle-top">
+
+                <div class="cycle-info">
+                    <div class="cycle-info-row">
+                        <span class="ci-label">Selected</span>
+                        <span class="ci-value">{{ selected_cycle.name }}</span>
+                        {% if selected_cycle.status == "active" %}
+                            <span class="badge badge-active">● Active</span>
+                        {% elif selected_cycle.edit_override %}
+                            <span class="badge badge-edit">✎ Editing</span>
+                        {% else %}
+                            <span class="badge badge-locked">🔒 Locked</span>
+                        {% endif %}
+                    </div>
+                    <div class="cycle-info-row">
+                        <span class="ci-label">Active cycle</span>
+                        <span class="ci-value">
+                            {% if active_cycle %}{{ active_cycle.name }}{% else %}—{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="cycle-select-wrap">
+                    <form method="POST" action="/fancy_cycles/select" style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;flex:1;">
+                        <select name="cycle_id" class="f-select" style="flex:1;min-width:180px;">
+                            {% for cycle in cycles %}
+                            <option value="{{ cycle._id }}"
+                                {% if selected_cycle and selected_cycle._id == cycle._id %}selected{% endif %}>
+                                {{ cycle.name }}{% if cycle.status == "active" %} (Active){% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-gold">Select</button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- Actions -->
+            <div class="cycle-bottom">
+                {% if active_cycle %}
+                <form method="GET" action="/fancy_cycles/end">
+                    <button type="submit" class="btn btn-danger">End Active Cycle</button>
+                </form>
+                {% endif %}
+                {% if selected_cycle.status == "closed" and not selected_cycle.edit_override %}
+                <form method="POST"
+      action="/fancy_cycles/unlock/{{ selected_cycle._id }}"
+      style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+
+    <input type="text"
+           name="id"
+           placeholder="Admin ID"
+           class="f-input"
+           required
+           style="max-width:140px;">
+
+    <input type="password"
+           name="password"
+           placeholder="Password"
+           class="f-input"
+           required
+           style="max-width:180px;">
+
+    <button type="submit" class="btn btn-ghost">
+        🔓 Unlock Cycle
+    </button>
+
+</form>
+                {% endif %}
+                {% if selected_cycle.edit_override %}
+                <a href="/fancy_cycles/lock/{{ selected_cycle._id }}" class="btn btn-ghost">🔒 Lock Again</a>
+                {% endif %}
+            </div>
+
         </div>
 
-        <!-- SWITCH BUTTON -->
-        <a href="/navaratri_admin" class="switch-btn">
-            🪔 Switch to Navaratri
-        </a>
-    </div>
+        <!-- NEW CYCLE -->
+        <form method="POST" action="/fancy_cycles/start" class="new-cycle-row">
+            <span class="row-label">New cycle</span>
+            <input type="text" name="name" placeholder="Cycle name" class="f-input" required>
+            <input type="text" name="collection_name" placeholder="Collection name" class="f-input" required>
+            <button type="submit" class="btn btn-gold" style="flex-shrink:0;">Start</button>
+        </form>
 
-    <!-- NAVIGATION GRID -->
-    <div class="admin-grid">
+        <!-- MODULES -->
+        <p class="sec-title">Modules</p>
+        <div class="mod-grid">
 
-        <!-- Fancy Bookings -->
-        <div class="admin-card" onclick="window.location.href='/fancy'">
-            <div>
-                <div class="card-header">
-                    <span class="card-icon">🎭</span>
+            <a href="/fancy" class="mod-card">
+                <div class="mod-icon">🎭</div>
+                <div class="mod-text">
                     <h3>Fancy Bookings</h3>
+                    <p>Create bookings, assign costumes, track rentals</p>
                 </div>
-                <div class="card-content">
-                    <p>Create and manage fancy dress bookings. Add new customers, assign costumes, and track rental periods.</p>
-                </div>
-            </div>
-            <div class="card-footer">
-                <a href="/fancy" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
-            </div>
-        </div>
+                <span class="mod-arrow">→</span>
+            </a>
 
-        <!-- Bookings Listing -->
-        <div class="admin-card" onclick="window.location.href='/fancy_listing'">
-            <div>
-                <div class="card-header">
-                    <span class="card-icon">📋</span>
+            <a href="/fancy_listing" class="mod-card">
+                <div class="mod-icon">📋</div>
+                <div class="mod-text">
                     <h3>Bookings Listing</h3>
+                    <p>Browse all records with filtering and search</p>
                 </div>
-                <div class="card-content">
-                    <p>View comprehensive lists of all fancy dress bookings and customer information with advanced filtering options.</p>
-                </div>
-            </div>
-            <div class="card-footer">
-                <a href="/fancy_listing" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
-            </div>
-        </div>
+                <span class="mod-arrow">→</span>
+            </a>
 
-        <!-- Calendar View -->
-        <div class="admin-card" onclick="window.location.href='/fancy_calendar'">
-            <div>
-                <div class="card-header">
-                    <span class="card-icon">🗓️</span>
+            <a href="/fancy_calendar" class="mod-card">
+                <div class="mod-icon">🗓️</div>
+                <div class="mod-text">
                     <h3>Calendar View</h3>
+                    <p>Track bookings and availability on a calendar</p>
                 </div>
-                <div class="card-content">
-                    <p>Track bookings, returns, and availability through an intuitive calendar interface for better planning.</p>
-                </div>
-            </div>
-            <div class="card-footer">
-                <a href="/fancy_calendar" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
-            </div>
-        </div>
+                <span class="mod-arrow">→</span>
+            </a>
 
-        <!-- Inventory -->
-        <div class="admin-card" onclick="window.location.href='/fancy_inventory'">
-            <div>
-                <div class="card-header">
-                    <span class="card-icon">📦</span>
+            <a href="/fancy_inventory" class="mod-card">
+                <div class="mod-icon">📦</div>
+                <div class="mod-text">
                     <h3>Inventory</h3>
+                    <p>Manage stock — sizes, colours, categories</p>
                 </div>
-                <div class="card-content">
-                    <p>Manage your costume inventory with searchable lists. Track stock levels, colors, sizes, and categories efficiently.</p>
-                </div>
-            </div>
-            <div class="card-footer">
-                <a href="/fancy_inventory" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
-            </div>
-        </div>
+                <span class="mod-arrow">→</span>
+            </a>
 
-        <!-- Analytics Dashboard -->
-        <div class="admin-card" onclick="window.location.href='/fancy_dashboard'">
-            <div>
-                <div class="card-header">
-                    <span class="card-icon">📊</span>
+            <a href="/fancy_dashboard" class="mod-card">
+                <div class="mod-icon">📊</div>
+                <div class="mod-text">
                     <h3>Analytics Dashboard</h3>
+                    <p>Performance metrics and business insights</p>
                 </div>
-                <div class="card-content">
-                    <p>Access comprehensive analytics, performance metrics, and insights to optimize your business operations.</p>
-                </div>
-            </div>
-            <div class="card-footer">
-                <a href="/fancy_dashboard" class="card-btn" onclick="event.stopPropagation()">Open Module →</a>
-            </div>
+                <span class="mod-arrow">→</span>
+            </a>
+
         </div>
 
     </div>
-
 </div>
 {% endblock %}

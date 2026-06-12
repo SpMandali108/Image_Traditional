@@ -12,533 +12,422 @@
 {% block content %}
 
 <style>
-/* Fix logo hover */
-.logo:hover {
-    background:transparent !important;
-    opacity:0.9;
+:root {
+    --dark-blue:     #0a1929;
+    --medium-blue:   #1a2942;
+    --gold:          #d4af37;
+    --light-gold:    #f4d35e;
+    --text-light:    #e8eaf6;
+    --text-muted:    rgba(232, 234, 246, 0.52);
+    --border-subtle: rgba(212, 175, 55, 0.14);
+    --border-strong: rgba(212, 175, 55, 0.35);
+    --shadow-card:   0 4px 32px rgba(0,0,0,0.42);
+    --shadow-hover:  0 10px 44px rgba(212,175,55,0.15);
+    --radius:        14px;
+    --radius-sm:     7px;
+    --radius-pill:   100px;
 }
 
-/* Modern gradient background */
-.fancy-container {
-    background: linear-gradient(135deg, #0a1628 0%, #0d1b2a 50%, #1a2332 100%);
-    min-height: calc(100vh - 120px);
-    padding: 2rem;
+*, *::before, *::after { box-sizing: border-box; margin: 0; }
+
+.fb-page {
+    width: 100%;
+    padding: 2rem 1.5rem 8rem;
+    font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+    color: var(--text-light);
+}
+
+/* Hero */
+.fb-hero {
     position: relative;
+    background: var(--medium-blue);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    margin-bottom: 1.75rem;
 }
-
-.fancy-container::before {
+.fb-hero::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    pointer-events: none;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--light-gold) 65%, transparent);
 }
-
-.content-wrapper {
-    max-width: 1400px;
-    margin: 0 auto;
+.fb-hero-inner {
     position: relative;
-    z-index: 1;
-}
-
-/* Header section */
-.page-header {
-    background: rgba(13, 27, 42, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    border: 2px solid rgba(212, 175, 55, 0.3);
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    padding: 2.5rem 3rem;
+    gap: 2rem;
     flex-wrap: wrap;
-    gap: 1.5rem;
 }
-
-.header-content h1 {
-    font-size: 2.5rem;
+.fb-hero-text .eyebrow {
+    font-size: 0.65rem;
     font-weight: 800;
-    margin: 0;
-    color: #d4af37;
-    text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
-}
-
-.header-content p {
-    color: rgba(255, 255, 255, 0.7);
-    margin: 0.5rem 0 0 0;
-    font-size: 1rem;
-}
-
-/* Stats card */
-.stats-card {
-    background: linear-gradient(135deg, #d4af37 0%, #aa8a2e 100%);
-    padding: 1.5rem 2.5rem;
-    border-radius: 16px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
-    min-width: 140px;
-}
-
-.stats-card .label {
-    font-size: 0.875rem;
-    color: rgba(10, 22, 40, 0.8);
+    letter-spacing: 0.28em;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 0.55rem;
 }
-
-.stats-card .count {
-    font-size: 2.5rem;
+.fb-hero-text h1 {
+    font-size: 2.4rem;
     font-weight: 800;
-    color: #0a1628;
+    color: var(--text-light);
+    margin-bottom: 0.4rem;
 }
-
-/* Search section */
-.search-section {
-    background: rgba(13, 27, 42, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    border: 2px solid rgba(212, 175, 55, 0.3);
-}
-
-.search-wrapper {
-    position: relative;
-    max-width: 600px;
-}
-
-.search-input {
-    width: 100%;
-    padding: 1rem 1rem 1rem 3rem;
-    border: 2px solid rgba(212, 175, 55, 0.3);
-    border-radius: 12px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    background: rgba(10, 22, 40, 0.5);
-    color: #fff;
-}
-
-.search-input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: #d4af37;
-    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.2);
-    background: rgba(10, 22, 40, 0.7);
-}
-
-.search-icon {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 18px;
-    height: 18px;
-    color: #d4af37;
-}
-
-/* Booking cards */
-.fancy-card {
-    background: rgba(13, 27, 42, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 1.75rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    border: 2px solid rgba(212, 175, 55, 0.3);
-}
-
-.fancy-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 60px rgba(212, 175, 55, 0.3);
-    border-color: #d4af37;
-}
-
-.card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.customer-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.avatar {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #d4af37 0%, #aa8a2e 100%);
-    color: #0a1628;
-    font-weight: 800;
-    font-size: 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-}
-
-.customer-details h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #d4af37;
-}
-
-.customer-details p {
-    margin: 0.25rem 0 0 0;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.95rem;
-}
-
-.date-badge {
-    padding: 0.5rem 1rem;
-    border-radius: 12px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    background: linear-gradient(135deg, #1e3a5f 0%, #2a4a6f 100%);
-    color: #d4af37;
-    border: 1px solid rgba(212, 175, 55, 0.3);
-    white-space: nowrap;
-}
-
-.card-body {
-    display: grid;
-    gap: 1rem;
-    padding: 1.5rem;
-    background: rgba(10, 22, 40, 0.5);
-    border-radius: 12px;
-    margin-bottom: 1rem;
-    border: 1px solid rgba(212, 175, 55, 0.2);
-}
-
-.info-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-}
-
-.info-label {
-    font-weight: 700;
-    color: #d4af37;
-    min-width: 90px;
-}
-
-.info-value {
-    color: rgba(255, 255, 255, 0.85);
-    flex: 1;
-}
-
-.price-section {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 1.5rem;
-    background: linear-gradient(135deg, #d4af37 0%, #aa8a2e 100%);
-    border-radius: 12px;
-    color: #0a1628;
-}
-
-.price-label {
-    font-weight: 600;
-    font-size: 1rem;
-}
-
-.price-value {
-    font-size: 1.75rem;
-    font-weight: 800;
-}
-
-/* Empty state */
-.empty-state {
-    background: rgba(13, 27, 42, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 4rem 2rem;
-    text-align: center;
-    border: 3px dashed rgba(212, 175, 55, 0.3);
-}
-
-.empty-state h3 {
-    font-size: 1.5rem;
-    color: #d4af37;
-    margin-bottom: 0.5rem;
-}
-
-.empty-state p {
-    color: rgba(255, 255, 255, 0.6);
-}
-
-/* Desktop table */
-.desktop-table {
-    background: rgba(13, 27, 42, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    border: 2px solid rgba(212, 175, 55, 0.3);
-}
-
-.desktop-table table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.desktop-table thead {
-    background: linear-gradient(135deg, #1e3a5f 0%, #2a4a6f 100%);
-}
-
-.desktop-table th {
-    padding: 1.25rem;
-    text-align: left;
-    font-weight: 700;
-    color: #d4af37;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.desktop-table tbody tr {
-    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-.desktop-table tbody tr:hover {
-    background: rgba(212, 175, 55, 0.1);
-}
-
-.desktop-table td {
-    padding: 1.25rem;
-    color: rgba(255, 255, 255, 0.85);
-}
-
-.table-badge {
-    display: inline-block;
-    padding: 0.375rem 0.875rem;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: linear-gradient(135deg, #1e3a5f 0%, #2a4a6f 100%);
-    color: #d4af37;
-    border: 1px solid rgba(212, 175, 55, 0.3);
-}
-
-.table-price {
-    font-weight: 700;
-    color: #d4af37;
-    font-size: 1.125rem;
-}
-
-/* Floating Navigation Buttons */
-.float-nav {
-    position: fixed;
-    right: 2rem;
-    bottom: 2rem;
+.fb-hero-text h1 em { font-style: normal; color: var(--light-gold); }
+.fb-hero-text .sub { font-size: 0.92rem; color: var(--text-muted); }
+.fb-kpi {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    z-index: 1000;
+    align-items: center;
+    background: rgba(10,25,41,0.55);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    padding: 1.4rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
 }
+.fb-kpi::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--light-gold));
+}
+.fb-kpi-num { font-size: 3rem; font-weight: 800; color: var(--gold); line-height: 1; }
+.fb-kpi-label { margin-top: 0.4rem; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-muted); }
 
-.float-btn {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #d4af37 0%, #aa8a2e 100%);
-    color: #0a1628;
-    border: none;
-    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.4);
-    cursor: pointer;
+/* Search */
+.fb-search {
     display: flex;
     align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(0.8);
+    gap: 1rem;
+    background: var(--medium-blue);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    padding: 1.25rem 1.75rem;
+    margin-bottom: 1.75rem;
 }
+.fb-search-wrap { position: relative; flex: 1; max-width: 560px; }
+.fb-search-icon {
+    position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+    width: 17px; height: 17px; color: var(--gold); opacity: 0.75; pointer-events: none;
+}
+.fb-search-input {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.85rem;
+    background: rgba(10,25,41,0.65);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    color: var(--text-light);
+    font-size: 0.95rem;
+    font-family: inherit;
+}
+.fb-search-input::placeholder { color: var(--text-muted); }
+.fb-search-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.10); }
+.fb-search-hint { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; }
 
-.float-btn.show {
-    opacity: 1;
-    visibility: visible;
-    transform: scale(1);
+/* Empty */
+.fb-empty {
+    background: var(--medium-blue);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+    padding: 6rem 2rem;
+    text-align: center;
 }
+.fb-empty-icon { width: 52px; height: 52px; margin: 0 auto 1.25rem; color: var(--gold); opacity: 0.4; }
+.fb-empty-title { font-size: 0.85rem; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.4rem; }
+.fb-empty-sub { font-size: 0.88rem; color: var(--text-muted); }
 
-.float-btn:hover {
-    transform: scale(1.1) translateY(-2px);
-    box-shadow: 0 12px 32px rgba(212, 175, 55, 0.6);
-    background: linear-gradient(135deg, #f0d785 0%, #d4af37 100%);
+/* Mobile Cards */
+.m-card {
+    background: var(--medium-blue);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.18s;
 }
+.m-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-hover); transform: translateY(-3px); }
+.m-card-stripe { height: 3px; background: linear-gradient(90deg, var(--gold), var(--light-gold) 60%, transparent); }
+.m-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 1.5rem; gap: 1rem; flex-wrap: wrap;
+    background: rgba(10,25,41,0.3); border-bottom: 1px solid var(--border-subtle);
+}
+.m-avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: rgba(212,175,55,0.12); border: 1px solid var(--border-strong);
+    color: var(--gold); font-weight: 800; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.m-customer-name { font-size: 1.08rem; font-weight: 700; color: var(--light-gold); }
+.m-customer-mob { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.15rem; }
+.m-date-pill {
+    padding: 0.35rem 0.85rem; border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-pill); font-size: 0.75rem; font-weight: 600;
+    color: var(--text-muted); white-space: nowrap; background: rgba(10,25,41,0.3);
+}
+.m-card-body { padding: 1.2rem 1.5rem; display: flex; flex-direction: column; gap: 0.55rem; border-bottom: 1px solid var(--border-subtle); }
+.m-row { display: flex; align-items: baseline; gap: 0.75rem; }
+.m-label { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; min-width: 68px; }
+.m-val { font-size: 0.93rem; color: var(--text-light); flex: 1; line-height: 1.4; }
+.m-card-foot { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.5rem; background: rgba(10,25,41,0.22); }
+.m-price-label { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); }
+.m-price { font-size: 1.5rem; font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; }
 
-.float-btn:active {
-    transform: scale(0.95);
+/* Desktop Table */
+.table-wrapper {
+    background: var(--medium-blue);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
 }
+.table-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 2rem;
+    background: rgba(10,25,41,0.4);
+    border-bottom: 1px solid var(--border-subtle);
+}
+.table-header-label {
+    display: flex; align-items: center; gap: 0.75rem;
+    font-size: 0.68rem; font-weight: 800; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold);
+}
+.table-header-label i { width: 3px; height: 15px; background: var(--gold); border-radius: 2px; display: inline-block; }
+.table-records { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
 
-.float-btn svg {
-    width: 24px;
-    height: 24px;
-}
+/* The key fix: overflow-x on this div */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-/* Pulse animation for buttons */
-@keyframes pulse {
-    0%, 100% {
-        box-shadow: 0 8px 24px rgba(212, 175, 55, 0.4);
-    }
-    50% {
-        box-shadow: 0 8px 24px rgba(212, 175, 55, 0.6), 0 0 0 8px rgba(212, 175, 55, 0.2);
-    }
+.booking-table { width: 100%; border-collapse: collapse; min-width: 860px; }
+.booking-table th {
+    padding: 0.9rem 1.25rem;
+    font-size: 0.63rem; font-weight: 800; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--text-muted);
+    text-align: left; white-space: nowrap;
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(10,25,41,0.25);
 }
+.booking-table td {
+    padding: 1rem 1.25rem;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(212,175,55,0.07);
+}
+.booking-table tbody tr:hover td { background: rgba(212,175,55,0.04); }
 
-.float-btn.show {
-    animation: pulse 2s infinite;
+/* STICKY ACTIONS — always visible on right */
+.col-actions {
+    position: sticky;
+    right: 0;
+    z-index: 3;
+    white-space: nowrap;
+    width: 185px;
+    min-width: 185px;
 }
+th.col-actions {
+    background: #0c1c30 !important;
+    box-shadow: -3px 0 10px rgba(0,0,0,0.4);
+}
+td.col-actions {
+    background: #162236;
+    box-shadow: -3px 0 10px rgba(0,0,0,0.3);
+}
+.booking-table tbody tr:hover td.col-actions { background: #1c2d47; }
+
+.btn-edit {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0.4rem 1rem; background: #f4d35e; color: #0a1929;
+    border-radius: 6px; font-size: 0.82rem; font-weight: 700;
+    border: none; cursor: pointer; margin-right: 6px;
+    transition: opacity 0.15s;
+}
+.btn-edit:hover { opacity: 0.85; }
+.btn-delete {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0.4rem 1rem; background: #dc3545; color: #fff;
+    border-radius: 6px; font-size: 0.82rem; font-weight: 700;
+    border: none; cursor: pointer;
+    transition: opacity 0.15s;
+}
+.btn-delete:hover { opacity: 0.85; }
+
+/* Modal */
+.modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75); z-index: 9999;
+    overflow-y: auto; padding: 2rem 1rem;
+}
+.modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+.modal-box {
+    background: var(--medium-blue); border: 1px solid var(--border-strong);
+    border-radius: var(--radius); box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    width: 100%; max-width: 560px; overflow: hidden; position: relative; margin: auto;
+}
+.modal-stripe { height: 3px; background: linear-gradient(90deg, var(--gold), var(--light-gold) 60%, transparent); }
+.modal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.5rem 2rem; background: rgba(10,25,41,0.4);
+    border-bottom: 1px solid var(--border-subtle);
+}
+.modal-title {
+    font-size: 0.75rem; font-weight: 800; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold);
+    display: flex; align-items: center; gap: 0.65rem;
+}
+.modal-title-bar { width: 3px; height: 14px; background: var(--gold); border-radius: 2px; flex-shrink: 0; }
+.modal-close {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(212,175,55,0.08); border: 1px solid var(--border-subtle);
+    color: var(--text-muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; line-height: 1; transition: background 0.15s, color 0.15s;
+}
+.modal-close:hover { background: rgba(220,53,69,0.18); color: #ff6b7a; }
+.modal-body { padding: 1.75rem 2rem; display: flex; flex-direction: column; gap: 1rem; }
+.modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.modal-field { display: flex; flex-direction: column; gap: 0.4rem; }
+.modal-field.full { grid-column: 1 / -1; }
+.modal-label { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); }
+.modal-input {
+    width: 100%; padding: 0.75rem 1rem;
+    background: rgba(10,25,41,0.6); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm); color: var(--text-light);
+    font-size: 0.95rem; font-family: inherit;
+    transition: border-color 0.18s, box-shadow 0.18s;
+}
+.modal-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.10); }
+.modal-input::placeholder { color: var(--text-muted); }
+textarea.modal-input { resize: vertical; min-height: 80px; }
+.modal-foot {
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 0.75rem; padding: 1.25rem 2rem;
+    background: rgba(10,25,41,0.3); border-top: 1px solid var(--border-subtle);
+}
+.modal-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0.6rem 1.6rem; border-radius: var(--radius-sm);
+    font-size: 0.85rem; font-weight: 700; cursor: pointer; border: none;
+    transition: opacity 0.15s, transform 0.12s;
+}
+.modal-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.modal-btn-cancel { background: rgba(232,234,246,0.08); color: var(--text-muted); border: 1px solid var(--border-subtle); }
+.modal-btn-save { background: var(--light-gold); color: var(--dark-blue); }
+
+/* Float Nav */
+.float-nav { position: fixed; right: 2rem; bottom: 2rem; display: flex; flex-direction: column; gap: 0.65rem; z-index: 1000; }
+.float-btn {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: rgba(26,41,66,0.85); backdrop-filter: blur(8px);
+    border: 1px solid var(--border-strong); color: var(--gold);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+    opacity: 0; visibility: hidden; transform: scale(0.8);
+}
+.float-btn.show { opacity: 1; visibility: visible; transform: scale(1); }
+.float-btn:hover { background: rgba(212,175,55,0.15); border-color: var(--gold); box-shadow: 0 4px 18px rgba(212,175,55,0.28); transform: scale(1.1); }
+.float-btn svg { width: 18px; height: 18px; }
 
 /* Responsive */
 @media (max-width: 1023px) {
-    .desktop-view {
-        display: none !important;
-    }
-    
-    .fancy-container {
-        padding: 1rem;
-    }
-    
-    .page-header {
-        padding: 1.5rem;
-    }
-    
-    .header-content h1 {
-        font-size: 1.75rem;
-    }
-    
-    .stats-card {
-        padding: 1rem 1.5rem;
-    }
-    
-    .float-nav {
-        right: 1rem;
-        bottom: 1rem;
-    }
-    
-    .float-btn {
-        width: 48px;
-        height: 48px;
-    }
-    
-    .float-btn svg {
-        width: 20px;
-        height: 20px;
-    }
+    .desktop-view { display: none !important; }
+    .fb-page { padding: 1rem 1rem 6rem; }
+    .fb-hero-inner { padding: 1.75rem 1.5rem; }
+    .fb-hero-text h1 { font-size: 1.9rem; }
+    .float-nav { right: 1rem; bottom: 1rem; }
+    .modal-row { grid-template-columns: 1fr; }
 }
-
-@media (min-width: 1024px) {
-    .mobile-view {
-        display: none !important;
-    }
-}
+@media (min-width: 1024px) { .mobile-view { display: none !important; } }
 </style>
 
-<div class="fancy-container">
-    <div class="content-wrapper">
-        
-        <!-- Header -->
-        <div class="page-header">
-            <div class="header-content">
-                <h1>✨ Fancy Bookings</h1>
-                <p>Manage all fancy costume rentals with style</p>
-            </div>
-            <div class="stats-card">
-                <div class="label">Total Bookings</div>
-                <div class="count" id="totalCount">{{ fbookings|length }}</div>
-            </div>
-        </div>
+<div class="fb-page">
 
-        <!-- Search -->
-        <div class="search-section">
-            <div class="search-wrapper">
-                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-                <input type="text" id="searchInput" class="search-input" placeholder="Search by customer name, mobile, or costume...">
+    <!-- Hero -->
+    <div class="fb-hero">
+        <div class="fb-hero-inner">
+            <div class="fb-hero-text">
+                <div class="eyebrow">Image Traditional — Rental Management</div>
+                <h1>Fancy <em>Bookings</em></h1>
+                <p class="sub">Manage all fancy costume rentals</p>
+            </div>
+            <div class="fb-kpi">
+                <div class="fb-kpi-num">{{ fbookings|length }}</div>
+                <div class="fb-kpi-label">Total Bookings</div>
             </div>
         </div>
+    </div>
 
-        {% if not fbookings %}
-        <div class="empty-state">
-            <h3>No Fancy Bookings Yet</h3>
-            <p>Start adding costume bookings to see them here</p>
+    <!-- Search -->
+    <div class="fb-search">
+        <div class="fb-search-wrap">
+            <svg class="fb-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" id="searchInput" class="fb-search-input" placeholder="Search by name, mobile, or costume…">
         </div>
-        {% endif %}
+        <span class="fb-search-hint">{{ fbookings|length }} record{% if fbookings|length != 1 %}s{% endif %}</span>
+    </div>
 
-        <!-- Mobile Cards -->
-        <div class="mobile-view">
+    <!-- Empty State -->
+    {% if not fbookings %}
+    <div class="fb-empty">
+        <svg class="fb-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <div class="fb-empty-title">No Fancy Bookings Yet</div>
+        <div class="fb-empty-sub">Start adding costume bookings to see them here.</div>
+    </div>
+    {% endif %}
+
+    <!-- Mobile Cards -->
+    <div class="mobile-view">
         {% for fb in fbookings %}
-        <div class="fancy-card fancy-card-mobile"
+        <div class="m-card"
              data-name="{{ fb.name }}"
              data-mobile="{{ fb.mobile }}"
              data-costume="{{ fb.costume }}"
              onclick="window.location.href='{{ url_for('fancy.fancy_profile', mobile=fb.mobile) }}'">
-
-            <div class="card-header">
-                <div class="customer-info">
-                <div class="avatar">{{ (fb.get('name') or fb.get('Name') or '??')[:2].upper() }}</div>
-
-                    <div class="customer-details">
-                        <h3>{{ fb.name }}</h3>
-                        <p>📱 {{ fb.mobile }}</p>
+            <div class="m-card-stripe"></div>
+            <div class="m-card-head">
+                <div style="display:flex;align-items:center;gap:0.85rem;">
+                    <div class="m-avatar">{{ (fb.get('name') or fb.get('Name') or '??')[:2].upper() }}</div>
+                    <div>
+                        <div class="m-customer-name">{{ fb.name }}</div>
+                        <div class="m-customer-mob">{{ fb.mobile }}</div>
                     </div>
                 </div>
-                <span class="date-badge">
-                    {{ fb.start_date }} → {{ fb.end_date }}
-                </span>
+                <span class="m-date-pill">{{ fb.start_date }} — {{ fb.end_date }}</span>
             </div>
-
-            <div class="card-body">
-                <div class="info-row">
-                    <span class="info-label">👔 Costume:</span>
-                    <span class="info-value">{{ fb.costume }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">📍 Address:</span>
-                    <span class="info-value">{{ fb.address }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">📝 Details:</span>
-                    <span class="info-value">{{ fb.details }}</span>
-                </div>
+            <div class="m-card-body">
+                <div class="m-row"><span class="m-label">Costume</span><span class="m-val">{{ fb.costume }}</span></div>
+                <div class="m-row"><span class="m-label">Address</span><span class="m-val">{{ fb.address }}</span></div>
+                <div class="m-row"><span class="m-label">Details</span><span class="m-val">{{ fb.details }}</span></div>
             </div>
-
-            <div class="price-section">
-                <span class="price-label">Total Price</span>
-                <span class="price-value">₹{{ fb.price }}</span>
+            <div class="m-card-foot">
+                <span class="m-price-label">Total Price</span>
+                <span class="m-price">&#8377;{{ fb.price }}</span>
             </div>
-
         </div>
         {% endfor %}
-        </div>
+    </div>
 
-        <!-- Desktop Table -->
-        <div class="desktop-view">
-            <div class="desktop-table">
-                <table>
+    <!-- Desktop Table -->
+    <div class="desktop-view">
+        <div class="table-wrapper">
+            <div class="table-header">
+                <div class="table-header-label"><i></i> All Bookings</div>
+                {% if fbookings %}<span class="table-records">{{ fbookings|length }} records</span>{% endif %}
+            </div>
+            <div class="table-scroll">
+                <table class="booking-table">
                     <thead>
                         <tr>
                             <th>Customer</th>
@@ -547,133 +436,224 @@
                             <th>Duration</th>
                             <th>Price</th>
                             <th>Details</th>
+                            <th class="col-actions">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for fb in fbookings %}
-                        <tr class="booking-row"
-                            data-name="{{ fb.name }}"
-                            data-mobile="{{ fb.mobile }}"
-                            data-costume="{{ fb.costume }}"
-                            onclick="window.location.href='{{ url_for('fancy.fancy_profile', mobile=fb.mobile) }}'">
-                            
-                            <td><strong>{{ fb.name }}</strong></td>
-                            <td>{{ fb.mobile }}</td>
-                            <td>{{ fb.costume }}</td>
-                            <td>
-                                <span class="table-badge">
-                                    {{ fb.start_date }} → {{ fb.end_date }}
-                                </span>
-                            </td>
-                            <td><span class="table-price">₹{{ fb.price }}</span></td>
-                            <td>{{ fb.details }}</td>
-                        </tr>
-                        {% endfor %}
+                    {% for fb in fbookings %}
+                    <tr class="booking-row"
+                        data-search="{{ fb.name }} {{ fb.mobile }} {{ fb.address }} {{ fb.school }} {{ fb.costume }} {{ fb.details }} {{ fb.start_date }} {{ fb.end_date }}"
+                        onclick="window.location.href='{{ url_for('fancy.fancy_profile', mobile=fb.mobile) }}'"
+                        style="cursor:pointer;">
+
+                        <td>
+                            <div style="display:flex;align-items:center;gap:0.75rem;">
+                                <div style="width:36px;height:36px;border-radius:50%;background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.14);color:#d4af37;font-weight:800;font-size:0.72rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    {{ (fb.get('name') or '??')[:2].upper() }}
+                                </div>
+                                <span style="font-weight:700;color:#e8eaf6;">{{ fb.name }}</span>
+                            </div>
+                        </td>
+                        <td style="font-size:0.88rem;color:var(--text-muted);">{{ fb.mobile }}</td>
+                        <td>
+                            <span style="display:inline-flex;align-items:center;gap:0.4rem;color:#e8eaf6;">
+                                <span style="width:6px;height:6px;border-radius:50%;background:#d4af37;opacity:0.6;flex-shrink:0;display:inline-block;"></span>
+                                {{ fb.costume }}
+                            </span>
+                        </td>
+                        <td>
+                            <span style="display:inline-block;padding:0.3rem 0.85rem;border-radius:100px;background:rgba(10,25,41,0.55);border:1px solid rgba(212,175,55,0.14);font-size:0.78rem;font-weight:600;color:var(--text-muted);white-space:nowrap;">
+                                {{ fb.start_date }} — {{ fb.end_date }}
+                            </span>
+                        </td>
+                        <td><span style="font-weight:800;color:#d4af37;font-size:1.05rem;">&#8377;{{ fb.price }}</span></td>
+                        <td style="font-size:0.88rem;color:var(--text-muted);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ fb.details }}</td>
+
+                        <td class="col-actions">
+                            <button class="btn-edit"
+                                onclick="event.stopPropagation(); openEditModal('{{ fb._id }}','{{ fb.name|default('') }}','{{ fb.mobile|default('') }}','{{ fb.address|default('') }}','{{ fb.school|default('') }}','{{ fb.costume|default('') }}','{{ fb.details|default('') }}','{{ fb.price|default('') }}','{{ fb.start_date|default('') }}','{{ fb.end_date|default('') }}')">
+                                Edit
+                            </button>
+                            <button class="btn-delete"
+                                onclick="event.stopPropagation(); deleteBooking('{{ fb['_id'] }}')">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
+    </div>
 
+</div>
+
+<!-- Float Nav -->
+<div class="float-nav">
+    <button id="scrollToTop" class="float-btn" title="Scroll to Top">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+    </button>
+    <button id="scrollToBottom" class="float-btn" title="Scroll to Bottom">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V4"/></svg>
+    </button>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-stripe"></div>
+        <div class="modal-head">
+            <span class="modal-title"><span class="modal-title-bar"></span>Edit Booking</span>
+            <button class="modal-close" onclick="closeEditModal()">&#10005;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="editId">
+            <div class="modal-row">
+                <div class="modal-field">
+                    <label class="modal-label">Name</label>
+                    <input id="editName" class="modal-input" placeholder="Customer name">
+                </div>
+                <div class="modal-field">
+                    <label class="modal-label">Mobile</label>
+                    <input id="editMobile" class="modal-input" placeholder="Mobile number">
+                </div>
+            </div>
+            <div class="modal-row">
+                <div class="modal-field">
+                    <label class="modal-label">Address</label>
+                    <input id="editAddress" class="modal-input" placeholder="Address">
+                </div>
+                <div class="modal-field">
+                    <label class="modal-label">School</label>
+                    <input id="editSchool" class="modal-input" placeholder="School">
+                </div>
+            </div>
+            <div class="modal-row">
+                <div class="modal-field">
+                    <label class="modal-label">Costume</label>
+                    <input id="editCostume" class="modal-input" placeholder="Costume">
+                </div>
+                <div class="modal-field">
+                    <label class="modal-label">Price (&#8377;)</label>
+                    <input id="editPrice" class="modal-input" placeholder="Price">
+                </div>
+            </div>
+            <div class="modal-row">
+                <div class="modal-field">
+                    <label class="modal-label">Start Date</label>
+                    <input id="editStart" class="modal-input" placeholder="YYYY-MM-DD">
+                </div>
+                <div class="modal-field">
+                    <label class="modal-label">End Date</label>
+                    <input id="editEnd" class="modal-input" placeholder="YYYY-MM-DD">
+                </div>
+            </div>
+            <div class="modal-field full">
+                <label class="modal-label">Details</label>
+                <textarea id="editDetails" class="modal-input" placeholder="Additional details…"></textarea>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="modal-btn modal-btn-cancel" onclick="closeEditModal()">Cancel</button>
+            <button class="modal-btn modal-btn-save" onclick="saveBooking()">Save Changes</button>
+        </div>
     </div>
 </div>
 
-<!-- Floating Navigation Buttons -->
-<div class="float-nav">
-    <button id="scrollToTop" class="float-btn" title="Scroll to Top" aria-label="Scroll to Top">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-        </svg>
-    </button>
-    <button id="scrollToBottom" class="float-btn" title="Scroll to Bottom" aria-label="Scroll to Bottom">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V4"/>
-        </svg>
-    </button>
-</div>
-
 <script>
-// Responsive view switching
-function updateView() {
-    const isMobile = window.innerWidth < 1024;
-    document.querySelector('.desktop-view').style.display = isMobile ? 'none' : 'block';
-    document.querySelector('.mobile-view').style.display = isMobile ? 'block' : 'none';
-}
-
-updateView();
-window.addEventListener('resize', updateView);
-
-// Search functionality
-document.getElementById('searchInput').addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase();
-
-    // Filter mobile cards
-    document.querySelectorAll('.fancy-card-mobile').forEach(card => {
-        const matches = 
-            card.dataset.name.toLowerCase().includes(searchTerm) ||
-            card.dataset.mobile.toLowerCase().includes(searchTerm) ||
-            card.dataset.costume.toLowerCase().includes(searchTerm);
-        card.style.display = matches ? '' : 'none';
-    });
-
-    // Filter desktop table rows
+document.getElementById('searchInput').addEventListener('input', function () {
+    const q = this.value.toLowerCase();
     document.querySelectorAll('.booking-row').forEach(row => {
-        const matches = 
-            row.dataset.name.toLowerCase().includes(searchTerm) ||
-            row.dataset.mobile.toLowerCase().includes(searchTerm) ||
-            row.dataset.costume.toLowerCase().includes(searchTerm);
-        row.style.display = matches ? '' : 'none';
+        row.style.display = row.dataset.search.toLowerCase().includes(q) ? '' : 'none';
     });
 });
 
-// Floating Navigation Buttons
-const scrollToTopBtn = document.getElementById('scrollToTop');
-const scrollToBottomBtn = document.getElementById('scrollToBottom');
-
-// Show/hide buttons based on scroll position
+const topBtn = document.getElementById('scrollToTop');
+const botBtn = document.getElementById('scrollToBottom');
 function updateFloatButtons() {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollHeight = document.documentElement.scrollHeight;
-    const clientHeight = document.documentElement.clientHeight;
-    const scrollBottom = scrollHeight - scrollTop - clientHeight;
-
-    if (scrollTop > 300) {
-        scrollToTopBtn.classList.add('show');
-    } else {
-        scrollToTopBtn.classList.remove('show');
-    }
-
-    if (scrollBottom > 300) {
-        scrollToBottomBtn.classList.add('show');
-    } else {
-        scrollToBottomBtn.classList.remove('show');
-    }
+    const st = window.pageYOffset || document.documentElement.scrollTop;
+    const sb = document.documentElement.scrollHeight - st - document.documentElement.clientHeight;
+    topBtn.classList.toggle('show', st > 300);
+    botBtn.classList.toggle('show', sb > 300);
 }
-
-// Smooth scroll functions
-function scrollToTop() {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
-}
-
-function scrollToBottom() {
-    window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: 'smooth'
-    });
-}
-
-// Event listeners
-scrollToTopBtn.addEventListener('click', scrollToTop);
-scrollToBottomBtn.addEventListener('click', scrollToBottom);
-
-// Update button visibility on scroll
+topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+botBtn.addEventListener('click', () => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' }));
 window.addEventListener('scroll', updateFloatButtons);
-window.addEventListener('resize', updateFloatButtons);
-
-// Initial check
 updateFloatButtons();
+
+function deleteBooking(id) {
+    if (!confirm('Delete this booking?')) return;
+    fetch(`/delete_booking/${id}`, { method: 'POST' })
+        .then(r => r.json())
+        .then(data => { if (data.success) location.reload(); });
+}
+
+function openEditModal(id, name, mobile, address, school, costume, details, price, start_date, end_date) {
+    document.getElementById('editId').value      = id;
+    document.getElementById('editName').value    = name;
+    document.getElementById('editMobile').value  = mobile;
+    document.getElementById('editAddress').value = address;
+    document.getElementById('editSchool').value  = school;
+    document.getElementById('editCostume').value = costume;
+    document.getElementById('editDetails').value = details;
+    document.getElementById('editPrice').value   = price;
+    document.getElementById('editStart').value   = start_date;
+    document.getElementById('editEnd').value     = end_date;
+    document.getElementById('editModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+});
+
+function saveBooking() {
+
+    const data = {
+        id: document.getElementById('editId').value,
+        name: document.getElementById('editName').value,
+        mobile: document.getElementById('editMobile').value,
+        address: document.getElementById('editAddress').value,
+        school: document.getElementById('editSchool').value,
+        costume: document.getElementById('editCostume').value,
+        details: document.getElementById('editDetails').value,
+        price: document.getElementById('editPrice').value,
+        start_date: document.getElementById('editStart').value,
+        end_date: document.getElementById('editEnd').value
+    };
+
+    fetch('/update_booking', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+})
+.then(r => r.json())
+.then(res => {
+
+    console.log("SERVER RESPONSE:", res);
+
+    if(res.success){
+        location.reload();
+    } else {
+        alert("Save Failed: " + (res.message || "Unknown error"));
+    }
+
+})
+.catch(err => {
+    console.error(err);
+    alert('Network Error');
+});
+    
+}
+
 </script>
 
 {% endblock %}

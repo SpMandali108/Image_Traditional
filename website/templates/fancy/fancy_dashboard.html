@@ -1,5 +1,5 @@
 {% extends "general/base.html" %}
-{% block title %}Fancy Dashboard{% endblock %}
+{% block title %}Performance Dashboard{% endblock %}
 {% block logo_link %}
 <a href="/fancy_admin" class="logo">
     <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Image Traditional Logo">
@@ -9,312 +9,582 @@
 
 {% block content %}
 <style>
+/* ── Design Tokens ───────────────────────────────────────────── */
 :root {
-    --dark-blue: #0a1929;
-    --medium-blue: #1a2942;
-    --light-blue: #2d3f5f;
-    --gold: #d4af37;
-    --light-gold: #f4d35e;
-    --text-light: #e8eaf6;
+    --dark-blue:      #0a1929;
+    --medium-blue:    #1a2942;
+    --light-blue:     #2d3f5f;
+    --gold:           #d4af37;
+    --light-gold:     #f4d35e;
+    --text-light:     #e8eaf6;
+    --text-muted:     rgba(232, 234, 246, 0.55);
+    --border-subtle:  rgba(212, 175, 55, 0.18);
+    --border-strong:  rgba(212, 175, 55, 0.35);
+    --shadow-card:    0 4px 28px rgba(0, 0, 0, 0.4);
+    --shadow-hover:   0 8px 36px rgba(212, 175, 55, 0.12);
+    --radius-card:    10px;
+    --radius-sm:      5px;
 }
 
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Base ────────────────────────────────────────────────────── */
 .dashboard {
-    max-width: 1400px;
-    margin: auto;
-    padding: 2rem 1rem;
-}
-
-.dashboard-header {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding: 2rem;
-    background: linear-gradient(135deg, var(--medium-blue) 0%, var(--dark-blue) 100%);
-    border-radius: 20px;
-    border: 2px solid var(--gold);
-    box-shadow: 0 15px 40px rgba(212, 175, 55, 0.2);
-}
-
-.dashboard-header h1 {
-    margin: 0;
-    font-size: 2.5rem;
-    background: linear-gradient(135deg, var(--gold) 0%, var(--light-gold) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-
-.dashboard-header p {
-    margin: 0.5rem 0 0 0;
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 2.75rem 2rem 5rem;
+    font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
     color: var(--text-light);
-    opacity: 0.8;
-    font-size: 1.1rem;
+    background: transparent;
 }
 
+/* ── Divider ─────────────────────────────────────────────────── */
+.divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-subtle) 30%, var(--border-subtle) 70%, transparent);
+    margin: 0;
+}
+
+/* ── Page Header ─────────────────────────────────────────────── */
+.page-header {
+    background: var(--medium-blue);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    margin-bottom: 2.25rem;
+    overflow: hidden;
+}
+
+.page-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    height: 4px;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--light-gold) 60%, transparent 100%);
+}
+
+.page-header-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem 2.5rem 2rem;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.page-header-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.page-header-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+.page-header h1 {
+    font-size: 1.95rem;
+    font-weight: 700;
+    color: var(--text-light);
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+}
+
+.page-header-meta {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.meta-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.meta-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--light-gold);
+    letter-spacing: 0.02em;
+}
+
+.meta-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Download Button */
+.btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.65rem 1.4rem;
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--gold);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+
+.btn-download:hover {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: var(--gold);
+    color: var(--light-gold);
+    text-decoration: none;
+}
+
+.btn-download svg {
+    flex-shrink: 0;
+}
+
+/* ── KPI Grid ────────────────────────────────────────────────── */
 .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 2rem;
-    margin-bottom: 3rem;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin-bottom: 2.25rem;
 }
 
 .kpi {
-    background: linear-gradient(135deg, var(--medium-blue) 0%, var(--light-blue) 100%);
-    padding: 2rem;
-    border-radius: 20px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
+    background: var(--medium-blue);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    padding: 1.6rem 1.5rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    box-shadow: var(--shadow-card);
     position: relative;
     overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.kpi::before {
-    content: '';
+.kpi-accent {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--gold) 0%, var(--light-gold) 100%);
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--light-gold));
+    opacity: 0.75;
 }
 
 .kpi:hover {
-    transform: translateY(-5px);
-    border-color: var(--gold);
-    box-shadow: 0 15px 40px rgba(212, 175, 55, 0.3);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-hover);
 }
 
-.kpi-icon {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-}
-
-.kpi h2 {
-    margin: 0;
-    font-size: 2.5rem;
-    color: var(--gold);
+.kpi-label {
+    font-size: 0.65rem;
     font-weight: 700;
-    text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
-}
-
-.kpi p {
-    margin-top: 0.75rem;
-    font-weight: 600;
-    color: var(--text-light);
-    font-size: 0.95rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.9;
+    color: var(--text-muted);
 }
 
+.kpi-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── Section Cards ───────────────────────────────────────────── */
 .section {
     background: var(--medium-blue);
-    border-radius: 20px;
-    padding: 2rem;
-    margin-top: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    border: 2px solid var(--light-blue);
-}
-
-.section h4 {
-    color: var(--gold);
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--gold);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.table {
-    width: 100%;
-    background: transparent;
-    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    margin-bottom: 1.75rem;
     overflow: hidden;
 }
 
-.table thead {
-    background: linear-gradient(135deg, var(--light-blue) 0%, var(--medium-blue) 100%);
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.75rem;
+    background: rgba(10, 25, 41, 0.45);
+    border-bottom: 1px solid var(--border-subtle);
 }
 
-.table thead th {
-    color: var(--gold);
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    padding: 1.25rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    color: var(--gold);
+}
+
+.section-title-bar {
+    width: 3px;
+    height: 14px;
+    background: var(--gold);
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.section-count {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.7rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+}
+
+/* ── Table ───────────────────────────────────────────────────── */
+.formal-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.formal-table thead tr {
+    background: rgba(10, 25, 41, 0.25);
+}
+
+.formal-table thead th {
+    padding: 0.8rem 1.75rem;
+    font-size: 0.63rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: left;
+    border-bottom: 1px solid var(--border-subtle);
+    white-space: nowrap;
+}
+
+.formal-table thead th.col-num  { text-align: center; width: 80px; }
+.formal-table thead th.col-right { text-align: right; }
+
+.formal-table tbody td {
+    padding: 1rem 1.75rem;
     font-size: 0.9rem;
-    border: none;
-}
-
-.table tbody td {
     color: var(--text-light);
-    padding: 1.25rem;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-    font-size: 1rem;
-    background: transparent;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.08);
+    vertical-align: middle;
 }
 
-.table tbody tr {
-    transition: all 0.2s ease;
-    background: transparent;
+.formal-table tbody td.col-num  { text-align: center; }
+.formal-table tbody td.col-right { text-align: right; }
+
+.formal-table tbody tr:last-child td { border-bottom: none; }
+
+.formal-table tbody tr {
+    transition: background 0.15s;
 }
 
-.table tbody tr:hover {
+.formal-table tbody tr:hover {
+    background: rgba(212, 175, 55, 0.055);
+}
+
+/* ── Table Components ────────────────────────────────────────── */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: var(--light-blue);
+    color: var(--text-muted);
+    border: 1px solid var(--border-subtle);
+    font-variant-numeric: tabular-nums;
+}
+
+.rank-badge.rank-1 {
+    background: rgba(212, 175, 55, 0.2);
+    color: var(--gold);
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.12);
+}
+
+.rank-badge.rank-2 {
     background: rgba(212, 175, 55, 0.1);
-    transform: scale(1.01);
+    color: var(--light-gold);
+    border-color: rgba(212, 175, 55, 0.45);
 }
 
-.table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.no-data {
-    text-align: center;
+.rank-badge.rank-3 {
+    background: rgba(212, 175, 55, 0.06);
     color: var(--text-light);
-    opacity: 0.7;
-    padding: 2rem;
-    font-style: italic;
+    border-color: rgba(212, 175, 55, 0.28);
+}
+
+.count-pill {
+    display: inline-block;
+    padding: 0.22rem 0.8rem;
+    border-radius: 20px;
+    background: rgba(45, 63, 95, 0.7);
+    border: 1px solid var(--border-subtle);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-light);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.03em;
+}
+
+.amount-text {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--light-gold);
+    letter-spacing: 0.02em;
+}
+
+.customer-name {
+    font-weight: 600;
+    color: var(--text-light);
+    transition: color 0.15s;
+}
+
+tr[style*="cursor:pointer"]:hover .customer-name {
+    color: var(--light-gold);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(212, 175, 55, 0.45);
+}
+
+.empty-state {
+    padding: 3rem 1.75rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 768px) {
-    .dashboard-header h1 {
-        font-size: 1.8rem;
-    }
-    
-    .kpi-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 1rem;
-    }
-    
-    .kpi h2 {
-        font-size: 2rem;
-    }
+    .dashboard { padding: 1.5rem 1rem 3rem; }
+    .page-header-body { padding: 1.5rem; flex-direction: column; align-items: flex-start; }
+    .page-header-meta { text-align: left; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .formal-table thead th,
+    .formal-table tbody td { padding: 0.8rem 1rem; }
+    .section-header { padding: 1rem 1.25rem; }
+}
+
+@media (max-width: 480px) {
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .dashboard { padding: 1rem 0.75rem 3rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kpi, .formal-table tbody tr, .btn-download { transition: none; }
 }
 </style>
 
 <div class="dashboard">
 
-    <div class="dashboard-header">
-        <h1>✨ Performance Dashboard</h1>
-        <p>Fiscal Year 2025–2026</p>
+    <!-- ── Page Header ──────────────────────────────────────── -->
+    <div class="page-header">
+        <div class="page-header-top"></div>
+        <div class="page-header-body">
+            <div class="page-header-identity">
+                <span class="page-header-eyebrow">Image Traditional &mdash; Rental Management System</span>
+                <h1>Performance Dashboard</h1>
+            </div>
+
+            <div class="page-header-meta">
+                <span class="meta-label">Reporting Period</span>
+                <span class="meta-value">Fiscal Year 2025–2026</span>
+                <span class="meta-sub">Summary &amp; Analytics Report</span>
+            </div>
+
+            <a href="{{ url_for('fancy.download_dashboard_excel') }}" class="btn-download">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export to Excel
+            </a>
+        </div>
     </div>
 
-    <!-- KPI CARDS -->
+    <!-- ── KPI Cards ────────────────────────────────────────── -->
     <div class="kpi-grid">
         <div class="kpi">
-            <div class="kpi-icon">📅</div>
-            <h2>{{ total_bookings }}</h2>
-            <p>Total Bookings</p>
+            <div class="kpi-accent"></div>
+            <div class="kpi-label">Total Bookings</div>
+            <div class="kpi-value">{{ total_bookings }}</div>
         </div>
         <div class="kpi">
-            <div class="kpi-icon">💰</div>
-            <h2>₹{{ total_revenue }}</h2>
-            <p>Total Revenue</p>
+            <div class="kpi-accent"></div>
+            <div class="kpi-label">Total Revenue</div>
+            <div class="kpi-value">&#8377;{{ total_revenue }}</div>
         </div>
         <div class="kpi">
-            <div class="kpi-icon">👕</div>
-            <h2>{{ taken_count }}</h2>
-            <p>Costumes Taken</p>
+            <div class="kpi-accent"></div>
+            <div class="kpi-label">Costumes Taken</div>
+            <div class="kpi-value">{{ taken_count }}</div>
         </div>
         <div class="kpi">
-            <div class="kpi-icon">✅</div>
-            <h2>{{ returned_count }}</h2>
-            <p>Returned</p>
+            <div class="kpi-accent"></div>
+            <div class="kpi-label">Returned</div>
+            <div class="kpi-value">{{ returned_count }}</div>
         </div>
         <div class="kpi">
-            <div class="kpi-icon">⏳</div>
-            <h2>{{ not_returned }}</h2>
-            <p>Not Returned</p>
+            <div class="kpi-accent"></div>
+            <div class="kpi-label">Pending Return</div>
+            <div class="kpi-value">{{ not_returned }}</div>
         </div>
     </div>
 
-    <!-- TOP COSTUMES -->
+    <!-- ── Most Rented Costumes ─────────────────────────────── -->
     <div class="section">
-        <h4>🔥 Most Rented Costumes</h4>
-
-        {% if top_costumes %}
-        <table class="table mt-3">
-            <thead>
-                <tr>
-                    <th>Costume Name</th>
-                    <th>Times Rented</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for costume, count in top_costumes %}
-                <tr>
-                    <td>{{ costume }}</td>
-                    <td>{{ count }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p class="no-data">No data available yet.</p>
-        {% endif %}
+        <div class="section-header">
+            <span class="section-title">
+                <span class="section-title-bar"></span>
+                Most Rented Costumes
+            </span>
+            {% if top_costumes %}
+            <span class="section-count">{{ top_costumes|length }} Entries</span>
+            {% endif %}
+        </div>
+        <div class="section-body">
+            {% if top_costumes %}
+            <table class="formal-table">
+                <thead>
+                    <tr>
+                        <th class="col-num">Rank</th>
+                        <th>Costume Name</th>
+                        <th class="col-right">Times Rented</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for costume, count in top_costumes %}
+                    <tr>
+                        <td class="col-num">
+                            <span class="rank-badge {% if loop.index <= 3 %}rank-{{ loop.index }}{% endif %}">
+                                {{ loop.index }}
+                            </span>
+                        </td>
+                        <td>{{ costume }}</td>
+                        <td class="col-right"><span class="count-pill">{{ count }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">No rental data available for this period.</div>
+            {% endif %}
+        </div>
     </div>
 
-    <!-- TOP SCHOOLS -->
+    <!-- ── Top Schools ──────────────────────────────────────── -->
     <div class="section">
-        <h4>🏫 Top Schools</h4>
-
-        {% if top_school %}
-        <table class="table mt-3">
-            <thead>
-                <tr>
-                    <th>School Name</th>
-                    <th>Total Rentals</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for school, count in top_school %}
-                <tr>
-                    <td>{{ school }}</td>
-                    <td>{{ count }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p class="no-data">No data available yet.</p>
-        {% endif %}
+        <div class="section-header">
+            <span class="section-title">
+                <span class="section-title-bar"></span>
+                Top Schools by Volume
+            </span>
+            {% if top_school %}
+            <span class="section-count">{{ top_school|length }} Entries</span>
+            {% endif %}
+        </div>
+        <div class="section-body">
+            {% if top_school %}
+            <table class="formal-table">
+                <thead>
+                    <tr>
+                        <th class="col-num">Rank</th>
+                        <th>School Name</th>
+                        <th class="col-right">Total Rentals</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for school, count in top_school %}
+                    <tr>
+                        <td class="col-num">
+                            <span class="rank-badge {% if loop.index <= 3 %}rank-{{ loop.index }}{% endif %}">
+                                {{ loop.index }}
+                            </span>
+                        </td>
+                        <td>{{ school }}</td>
+                        <td class="col-right"><span class="count-pill">{{ count }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">No school data available for this period.</div>
+            {% endif %}
+        </div>
     </div>
 
-<div class="section">
-    <h4>👑 Top 20 Customers (All-Time)</h4>
-
-    {% if top_20_customers %}
-    <table class="table mt-3">
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>Name</th>
-                <th>Dresses Booked</th>
-                <th>Total Amount (₹)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for c in top_20_customers %}
-            <tr style="cursor:pointer"
-                onclick="window.location.href='{{ url_for('fancy.fancy_profile', mobile=c.mobile) }}'">
-                <td>{{ loop.index }}</td>
-                <td>{{ c.name }}</td>
-                <td>{{ c.total_bookings }}</td>
-                <td>₹{{ c.total_amount }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p class="no-data">No customer data available.</p>
-    {% endif %}
-</div>
+    <!-- ── Top 20 Customers ─────────────────────────────────── -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-title">
+                <span class="section-title-bar"></span>
+                Top 20 Customers &mdash; All Time
+            </span>
+            {% if top_20_customers %}
+            <span class="section-count">{{ top_20_customers|length }} of 20</span>
+            {% endif %}
+        </div>
+        <div class="section-body">
+            {% if top_20_customers %}
+            <table class="formal-table">
+                <thead>
+                    <tr>
+                        <th class="col-num">Rank</th>
+                        <th>Customer Name</th>
+                        <th class="col-num">Bookings</th>
+                        <th class="col-right">Total Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in top_20_customers %}
+                    <tr style="cursor:pointer"
+                        onclick="window.location.href='{{ url_for('fancy.fancy_profile', mobile=c.mobile) }}'">
+                        <td class="col-num">
+                            <span class="rank-badge {% if loop.index <= 3 %}rank-{{ loop.index }}{% endif %}">
+                                {{ loop.index }}
+                            </span>
+                        </td>
+                        <td><span class="customer-name">{{ c.name }}</span></td>
+                        <td class="col-num"><span class="count-pill">{{ c.total_bookings }}</span></td>
+                        <td class="col-right"><span class="amount-text">&#8377;{{ c.total_amount }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">No customer data available.</div>
+            {% endif %}
+        </div>
+    </div>
 
 </div>
 {% endblock %}

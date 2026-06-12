@@ -12,338 +12,406 @@
 {% block content %}
 
 <style>
-/* ===============================
-   🎨 EDIT COLOR HERE (ONE LINE)
-   =============================== */
+/* ── Design Tokens ───────────────────────────────────────────── */
 :root {
-    --costume-bg: #8b5cf6;
-    --costume-text: #ffffff;
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --card-bg: #1e293b;
-    --card-light: #334155;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --border-color: #475569;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
+    --dark-blue:      #0a1929;
+    --medium-blue:    #1a2942;
+    --light-blue:     #2d3f5f;
+    --gold:           #d4af37;
+    --light-gold:     #f4d35e;
+    --gold-dark:      #b8941e;
+    --text-light:     #e8eaf6;
+    --text-muted:     rgba(232, 234, 246, 0.55);
+    --border-subtle:  rgba(212, 175, 55, 0.18);
+    --border-strong:  rgba(212, 175, 55, 0.38);
+    --success:        #2ecc71;
+    --warning:        #f59e0b;
+    --shadow-card:    0 4px 28px rgba(0, 0, 0, 0.4);
+    --radius-card:    10px;
+    --radius-sm:      5px;
 }
 
-/* Page Layout */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── Page Wrapper ────────────────────────────────────────────── */
 .profile-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
-    animation: fadeIn 0.6s ease-out;
+    padding: 2.75rem 2rem 5rem;
+    font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+    color: var(--text-light);
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Customer Card */
+/* ── Profile Card ────────────────────────────────────────────── */
 .profile-card {
-    background: var(--card-bg);
-    border-radius: 20px;
-    padding: 2.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: var(--medium-blue);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    margin-bottom: 1.75rem;
 }
 
-.profile-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.4);
+.profile-card-accent {
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--light-gold) 60%, transparent 100%);
 }
 
+.profile-card-body {
+    padding: 2rem 2.5rem 2.5rem;
+}
+
+/* ── Profile Header ──────────────────────────────────────────── */
 .profile-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     flex-wrap: wrap;
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border-subtle);
 }
 
-.profile-header h2 {
-    margin: 0;
-    font-weight: 800;
-    font-size: 2rem;
-    background: linear-gradient(135deg, #667eea, #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.badge {
-    padding: 0.5rem 1.2rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    background: var(--primary-gradient);
-    color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-.profile-card p {
-    color: var(--text-primary);
-    font-size: 1rem;
-    margin: 0.8rem 0;
+.profile-header-identity {
     display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.profile-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+.profile-name {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: var(--text-light);
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    margin: 0;
+}
+
+.profile-badge {
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    padding: 0.4rem 1.1rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: rgba(212, 175, 55, 0.08);
 }
 
-.profile-card strong {
-    color: var(--text-secondary);
-    font-weight: 600;
+/* ── Info Rows ───────────────────────────────────────────────── */
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 2rem;
 }
 
-/* Stats Grid */
+.profile-info-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.info-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+    min-width: 70px;
+}
+
+/* ── Stats Grid ──────────────────────────────────────────────── */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
-    margin-top: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
 }
 
 .stat-box {
-    background: linear-gradient(145deg, #2d3748, #1a202c);
-    padding: 2rem;
-    border-radius: 16px;
-    text-align: center;
-    border: 1px solid var(--border-color);
-    transition: all 0.3s ease;
+    background: rgba(10, 25, 41, 0.5);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    padding: 1.6rem 1.5rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     position: relative;
     overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.stat-box::before {
-    content: '';
+.stat-box-accent {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--primary-gradient);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
-
-.stat-box:hover::before {
-    transform: scaleX(1);
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--light-gold));
+    opacity: 0.75;
 }
 
 .stat-box:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.3);
-    border-color: #667eea;
+    border-color: var(--border-strong);
+    box-shadow: 0 6px 24px rgba(212, 175, 55, 0.12);
 }
 
-.stat-box h3 {
-    margin: 0;
-    font-size: 2.5rem;
-    font-weight: 800;
-    background: var(--primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.stat-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
 }
 
-.stat-box p {
-    margin-top: 0.5rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-    font-size: 0.95rem;
+.stat-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    color: var(--text-muted);
 }
 
-/* Table Card */
+/* ── Table Card ──────────────────────────────────────────────── */
 .table-card {
-    background: var(--card-bg);
-    border-radius: 20px;
+    background: var(--medium-blue);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color);
+    margin-bottom: 1.75rem;
 }
 
-.table-card table {
+.table-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.75rem;
+    background: rgba(10, 25, 41, 0.4);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.table-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+.title-bar {
+    width: 3px;
+    height: 14px;
+    background: var(--gold);
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.formal-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.table-card thead {
-    background: var(--primary-gradient);
-    position: relative;
-}
-
-.table-card thead::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.table-card th {
-    color: white;
-    padding: 1.2rem 1rem;
-    font-size: 0.85rem;
-    text-transform: uppercase;
+.formal-table thead th {
+    padding: 0.85rem 1.75rem;
+    font-size: 0.63rem;
     font-weight: 700;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
     text-align: left;
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(10, 25, 41, 0.25);
+    white-space: nowrap;
 }
 
-.table-card tbody tr {
-    transition: background-color 0.2s ease;
+.formal-table tbody td {
+    padding: 1rem 1.75rem;
+    font-size: 0.9rem;
+    color: var(--text-light);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.08);
+    vertical-align: middle;
 }
 
-.table-card tbody tr:hover {
-    background-color: var(--card-light);
+.formal-table tbody tr:last-child td { border-bottom: none; }
+
+.formal-table tbody tr {
+    transition: background 0.15s;
 }
 
-.table-card td {
-    padding: 1.2rem 1rem;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text-primary);
+.formal-table tbody tr:hover {
+    background: rgba(212, 175, 55, 0.055);
 }
 
-.table-card tbody tr:last-child td {
-    border-bottom: none;
-}
-
-/* Season Badge */
+/* ── Table Components ────────────────────────────────────────── */
 .season-badge {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white;
-    padding: 0.4rem 0.9rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 700;
     display: inline-block;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    padding: 0.2rem 0.75rem;
+    border-radius: 20px;
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid var(--border-strong);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: var(--gold);
 }
 
-/* Costume Box */
 .costume-box {
     display: inline-block;
-    padding: 0.5rem 1rem;
-    border-radius: 14px;
+    padding: 0.25rem 0.85rem;
+    border-radius: var(--radius-sm);
+    background: rgba(45, 63, 95, 0.8);
+    border: 1px solid var(--border-subtle);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--light-gold);
+    letter-spacing: 0.02em;
+}
+
+.price-text {
     font-weight: 700;
-    color: var(--costume-text);
-    background: var(--costume-bg);
-    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
+    font-variant-numeric: tabular-nums;
+    color: var(--success);
+    letter-spacing: 0.02em;
 }
 
-.costume-box:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(139, 92, 246, 0.5);
+.empty-state {
+    padding: 3rem 1.75rem;
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
 }
 
-/* Price */
-.price {
-    font-weight: 800;
-    color: var(--success-color);
-    font-size: 1.1rem;
-}
-
-/* Back Button */
-.back-btn {
-    margin-top: 2rem;
-}
-
-.back-btn .btn {
+/* ── Back Button ─────────────────────────────────────────────── */
+.back-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.8rem 1.5rem;
-    border-radius: 12px;
-    font-weight: 600;
-    transition: all 0.3s ease;
+    gap: 0.55rem;
+    padding: 0.65rem 1.4rem;
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--gold);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s;
 }
 
-.back-btn .btn-secondary {
-    background: var(--card-light);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
+.back-link:hover {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: var(--gold);
+    color: var(--light-gold);
+    transform: translateX(-3px);
+    text-decoration: none;
 }
 
-.back-btn .btn-secondary:hover {
-    background: var(--primary-gradient);
-    color: white;
-    border-color: transparent;
-    transform: translateX(-4px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-}
-
-/* Responsive Design */
+/* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 768px) {
-    .profile-container {
-        padding: 1rem;
-    }
-    
-    .profile-card {
-        padding: 1.5rem;
-    }
-    
-    .profile-header h2 {
-        font-size: 1.5rem;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .table-card {
-        overflow-x: auto;
-    }
+    .profile-container { padding: 1.25rem 1rem 3rem; }
+    .profile-card-body { padding: 1.5rem; }
+    .profile-name { font-size: 1.45rem; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .formal-table thead th,
+    .formal-table tbody td { padding: 0.8rem 1rem; }
+    .table-card-header { padding: 1rem; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .profile-container { padding: 0.75rem 0.75rem 3rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .stat-box, .back-link, .formal-table tbody tr { transition: none; }
 }
 </style>
 
 <div class="profile-container">
 
-    <!-- CUSTOMER INFO -->
+    <!-- ── Customer Info Card ────────────────────────────────── -->
     <div class="profile-card">
-        <div class="profile-header">
-            <h2>👤 {{ customer.name }}</h2>
-            <span class="badge">Fancy Customer</span>
-        </div>
+        <div class="profile-card-accent"></div>
+        <div class="profile-card-body">
 
-        <p><strong>📱 Mobile:</strong> {{ customer.mobile }}</p>
-        <p><strong>🏠 Address:</strong> {{ customer.address }}</p>
-        <p><strong>🏫 School:</strong> {{ customer.school }}</p>
+            <div class="profile-header">
+                <div class="profile-header-identity">
+                    <span class="profile-eyebrow">Image Traditional &mdash; Customer Profile</span>
+                    <h2 class="profile-name">{{ customer.name }}</h2>
+                </div>
+                <span class="profile-badge">Fancy Customer</span>
+            </div>
 
-        <!-- STATS -->
-        <div class="stats-grid">
-            <div class="stat-box">
-                <h3>{{ bookings|length }}</h3>
-                <p>Total Bookings</p>
+            <div class="profile-info">
+                <div class="profile-info-row">
+                    <span class="info-label">Mobile</span>
+                    <span>{{ customer.mobile }}</span>
+                </div>
+                <div class="profile-info-row">
+                    <span class="info-label">Address</span>
+                    <span>{{ customer.address }}</span>
+                </div>
+                <div class="profile-info-row">
+                    <span class="info-label">School</span>
+                    <span>{{ customer.school }}</span>
+                </div>
             </div>
-            <div class="stat-box">
-                <h3>₹{{ total_spent }}</h3>
-                <p>Total Amount Spent</p>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-box-accent"></div>
+                    <div class="stat-value">{{ bookings|length }}</div>
+                    <div class="stat-label">Total Bookings</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-box-accent"></div>
+                    <div class="stat-value">&#8377;{{ total_spent }}</div>
+                    <div class="stat-label">Total Amount Spent</div>
+                </div>
             </div>
+
         </div>
     </div>
 
-    <!-- BOOKINGS TABLE -->
+    <!-- ── Bookings Table ─────────────────────────────────────── -->
     <div class="table-card">
-        <table>
+        <div class="table-card-header">
+            <span class="table-card-title">
+                <span class="title-bar"></span>
+                Booking History
+            </span>
+            {% if bookings %}
+            <span style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;color:var(--text-muted);text-transform:uppercase;">
+                {{ bookings|length }} records
+            </span>
+            {% endif %}
+        </div>
+
+        <table class="formal-table">
             <thead>
                 <tr>
                     <th>Season</th>
@@ -355,37 +423,227 @@
                 </tr>
             </thead>
             <tbody>
-                {% if bookings %}
-                    {% for b in bookings %}
-                    <tr>
-                        <td>
-                            <span class="season-badge">{{ b.season }}</span>
-                        </td>
-                        <td>
-                            <span class="costume-box">{{ b.costume }}</span>
-                        </td>
-                        <td>{{ b.start_date }}</td>
-                        <td>{{ b.end_date }}</td>
-                        <td class="price">₹{{ b.price }}</td>
-                        <td>{{ b.details }}</td>
-                    </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="6" style="text-align:center; padding:2rem; color: var(--text-secondary);">
-                            No fancy bookings found.
-                        </td>
-                    </tr>
-                {% endif %}
-            </tbody>
+
+{% for fb in fbookings %}
+
+<tr class="booking-row"
+    data-search="{{ fb.name }} {{ fb.mobile }} {{ fb.address }} {{ fb.school }} {{ fb.costume }} {{ fb.details }}">
+
+    <td>{{ fb.name }}</td>
+    <td>{{ fb.mobile }}</td>
+    <td>{{ fb.school }}</td>
+    <td>{{ fb.costume }}</td>
+    <td>₹{{ fb.price }}</td>
+
+    <td>
+
+        <button
+        onclick="openEditModal(
+        '{{ fb._id }}',
+        '{{ fb.name }}',
+        '{{ fb.mobile }}',
+        '{{ fb.address }}',
+        '{{ fb.school }}',
+        '{{ fb.costume }}',
+        '{{ fb.details }}',
+        '{{ fb.price }}',
+        '{{ fb.start_date }}',
+        '{{ fb.end_date }}'
+        )">
+            Edit
+        </button>
+
+        <button
+        onclick="deleteBooking('{{ fb._id }}')">
+            Delete
+        </button>
+
+        <a href="{{ url_for('fancy.fancy_profile', mobile=fb.mobile) }}">
+            Profile
+        </a>
+
+    </td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
         </table>
     </div>
 
-    <!-- BACK -->
-    <div class="back-btn">
-        <a href="/fancy_listing" class="btn btn-secondary">⬅ Back to Fancy Bookings</a>
-    </div>
+    <!-- ── Back ──────────────────────────────────────────────── -->
+    <a href="/fancy_listing" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back to Fancy Bookings
+    </a>
 
 </div>
+<div id="editModal"
+style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.7);
+justify-content:center;
+align-items:center;
+">
+
+<div style="
+background:white;
+padding:20px;
+width:700px;
+max-width:95%;
+">
+
+<h2>Edit Booking</h2>
+
+<input type="hidden" id="id">
+
+<p>Name</p>
+<input id="name">
+
+<p>Mobile</p>
+<input id="mobile">
+
+<p>Address</p>
+<input id="address">
+
+<p>School</p>
+<input id="school">
+
+<p>Costume</p>
+<input id="costume">
+
+<p>Price</p>
+<input id="price">
+
+<p>Start Date</p>
+<input id="start_date">
+
+<p>End Date</p>
+<input id="end_date">
+
+<p>Details</p>
+<textarea id="details"></textarea>
+
+<br><br>
+
+<button onclick="saveBooking()">
+Save
+</button>
+
+<button onclick="closeEditModal()">
+Cancel
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+function openEditModal(
+id,
+name,
+mobile,
+address,
+school,
+costume,
+details,
+price,
+start_date,
+end_date
+){
+
+document.getElementById('id').value=id;
+document.getElementById('name').value=name;
+document.getElementById('mobile').value=mobile;
+document.getElementById('address').value=address;
+document.getElementById('school').value=school;
+document.getElementById('costume').value=costume;
+document.getElementById('details').value=details;
+document.getElementById('price').value=price;
+document.getElementById('start_date').value=start_date;
+document.getElementById('end_date').value=end_date;
+
+document.getElementById('editModal').style.display='flex';
+
+}
+
+function closeEditModal(){
+
+document.getElementById('editModal').style.display='none';
+
+}
+
+function saveBooking(){
+
+fetch('/update_booking',{
+
+method:'POST',
+
+headers:{
+'Content-Type':'application/json'
+},
+
+body:JSON.stringify({
+
+id:document.getElementById('id').value,
+name:document.getElementById('name').value,
+mobile:document.getElementById('mobile').value,
+address:document.getElementById('address').value,
+school:document.getElementById('school').value,
+costume:document.getElementById('costume').value,
+details:document.getElementById('details').value,
+price:document.getElementById('price').value,
+start_date:document.getElementById('start_date').value,
+end_date:document.getElementById('end_date').value
+
+})
+
+})
+.then(r=>r.json())
+.then(data=>{
+
+if(data.success){
+
+location.reload();
+
+}
+
+});
+
+}
+
+function deleteBooking(id){
+
+if(!confirm('Delete booking?')){
+return;
+}
+
+fetch('/delete_booking/'+id,{
+method:'POST'
+})
+.then(r=>r.json())
+.then(data=>{
+
+if(data.success){
+
+location.reload();
+
+}
+
+});
+
+}
+
+</script>
 
 {% endblock %}
