@@ -1,6 +1,9 @@
 {% extends "general/base.html" %}
 
 {% block title %}Code {{ code }} Bookings{% endblock %}
+{% block robots %}
+<meta name="robots" content="noindex, nofollow" />
+{% endblock %}
 
 {% block head %}
 {{ super() }}
