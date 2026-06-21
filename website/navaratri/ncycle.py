@@ -141,37 +141,39 @@ def get_selected_cycle():
     """
     Returns selected cycle
     """
-    cycle_id = session.get(
-        "navaratri_cycle_id"
-    )
 
-    if cycle_id == "default":
-        return {
-            "name": "Navaratri Original Season",
-            "collection_name": "Form",
-            "status": "active",
-            "edit_override": False
-        }
+    cycle_id = session.get("navaratri_cycle_id")
 
-    if cycle_id:
-        cycle = get_cycle_by_id(
-            cycle_id
-        )
+    # If a specific cycle is selected
+    if cycle_id and cycle_id != "default":
+        cycle = get_cycle_by_id(cycle_id)
         if cycle:
             return cycle
+
+    # Legacy support:
+    # If "default" is selected, use the Form collection cycle from DB
+    if cycle_id == "default":
+        form_cycle = navaratri_cycles.find_one(
+            {"collection_name": "Form"}
+        )
+
+        if form_cycle:
+            return form_cycle
 
     # Fallback to active cycle
     active = get_active_cycle()
     if active:
         return active
 
-    # If no cycles exist in DB at all, return default pointing to original "Form" collection
-    return {
-        "name": "Navaratri Original Season",
-        "collection_name": "Form",
-        "status": "active",
-        "edit_override": False
-    }
+    # Final fallback: Form collection cycle
+    form_cycle = navaratri_cycles.find_one(
+        {"collection_name": "Form"}
+    )
+
+    if form_cycle:
+        return form_cycle
+
+    return None
 
 
 def get_selected_cycle_id():
