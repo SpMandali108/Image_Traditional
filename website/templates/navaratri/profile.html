@@ -7,687 +7,855 @@
 {% endblock %}
 
 {% block head %}
-  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
-  
+
   <style>
+    /* ─── DESIGN TOKENS ────────────────────────────────────────────── */
+    :root {
+      --dark-blue:    #0a1929;
+      --medium-blue:  #1a2942;
+      --light-blue:   #2d3f5f;
+      --border-blue:  #3a5070;
+      --gold:         #d4af37;
+      --light-gold:   #f4d35e;
+      --pale-gold:    #fdf3c0;
+      --text-primary: #e8eaf0;
+      --text-muted:   #8fa3bc;
+      --text-dark:    #c5cfe0;
+      --danger:       #e05252;
+      --success:      #3dba7a;
+      --warning:      #e09432;
+      --info:         #4a9fd4;
+      --sidebar-w:    300px;
+    }
+
+    /* ─── BASE ─────────────────────────────────────────────────────── */
     body {
-      background-color: #f3f4f6;
+      background-color: var(--dark-blue);
+      color: var(--text-primary);
     }
     .main-content {
       padding-top: 10px !important;
     }
     .profile-dashboard {
-      max-width: 1400px;
+      max-width: 1440px;
       margin: 0 auto;
-      padding: 10px 20px 40px 20px;
+      padding: 10px 20px 48px 20px;
     }
-    
-    /* Header Card */
-    .dashboard-header {
-      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-      color: white;
-      border-radius: 16px;
-      padding: 24px 30px;
-      margin-bottom: 25px;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+    /* ─── SCROLLBAR ────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--dark-blue); }
+    ::-webkit-scrollbar-thumb { background: var(--border-blue); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+    /* ─── PAGE HEADER ──────────────────────────────────────────────── */
+    .page-header {
+      background: linear-gradient(135deg, var(--medium-blue) 0%, var(--light-blue) 100%);
+      border: 1px solid var(--border-blue);
+      border-top: 3px solid var(--gold);
+      border-radius: 12px;
+      padding: 22px 28px;
+      margin-bottom: 22px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 15px;
+      gap: 14px;
     }
-    .dashboard-header h1 {
-      font-size: 1.85rem;
+    .page-header h1 {
+      font-size: 1.55rem;
       font-weight: 700;
       margin: 0;
+      color: var(--light-gold);
+      letter-spacing: 0.02em;
       display: flex;
       align-items: center;
       gap: 10px;
     }
-    .dashboard-header p {
-      margin: 5px 0 0 0;
-      opacity: 0.8;
-      font-size: 0.95rem;
+    .page-header p {
+      margin: 4px 0 0;
+      color: var(--text-muted);
+      font-size: 0.88rem;
     }
-    
-    /* Glassmorphic and Premium Cards */
+    .page-header .gold-accent-bar {
+      width: 38px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--light-gold));
+      border-radius: 2px;
+      margin-top: 6px;
+    }
+
+    /* ─── PREMIUM CARD ─────────────────────────────────────────────── */
     .premium-card {
-      background: white;
-      border-radius: 12px;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      background: var(--medium-blue);
+      border: 1px solid var(--border-blue);
+      border-radius: 10px;
       overflow: hidden;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
       transition: box-shadow 0.2s ease;
     }
     .premium-card:hover {
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.35);
     }
     .card-header-premium {
-      background-color: #f9fafb;
-      border-bottom: 1px solid #e5e7eb;
-      padding: 16px 20px;
+      background: var(--light-blue);
+      border-bottom: 1px solid var(--border-blue);
+      padding: 13px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     .card-header-premium h3 {
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: #111827;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--light-gold);
       margin: 0;
       display: flex;
       align-items: center;
       gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
     }
     .card-body-premium {
-      padding: 20px;
+      padding: 18px;
     }
-    
-    /* Sidebar search listing */
+
+    /* ─── GOLD BADGE ────────────────────────────────────────────────── */
+    .badge-gold {
+      background: linear-gradient(135deg, var(--gold), var(--light-gold));
+      color: var(--dark-blue);
+      font-weight: 800;
+      font-size: 0.72rem;
+      padding: 3px 9px;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+    }
+    .badge-navy {
+      background: var(--dark-blue);
+      color: var(--text-muted);
+      border: 1px solid var(--border-blue);
+      font-size: 0.72rem;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+
+    /* ─── SIDEBAR ──────────────────────────────────────────────────── */
     .search-input-group {
       position: relative;
     }
     .search-input-group i {
       position: absolute;
-      left: 12px;
+      left: 11px;
       top: 50%;
       transform: translateY(-50%);
-      color: #9ca3af;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      pointer-events: none;
     }
     .search-input-group input {
-      padding-left: 36px;
-      border-radius: 8px;
+      padding-left: 34px;
+      background: var(--dark-blue);
+      border: 1px solid var(--border-blue);
+      color: var(--text-primary);
+      border-radius: 7px;
+      font-size: 0.82rem;
     }
+    .search-input-group input::placeholder { color: var(--text-muted); }
+    .search-input-group input:focus {
+      background: var(--dark-blue);
+      border-color: var(--gold);
+      color: var(--text-primary);
+      box-shadow: 0 0 0 3px rgba(212,175,55,0.15);
+      outline: none;
+    }
+
     .customer-list-scroll {
-      max-height: 520px;
+      max-height: 500px;
       overflow-y: auto;
-      border-radius: 8px;
+      border-radius: 7px;
+      border: 1px solid var(--border-blue);
     }
     .customer-list-item {
-      padding: 12px 15px;
-      border-bottom: 1px solid #f3f4f6;
+      padding: 11px 14px;
+      border-bottom: 1px solid rgba(58,80,112,0.5);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background 0.15s ease;
       display: flex;
       flex-direction: column;
       text-decoration: none;
       color: inherit;
     }
-    .customer-list-item:hover {
-      background-color: #eff6ff;
-    }
+    .customer-list-item:last-child { border-bottom: none; }
+    .customer-list-item:hover { background: var(--light-blue); }
     .customer-list-item.active {
-      background-color: #dbeafe;
-      border-left: 4px solid #2563eb;
+      background: rgba(212,175,55,0.12);
+      border-left: 3px solid var(--gold);
     }
     .customer-list-item .cust-name {
-      font-weight: 600;
-      color: #1e293b;
-      margin-bottom: 3px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      margin-bottom: 2px;
     }
     .customer-list-item .cust-details {
       display: flex;
       justify-content: space-between;
-      font-size: 0.82rem;
-      color: #64748b;
+      font-size: 0.76rem;
+      color: var(--text-muted);
     }
-    
-    /* Info Grid */
+    .cust-tag {
+      font-size: 0.68rem;
+      background: var(--dark-blue);
+      color: var(--text-muted);
+      border: 1px solid var(--border-blue);
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+
+    /* ─── MULTI-SELECT FILTER ──────────────────────────────────────── */
+    .multi-select-container { position: relative; }
+    .multi-select-button {
+      background: var(--dark-blue);
+      border: 1px solid var(--border-blue);
+      color: var(--text-muted);
+      padding: 0 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      height: 30px;
+      transition: border-color 0.15s;
+    }
+    .multi-select-button:hover { border-color: var(--gold); }
+    .multi-select-button.active {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212,175,55,0.15);
+    }
+    .multi-select-arrow { transition: transform 0.2s ease; color: var(--text-muted); font-size: 0.65rem; }
+    .multi-select-button.active .multi-select-arrow { transform: rotate(180deg); }
+    .multi-select-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0; right: 0;
+      background: var(--light-blue);
+      border: 1px solid var(--border-blue);
+      border-radius: 7px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+      max-height: 180px;
+      overflow-y: auto;
+      z-index: 1050;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+      transition: all 0.18s ease;
+      margin-top: 3px;
+      padding: 3px 0;
+    }
+    .multi-select-dropdown.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .multi-select-option {
+      padding: 6px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--text-dark);
+      transition: background 0.15s;
+    }
+    .multi-select-option:hover { background: rgba(212,175,55,0.1); }
+    .multi-select-option input[type="checkbox"] {
+      accent-color: var(--gold);
+      width: 14px; height: 14px;
+      cursor: pointer;
+    }
+    .multi-select-option label { cursor: pointer; margin: 0; }
+    .multi-select-summary { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ─── INFO GRID ────────────────────────────────────────────────── */
     .info-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
     }
     .info-box {
-      background-color: #f8fafc;
-      padding: 12px 15px;
+      background: var(--dark-blue);
+      padding: 11px 14px;
       border-radius: 8px;
-      border: 1px solid #f1f5f9;
+      border: 1px solid var(--border-blue);
     }
     .info-label {
-      font-size: 0.78rem;
+      font-size: 0.7rem;
       text-transform: uppercase;
-      font-weight: 600;
-      color: #64748b;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: var(--gold);
       margin-bottom: 4px;
     }
     .info-value {
       font-weight: 600;
-      color: #0f172a;
+      color: var(--text-primary);
+      font-size: 0.88rem;
       word-break: break-all;
     }
-    
-    /* Payment Summary Styling */
+
+    /* ─── PAYMENT SUMMARY ──────────────────────────────────────────── */
     .payment-summary-box {
-      border-radius: 12px;
-      padding: 18px;
-      margin-bottom: 20px;
-      border: 1px solid #e2e8f0;
+      background: var(--dark-blue);
+      border: 1px solid var(--border-blue);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .payment-summary-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .payment-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid #f1f5f9;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(58,80,112,0.5);
+      font-size: 0.85rem;
+      color: var(--text-dark);
     }
-    .payment-row:last-child {
-      border-bottom: none;
-    }
+    .payment-row:last-child { border-bottom: none; }
     .payment-row.remaining-due {
-      background-color: #fef2f2;
-      padding: 10px 12px;
-      border-radius: 8px;
-      margin-top: 5px;
+      background: rgba(224,82,82,0.1);
+      border: 1px solid rgba(224,82,82,0.3);
+      padding: 9px 12px;
+      border-radius: 7px;
+      margin-top: 4px;
     }
     .payment-row.payment-complete {
-      background-color: #f0fdf4;
-      padding: 10px 12px;
-      border-radius: 8px;
-      margin-top: 5px;
+      background: rgba(61,186,122,0.1);
+      border: 1px solid rgba(61,186,122,0.3);
+      padding: 9px 12px;
+      border-radius: 7px;
+      margin-top: 4px;
     }
-    
-    /* Custom progress bar */
-    .progress-bar-container {
-      margin-top: 15px;
-    }
+
+    /* Progress Bar */
+    .progress-bar-container { margin-top: 14px; }
     .progress-track {
-      background-color: #e2e8f0;
-      height: 10px;
-      border-radius: 5px;
+      background: var(--light-blue);
+      height: 8px;
+      border-radius: 4px;
       overflow: hidden;
     }
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
-      transition: width 0.4s ease;
+      background: linear-gradient(90deg, var(--gold), var(--light-gold));
+      transition: width 0.5s ease;
     }
-    
-    /* Status indicators */
-    .badge-status {
-      padding: 5px 10px;
-      border-radius: 20px;
-      font-size: 0.78rem;
+
+    /* ─── BUTTONS ──────────────────────────────────────────────────── */
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold), var(--light-gold));
+      color: var(--dark-blue);
+      font-weight: 700;
+      border: none;
+      transition: all 0.2s ease;
+    }
+    .btn-gold:hover {
+      background: linear-gradient(135deg, var(--light-gold), var(--gold));
+      color: var(--dark-blue);
+      box-shadow: 0 4px 12px rgba(212,175,55,0.35);
+      transform: translateY(-1px);
+    }
+    .btn-ghost-gold {
+      background: transparent;
+      color: var(--gold);
+      border: 1px solid var(--gold);
       font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .btn-ghost-gold:hover {
+      background: rgba(212,175,55,0.12);
+      color: var(--light-gold);
+      border-color: var(--light-gold);
+    }
+    .btn-ghost-light {
+      background: transparent;
+      color: var(--text-dark);
+      border: 1px solid var(--border-blue);
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .btn-ghost-light:hover {
+      background: var(--light-blue);
+      color: var(--text-primary);
+      border-color: var(--text-muted);
+    }
+    .btn-ghost-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .btn-ghost-danger:hover {
+      background: rgba(224,82,82,0.12);
+      color: #ff7070;
+    }
+    .btn-ghost-success {
+      background: transparent;
+      color: var(--success);
+      border: 1px solid var(--success);
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .btn-ghost-success:hover {
+      background: rgba(61,186,122,0.12);
+      color: #5de09b;
+    }
+    .btn-solid-danger {
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      font-weight: 700;
+    }
+    .btn-solid-danger:hover {
+      background: #cc3a3a;
+      color: #fff;
+    }
+    .btn-solid-success {
+      background: var(--success);
+      color: #fff;
+      border: none;
+      font-weight: 700;
+    }
+    .btn-solid-success:hover {
+      background: #2ea86b;
+      color: #fff;
+    }
+
+    /* ─── FORM CONTROLS ────────────────────────────────────────────── */
+    .form-control, .form-select {
+      background: var(--dark-blue);
+      border: 1px solid var(--border-blue);
+      color: var(--text-primary);
+      border-radius: 7px;
+    }
+    .form-control::placeholder { color: var(--text-muted); }
+    .form-control:focus, .form-select:focus {
+      background: var(--dark-blue);
+      border-color: var(--gold);
+      color: var(--text-primary);
+      box-shadow: 0 0 0 3px rgba(212,175,55,0.15);
+    }
+    .form-label {
+      color: var(--text-dark);
+      font-weight: 600;
+      font-size: 0.83rem;
+    }
+    .input-group-text {
+      background: var(--light-blue);
+      border: 1px solid var(--border-blue);
+      color: var(--gold);
+      font-weight: 700;
+    }
+    .input-check-valid {
+      border-color: var(--success) !important;
+      box-shadow: 0 0 0 3px rgba(61,186,122,0.15) !important;
+    }
+    .input-check-invalid {
+      border-color: var(--danger) !important;
+      box-shadow: 0 0 0 3px rgba(224,82,82,0.15) !important;
+      color: #ff9090 !important;
+      font-weight: 600;
+    }
+
+    /* ─── TABLES ───────────────────────────────────────────────────── */
+    .formal-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      color: var(--text-dark);
+    }
+    .formal-table thead tr {
+      background: var(--dark-blue);
+      border-bottom: 2px solid var(--gold);
+    }
+    .formal-table thead th {
+      padding: 11px 14px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: var(--gold);
+      white-space: nowrap;
+    }
+    .formal-table tbody tr {
+      border-bottom: 1px solid rgba(58,80,112,0.4);
+      transition: background 0.15s ease;
+    }
+    .formal-table tbody tr:hover { background: rgba(45,63,95,0.5); }
+    .formal-table tbody td {
+      padding: 10px 14px;
+      vertical-align: middle;
+    }
+
+    /* ─── STATUS BADGES ────────────────────────────────────────────── */
+    .badge-status {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.73rem;
+      font-weight: 700;
       display: inline-flex;
       align-items: center;
       gap: 5px;
     }
     .badge-status.inside {
-      background-color: #dcfce7;
-      color: #15803d;
+      background: rgba(61,186,122,0.15);
+      color: var(--success);
+      border: 1px solid rgba(61,186,122,0.3);
     }
     .badge-status.outside {
-      background-color: #dbeafe;
-      color: #1d4ed8;
+      background: rgba(74,159,212,0.15);
+      color: var(--info);
+      border: 1px solid rgba(74,159,212,0.3);
     }
     .badge-status.ambiguity {
-      background-color: #fef3c7;
-      color: #b45309;
+      background: rgba(224,148,50,0.15);
+      color: var(--warning);
+      border: 1px solid rgba(224,148,50,0.3);
     }
-    
-    /* Product list thumbnails in tables */
-    .reserved-product-thumbnail {
-      width: 40px;
-      height: 40px;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid #dee2e6;
-      background-color: #f8fafc;
-      transition: transform 0.2s ease;
-    }
-    .reserved-product-thumbnail:hover {
-      transform: scale(1.15);
-    }
-    
-    /* Modal Drag and Drop styling (One row per date blocks) */
-    /* Modal Drag and Drop styling (One row per date blocks) */
-    .modal-date-block {
-      background-color: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-left: 4px solid #6366f1; /* Premium purple-indigo left border accent */
-      border-radius: 12px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .product-dropzone {
-      min-height: 48px;
-      background-color: #f8fafc;
-      border: 1.5px dashed #cbd5e1;
-      border-radius: 10px;
-      padding: 8px;
-      margin-bottom: 8px;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .product-dropzone.drag-over {
-      background-color: #eff6ff;
-      border-color: #3b82f6;
-      border-style: solid;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-    
-    .booking-row-item {
-      background-color: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 6px 12px;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: grab;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .booking-row-item:hover {
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-      border-color: #cbd5e1;
-    }
-    .booking-row-item:active {
-      cursor: grabbing;
-    }
-    .booking-row-item.dragging {
-      opacity: 0.35;
-      border: 2px dashed #4f46e5 !important;
-      background-color: #e0e7ff !important;
-      transform: scale(0.96);
-      box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.1);
-    }
-    
-    .modal-product-thumbnail {
-      width: 36px;
-      height: 36px;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1.5px solid #e2e8f0;
-      background-color: #f8fafc;
-      transition: transform 0.2s ease;
-    }
-    .booking-row-item:hover .modal-product-thumbnail {
-      transform: scale(1.08);
-      border-color: #cbd5e1;
-    }
-    
-    /* Beautiful Glossy Capsule Badges for Status Indicators */
+
     .avail-indicator {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: 0.72rem;
+      gap: 5px;
+      font-size: 0.7rem;
       font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
       border: 1px solid transparent;
-      transition: all 0.2s ease;
-      line-height: 1.2;
     }
     .avail-indicator.checking {
-      background-color: #f1f5f9;
-      color: #475569;
-      border-color: #e2e8f0;
+      background: rgba(58,80,112,0.4);
+      color: var(--text-muted);
+      border-color: var(--border-blue);
     }
     .avail-indicator.available {
-      background-color: #dcfce7;
-      color: #15803d;
-      border-color: #bbf7d0;
+      background: rgba(61,186,122,0.15);
+      color: var(--success);
+      border-color: rgba(61,186,122,0.3);
     }
     .avail-indicator.booked {
-      background-color: #fee2e2;
-      color: #b91c1c;
-      border-color: #fecaca;
+      background: rgba(224,82,82,0.15);
+      color: var(--danger);
+      border-color: rgba(224,82,82,0.3);
     }
-    .avail-indicator.text-muted {
-      background-color: #f8fafc;
-      color: #64748b;
-      border-color: #e2e8f0;
+
+    /* ─── PRODUCT THUMBNAIL ────────────────────────────────────────── */
+    .reserved-product-thumbnail {
+      width: 38px;
+      height: 38px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--border-blue);
+      background: var(--dark-blue);
+      transition: transform 0.2s ease;
     }
-    
-    /* Input border updates based on validation */
-    .input-check-valid {
-      border-color: #10b981 !important;
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
-      background-color: #f0fdf4 !important;
-    }
-    .input-check-invalid {
-      border-color: #ef4444 !important;
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
-      background-color: #fdf2f2 !important;
-      color: #b91c1c !important;
-      font-weight: 600;
-    }
-    
-    /* Dragging-active state to compact items and fit all date blocks in screen */
-    #modalBookingRowsContainer.dragging-active .modal-date-block {
-      padding: 6px 12px !important;
-      margin-bottom: 8px !important;
-      background-color: #f8fafc !important;
-      border-color: #e2e8f0 !important;
-      border-left: 4px solid #94a3b8 !important;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
-    }
-    #modalBookingRowsContainer.dragging-active .modal-date-block .d-flex.justify-content-between {
-      margin-bottom: 2px !important;
-      padding-bottom: 2px !important;
-    }
-    #modalBookingRowsContainer.dragging-active .modal-date-block .modal-date-picker {
-      padding: 1px 4px !important;
-      font-size: 0.75rem !important;
-      max-width: 105px !important;
-      border: none !important;
-      background: transparent !important;
-      pointer-events: none !important;
-      height: auto !important;
-      box-shadow: none !important;
-      font-weight: 700 !important;
-      color: #475569 !important;
-    }
-    #modalBookingRowsContainer.dragging-active .modal-date-block button {
-      display: none !important;
-    }
-    #modalBookingRowsContainer.dragging-active .product-dropzone {
-      display: flex !important;
-      flex-wrap: wrap !important;
-      gap: 6px !important;
-      min-height: 32px !important;
-      background-color: #ffffff !important;
-      border: 1.5px dashed #cbd5e1 !important;
-      padding: 6px !important;
-      margin-bottom: 2px !important;
-      border-radius: 8px !important;
-    }
-    #modalBookingRowsContainer.dragging-active .product-dropzone.drag-over {
-      background-color: #eff6ff !important;
-      border-color: #3b82f6 !important;
-      border-style: solid !important;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
-    }
-    #modalBookingRowsContainer.dragging-active .booking-row-item {
-      display: inline-flex !important;
-      flex: 0 0 auto !important;
-      width: auto !important;
-      padding: 3px 8px !important;
-      margin-bottom: 0 !important;
-      gap: 6px !important;
-      align-items: center !important;
-      border-radius: 20px !important;
-      background-color: #f1f5f9 !important;
-      border: 1px solid #cbd5e1 !important;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
-    }
-    #modalBookingRowsContainer.dragging-active .booking-row-item .drag-handle {
-      padding: 0 !important;
-      font-size: 0.85rem !important;
-    }
-    #modalBookingRowsContainer.dragging-active .booking-row-item .modal-product-thumbnail {
-      width: 20px !important;
-      height: 20px !important;
-      border-radius: 50% !important;
-      border-width: 1px !important;
-    }
-    #modalBookingRowsContainer.dragging-active .booking-row-item .input-group {
-      border: none !important;
-      background: transparent !important;
-      box-shadow: none !important;
-    }
-    #modalBookingRowsContainer.dragging-active .booking-row-item .booking-row-product {
-      border: none !important;
-      background: transparent !important;
-      box-shadow: none !important;
-      padding: 0 !important;
-      font-size: 0.78rem !important;
-      font-weight: 700 !important;
-      color: #1e293b !important;
-      height: auto !important;
-      pointer-events: none !important;
-      max-width: 70px !important;
-    }
-    #modalBookingRowsContainer.dragging-active .booking-row-item .input-group button,
-    #modalBookingRowsContainer.dragging-active .booking-row-item .input-group .btn,
-    #modalBookingRowsContainer.dragging-active .booking-row-item .avail-indicator,
-    #modalBookingRowsContainer.dragging-active .booking-row-item button,
-    #modalBookingRowsContainer.dragging-active .booking-row-item div:last-child {
-      display: none !important;
-    }
-    
-    /* Toast container */
-    #toast-container {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 2000;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .toast-message {
-      min-width: 320px;
-      max-width: 400px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-left: 5px solid #22c55e;
-      transform: translateY(20px);
-      opacity: 0;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .toast-message.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
-    .toast-message.error {
-      border-left-color: #ef4444;
-    }
-    .toast-message.info {
-      border-left-color: #3b82f6;
-    }
-    .toast-content {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .toast-icon {
-      font-size: 1.25rem;
-    }
-    .toast-text {
-      font-weight: 500;
-      color: #1f2937;
-      font-size: 0.9rem;
-    }
-    .toast-close {
-      background: none;
-      border: none;
-      font-size: 1.3rem;
-      cursor: pointer;
-      color: #9ca3af;
-      padding: 0;
-      line-height: 1;
-    }
-    .toast-close:hover {
-      color: #4b5563;
-    }
-    
-    /* Utilities */
-    .empty-state {
-      padding: 60px 20px;
-      text-align: center;
-      background: white;
-      border-radius: 12px;
-      border: 1px dashed #cbd5e1;
-    }
-    .empty-state i {
-      font-size: 3.5rem;
-      color: #94a3b8;
-      margin-bottom: 15px;
-      display: block;
-    }
-    
-    .cursor-grab {
-      cursor: grab;
-    }
-    
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-    
-    /* Multi-select filter styles */
-    .multi-select-container {
-        position: relative;
-        min-width: 180px;
-    }
-    .multi-select-button {
-        background: #ffffff;
-        border: 1px solid #ced4da;
-        color: #212529;
-        padding: 0.375rem 0.75rem;
-        border-radius: 6px;
-        transition: all 0.2s ease;
-        cursor: pointer;
-        width: 100%;
-        text-align: left;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.875rem;
-        height: 38px;
-    }
-    .multi-select-button:hover {
-        border-color: #3b82f6;
-    }
-    .multi-select-button.active {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-    }
-    .multi-select-dropdown {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        max-height: 200px;
-        overflow-y: auto;
-        z-index: 1000;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-10px);
-        transition: all 0.2s ease;
-        margin-top: 4px;
-        padding: 4px 0;
-    }
-    .multi-select-dropdown.active {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
-    .multi-select-option {
-        padding: 6px 12px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: background 0.2s ease;
-        font-size: 0.85rem;
-        text-align: left;
-    }
-    .multi-select-option:hover {
-        background: #f1f5f9;
-    }
-    .multi-select-option input[type="checkbox"] {
-        margin: 0;
-        width: 15px;
-        height: 15px;
-        accent-color: #3b82f6;
-        cursor: pointer;
-    }
-    .multi-select-option label {
-        cursor: pointer;
-        user-select: none;
-    }
-    .multi-select-summary {
-        flex: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .multi-select-arrow {
-        transition: transform 0.2s ease;
-        color: #64748b;
-    }
-    .multi-select-button.active .multi-select-arrow {
-        transform: rotate(180deg);
-    }
-    .clear-filters-btn {
-        background: #ef4444;
-        color: white;
-        border: none;
-        padding: 0.375rem 0.75rem;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.875rem;
-        transition: background 0.2s ease;
-        height: 38px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-    }
-    .clear-filters-btn:hover {
-        background: #dc2626;
-    }
-    .clear-filters-btn:disabled {
-        background: #cbd5e1;
-        color: #94a3b8;
-        cursor: not-allowed;
-    }
-    
+    .reserved-product-thumbnail:hover { transform: scale(1.12); }
+
+    /* ─── AVATAR CIRCLE ────────────────────────────────────────────── */
     .avatar-circle {
-      width: 32px;
-      height: 32px;
-      background-color: #6366f1;
-      color: #ffffff;
-      font-weight: 700;
-      font-size: 0.8rem;
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(135deg, var(--gold), var(--light-gold));
+      color: var(--dark-blue);
+      font-weight: 800;
+      font-size: 0.72rem;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1.5px solid #ffffff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       flex-shrink: 0;
     }
-    
-    .border-left-primary {
-      border-left: 4px solid #3b82f6 !important;
+
+    /* ─── KPI STRIP (overview) ─────────────────────────────────────── */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
     }
-    .border-left-success {
-      border-left: 4px solid #10b981 !important;
+    .kpi-box {
+      background: var(--medium-blue);
+      border: 1px solid var(--border-blue);
+      border-top: 3px solid var(--gold);
+      border-radius: 10px;
+      padding: 16px 18px;
     }
-    .border-left-danger {
-      border-left: 4px solid #ef4444 !important;
+    .kpi-box.kpi-danger { border-top-color: var(--danger); }
+    .kpi-box.kpi-success { border-top-color: var(--success); }
+    .kpi-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .kpi-value {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--light-gold);
+      line-height: 1;
+    }
+    .kpi-box.kpi-danger .kpi-value { color: var(--danger); }
+    .kpi-box.kpi-success .kpi-value { color: var(--success); }
+
+    /* ─── MODAL DRAG & DROP ────────────────────────────────────────── */
+    .modal-content {
+      background: var(--medium-blue);
+      border: 1px solid var(--border-blue);
+      border-top: 3px solid var(--gold);
+      color: var(--text-primary);
+    }
+    .modal-header {
+      background: var(--light-blue);
+      border-bottom: 1px solid var(--border-blue);
+      padding: 14px 20px;
+    }
+    .modal-title { color: var(--light-gold); font-weight: 700; font-size: 0.95rem; }
+    .modal-body { padding: 20px; }
+    .modal-footer {
+      background: var(--dark-blue);
+      border-top: 1px solid var(--border-blue);
+    }
+    .modal-section-title {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      color: var(--gold);
+      border-bottom: 1px solid var(--border-blue);
+      padding-bottom: 8px;
+      margin-bottom: 14px;
+    }
+
+    .modal-date-block {
+      background: var(--dark-blue);
+      border: 1px solid var(--border-blue);
+      border-left: 3px solid var(--gold);
+      border-radius: 9px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      transition: all 0.2s ease;
+    }
+    .product-dropzone {
+      min-height: 44px;
+      background: var(--medium-blue);
+      border: 1.5px dashed var(--border-blue);
+      border-radius: 8px;
+      padding: 7px;
+      margin-bottom: 8px;
+      transition: all 0.2s ease;
+    }
+    .product-dropzone.drag-over {
+      background: rgba(212,175,55,0.08);
+      border-color: var(--gold);
+      border-style: solid;
+      box-shadow: 0 0 0 3px rgba(212,175,55,0.12);
+    }
+    .booking-row-item {
+      background: var(--light-blue);
+      border: 1px solid var(--border-blue);
+      border-radius: 7px;
+      padding: 6px 10px;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: grab;
+      transition: all 0.18s ease;
+    }
+    .booking-row-item:hover {
+      border-color: var(--gold);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .booking-row-item:active { cursor: grabbing; }
+    .booking-row-item.dragging {
+      opacity: 0.3;
+      border: 2px dashed var(--gold) !important;
+      background: rgba(212,175,55,0.06) !important;
+      transform: scale(0.97);
+    }
+    .modal-product-thumbnail {
+      width: 32px; height: 32px;
+      object-fit: cover;
+      border-radius: 5px;
+      border: 1px solid var(--border-blue);
+      background: var(--dark-blue);
+      transition: transform 0.2s ease;
+    }
+    .booking-row-item:hover .modal-product-thumbnail { transform: scale(1.08); }
+    .drag-handle { color: var(--text-muted); padding: 0 4px; }
+
+    /* compact drag mode */
+    #modalBookingRowsContainer.dragging-active .modal-date-block {
+      padding: 5px 10px !important;
+      margin-bottom: 6px !important;
+    }
+    #modalBookingRowsContainer.dragging-active .modal-date-block .modal-date-picker {
+      font-size: 0.74rem !important;
+      border: none !important;
+      background: transparent !important;
+      color: var(--gold) !important;
+      pointer-events: none !important;
+      box-shadow: none !important;
+      font-weight: 700 !important;
+    }
+    #modalBookingRowsContainer.dragging-active .modal-date-block button { display: none !important; }
+    #modalBookingRowsContainer.dragging-active .product-dropzone {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 5px !important;
+      min-height: 28px !important;
+      padding: 5px !important;
+      margin-bottom: 2px !important;
+    }
+    #modalBookingRowsContainer.dragging-active .booking-row-item {
+      display: inline-flex !important;
+      width: auto !important;
+      padding: 2px 8px !important;
+      margin-bottom: 0 !important;
+      border-radius: 20px !important;
+      background: var(--dark-blue) !important;
+    }
+    #modalBookingRowsContainer.dragging-active .booking-row-item .avail-indicator,
+    #modalBookingRowsContainer.dragging-active .booking-row-item button,
+    #modalBookingRowsContainer.dragging-active .booking-row-item div:last-child,
+    #modalBookingRowsContainer.dragging-active .booking-row-item .input-group button { display: none !important; }
+    #modalBookingRowsContainer.dragging-active .booking-row-item .booking-row-product {
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      font-size: 0.76rem !important;
+      font-weight: 700 !important;
+      color: var(--light-gold) !important;
+      pointer-events: none !important;
+      max-width: 70px !important;
+      padding: 0 !important;
+    }
+    #modalBookingRowsContainer.dragging-active .booking-row-item .modal-product-thumbnail {
+      width: 18px !important; height: 18px !important;
+      border-radius: 50% !important;
+    }
+
+    /* ─── ALERT OVERRIDES ──────────────────────────────────────────── */
+    .alert-info {
+      background: rgba(74,159,212,0.12);
+      border: 1px solid rgba(74,159,212,0.3);
+      color: #8fd4f5;
+      border-radius: 7px;
+      font-size: 0.82rem;
+    }
+
+    /* ─── TOAST ────────────────────────────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast-message {
+      min-width: 300px;
+      max-width: 380px;
+      background: var(--light-blue);
+      border: 1px solid var(--border-blue);
+      border-left: 4px solid var(--success);
+      border-radius: 8px;
+      padding: 13px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      transform: translateY(16px);
+      opacity: 0;
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .toast-message.show { transform: translateY(0); opacity: 1; }
+    .toast-message.error { border-left-color: var(--danger); }
+    .toast-message.info  { border-left-color: var(--info); }
+    .toast-content { display: flex; align-items: center; gap: 9px; }
+    .toast-text { font-weight: 600; color: var(--text-primary); font-size: 0.85rem; }
+    .toast-close {
+      background: none; border: none;
+      color: var(--text-muted); cursor: pointer;
+      font-size: 1.2rem; line-height: 1; padding: 0;
+    }
+    .toast-close:hover { color: var(--text-primary); }
+
+    /* ─── MISC UTILITIES ───────────────────────────────────────────── */
+    .cursor-pointer { cursor: pointer; }
+    .cursor-grab    { cursor: grab; }
+    .text-gold      { color: var(--gold) !important; }
+    .text-light-gold { color: var(--light-gold) !important; }
+    .text-it-muted  { color: var(--text-muted) !important; }
+    .border-gold    { border-color: var(--gold) !important; }
+
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border-blue);
+      margin: 18px 0;
+    }
+
+    /* clear filters */
+    #clearFiltersBtn {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      height: 28px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      border-radius: 5px;
+      padding: 0 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    #clearFiltersBtn:hover:not(:disabled) { background: rgba(224,82,82,0.12); }
+    #clearFiltersBtn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* readonly plaintext in modals */
+    .form-control-plaintext {
+      color: var(--text-primary);
+      background: var(--dark-blue);
+      border: 1px solid var(--border-blue);
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-weight: 700;
+    }
+
+    /* mobile */
+    @media (max-width: 768px) {
+      .kpi-strip { grid-template-columns: 1fr; }
+      .page-header h1 { font-size: 1.25rem; }
     }
   </style>
 {% endblock %}
@@ -701,145 +869,136 @@
 
 {% block content %}
 <div class="profile-dashboard">
-  
-  <!-- Topbar Header -->
-  <div class="dashboard-header">
+
+  <!-- ── PAGE HEADER ──────────────────────────────────────────────── -->
+  <div class="page-header">
     <div>
-      <h1>👤 Booking Management Control Center</h1>
-      <p>Seamlessly search customers, manage invoices, check availability, and reallocate products.</p>
+      <h1><i class="bi bi-journal-bookmark-fill text-gold"></i> Booking Management</h1>
+      <div class="gold-accent-bar"></div>
+      <p class="mt-2">Search customers · manage invoices · check availability · reallocate products</p>
     </div>
-    <div class="d-flex gap-2">
-      <button class="btn btn-outline-light fw-bold shadow-sm" onclick="openWidgetAvailabilityModal()">
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-ghost-gold btn-sm fw-bold px-3" onclick="openWidgetAvailabilityModal()">
         <i class="bi bi-calendar-check-fill me-1"></i> Check Availability
       </button>
-      <button class="btn btn-light fw-bold shadow-sm" onclick="openNewCustomerModal()">
-        <i class="bi bi-person-plus-fill me-1"></i> New Booking Entry
+      <button class="btn btn-gold btn-sm fw-bold px-3" onclick="openNewCustomerModal()">
+        <i class="bi bi-person-plus-fill me-1"></i> New Booking
       </button>
     </div>
   </div>
 
-  <div class="row">
-    
-    <!-- Sidebar - Customer search & list (col-lg-3) -->
-    <!-- Sidebar - Customer search & list (col-lg-3) -->
+  <div class="row g-3">
+
+    <!-- ── SIDEBAR ─────────────────────────────────────────────────── -->
     <div class="col-lg-3 col-md-4">
       <div class="premium-card">
         <div class="card-header-premium">
           <h3><i class="bi bi-people-fill"></i> Customers</h3>
-          <span class="badge bg-primary rounded-pill" id="customerCountBadge">{{ bookings|length }}</span>
+          <span class="badge-gold" id="customerCountBadge">{{ bookings|length }}</span>
         </div>
         <div class="card-body-premium p-3" style="overflow: visible;">
-          <!-- Search input inside sidebar -->
+
           <div class="search-input-group mb-2">
             <i class="bi bi-search"></i>
-            <input type="text" id="customerSearchInput" class="form-control text-sm" placeholder="Search name, mobile, reference...">
+            <input type="text" id="customerSearchInput" class="form-control form-control-sm" placeholder="Name, mobile, reference…">
           </div>
-          
-          <!-- Dropdowns in sidebar (stacked compact) -->
+
           <div class="d-flex flex-column gap-2 mb-2">
-            <!-- Group filter dropdown -->
+            <!-- Group filter -->
             <div class="multi-select-container">
-              <div class="multi-select-button py-1.5" id="groupFilterButton" style="height: 32px;">
-                <span class="multi-select-summary text-truncate" id="groupSummary" style="font-size: 0.75rem;">All Groups</span>
-                <i class="bi bi-chevron-down multi-select-arrow" style="font-size: 0.7rem;"></i>
+              <div class="multi-select-button" id="groupFilterButton">
+                <span class="multi-select-summary" id="groupSummary">All Groups</span>
+                <i class="bi bi-chevron-down multi-select-arrow"></i>
               </div>
               <div class="multi-select-dropdown" id="groupDropdown">
                 {% set groups = [] %}
                 {% for b in bookings %}
                   {% set grp = b.get("group", "N/A") %}
-                  {% if grp and grp not in groups %}
-                    {% set _ = groups.append(grp) %}
-                  {% endif %}
+                  {% if grp and grp not in groups %}{% set _ = groups.append(grp) %}{% endif %}
                 {% endfor %}
                 {% for grp in groups|sort %}
                 <div class="multi-select-option">
                   <input type="checkbox" id="sidebar-group-chk-{{ loop.index }}" value="{{ grp }}" class="group-checkbox">
-                  <label class="m-0 cursor-pointer text-xs ms-1" for="sidebar-group-chk-{{ loop.index }}">{{ grp }}</label>
+                  <label for="sidebar-group-chk-{{ loop.index }}">{{ grp }}</label>
                 </div>
                 {% endfor %}
               </div>
             </div>
-            
-            <!-- Reference filter dropdown -->
+
+            <!-- Reference filter -->
             <div class="multi-select-container">
-              <div class="multi-select-button py-1.5" id="referenceFilterButton" style="height: 32px;">
-                <span class="multi-select-summary text-truncate" id="referenceSummary" style="font-size: 0.75rem;">All References</span>
-                <i class="bi bi-chevron-down multi-select-arrow" style="font-size: 0.7rem;"></i>
+              <div class="multi-select-button" id="referenceFilterButton">
+                <span class="multi-select-summary" id="referenceSummary">All References</span>
+                <i class="bi bi-chevron-down multi-select-arrow"></i>
               </div>
               <div class="multi-select-dropdown" id="referenceDropdown">
                 {% set references = [] %}
                 {% for b in bookings %}
                   {% set ref = b.get("reference", "") %}
-                  {% if ref and ref not in references %}
-                    {% set _ = references.append(ref) %}
-                  {% endif %}
+                  {% if ref and ref not in references %}{% set _ = references.append(ref) %}{% endif %}
                 {% endfor %}
                 {% for ref in references|sort %}
                 <div class="multi-select-option">
                   <input type="checkbox" id="sidebar-ref-chk-{{ loop.index }}" value="{{ ref }}" class="reference-checkbox">
-                  <label class="m-0 cursor-pointer text-xs ms-1" for="sidebar-ref-chk-{{ loop.index }}">{{ ref }}</label>
+                  <label for="sidebar-ref-chk-{{ loop.index }}">{{ ref }}</label>
                 </div>
                 {% endfor %}
               </div>
             </div>
-            
-            <!-- Clear filters button -->
-            <button class="btn btn-xs btn-outline-danger w-100" id="clearFiltersBtn" disabled style="height: 30px; font-size: 0.75rem;">
+
+            <button id="clearFiltersBtn" disabled>
               <i class="bi bi-x-circle me-1"></i> Clear Filters
             </button>
           </div>
-          
-          <!-- Scrollable customer list -->
+
+          <!-- Customer List -->
           <div class="customer-list-scroll" id="customerListContainer">
             {% for cust in bookings|sort(attribute='Name') %}
-              <a href="{{ url_for('navaratri.profile', customer_id=cust._id|string) }}" 
+              <a href="{{ url_for('navaratri.profile', customer_id=cust._id|string) }}"
                  class="customer-list-item {% if customer and customer._id|string == cust._id|string %}active{% endif %}"
-                 data-name="{{ cust.Name|lower }}" 
+                 data-name="{{ cust.Name|lower }}"
                  data-mobile="{{ cust.mobile }}"
                  data-group="{{ cust.group|lower if cust.group else '' }}"
                  data-reference="{{ cust.reference|lower if cust.reference else '' }}">
-                <span class="cust-name text-truncate d-block fw-bold">{{ cust.Name }}</span>
+                <span class="cust-name text-truncate d-block">{{ cust.Name }}</span>
                 <div class="cust-details">
                   <span><i class="bi bi-phone me-1"></i>{{ cust.mobile }}</span>
                   {% if cust.remaining > 0 %}
-                    <span class="text-danger fw-bold">₹{{ cust.remaining }} Due</span>
+                    <span style="color: var(--danger); font-weight: 700;">₹{{ cust.remaining }} Due</span>
                   {% else %}
-                    <span class="text-success fw-bold">Paid</span>
+                    <span style="color: var(--success); font-weight: 700;">Paid</span>
                   {% endif %}
                 </div>
                 {% if cust.group or cust.reference %}
                   <div class="mt-1 d-flex flex-wrap gap-1">
-                    {% if cust.group %}
-                      <span class="badge bg-light text-dark border-0 text-xxs py-0.5 px-1.5 text-muted"><i class="bi bi-people-fill me-0.5"></i>{{ cust.group }}</span>
-                    {% endif %}
-                    {% if cust.reference %}
-                      <span class="badge bg-light text-dark border-0 text-xxs py-0.5 px-1.5 text-muted"><i class="bi bi-link-45deg me-0.5"></i>{{ cust.reference }}</span>
-                    {% endif %}
+                    {% if cust.group %}<span class="cust-tag"><i class="bi bi-people-fill me-1"></i>{{ cust.group }}</span>{% endif %}
+                    {% if cust.reference %}<span class="cust-tag"><i class="bi bi-link-45deg me-1"></i>{{ cust.reference }}</span>{% endif %}
                   </div>
                 {% endif %}
               </a>
             {% endfor %}
           </div>
+
         </div>
       </div>
     </div>
-    
-    <!-- Main Dashboard Area (col-lg-9) -->
+
+    <!-- ── MAIN AREA ──────────────────────────────────────────────── -->
     <div class="col-lg-9 col-md-8">
+
       {% if customer %}
-        
-        <!-- Grid of customer details -->
-        <div class="row">
-          
-          <!-- Personal details and payments -->
+
+        <div class="row g-3">
+
+          <!-- Personal Overview + Payment -->
           <div class="col-xl-6 col-lg-12">
             <div class="premium-card">
               <div class="card-header-premium">
-                <h3><i class="bi bi-person-badge-fill text-indigo"></i> Personal Overview</h3>
-                <span class="badge bg-secondary">Navaratri Cycle</span>
+                <h3><i class="bi bi-person-badge-fill"></i> Personal Overview</h3>
+                <span class="badge-navy">Navaratri Cycle</span>
               </div>
               <div class="card-body-premium">
-                
+
                 <div class="info-grid">
                   <div class="info-box">
                     <div class="info-label">Customer Name</div>
@@ -868,51 +1027,54 @@
                 </div>
 
                 <div class="info-box mb-3">
-                  <div class="info-label">Security Deposit Details</div>
+                  <div class="info-label">Security Deposit</div>
                   <div class="info-value" id="disp-deposit">{{ customer.deposit or 'Not provided' }}</div>
                 </div>
-                
-                <div class="payment-summary-box bg-light">
-                  <h4 class="fs-6 fw-bold mb-3 text-secondary"><i class="bi bi-credit-card-2-back me-1"></i> Payment Summary</h4>
+
+                <!-- Payment Summary -->
+                <div class="payment-summary-box">
+                  <div class="payment-summary-title">
+                    <i class="bi bi-credit-card-2-back-fill"></i> Payment Summary
+                  </div>
                   <div class="payment-row">
-                    <span>Total Amount Charged</span>
-                    <span class="fw-bold" id="disp-total">₹{{ customer.total_price }}</span>
+                    <span>Total Invoice</span>
+                    <span class="fw-bold text-light-gold" id="disp-total">₹{{ customer.total_price }}</span>
                   </div>
-                  
-                  <div class="payment-row text-success">
+                  <div class="payment-row">
                     <span>Amount Received</span>
-                    <span class="fw-bold" id="disp-given">₹{{ customer.given_price }}</span>
+                    <span class="fw-bold" style="color: var(--success)" id="disp-given">₹{{ customer.given_price }}</span>
                   </div>
-                  
+
                   {% if customer.remaining > 0 %}
-                    <div class="payment-row remaining-due text-danger">
-                      <span class="fw-bold">Remaining Balance Due</span>
-                      <span class="fw-bold" id="disp-remaining">₹{{ customer.remaining }}</span>
+                    <div class="payment-row remaining-due">
+                      <span class="fw-bold" style="color: var(--danger)">Balance Due</span>
+                      <span class="fw-bold" style="color: var(--danger)" id="disp-remaining">₹{{ customer.remaining }}</span>
                     </div>
-                    
-                    <!-- Quick Add Payment Form -->
-                    <div class="mt-3 p-2 bg-white border rounded">
-                      <label class="form-label text-xs fw-bold text-secondary mb-1">Add Payment / Collect Money</label>
+                    <div class="mt-3 p-2 rounded" style="background: var(--dark-blue); border: 1px solid var(--border-blue);">
+                      <div class="info-label mb-2">Collect Payment</div>
                       <form id="addPaymentForm" class="d-flex gap-2 m-0" onsubmit="submitAddPayment(event, '{{ customer._id|string }}')">
                         <div class="input-group input-group-sm">
-                          <span class="input-group-text bg-light text-secondary text-xs">₹</span>
-                          <input type="number" id="paymentAmountInput" name="amount" class="form-control text-xs" placeholder="Amount" max="{{ customer.remaining }}" min="1" required>
+                          <span class="input-group-text">₹</span>
+                          <input type="number" id="paymentAmountInput" name="amount" class="form-control"
+                                 placeholder="Amount" max="{{ customer.remaining }}" min="1" required>
                         </div>
-                        <button type="submit" class="btn btn-sm btn-success fw-bold text-nowrap px-3 text-xs" id="paymentSubmitBtn">
+                        <button type="submit" class="btn btn-solid-success btn-sm fw-bold text-nowrap px-3" id="paymentSubmitBtn">
                           <i class="bi bi-plus-circle me-1"></i> Add
                         </button>
                       </form>
                     </div>
                   {% else %}
-                    <div class="payment-row payment-complete text-success">
-                      <span class="fw-bold"><i class="bi bi-patch-check-fill me-1"></i> Paid in Full</span>
-                      <span class="fw-bold">₹0</span>
+                    <div class="payment-row payment-complete">
+                      <span class="fw-bold" style="color: var(--success)">
+                        <i class="bi bi-patch-check-fill me-1"></i> Paid in Full
+                      </span>
+                      <span class="fw-bold" style="color: var(--success)">₹0</span>
                     </div>
                   {% endif %}
 
                   <div class="progress-bar-container">
-                    <div class="d-flex justify-content-between font-monospace fs-7 text-secondary mb-1">
-                      <span>Received Percentage</span>
+                    <div class="d-flex justify-content-between mb-1" style="font-size: 0.74rem; color: var(--text-muted);">
+                      <span>Collection Progress</span>
                       <span id="disp-percentage">
                         {% set pct = (customer.given_price / customer.total_price * 100) if customer.total_price > 0 else 0 %}
                         {{ "%.1f"|format(pct) }}%
@@ -923,35 +1085,33 @@
                     </div>
                   </div>
                 </div>
-                
-                <div class="d-flex gap-2">
-                  <button class="btn btn-primary flex-fill fw-bold" onclick="openEditModal()">
-                    <i class="bi bi-pencil-square me-1"></i> Edit & Manage Booking
+
+                <!-- Action Buttons -->
+                <div class="d-flex gap-2 mb-2">
+                  <button class="btn btn-gold flex-fill fw-bold btn-sm" onclick="openEditModal()">
+                    <i class="bi bi-pencil-square me-1"></i> Edit Booking
                   </button>
                   <form method="POST" action="{{ url_for('navaratri.download_customer') }}" class="m-0 flex-fill">
                     <input type="hidden" name="mobile" value="{{ customer.mobile }}">
-                    <button type="submit" class="btn btn-outline-success w-100 fw-bold">
+                    <button type="submit" class="btn btn-ghost-success w-100 fw-bold btn-sm">
                       <i class="bi bi-file-earmark-pdf-fill me-1"></i> Download Bill
                     </button>
                   </form>
                 </div>
-                
-                <div class="mt-2">
-                  <button class="btn btn-outline-dark w-100 fw-bold" onclick="openQrModal('{{ customer.mobile }}')">
-                    <i class="bi bi-qr-code me-1"></i> View QR Code
-                  </button>
-                </div>
-                
+                <button class="btn btn-ghost-light w-100 fw-bold btn-sm" onclick="openQrModal('{{ customer.mobile }}')">
+                  <i class="bi bi-qr-code me-1"></i> View QR Code
+                </button>
+
               </div>
             </div>
           </div>
-          
-          <!-- Booking Items list with Costume Photos -->
+
+          <!-- Reserved Items Table -->
           <div class="col-xl-6 col-lg-12">
             <div class="premium-card">
               <div class="card-header-premium">
-                <h3><i class="bi bi-calendar-check-fill text-primary"></i> Reserved Items</h3>
-                <span class="badge bg-primary rounded-pill" id="disp-booking-count">
+                <h3><i class="bi bi-calendar-check-fill"></i> Reserved Items</h3>
+                <span class="badge-gold" id="disp-booking-count">
                   {% set total_prods = namespace(val=0) %}
                   {% for date, items in customer.bookings.items() %}
                     {% set total_prods.val = total_prods.val + items|length %}
@@ -961,11 +1121,11 @@
               </div>
               <div class="card-body-premium p-0">
                 <div class="table-responsive">
-                  <table class="table table-hover align-middle mb-0" id="bookingTable">
-                    <thead class="table-light">
+                  <table class="formal-table" id="bookingTable">
+                    <thead>
                       <tr>
                         <th class="ps-4">Date</th>
-                        <th>Product Info (Photo + Code)</th>
+                        <th>Product</th>
                         <th>Status</th>
                         <th class="text-end pe-4">Actions</th>
                       </tr>
@@ -975,30 +1135,33 @@
                         {% for date, items in customer.bookings.items() %}
                           {% for item in items %}
                             <tr data-date="{{ date }}" data-product="{{ item }}">
-                              <td class="ps-4 fw-semibold">{{ date }}</td>
+                              <td class="ps-4 fw-bold" style="color: var(--light-gold); font-size: 0.8rem;">{{ date }}</td>
                               <td>
                                 <div class="d-flex align-items-center gap-2">
                                   {% if item and item|upper|first == 'K' %}
-                                    <img src="/static/Kediya/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png'; this.style.opacity=0.5;" class="reserved-product-thumbnail" title="Kediya Product {{ item }}">
+                                    <img src="/static/Kediya/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png'; this.style.opacity=0.4;" class="reserved-product-thumbnail">
                                   {% else %}
-                                    <img src="/static/Choli/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png'; this.style.opacity=0.5;" class="reserved-product-thumbnail" title="Choli Product {{ item }}">
+                                    <img src="/static/Choli/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png'; this.style.opacity=0.4;" class="reserved-product-thumbnail">
                                   {% endif %}
-                                  <a href="{{ url_for('navaratri.code_detail', code=item) }}" class="badge bg-light text-dark border p-2 text-decoration-none font-monospace">
+                                  <a href="{{ url_for('navaratri.code_detail', code=item) }}"
+                                     class="badge-navy text-decoration-none font-monospace fw-bold" style="font-size: 0.78rem; padding: 4px 8px; border-radius: 6px;">
                                     {{ item }}
                                   </a>
                                 </div>
                               </td>
                               <td>
                                 <span class="badge-status inside" data-product-status="{{ item }}">
-                                  <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Loading...
+                                  <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Loading…
                                 </span>
                               </td>
                               <td class="text-end pe-4">
-                                <div class="btn-group btn-group-sm" role="group">
-                                  <button type="button" class="btn btn-outline-primary" title="Reassign/Replace Product" onclick="quickReassign('{{ date }}', '{{ item }}')">
+                                <div class="btn-group btn-group-sm">
+                                  <button type="button" class="btn btn-ghost-light btn-sm" title="Reassign Product"
+                                          onclick="quickReassign('{{ date }}', '{{ item }}')">
                                     <i class="bi bi-arrow-left-right"></i>
                                   </button>
-                                  <button type="button" class="btn btn-outline-danger" title="Delete Booking Row" onclick="quickDeleteBookingRow('{{ date }}', '{{ item }}')">
+                                  <button type="button" class="btn btn-ghost-danger btn-sm" title="Delete Row"
+                                          onclick="quickDeleteBookingRow('{{ date }}', '{{ item }}')">
                                     <i class="bi bi-trash3-fill"></i>
                                   </button>
                                 </div>
@@ -1008,7 +1171,10 @@
                         {% endfor %}
                       {% else %}
                         <tr>
-                          <td colspan="4" class="text-center text-secondary py-4">No reserved products found for this customer.</td>
+                          <td colspan="4" class="text-center py-5" style="color: var(--text-muted);">
+                            <i class="bi bi-box-seam d-block mb-2" style="font-size: 2rem; color: var(--border-blue);"></i>
+                            No reserved products for this customer.
+                          </td>
                         </tr>
                       {% endif %}
                     </tbody>
@@ -1017,396 +1183,382 @@
               </div>
             </div>
           </div>
+
         </div>
+
       {% else %}
-        <!-- Unified Dashboard Overview (when no customer selected) -->
-        <div class="dashboard-overview animate__animated animate__fadeIn">
-          <!-- Welcome/Dashboard Header Card -->
-          <div class="premium-card p-4 text-white animate__animated animate__fadeIn" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border-radius: 12px; margin-bottom: 24px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
-            <h3 class="fw-bold mb-1"><i class="bi bi-speedometer2 me-2 text-warning"></i> Cycle Overview & Active Bookings</h3>
-            <p class="mb-0 opacity-75 text-sm">Select a customer from the left list to edit/view details, or use the sidebar filters to search bookings.</p>
-          </div>
-          
-          <!-- Statistics Summary Cards -->
-          {% set stats = namespace(total_customers=bookings|length, total_items=0, total_due=0) %}
-          {% for cust in bookings %}
-            {% set stats.total_due = stats.total_due + cust.remaining %}
-            {% if cust.bookings %}
-              {% for d, items in cust.bookings.items() %}
-                {% set stats.total_items = stats.total_items + items|length %}
-              {% endfor %}
-            {% endif %}
-          {% endfor %}
-          
-          <div class="row g-3 mb-4 text-start">
-            <div class="col-md-4">
-              <div class="premium-card p-3 border-left-primary bg-light shadow-sm">
-                <div class="text-secondary small fw-bold text-uppercase">Total Customers</div>
-                <div class="fs-4 fw-bold text-primary mt-1" id="statsCountCustomers">{{ stats.total_customers }}</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="premium-card p-3 border-left-success bg-light shadow-sm">
-                <div class="text-secondary small fw-bold text-uppercase">Total Costumes Rented</div>
-                <div class="fs-4 fw-bold text-success mt-1">{{ stats.total_items }}</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="premium-card p-3 border-left-danger bg-light shadow-sm">
-                <div class="text-secondary small fw-bold text-uppercase">Total Pending Receivables</div>
-                <div class="fs-4 fw-bold text-danger mt-1">₹{{ stats.total_due }}</div>
-              </div>
-            </div>
-          </div>
 
-          <!-- Quick Availability Checker Card -->
-          <div class="premium-card shadow-sm text-start mb-4 animate__animated animate__fadeIn">
-            <div class="card-header-premium py-2.5 px-3 bg-light border-bottom">
-              <h4 class="fs-6 fw-bold m-0 text-secondary"><i class="bi bi-calendar-check-fill text-indigo me-1"></i> Live Costume Availability Checker</h4>
-            </div>
-            <div class="card-body-premium p-3">
-              <div class="row g-2 align-items-end">
-                <div class="col-md-5">
-                  <label class="form-label text-xs fw-bold text-secondary mb-1">Select Date</label>
-                  <input type="date" id="widgetCheckDate" class="form-control form-control-sm text-xs">
-                </div>
-                <div class="col-md-5">
-                  <label class="form-label text-xs fw-bold text-secondary mb-1">Enter Costume Code</label>
-                  <input type="text" id="widgetCheckCode" placeholder="e.g. K-120 or C-45" class="form-control form-control-sm text-xs text-uppercase">
-                </div>
-                <div class="col-md-2">
-                  <button type="button" class="btn btn-sm btn-indigo w-100 fw-bold" onclick="performWidgetAvailabilityCheck()" style="height: 31px; font-size: 0.75rem;">
-                    <i class="bi bi-search me-1"></i> Check
-                  </button>
-                </div>
-              </div>
-              <div id="widgetCheckResult" class="mt-3 d-none p-2 rounded text-xs fw-bold"></div>
-            </div>
-          </div>
+        <!-- ── OVERVIEW DASHBOARD (no customer selected) ──────────── -->
 
-          <!-- Bookings Table -->
-          <div class="premium-card shadow-sm text-start mb-0">
-            <div class="card-header-premium d-flex justify-content-between align-items-center py-2 px-3 bg-light border-bottom">
-              <h4 class="fs-6 fw-bold m-0 text-secondary"><i class="bi bi-list-stars text-primary me-1"></i> Active Bookings Summary</h4>
-              <span class="badge bg-primary" id="visibleBookingsCount">{{ bookings|length }}</span>
+        <!-- KPI Strip -->
+        {% set stats = namespace(total_customers=bookings|length, total_items=0, total_due=0) %}
+        {% for cust in bookings %}
+          {% set stats.total_due = stats.total_due + cust.remaining %}
+          {% if cust.bookings %}
+            {% for d, items in cust.bookings.items() %}
+              {% set stats.total_items = stats.total_items + items|length %}
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+
+        <div class="kpi-strip">
+          <div class="kpi-box">
+            <div class="kpi-label"><i class="bi bi-people-fill me-1"></i> Total Customers</div>
+            <div class="kpi-value" id="statsCountCustomers">{{ stats.total_customers }}</div>
+          </div>
+          <div class="kpi-box kpi-success">
+            <div class="kpi-label"><i class="bi bi-box-seam me-1"></i> Costumes Rented</div>
+            <div class="kpi-value">{{ stats.total_items }}</div>
+          </div>
+          <div class="kpi-box kpi-danger">
+            <div class="kpi-label"><i class="bi bi-exclamation-circle me-1"></i> Pending Receivables</div>
+            <div class="kpi-value">₹{{ stats.total_due }}</div>
+          </div>
+        </div>
+
+        <!-- Availability Checker -->
+        <div class="premium-card mb-3">
+          <div class="card-header-premium">
+            <h3><i class="bi bi-calendar-check-fill"></i> Live Availability Checker</h3>
+          </div>
+          <div class="card-body-premium">
+            <div class="row g-2 align-items-end">
+              <div class="col-md-5">
+                <label class="form-label" style="font-size: 0.75rem;">Select Date</label>
+                <input type="date" id="widgetCheckDate" class="form-control form-control-sm">
+              </div>
+              <div class="col-md-5">
+                <label class="form-label" style="font-size: 0.75rem;">Costume Code</label>
+                <input type="text" id="widgetCheckCode" placeholder="e.g. K-120 or C-45"
+                       class="form-control form-control-sm text-uppercase">
+              </div>
+              <div class="col-md-2">
+                <button type="button" class="btn btn-gold btn-sm w-100 fw-bold" onclick="performWidgetAvailabilityCheck()">
+                  <i class="bi bi-search me-1"></i> Check
+                </button>
+              </div>
             </div>
-            <div class="card-body-premium p-0">
-              <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                <table class="table table-hover align-middle text-start mb-0">
-                  <thead class="table-light sticky-top">
-                    <tr>
-                      <th class="ps-4">Customer Name</th>
-                      <th>Mobile</th>
-                      <th>Group</th>
-                      <th>Reference</th>
-                      <th>Costumes Booked</th>
-                      <th>Financial Summary</th>
-                      <th class="text-center pe-4">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% if bookings %}
-                      {% for cust in bookings|sort(attribute='Name') %}
-                        <tr class="booking-row cursor-pointer" 
-                            data-group="{{ cust.group or '' }}" 
-                            data-reference="{{ cust.reference or '' }}"
-                            onclick="window.location.href='{{ url_for('navaratri.profile', customer_id=cust._id|string) }}'">
-                          <td class="ps-4 fw-semibold text-primary">
-                            <div class="d-flex align-items-center gap-2">
-                              <div class="avatar-circle">{{ cust.Name[:2].upper() }}</div>
-                              <span>{{ cust.Name }}</span>
-                            </div>
-                          </td>
-                          <td class="font-monospace text-secondary">{{ cust.mobile }}</td>
-                          <td>
-                            {% if cust.group %}
-                              <span class="badge bg-light text-dark border"><i class="bi bi-people-fill text-muted me-1"></i>{{ cust.group }}</span>
-                            {% else %}
-                              <span class="text-muted small">-</span>
-                            {% endif %}
-                          </td>
-                          <td>
-                            {% if cust.reference %}
-                              <span class="badge bg-light text-dark border"><i class="bi bi-link-45deg text-muted me-1"></i>{{ cust.reference }}</span>
-                            {% else %}
-                              <span class="text-muted small">-</span>
-                            {% endif %}
-                          </td>
-                          <td>
-                            {% set total_prods = namespace(val=0) %}
-                            {% if cust.bookings %}
-                              {% for d, items in cust.bookings.items() %}
-                                {% set total_prods.val = total_prods.val + items|length %}
-                              {% endfor %}
-                            {% endif %}
-                            <span class="badge bg-primary rounded-pill"><i class="bi bi-box-seam me-1"></i>{{ total_prods.val }} Item(s)</span>
-                          </td>
-                          <td>
-                            <div class="d-flex flex-column gap-1">
-                              <span class="fs-7 text-secondary">₹{{ cust.given_price }} paid / ₹{{ cust.total_price }}</span>
-                              {% if cust.remaining > 0 %}
-                                <span class="avail-indicator booked" style="padding: 1px 6px; font-size: 0.68rem;"><i class="bi bi-exclamation-circle-fill"></i> ₹{{ cust.remaining }} Due</span>
-                              {% else %}
-                                <span class="avail-indicator available" style="padding: 1px 6px; font-size: 0.68rem;"><i class="bi bi-check-circle-fill"></i> Fully Paid</span>
-                              {% endif %}
-                            </div>
-                          </td>
-                          <td class="text-center pe-4" onclick="event.stopPropagation();">
-                            <a href="{{ url_for('navaratri.profile', customer_id=cust._id|string) }}" class="btn btn-xs btn-outline-primary fw-bold px-3">
-                              <i class="bi bi-eye-fill me-1"></i> View
-                            </a>
-                          </td>
-                        </tr>
-                      {% endfor %}
-                    {% else %}
-                      <tr>
-                        <td colspan="7" class="text-center py-4 text-secondary">No customer data available in current cycle.</td>
+            <div id="widgetCheckResult" class="mt-3 d-none p-2 rounded fw-bold" style="font-size: 0.82rem;"></div>
+          </div>
+        </div>
+
+        <!-- Bookings Summary Table -->
+        <div class="premium-card mb-0">
+          <div class="card-header-premium">
+            <h3><i class="bi bi-list-stars"></i> Active Bookings</h3>
+            <span class="badge-gold" id="visibleBookingsCount">{{ bookings|length }}</span>
+          </div>
+          <div class="card-body-premium p-0">
+            <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+              <table class="formal-table">
+                <thead>
+                  <tr>
+                    <th class="ps-4">Customer</th>
+                    <th>Mobile</th>
+                    <th>Group</th>
+                    <th>Reference</th>
+                    <th>Items</th>
+                    <th>Financials</th>
+                    <th class="text-end pe-4">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if bookings %}
+                    {% for cust in bookings|sort(attribute='Name') %}
+                      <tr class="booking-row cursor-pointer"
+                          data-group="{{ cust.group or '' }}"
+                          data-reference="{{ cust.reference or '' }}"
+                          onclick="window.location.href='{{ url_for('navaratri.profile', customer_id=cust._id|string) }}'">
+                        <td class="ps-4">
+                          <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-circle">{{ cust.Name[:2].upper() }}</div>
+                            <span class="fw-bold" style="color: var(--light-gold);">{{ cust.Name }}</span>
+                          </div>
+                        </td>
+                        <td class="font-monospace" style="color: var(--text-muted); font-size: 0.8rem;">{{ cust.mobile }}</td>
+                        <td>
+                          {% if cust.group %}
+                            <span class="badge-navy"><i class="bi bi-people-fill me-1"></i>{{ cust.group }}</span>
+                          {% else %}<span style="color: var(--text-muted);">—</span>{% endif %}
+                        </td>
+                        <td>
+                          {% if cust.reference %}
+                            <span class="badge-navy"><i class="bi bi-link-45deg me-1"></i>{{ cust.reference }}</span>
+                          {% else %}<span style="color: var(--text-muted);">—</span>{% endif %}
+                        </td>
+                        <td>
+                          {% set total_prods = namespace(val=0) %}
+                          {% if cust.bookings %}
+                            {% for d, items in cust.bookings.items() %}
+                              {% set total_prods.val = total_prods.val + items|length %}
+                            {% endfor %}
+                          {% endif %}
+                          <span class="badge-gold"><i class="bi bi-box-seam me-1"></i>{{ total_prods.val }}</span>
+                        </td>
+                        <td>
+                          <div style="font-size: 0.78rem; color: var(--text-muted);">₹{{ cust.given_price }} / ₹{{ cust.total_price }}</div>
+                          {% if cust.remaining > 0 %}
+                            <span class="avail-indicator booked mt-1"><i class="bi bi-exclamation-circle-fill"></i> ₹{{ cust.remaining }} Due</span>
+                          {% else %}
+                            <span class="avail-indicator available mt-1"><i class="bi bi-check-circle-fill"></i> Paid</span>
+                          {% endif %}
+                        </td>
+                        <td class="text-end pe-4" onclick="event.stopPropagation();">
+                          <a href="{{ url_for('navaratri.profile', customer_id=cust._id|string) }}"
+                             class="btn btn-ghost-gold btn-sm fw-bold px-3">
+                            <i class="bi bi-eye-fill me-1"></i> View
+                          </a>
+                        </td>
                       </tr>
-                    {% endif %}
-                  </tbody>
-                </table>
-              </div>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td colspan="7" class="text-center py-5" style="color: var(--text-muted);">
+                        <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: var(--border-blue);"></i>
+                        No bookings in the current cycle.
+                      </td>
+                    </tr>
+                  {% endif %}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
+
       {% endif %}
     </div>
-    
   </div>
 </div>
 
-<!-- ============================================== -->
-<!-- MODALS SECTION                                 -->
-<!-- ============================================== -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- MODALS                                                            -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
 
 <!-- QR Code Modal -->
-<div class="modal fade" id="qrCodeModal" tabindex="-1" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
+<div class="modal fade" id="qrCodeModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-sm modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header bg-dark text-white py-2">
-        <h5 class="modal-title fw-bold text-sm" id="qrCodeModalLabel"><i class="bi bi-qr-code me-1"></i> Customer QR Code</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-qr-code me-2"></i>Customer QR Code</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body text-center p-4">
-        <img id="modalQrCodeImg" src="" alt="QR Code" class="img-fluid border rounded p-2 mb-3" style="max-height: 200px; width: 200px; height: 200px;">
-        <p class="text-xs text-muted mb-0">Scan this QR code to view/download the bill on a phone.</p>
+        <img id="modalQrCodeImg" src="" alt="QR Code"
+             class="img-fluid rounded p-1 mb-3"
+             style="max-height:200px; width:200px; height:200px; border:1px solid var(--border-blue); background: var(--dark-blue);">
+        <p style="font-size: 0.78rem; color: var(--text-muted);">Scan to view the bill on a phone.</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Quick Availability Checker Modal -->
-<div class="modal fade" id="quickAvailabilityModal" tabindex="-1" aria-labelledby="quickAvailabilityModalLabel" aria-hidden="true">
+<!-- Availability Checker Modal -->
+<div class="modal fade" id="quickAvailabilityModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-md modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header bg-dark text-white py-2">
-        <h5 class="modal-title fw-bold text-sm" id="quickAvailabilityModalLabel"><i class="bi bi-calendar-check-fill me-1"></i> Live Costume Availability Checker</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-calendar-check-fill me-2"></i>Live Availability Checker</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body p-3">
+      <div class="modal-body p-4">
         <div class="row g-2 align-items-end">
           <div class="col-md-5">
-            <label class="form-label text-xs fw-bold text-secondary mb-1">Select Date</label>
-            <input type="date" id="modalCheckDate" class="form-control form-control-sm text-xs">
+            <label class="form-label">Date</label>
+            <input type="date" id="modalCheckDate" class="form-control form-control-sm">
           </div>
           <div class="col-md-5">
-            <label class="form-label text-xs fw-bold text-secondary mb-1">Enter Costume Code</label>
-            <input type="text" id="modalCheckCode" placeholder="e.g. K-120 or C-45" class="form-control form-control-sm text-xs text-uppercase">
+            <label class="form-label">Costume Code</label>
+            <input type="text" id="modalCheckCode" placeholder="e.g. K-120" class="form-control form-control-sm text-uppercase">
           </div>
           <div class="col-md-2">
-            <button type="button" class="btn btn-sm btn-primary w-100 fw-bold" onclick="performModalAvailabilityCheck()" style="height: 31px; font-size: 0.75rem;">
-              <i class="bi bi-search me-1"></i> Check
+            <button type="button" class="btn btn-gold btn-sm w-100 fw-bold" onclick="performModalAvailabilityCheck()">
+              <i class="bi bi-search"></i>
             </button>
           </div>
         </div>
-        <div id="modalCheckResult" class="mt-3 d-none p-2 rounded text-xs fw-bold animate__animated animate__fadeIn"></div>
+        <div id="modalCheckResult" class="mt-3 d-none p-2 rounded fw-bold" style="font-size: 0.82rem;"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 1. UNIFIED EDIT / NEW BOOKING MODAL -->
-<div class="modal fade" id="editCustomerModal" tabindex="-1" aria-labelledby="editCustomerModalLabel" aria-hidden="true" data-bs-backdrop="static">
+<!-- Edit / New Booking Modal -->
+<div class="modal fade" id="editCustomerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header bg-dark text-white">
-        <h5 class="modal-title fw-bold" id="editCustomerModalLabel"><i class="bi bi-pencil-square me-2"></i> Edit Customer Booking</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header">
+        <h5 class="modal-title" id="editCustomerModalLabel"><i class="bi bi-pencil-square me-2"></i>Edit Booking</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4">
-        
-        <!-- Loading overlay inside modal -->
-        <div id="modalLoadingOverlay" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-white bg-opacity-75" style="z-index: 10;">
+
+        <div id="modalLoadingOverlay" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(10,25,41,0.75); z-index: 10; border-radius: 10px;">
           <div class="text-center">
-            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
-            <p class="mt-2 fw-semibold text-secondary">Saving Customer Data...</p>
+            <div class="spinner-border" style="color: var(--gold); width:3rem; height:3rem;" role="status"></div>
+            <p class="mt-3 fw-bold" style="color: var(--light-gold);">Saving booking data…</p>
           </div>
         </div>
 
         <form id="editCustomerForm">
           <input type="hidden" id="modal-customer-id" value="">
-          
-          <h6 class="text-uppercase fw-bold text-secondary border-bottom pb-2 mb-3"><i class="bi bi-person-fill me-1"></i> Customer Personal Details</h6>
+
+          <div class="modal-section-title"><i class="bi bi-person-fill me-1"></i> Customer Details</div>
           <div class="row g-3 mb-4">
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Customer Full Name *</label>
-              <input type="text" id="modal-name" required placeholder="Enter customer full name" class="form-control">
+              <label class="form-label">Full Name *</label>
+              <input type="text" id="modal-name" required placeholder="Customer full name" class="form-control">
             </div>
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Mobile Number (10 Digits) *</label>
-              <input type="tel" id="modal-mobile" required placeholder="Enter 10-digit mobile" class="form-control" maxlength="10" pattern="[0-9]{10}">
-              <div id="modal-mobile-error" class="text-danger fs-7 mt-1 d-none">Please enter exactly 10 digits.</div>
+              <label class="form-label">Mobile (10 digits) *</label>
+              <input type="tel" id="modal-mobile" required placeholder="10-digit mobile" class="form-control" maxlength="10" pattern="[0-9]{10}">
+              <div id="modal-mobile-error" class="mt-1 d-none" style="font-size:0.75rem; color: var(--danger);">Please enter exactly 10 digits.</div>
             </div>
             <div class="col-12">
-              <label class="form-label fw-semibold">Address</label>
-              <textarea id="modal-address" rows="2" placeholder="Customer address..." class="form-control"></textarea>
+              <label class="form-label">Address</label>
+              <textarea id="modal-address" rows="2" placeholder="Customer address…" class="form-control"></textarea>
             </div>
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Group Name</label>
+              <label class="form-label">Group Name</label>
               <input type="text" id="modal-group" placeholder="e.g. Navaratri Club" class="form-control">
             </div>
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Reference Person</label>
+              <label class="form-label">Reference Person</label>
               <input type="text" id="modal-reference" placeholder="e.g. Ramesh Bhai" class="form-control">
             </div>
           </div>
-          
-          <h6 class="text-uppercase fw-bold text-secondary border-bottom pb-2 mb-3"><i class="bi bi-wallet2 me-1"></i> Financial Info</h6>
+
+          <div class="modal-section-title"><i class="bi bi-wallet2 me-1"></i> Financial Info</div>
           <div class="row g-3 mb-4">
             <div class="col-md-4">
-              <label class="form-label fw-semibold">Total Invoice Amount (₹) *</label>
+              <label class="form-label">Total Invoice (₹) *</label>
               <input type="number" id="modal-total-price" min="0" required class="form-control" value="0">
             </div>
             <div class="col-md-4">
-              <label class="form-label fw-semibold">Amount Paid / Given (₹) *</label>
+              <label class="form-label">Amount Paid (₹) *</label>
               <input type="number" id="modal-given-price" min="0" required class="form-control" value="0">
             </div>
             <div class="col-md-4">
-              <label class="form-label fw-semibold">Security Deposit Details</label>
-              <input type="text" id="modal-deposit" placeholder="e.g. Check / Cash 2000" class="form-control">
+              <label class="form-label">Security Deposit</label>
+              <input type="text" id="modal-deposit" placeholder="e.g. Cash ₹2000" class="form-control">
             </div>
           </div>
 
-          <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-            <h6 class="text-uppercase fw-bold text-secondary m-0"><i class="bi bi-calendar-plus-fill me-1"></i> Booking Dates (One row per date)</h6>
-            <button type="button" class="btn btn-sm btn-dark" onclick="addModalDateBlock()"><i class="bi bi-plus-circle-fill me-1"></i> Add Date block</button>
-          </div>
-          
-          <!-- Grouped booking date blocks container -->
-          <div id="modalBookingRowsContainer">
-            <!-- Dynamic Date Blocks with drag-drop product lists inserted here -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="modal-section-title mb-0"><i class="bi bi-calendar-plus-fill me-1"></i> Booking Dates</div>
+            <button type="button" class="btn btn-ghost-gold btn-sm fw-bold" onclick="addModalDateBlock()">
+              <i class="bi bi-plus-circle-fill me-1"></i> Add Date
+            </button>
           </div>
 
+          <div id="modalBookingRowsContainer"></div>
         </form>
       </div>
-      <div class="modal-footer bg-light">
-        <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-success fw-bold px-4" id="saveCustomerModalBtn" onclick="saveCustomerProfile()">Save Changes</button>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost-light fw-bold" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-gold fw-bold px-4" id="saveCustomerModalBtn" onclick="saveCustomerProfile()">
+          Save Changes
+        </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 2. QUICK REASSIGN / PRODUCT REPLACEMENT MODAL -->
-<div class="modal fade" id="reassignModal" tabindex="-1" aria-labelledby="reassignModalLabel" aria-hidden="true">
+<!-- Reassign Modal -->
+<div class="modal fade" id="reassignModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title fw-bold" id="reassignModalLabel"><i class="bi bi-arrow-left-right me-2"></i> Reassign Booking Allocation</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-arrow-left-right me-2"></i>Reassign Allocation</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4">
         <form id="reassignForm">
           <input type="hidden" id="reassign-cust-id">
-          
-          <div class="alert alert-info py-2 fs-7 mb-3">
-            Modify product or date details below. Validations check live availability in the active cycle.
+          <div class="alert alert-info mb-3">
+            <i class="bi bi-info-circle me-1"></i> Live availability is checked before confirming.
           </div>
-          
           <div class="mb-3">
-            <label class="form-label fw-bold text-secondary">Original Product Code</label>
-            <input type="text" id="reassign-old-product" class="form-control-plaintext bg-light ps-3 fw-bold rounded border" readonly>
+            <label class="form-label">Original Product Code</label>
+            <input type="text" id="reassign-old-product" class="form-control-plaintext" readonly>
           </div>
-          
           <div class="mb-3">
-            <label class="form-label fw-bold text-secondary">Original Date</label>
-            <input type="text" id="reassign-old-date" class="form-control-plaintext bg-light ps-3 fw-bold rounded border" readonly>
+            <label class="form-label">Original Date</label>
+            <input type="text" id="reassign-old-date" class="form-control-plaintext" readonly>
           </div>
-          
-          <hr class="my-4">
-          
+          <hr class="section-divider">
           <div class="mb-3">
-            <label class="form-label fw-semibold">New Date *</label>
+            <label class="form-label">New Date *</label>
             <input type="date" id="reassign-new-date" class="form-control" required onchange="checkReassignAvailability()">
           </div>
-          
           <div class="mb-3">
-            <label class="form-label fw-semibold">New Product Code *</label>
-            <input type="text" id="reassign-new-product" class="form-control text-uppercase" required placeholder="Type product code" list="product-suggestions" oninput="checkReassignAvailability()">
+            <label class="form-label">New Product Code *</label>
+            <input type="text" id="reassign-new-product" class="form-control text-uppercase" required
+                   placeholder="Type product code" list="product-suggestions" oninput="checkReassignAvailability()">
             <div id="reassign-avail-status" class="avail-indicator mt-2"></div>
           </div>
-          
           <div class="mb-3">
-            <label class="form-label fw-semibold">Price Difference (₹)</label>
+            <label class="form-label">Price Difference (₹)</label>
             <input type="number" id="reassign-price-diff" class="form-control" value="0" placeholder="e.g. 100 or -50">
-            <small class="text-muted">Enter positive to add, negative to subtract from total invoice price.</small>
+            <small style="color: var(--text-muted); font-size: 0.75rem;">Positive adds, negative deducts from invoice.</small>
           </div>
         </form>
       </div>
-      <div class="modal-footer bg-light">
-        <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary fw-bold" id="confirmReassignBtn" onclick="confirmReassign()">Confirm Move</button>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost-light fw-bold" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-gold fw-bold" id="confirmReassignBtn" onclick="confirmReassign()">
+          Confirm Move
+        </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 3. DELETE CONFIRMATION MODAL WITH PRICE REDUCTION -->
-<div class="modal fade" id="deleteBookingRowModal" tabindex="-1" aria-labelledby="deleteBookingRowModalLabel" aria-hidden="true">
+<!-- Delete Booking Row Modal -->
+<div class="modal fade" id="deleteBookingRowModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title fw-bold" id="deleteBookingRowModalLabel"><i class="bi bi-exclamation-triangle-fill me-2"></i> Delete Product Booking Row</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header" style="border-top-color: var(--danger);">
+        <h5 class="modal-title" style="color: var(--danger);">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>Delete Booking Row
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4 text-center">
-        <i class="bi bi-trash-fill text-danger fs-1 mb-3 d-block"></i>
-        <h5 class="fw-bold mb-2">Are you sure?</h5>
-        <p class="text-secondary fs-7 mb-4">You are about to delete the following booking row. Customer details will remain intact, but this specific allocation will be removed.</p>
-        
-        <div class="bg-light p-3 rounded mb-4 text-start border fs-7">
-          <div class="mb-1"><strong>Product Code:</strong> <span id="del-prod-code" class="font-monospace"></span></div>
-          <div><strong>Booking Date:</strong> <span id="del-prod-date"></span></div>
+        <i class="bi bi-trash-fill mb-3 d-block" style="font-size: 2.5rem; color: var(--danger);"></i>
+        <h5 class="fw-bold mb-2" style="color: var(--text-primary);">Confirm Deletion</h5>
+        <p style="color: var(--text-muted); font-size: 0.84rem;" class="mb-4">
+          The booking allocation below will be permanently removed. Customer record stays intact.
+        </p>
+        <div class="info-box mb-4 text-start">
+          <div class="mb-1" style="font-size: 0.82rem;"><strong class="text-gold">Product:</strong> <span id="del-prod-code" class="font-monospace" style="color: var(--text-primary);"></span></div>
+          <div style="font-size: 0.82rem;"><strong class="text-gold">Date:</strong> <span id="del-prod-date" style="color: var(--text-primary);"></span></div>
         </div>
-        
-        <div class="mb-3 text-start">
-          <label class="form-label fw-semibold">Reduce Total Invoice Price By (₹)</label>
+        <div class="text-start">
+          <label class="form-label">Reduce Invoice By (₹)</label>
           <input type="number" id="delete-price-diff" class="form-control" value="0" min="0">
-          <small class="text-muted">Optional: Enter the amount you want to deduct from the customer's total bill.</small>
+          <small style="color: var(--text-muted); font-size: 0.75rem;">Optional: deduct from the customer's total bill.</small>
         </div>
       </div>
-      <div class="modal-footer bg-light justify-content-between">
-        <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger fw-bold px-4" id="confirmDeleteRowBtn" onclick="confirmDeleteBookingRow()">Confirm Delete</button>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-ghost-light fw-bold" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-solid-danger fw-bold px-4" id="confirmDeleteRowBtn" onclick="confirmDeleteBookingRow()">
+          Confirm Delete
+        </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Dynamic autocomplete list -->
 <datalist id="product-suggestions"></datalist>
-
-<!-- Toast Message Container -->
 <div id="toast-container"></div>
 
 {% endblock %}
 
 {% block scripts %}
-<!-- Bootstrap 5 Bundle JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  // Global Variables
+  // ── GLOBALS ──────────────────────────────────────────────────────
   let availableProducts = [];
   let customerData = {% if customer %}{
     id: "{{ customer._id|string }}",
@@ -1427,1340 +1579,745 @@
     ]
   }{% else %}null{% endif %};
 
-  // Instantiating Modals
-  let editModalObj;
-  let reassignModalObj;
-  let deleteModalObj;
-  
-  // Storage of debounce timers
+  let editModalObj, reassignModalObj, deleteModalObj;
   let checkAvailabilityTimers = {};
 
-  document.addEventListener("DOMContentLoaded", function() {
-    editModalObj = new bootstrap.Modal(document.getElementById('editCustomerModal'));
+  document.addEventListener("DOMContentLoaded", function () {
+    editModalObj    = new bootstrap.Modal(document.getElementById('editCustomerModal'));
     reassignModalObj = new bootstrap.Modal(document.getElementById('reassignModal'));
-    deleteModalObj = new bootstrap.Modal(document.getElementById('deleteBookingRowModal'));
-    
-    // Fetch product code suggestions
-    fetchProductSuggestions();
-    
-    // Dynamically query and update inventory status badges for selected customer
-    if (customerData) {
-      updateInventoryStatusBadges();
-    }
+    deleteModalObj  = new bootstrap.Modal(document.getElementById('deleteBookingRowModal'));
 
-    // Setup drag and drop vertical reordering within customer management edit modal
-    // Note: drag only changes the code dropzone container (keeps dates fixed)
+    fetchProductSuggestions();
+    if (customerData) updateInventoryStatusBadges();
+
     const container = document.getElementById('modalBookingRowsContainer');
-    
     let scrollInterval = null;
 
-    function startAutoScroll(containerElement, direction) {
+    function startAutoScroll(el, dir) {
       if (scrollInterval) return;
-      scrollInterval = setInterval(() => {
-        containerElement.scrollTop += direction * 8;
-      }, 15);
+      scrollInterval = setInterval(() => { el.scrollTop += dir * 8; }, 15);
+    }
+    function stopAutoScroll() {
+      if (scrollInterval) { clearInterval(scrollInterval); scrollInterval = null; }
     }
 
-    function stopAutoScroll() {
-      if (scrollInterval) {
-        clearInterval(scrollInterval);
-        scrollInterval = null;
-      }
-    }
-    
-    // Prevent dragging when user focuses inside input fields of rows
-    container.addEventListener('dragstart', function(e) {
-      const target = e.target;
-      // If drag started from inside an input or button, prevent it!
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON' || target.closest('button')) {
-        e.preventDefault();
-        return;
-      }
-      const rowItem = target.closest('.booking-row-item');
-      if (rowItem) {
-        rowItem.classList.add('dragging');
+    container.addEventListener('dragstart', function (e) {
+      const t = e.target;
+      if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'BUTTON' || t.closest('button')) { e.preventDefault(); return; }
+      const row = t.closest('.booking-row-item');
+      if (row) {
+        row.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', rowItem.id);
-        window.currentlyDraggingRowId = rowItem.id;
-        
-        // Save the source block ID to recheck it on dragend
-        const sourceBlock = rowItem.closest('.modal-date-block');
-        window.currentlyDraggingSourceBlockId = sourceBlock ? sourceBlock.id : null;
-        
-        // Defer adding dragging-active class to let the browser initiate the drag image first!
-        setTimeout(() => {
-          container.classList.add('dragging-active');
-        }, 0);
+        e.dataTransfer.setData('text/plain', row.id);
+        window.currentlyDraggingRowId = row.id;
+        const src = row.closest('.modal-date-block');
+        window.currentlyDraggingSourceBlockId = src ? src.id : null;
+        setTimeout(() => container.classList.add('dragging-active'), 0);
       }
     });
 
-    container.addEventListener('dragend', function(e) {
+    container.addEventListener('dragend', function (e) {
       stopAutoScroll();
       container.classList.remove('dragging-active');
-      const rowItem = e.target.closest('.booking-row-item');
-      if (rowItem) {
-        rowItem.classList.remove('dragging');
-        
-        // Re-check the dragged row (and its new siblings)
-        triggerAvailabilityCheck(rowItem.id);
-        
-        // Re-check the old siblings to clear any duplicate statuses
-        const oldBlockId = window.currentlyDraggingSourceBlockId;
-        if (oldBlockId) {
-          checkAllProductsInModalDateBlock(oldBlockId);
-        }
+      const row = e.target.closest('.booking-row-item');
+      if (row) {
+        row.classList.remove('dragging');
+        triggerAvailabilityCheck(row.id);
+        if (window.currentlyDraggingSourceBlockId)
+          checkAllProductsInModalDateBlock(window.currentlyDraggingSourceBlockId);
       }
-      
-      // Clean dropzones classes
-      container.querySelectorAll('.product-dropzone').forEach(d => {
-        d.classList.remove('drag-over');
-      });
+      container.querySelectorAll('.product-dropzone').forEach(d => d.classList.remove('drag-over'));
     });
 
-    container.addEventListener('dragover', function(e) {
+    container.addEventListener('dragover', function (e) {
       e.preventDefault();
-      const dropzone = e.target.closest('.product-dropzone');
-      if (!dropzone) return;
-      
-      // Highlight only the active dropzone, remove from all others
-      container.querySelectorAll('.product-dropzone').forEach(d => {
-        if (d === dropzone) {
-          d.classList.add('drag-over');
-        } else {
-          d.classList.remove('drag-over');
-        }
-      });
-      
-      const draggingItem = container.querySelector('.dragging');
-      if (!draggingItem) return;
-      
-      const siblings = [...dropzone.querySelectorAll('.booking-row-item:not(.dragging)')];
-      
-      const nextSibling = siblings.find(sibling => {
-        const box = sibling.getBoundingClientRect();
-        // If cursor is above the box top, it's definitely before this sibling
-        if (e.clientY < box.top) return true;
-        // If cursor is on the same vertical level as the box, check horizontal position
-        if (e.clientY >= box.top && e.clientY <= box.bottom) {
-          return e.clientX < box.left + box.width / 2;
-        }
+      const dz = e.target.closest('.product-dropzone');
+      if (!dz) return;
+      container.querySelectorAll('.product-dropzone').forEach(d => d.classList.toggle('drag-over', d === dz));
+      const dragging = container.querySelector('.dragging');
+      if (!dragging) return;
+      const siblings = [...dz.querySelectorAll('.booking-row-item:not(.dragging)')];
+      const next = siblings.find(s => {
+        const b = s.getBoundingClientRect();
+        if (e.clientY < b.top) return true;
+        if (e.clientY >= b.top && e.clientY <= b.bottom) return e.clientX < b.left + b.width / 2;
         return false;
       });
-      
-      if (nextSibling) {
-        dropzone.insertBefore(draggingItem, nextSibling);
-      } else {
-        dropzone.appendChild(draggingItem);
-      }
-
-      // Drag Auto-Scrolling for scrollable modal-body
-      const modalBody = document.querySelector('#editCustomerModal .modal-body');
-      if (modalBody) {
-        const rect = modalBody.getBoundingClientRect();
-        const relativeY = e.clientY - rect.top;
-        if (relativeY < 50) {
-          startAutoScroll(modalBody, -1);
-        } else if (rect.height - relativeY < 50) {
-          startAutoScroll(modalBody, 1);
-        } else {
-          stopAutoScroll();
-        }
+      next ? dz.insertBefore(dragging, next) : dz.appendChild(dragging);
+      const mb = document.querySelector('#editCustomerModal .modal-body');
+      if (mb) {
+        const r = mb.getBoundingClientRect(), ry = e.clientY - r.top;
+        if (ry < 50) startAutoScroll(mb, -1);
+        else if (r.height - ry < 50) startAutoScroll(mb, 1);
+        else stopAutoScroll();
       }
     });
 
-    container.addEventListener('dragleave', function(e) {
-      const dropzone = e.target.closest('.product-dropzone');
-      if (dropzone) {
-        dropzone.classList.remove('drag-over');
-      }
+    container.addEventListener('dragleave', function (e) {
+      const dz = e.target.closest('.product-dropzone');
+      if (dz) dz.classList.remove('drag-over');
     });
 
-    // Drop triggers recalculating checking status on the new date
-    container.addEventListener('drop', function(e) {
+    container.addEventListener('drop', function (e) {
       e.preventDefault();
       stopAutoScroll();
       container.classList.remove('dragging-active');
-      const dropzone = e.target.closest('.product-dropzone');
-      if (!dropzone) return;
-      
-      dropzone.classList.remove('drag-over');
-      const draggingRowId = window.currentlyDraggingRowId;
-      if (draggingRowId) {
-        triggerAvailabilityCheck(draggingRowId);
-      }
+      const dz = e.target.closest('.product-dropzone');
+      if (!dz) return;
+      dz.classList.remove('drag-over');
+      if (window.currentlyDraggingRowId) triggerAvailabilityCheck(window.currentlyDraggingRowId);
     });
   });
 
-  // Fetch product list for suggestions
+  // ── PRODUCT SUGGESTIONS ──────────────────────────────────────────
   function fetchProductSuggestions() {
-    fetch('/api/suggest-products')
-      .then(res => res.json())
-      .then(data => {
-        availableProducts = data;
-        const dl = document.getElementById('product-suggestions');
-        dl.innerHTML = availableProducts.map(code => `<option value="${code}">`).join('');
-      })
-      .catch(err => console.error("Error fetching product suggestions:", err));
+    fetch('/api/suggest-products').then(r => r.json()).then(data => {
+      availableProducts = data;
+      document.getElementById('product-suggestions').innerHTML =
+        data.map(c => `<option value="${c}">`).join('');
+    }).catch(e => console.error(e));
   }
 
-  // Get image source dynamically
   function getProductImagePath(code) {
     if (!code) return '/static/Home_Img/favicon.png';
-    const upper = code.trim().toUpperCase();
-    if (upper.startsWith('C')) {
-      return `/static/Choli/${upper}.webp`;
-    } else if (upper.startsWith('K')) {
-      return `/static/Kediya/${upper}.webp`;
-    }
+    const u = code.trim().toUpperCase();
+    if (u.startsWith('C')) return `/static/Choli/${u}.webp`;
+    if (u.startsWith('K')) return `/static/Kediya/${u}.webp`;
     return '/static/Home_Img/favicon.png';
   }
 
-  // Updates status badges dynamically
+  // ── STATUS BADGES ────────────────────────────────────────────────
   function updateInventoryStatusBadges() {
-    fetch('/get_statuses')
-      .then(res => res.json())
-      .then(statuses => {
-        document.querySelectorAll("[data-product-status]").forEach(element => {
-          const prodCode = element.getAttribute("data-product-status").toUpperCase();
-          const status = statuses[prodCode] || 'inside';
-          
-          element.className = `badge-status ${status}`;
-          if (status === 'inside') {
-            element.innerHTML = `<i class="bi bi-house-check-fill"></i> In Storage`;
-          } else if (status === 'outside') {
-            element.innerHTML = `<i class="bi bi-box-arrow-up"></i> Rented Out`;
-          } else {
-            element.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Damaged/Ambiguity`;
-          }
-        });
-      })
-      .catch(err => {
-        console.error("Error updating statuses:", err);
-        document.querySelectorAll("[data-product-status]").forEach(element => {
-          element.className = 'badge-status inside';
-          element.innerHTML = `<i class="bi bi-house-check-fill"></i> In Storage`;
-        });
+    fetch('/get_statuses').then(r => r.json()).then(statuses => {
+      document.querySelectorAll("[data-product-status]").forEach(el => {
+        const code = el.getAttribute("data-product-status").toUpperCase();
+        const s = statuses[code] || 'inside';
+        el.className = `badge-status ${s}`;
+        el.innerHTML = s === 'inside' ? `<i class="bi bi-house-check-fill"></i> In Storage`
+          : s === 'outside' ? `<i class="bi bi-box-arrow-up"></i> Rented Out`
+          : `<i class="bi bi-exclamation-triangle-fill"></i> Damaged/Ambiguity`;
       });
+    }).catch(() => {
+      document.querySelectorAll("[data-product-status]").forEach(el => {
+        el.className = 'badge-status inside';
+        el.innerHTML = `<i class="bi bi-house-check-fill"></i> In Storage`;
+      });
+    });
   }
 
-
-
-  // Visual Custom Toast Notifications
+  // ── TOAST ────────────────────────────────────────────────────────
   function showToast(message, type = 'success') {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = `toast-message ${type} show`;
-    toast.innerHTML = `
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast-message ${type} show`;
+    t.innerHTML = `
       <div class="toast-content">
-        <span class="toast-icon">
-          ${type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️')}
-        </span>
+        <span style="font-size:1.1rem">${type==='success'?'✅':type==='error'?'❌':'ℹ️'}</span>
         <span class="toast-text">${message}</span>
       </div>
-      <button type="button" class="toast-close" onclick="this.parentElement.classList.remove('show'); setTimeout(() => this.parentElement.remove(), 300);">&times;</button>
-    `;
-    container.appendChild(toast);
-    setTimeout(() => {
-      if (toast) {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-      }
-    }, 5000);
+      <button class="toast-close" onclick="this.parentElement.classList.remove('show');setTimeout(()=>this.parentElement.remove(),300);">&times;</button>`;
+    c.appendChild(t);
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 5000);
   }
 
-  // Add Dynamic Date Group Block in Modal Form
+  // ── DATE BLOCK ───────────────────────────────────────────────────
   function addModalDateBlock(date = "") {
     const container = document.getElementById('modalBookingRowsContainer');
     const blockId = 'block-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-    
     let parsedDate = date;
     if (date && date.includes('-') && date.split('-')[0].length === 2) {
-      const parts = date.split('-');
-      parsedDate = `20${parts[2]}-${parts[1]}-${parts[0]}`;
+      const p = date.split('-');
+      parsedDate = `20${p[2]}-${p[1]}-${p[0]}`;
     }
-
-    const blockDiv = document.createElement('div');
-    blockDiv.className = 'modal-date-block';
-    blockDiv.id = blockId;
-    blockDiv.innerHTML = `
-      <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
+    const div = document.createElement('div');
+    div.className = 'modal-date-block';
+    div.id = blockId;
+    div.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center mb-2 pb-2" style="border-bottom:1px solid var(--border-blue);">
         <div class="d-flex align-items-center gap-2">
-          <span class="fs-8 fw-bold text-secondary text-uppercase"><i class="bi bi-calendar-event"></i> Date:</span>
-          <input type="date" class="form-control form-control-sm modal-date-picker" value="${parsedDate}" required style="max-width: 150px;" onchange="checkAllProductsInModalDateBlock('${blockId}')">
+          <span style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold);">
+            <i class="bi bi-calendar-event me-1"></i>Date
+          </span>
+          <input type="date" class="form-control form-control-sm modal-date-picker" value="${parsedDate}"
+                 required style="max-width:148px;" onchange="checkAllProductsInModalDateBlock('${blockId}')">
         </div>
-        <button type="button" class="btn btn-xs btn-outline-danger" onclick="removeModalDateBlock('${blockId}')" title="Remove Date Group">
+        <button type="button" class="btn btn-ghost-danger btn-sm" onclick="removeModalDateBlock('${blockId}')">
           <i class="bi bi-trash-fill"></i>
         </button>
       </div>
-      
-      <!-- Dropzone for product pills/rows -->
       <div class="product-dropzone" id="dropzone-${blockId}"></div>
-      
-      <button type="button" class="btn btn-xs btn-outline-primary" onclick="addModalProductRow('${blockId}', '', false)">
+      <button type="button" class="btn btn-ghost-gold btn-sm" onclick="addModalProductRow('${blockId}','',false)">
         <i class="bi bi-plus-circle me-1"></i> Add Product
-      </button>
-    `;
-    container.appendChild(blockDiv);
+      </button>`;
+    container.appendChild(div);
     return blockId;
   }
 
-  // Remove Date Block from Modal
-  function removeModalDateBlock(blockId) {
-    const block = document.getElementById(blockId);
-    if (block) {
-      block.remove();
-    }
+  function removeModalDateBlock(id) {
+    const b = document.getElementById(id);
+    if (b) b.remove();
   }
 
-  // Add Product Item Row under a modal Date block Dropzone
   function addModalProductRow(blockId, product = "", isOriginal = false) {
-    const dropzone = document.getElementById(`dropzone-${blockId}`);
+    const dz = document.getElementById(`dropzone-${blockId}`);
     const rowId = 'row-item-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-    
-    const rowDiv = document.createElement('div');
-    rowDiv.className = 'booking-row-item';
-    rowDiv.id = rowId;
-    rowDiv.setAttribute('draggable', 'true');
-    rowDiv.setAttribute('data-original', isOriginal);
-    rowDiv.setAttribute('data-orig-prod', product);
-    
-    rowDiv.innerHTML = `
-      <div class="py-1 px-2 text-secondary cursor-grab drag-handle" title="Drag to rearrange between dates">
+    const div = document.createElement('div');
+    div.className = 'booking-row-item';
+    div.id = rowId;
+    div.setAttribute('draggable', 'true');
+    div.setAttribute('data-original', isOriginal);
+    div.setAttribute('data-orig-prod', product);
+    div.innerHTML = `
+      <div class="drag-handle cursor-grab" title="Drag to move between dates">
         <i class="bi bi-grip-vertical"></i>
       </div>
-      <img class="modal-product-thumbnail" src="${getProductImagePath(product)}" onerror="this.src='/static/Home_Img/favicon.png'; this.style.opacity=0.5;" title="Photo Preview">
-      
-      <div class="flex-grow-1" style="min-width: 120px;">
+      <img class="modal-product-thumbnail"
+           src="${getProductImagePath(product)}"
+           onerror="this.src='/static/Home_Img/favicon.png';this.style.opacity=0.4;">
+      <div class="flex-grow-1" style="min-width:120px;">
         <div class="input-group input-group-sm">
-          <input type="text" class="form-control text-uppercase booking-row-product" 
-                 value="${product}" required placeholder="Costume Code" 
-                 list="product-suggestions" 
-                 ${isOriginal ? 'readonly' : ''} 
-                 oninput="onModalProductInput('${blockId}', '${rowId}', this)">
-          ${isOriginal ? `<button type="button" class="btn btn-outline-primary text-xs" onclick="enableProductReplace('${rowId}')">Replace</button>` : ''}
+          <input type="text" class="form-control text-uppercase booking-row-product"
+                 value="${product}" required placeholder="Costume Code"
+                 list="product-suggestions"
+                 ${isOriginal ? 'readonly' : ''}
+                 oninput="onModalProductInput('${blockId}','${rowId}',this)">
+          ${isOriginal ? `<button type="button" class="btn btn-ghost-gold btn-sm" style="font-size:0.72rem;" onclick="enableProductReplace('${rowId}')">Replace</button>` : ''}
         </div>
         <div class="avail-indicator mt-1" id="avail-status-${rowId}">
-          ${isOriginal ? '<span class="text-success"><i class="bi bi-check-circle-fill"></i> Available</span>' : '<span class="text-muted fs-8">Specify date & code</span>'}
+          ${isOriginal ? '<i class="bi bi-check-circle-fill"></i> Confirmed' : '<span style="color:var(--text-muted);font-size:0.7rem;">Enter date & code</span>'}
         </div>
       </div>
-      
       <div>
-        <button type="button" class="btn btn-xs btn-outline-danger" onclick="removeModalProductRow('${rowId}')" title="Delete Product Row">
+        <button type="button" class="btn btn-ghost-danger btn-sm" onclick="removeModalProductRow('${rowId}')">
           <i class="bi bi-x-circle-fill"></i>
         </button>
-      </div>
-    `;
-    dropzone.appendChild(rowDiv);
-    
-    if (product) {
-      triggerAvailabilityCheck(rowId);
-    }
+      </div>`;
+    dz.appendChild(div);
+    if (product) triggerAvailabilityCheck(rowId);
   }
 
-  // Remove product row item from modal
   function removeModalProductRow(rowId) {
-    const row = document.getElementById(rowId);
-    if (row) {
-      row.remove();
-    }
+    const r = document.getElementById(rowId);
+    if (r) r.remove();
   }
 
-  // Updates row thumbnail on keypress and verifies availability check
-  function onModalProductInput(blockId, rowId, inputElement) {
-    const codeVal = inputElement.value.trim().toUpperCase();
-    const rowDiv = document.getElementById(rowId);
-    const imgEl = rowDiv.querySelector('.modal-product-thumbnail');
-    imgEl.src = getProductImagePath(codeVal);
-    
+  function onModalProductInput(blockId, rowId, el) {
+    const code = el.value.trim().toUpperCase();
+    const row = document.getElementById(rowId);
+    row.querySelector('.modal-product-thumbnail').src = getProductImagePath(code);
     triggerAvailabilityCheck(rowId);
   }
 
-  // Verification triggers when date picker updates
   function checkAllProductsInModalDateBlock(blockId) {
-    const dropzone = document.getElementById(`dropzone-${blockId}`);
-    const rows = dropzone.querySelectorAll('.booking-row-item');
-    rows.forEach(row => {
-      triggerAvailabilityCheck(row.id);
-    });
+    document.querySelectorAll(`#dropzone-${blockId} .booking-row-item`).forEach(r => triggerAvailabilityCheck(r.id));
   }
 
-  // Enables replacing of booked items
   function enableProductReplace(rowId) {
     const row = document.getElementById(rowId);
     if (!row) return;
-    
-    const prodInput = row.querySelector('.booking-row-product');
-    prodInput.removeAttribute('readonly');
-    prodInput.value = "";
-    prodInput.focus();
-    
+    const inp = row.querySelector('.booking-row-product');
+    inp.removeAttribute('readonly');
+    inp.value = "";
+    inp.focus();
     row.setAttribute('data-original', 'false');
-    
-    const statusDiv = document.getElementById(`avail-status-${rowId}`);
-    statusDiv.className = 'avail-indicator text-muted';
-    statusDiv.innerHTML = 'Enter new product to check';
+    const s = document.getElementById(`avail-status-${rowId}`);
+    s.className = 'avail-indicator';
+    s.innerHTML = '<span style="color:var(--text-muted);">Enter new product code</span>';
   }
 
-  // Availability Checker inside Edit Modal
-  function triggerAvailabilityCheck(rowId, skipBlockRecheck = false) {
+  function triggerAvailabilityCheck(rowId, skipSiblings = false) {
     const row = document.getElementById(rowId);
     if (!row) return;
-
-    // Find date picker value from parent Date Block container
-    const dateBlock = row.closest('.modal-date-block');
-    if (!dateBlock) return;
-    
-    const dateVal = dateBlock.querySelector('.modal-date-picker').value;
-    const prodInputEl = row.querySelector('.booking-row-product');
-    const prodVal = prodInputEl.value.trim().toUpperCase();
-    const statusDiv = document.getElementById(`avail-status-${rowId}`);
-    
-    if (!dateVal || !prodVal) {
-      statusDiv.className = 'avail-indicator text-muted';
-      statusDiv.innerHTML = 'Specify date & code';
-      prodInputEl.classList.remove('input-check-valid', 'input-check-invalid');
+    const block = row.closest('.modal-date-block');
+    if (!block) return;
+    const dateVal = block.querySelector('.modal-date-picker').value;
+    const inp = row.querySelector('.booking-row-product');
+    const code = inp.value.trim().toUpperCase();
+    const status = document.getElementById(`avail-status-${rowId}`);
+    if (!dateVal || !code) {
+      status.className = 'avail-indicator';
+      status.innerHTML = '<span style="color:var(--text-muted);">Specify date & code</span>';
+      inp.classList.remove('input-check-valid', 'input-check-invalid');
       return;
     }
-
-    // 1. Check for inline duplicate product bookings on the SAME date in this modal
-    const otherRows = dateBlock.querySelectorAll(`.booking-row-item:not(#${rowId})`);
-    let isDuplicate = false;
-    otherRows.forEach(otherRow => {
-      const otherInput = otherRow.querySelector('.booking-row-product');
-      if (otherInput && otherInput.value.trim().toUpperCase() === prodVal) {
-        isDuplicate = true;
-      }
-    });
-
-    if (isDuplicate) {
-      statusDiv.className = 'avail-indicator booked';
-      statusDiv.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Duplicate on this date';
-      prodInputEl.classList.add('input-check-invalid');
-      prodInputEl.classList.remove('input-check-valid');
-      
-      // Trigger sibling re-check to ensure they also show duplicates
-      if (!skipBlockRecheck) {
-        otherRows.forEach(otherRow => {
-          triggerAvailabilityCheck(otherRow.id, true);
-        });
-      }
+    const others = block.querySelectorAll(`.booking-row-item:not(#${rowId})`);
+    let isDup = false;
+    others.forEach(o => { if (o.querySelector('.booking-row-product')?.value.trim().toUpperCase() === code) isDup = true; });
+    if (isDup) {
+      status.className = 'avail-indicator booked';
+      status.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Duplicate on this date';
+      inp.classList.add('input-check-invalid'); inp.classList.remove('input-check-valid');
+      if (!skipSiblings) others.forEach(o => triggerAvailabilityCheck(o.id, true));
       return;
     }
-
-    // 2. Perform live database availability check
-    statusDiv.className = 'avail-indicator checking';
-    statusDiv.innerHTML = '<div class="spinner-border spinner-border-sm me-1" role="status"></div> Checking...';
-
-    if (checkAvailabilityTimers[rowId]) {
-      clearTimeout(checkAvailabilityTimers[rowId]);
-    }
-
+    status.className = 'avail-indicator checking';
+    status.innerHTML = '<div class="spinner-border spinner-border-sm me-1" role="status"></div> Checking…';
+    if (checkAvailabilityTimers[rowId]) clearTimeout(checkAvailabilityTimers[rowId]);
     checkAvailabilityTimers[rowId] = setTimeout(() => {
-      const custMobile = document.getElementById('modal-mobile').value.trim();
-      
-      let url = `/api/check-product?product_code=${encodeURIComponent(prodVal)}&date=${encodeURIComponent(dateVal)}`;
-      if (custMobile) {
-        url += `&exclude_mobile=${encodeURIComponent(custMobile)}`;
-      }
-
-      fetch(url)
-        .then(res => res.json())
-        .then(res => {
-          // Re-verify that the element hasn't become a duplicate while fetching
-          let currentDuplicate = false;
-          dateBlock.querySelectorAll(`.booking-row-item:not(#${rowId})`).forEach(otherRow => {
-            const otherInput = otherRow.querySelector('.booking-row-product');
-            if (otherInput && otherInput.value.trim().toUpperCase() === prodVal) {
-              currentDuplicate = true;
-            }
-          });
-          if (currentDuplicate) return;
-
-          if (res.available) {
-            statusDiv.className = 'avail-indicator available';
-            statusDiv.innerHTML = '<i class="bi bi-check-circle-fill"></i> Available';
-            prodInputEl.classList.add('input-check-valid');
-            prodInputEl.classList.remove('input-check-invalid');
-          } else {
-            statusDiv.className = 'avail-indicator booked';
-            statusDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Booked by ${res.customer || 'Other'}`;
-            prodInputEl.classList.add('input-check-invalid');
-            prodInputEl.classList.remove('input-check-valid');
-          }
-          
-          // Re-check siblings to clean up their duplicate status if this is no longer a duplicate
-          if (!skipBlockRecheck) {
-            otherRows.forEach(otherRow => {
-              triggerAvailabilityCheck(otherRow.id, true);
-            });
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          statusDiv.className = 'avail-indicator text-muted';
-          statusDiv.innerHTML = 'Error checking';
+      const mobile = document.getElementById('modal-mobile').value.trim();
+      let url = `/api/check-product?product_code=${encodeURIComponent(code)}&date=${encodeURIComponent(dateVal)}`;
+      if (mobile) url += `&exclude_mobile=${encodeURIComponent(mobile)}`;
+      fetch(url).then(r => r.json()).then(res => {
+        let dup2 = false;
+        block.querySelectorAll(`.booking-row-item:not(#${rowId})`).forEach(o => {
+          if (o.querySelector('.booking-row-product')?.value.trim().toUpperCase() === code) dup2 = true;
         });
+        if (dup2) return;
+        if (res.available) {
+          status.className = 'avail-indicator available';
+          status.innerHTML = '<i class="bi bi-check-circle-fill"></i> Available';
+          inp.classList.add('input-check-valid'); inp.classList.remove('input-check-invalid');
+        } else {
+          status.className = 'avail-indicator booked';
+          status.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Booked by ${res.customer||'Other'}`;
+          inp.classList.add('input-check-invalid'); inp.classList.remove('input-check-valid');
+        }
+        if (!skipSiblings) others.forEach(o => triggerAvailabilityCheck(o.id, true));
+      }).catch(() => {
+        status.className = 'avail-indicator';
+        status.innerHTML = '<span style="color:var(--text-muted);">Error checking</span>';
+      });
     }, 400);
   }
 
-  // Open QR Code Modal
+  // ── MODAL OPENERS ────────────────────────────────────────────────
   function openQrModal(mobile) {
-    const qrImg = document.getElementById('modalQrCodeImg');
-    if (qrImg) {
-      qrImg.src = `/generate-qr/${mobile}?t=${new Date().getTime()}`;
-    }
-    const modal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
-    modal.show();
+    document.getElementById('modalQrCodeImg').src = `/generate-qr/${mobile}?t=${Date.now()}`;
+    new bootstrap.Modal(document.getElementById('qrCodeModal')).show();
   }
 
-  // Submit Add Payment (Quick Payment Update)
-  function submitAddPayment(event, customerId) {
-    event.preventDefault();
-    const amountInput = document.getElementById('paymentAmountInput');
-    const submitBtn = document.getElementById('paymentSubmitBtn');
-    if (!amountInput || !submitBtn) return;
-
-    const amount = parseInt(amountInput.value);
-    if (isNaN(amount) || amount <= 0) {
-      showToast("Please enter a valid amount greater than zero.", "error");
-      return;
-    }
-
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Adding...';
-
-    fetch('/profile/add-payment', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        customer_id: customerId,
-        amount: amount
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        showToast(data.message, "success");
-        setTimeout(() => {
-          window.location.reload();
-        }, 800);
-      } else {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Add';
-        showToast(data.message || "Failed to update payment", "error");
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Add';
-      showToast("Network error during payment update.", "error");
-    });
-  }
-
-  // Open Quick Availability Checker Modal
   function openWidgetAvailabilityModal() {
-    // Clear previous check results
-    const resultDiv = document.getElementById('modalCheckResult');
-    if (resultDiv) resultDiv.classList.add('d-none');
+    document.getElementById('modalCheckResult').classList.add('d-none');
     document.getElementById('modalCheckDate').value = '';
     document.getElementById('modalCheckCode').value = '';
-    const modal = new bootstrap.Modal(document.getElementById('quickAvailabilityModal'));
-    modal.show();
+    new bootstrap.Modal(document.getElementById('quickAvailabilityModal')).show();
   }
 
-  // Modal Availability Checker Action
-  function performModalAvailabilityCheck() {
-    const dateInput = document.getElementById('modalCheckDate');
-    const codeInput = document.getElementById('modalCheckCode');
-    const resultDiv = document.getElementById('modalCheckResult');
-    if (!dateInput || !codeInput || !resultDiv) return;
-    
-    const dateVal = dateInput.value.trim();
-    const codeVal = codeInput.value.trim().toUpperCase();
-
-    if (!dateVal || !codeVal) {
-      showToast("Please select both a date and a costume code.", "error");
-      return;
-    }
-
-    resultDiv.className = 'mt-3 p-2 rounded text-xs fw-bold bg-light text-secondary';
-    resultDiv.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Checking availability...';
-    resultDiv.classList.remove('d-none');
-
-    fetch(`/api/check-product?product_code=${encodeURIComponent(codeVal)}&date=${encodeURIComponent(dateVal)}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.available) {
-          resultDiv.className = 'mt-3 p-2.5 rounded text-xs fw-bold bg-success bg-opacity-10 text-success border border-success border-opacity-25';
-          resultDiv.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> Excellent! Costume '${codeVal}' is AVAILABLE on ${dateVal}.`;
-        } else {
-          resultDiv.className = 'mt-3 p-2.5 rounded text-xs fw-bold bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25';
-          resultDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> Costume '${codeVal}' is ALREADY BOOKED on ${dateVal} by ${data.customer || 'another customer'}.`;
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        resultDiv.className = 'mt-3 p-2.5 rounded text-xs fw-bold bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25';
-        resultDiv.innerHTML = `<i class="bi bi-exclamation-circle-fill me-1"></i> Network error occurred while checking.`;
-      });
-  }
-
-  // Dashboard Widget Availability Checker Action
-  function performWidgetAvailabilityCheck() {
-    const dateInput = document.getElementById('widgetCheckDate');
-    const codeInput = document.getElementById('widgetCheckCode');
-    const resultDiv = document.getElementById('widgetCheckResult');
-    if (!dateInput || !codeInput || !resultDiv) return;
-
-    const dateVal = dateInput.value.trim();
-    const codeVal = codeInput.value.trim().toUpperCase();
-
-    if (!dateVal || !codeVal) {
-      showToast("Please select both a date and a costume code.", "error");
-      return;
-    }
-
-    resultDiv.className = 'mt-3 p-2 rounded text-xs fw-bold bg-light text-secondary';
-    resultDiv.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Checking availability...';
-    resultDiv.classList.remove('d-none');
-
-    fetch(`/api/check-product?product_code=${encodeURIComponent(codeVal)}&date=${encodeURIComponent(dateVal)}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.available) {
-          resultDiv.className = 'mt-3 p-2.5 rounded text-xs fw-bold bg-success bg-opacity-10 text-success border border-success border-opacity-25 animate__animated animate__fadeIn';
-          resultDiv.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> Excellent! Costume '${codeVal}' is AVAILABLE on ${dateVal}.`;
-        } else {
-          resultDiv.className = 'mt-3 p-2.5 rounded text-xs fw-bold bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 animate__animated animate__fadeIn';
-          resultDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> Costume '${codeVal}' is ALREADY BOOKED on ${dateVal} by ${data.customer || 'another customer'}.`;
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        resultDiv.className = 'mt-3 p-2.5 rounded text-xs fw-bold bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 animate__animated animate__fadeIn';
-        resultDiv.innerHTML = `<i class="bi bi-exclamation-circle-fill me-1"></i> Network error occurred while checking.`;
-      });
-  }
-
-  // Autocomplete based on mobile number
-  document.addEventListener('DOMContentLoaded', () => {
-    const mobileEl = document.getElementById('modal-mobile');
-    if (mobileEl) {
-      mobileEl.addEventListener('input', function() {
-        let mobileVal = this.value.replace(/\D/g, '').slice(0, 10);
-        this.value = mobileVal;
-        
-        // Only search if it reaches exactly 10 digits
-        if (mobileVal.length === 10) {
-          const customerIdEl = document.getElementById('modal-customer-id');
-          const customerId = customerIdEl ? customerIdEl.value : '';
-          if (!customerId || customerId === 'new') {
-            console.log("Fetching navaratri customer autocomplete for modal mobile:", mobileVal);
-            fetch(`/get-navaratri-customer?mobile=${mobileVal}`)
-              .then(res => {
-                console.log("Modal autocomplete response status:", res.status);
-                return res.json();
-              })
-              .then(data => {
-                console.log("Modal autocomplete data received:", data);
-                if (data.exists && data.data) {
-                  const nameEl = document.getElementById('modal-name');
-                  const addrEl = document.getElementById('modal-address');
-                  const grpEl = document.getElementById('modal-group');
-                  const refEl = document.getElementById('modal-reference');
-                  
-                  if (nameEl) nameEl.value = data.data.name || '';
-                  if (addrEl) addrEl.value = data.data.address || '';
-                  if (grpEl) grpEl.value = data.data.group || '';
-                  if (refEl) refEl.value = data.data.reference || '';
-                  
-                  if (data.in_cycle) {
-                    showToast("👤 Booking in this cycle found! Details, group, and reference pre-filled.", "success");
-                  } else {
-                    showToast("👤 Returning customer found! Details, group, and reference pre-filled.", "success");
-                  }
-                } else {
-                  console.log("Customer not found or empty data returned for modal.");
-                }
-              })
-              .catch(err => console.error("Error fetching customer data:", err));
-          }
-        }
-      });
-    }
-  });
-
-  // Opens Edit Modal
   function openEditModal() {
     if (!customerData) return;
-    
-    document.getElementById('editCustomerModalLabel').innerHTML = `<i class="bi bi-pencil-square me-2"></i> Edit customer: ${customerData.name}`;
-    document.getElementById('modal-customer-id').value = customerData.id;
-    document.getElementById('modal-name').value = customerData.name;
-    document.getElementById('modal-mobile').value = customerData.mobile;
-    document.getElementById('modal-address').value = customerData.address;
-    document.getElementById('modal-group').value = customerData.group;
-    document.getElementById('modal-reference').value = customerData.reference;
-    document.getElementById('modal-deposit').value = customerData.deposit;
-    document.getElementById('modal-total-price').value = customerData.total_price;
-    document.getElementById('modal-given-price').value = customerData.given_price;
-    
-    // Clear rows container
-    const container = document.getElementById('modalBookingRowsContainer');
-    container.innerHTML = '';
-    
-    // Compile and group by date
-    const dateGroups = {};
-    customerData.bookings.forEach(b => {
-      if (!dateGroups[b.date]) dateGroups[b.date] = [];
-      dateGroups[b.date].push(b.product);
+    document.getElementById('editCustomerModalLabel').innerHTML = `<i class="bi bi-pencil-square me-2"></i>Edit: ${customerData.name}`;
+    document.getElementById('modal-customer-id').value  = customerData.id;
+    document.getElementById('modal-name').value         = customerData.name;
+    document.getElementById('modal-mobile').value       = customerData.mobile;
+    document.getElementById('modal-address').value      = customerData.address;
+    document.getElementById('modal-group').value        = customerData.group;
+    document.getElementById('modal-reference').value    = customerData.reference;
+    document.getElementById('modal-deposit').value      = customerData.deposit;
+    document.getElementById('modal-total-price').value  = customerData.total_price;
+    document.getElementById('modal-given-price').value  = customerData.given_price;
+    const c = document.getElementById('modalBookingRowsContainer');
+    c.innerHTML = '';
+    const groups = {};
+    customerData.bookings.forEach(b => { if (!groups[b.date]) groups[b.date] = []; groups[b.date].push(b.product); });
+    Object.keys(groups).forEach(d => {
+      const bid = addModalDateBlock(d);
+      groups[d].forEach(p => addModalProductRow(bid, p, true));
     });
-    
-    // Populate Date Blocks
-    Object.keys(dateGroups).forEach(date => {
-      const blockId = addModalDateBlock(date);
-      dateGroups[date].forEach(prod => {
-        addModalProductRow(blockId, prod, true);
-      });
-    });
-    
     editModalObj.show();
   }
 
-  // Opens Modal in New Customer Mode
   function openNewCustomerModal() {
-    document.getElementById('editCustomerModalLabel').innerHTML = `<i class="bi bi-person-plus-fill me-2"></i> Create New Customer Booking`;
-    document.getElementById('modal-customer-id').value = 'new';
-    document.getElementById('modal-name').value = '';
-    document.getElementById('modal-mobile').value = '';
-    document.getElementById('modal-address').value = '';
-    document.getElementById('modal-group').value = '';
-    document.getElementById('modal-reference').value = '';
-    document.getElementById('modal-deposit').value = '';
+    document.getElementById('editCustomerModalLabel').innerHTML = `<i class="bi bi-person-plus-fill me-2"></i>New Booking`;
+    ['modal-customer-id','modal-name','modal-mobile','modal-address','modal-group','modal-reference','modal-deposit'].forEach(id => {
+      document.getElementById(id).value = id === 'modal-customer-id' ? 'new' : '';
+    });
     document.getElementById('modal-total-price').value = 0;
     document.getElementById('modal-given-price').value = 0;
-    
-    const container = document.getElementById('modalBookingRowsContainer');
-    container.innerHTML = '';
-    
-    // Add one date group with one empty product
-    const blockId = addModalDateBlock("");
-    addModalProductRow(blockId, "", false);
-    
+    const c = document.getElementById('modalBookingRowsContainer');
+    c.innerHTML = '';
+    const bid = addModalDateBlock('');
+    addModalProductRow(bid, '', false);
     editModalObj.show();
   }
 
-  // Submit profile edit payload to update endpoint
+  // ── SAVE PROFILE ─────────────────────────────────────────────────
   function saveCustomerProfile() {
-    const customerId = document.getElementById('modal-customer-id').value;
-    const name = document.getElementById('modal-name').value.trim();
-    const mobile = document.getElementById('modal-mobile').value.trim();
-    const address = document.getElementById('modal-address').value.trim();
-    const group = document.getElementById('modal-group').value.trim();
-    const reference = document.getElementById('modal-reference').value.trim();
-    const deposit = document.getElementById('modal-deposit').value.trim();
+    const id          = document.getElementById('modal-customer-id').value;
+    const name        = document.getElementById('modal-name').value.trim();
+    const mobile      = document.getElementById('modal-mobile').value.trim();
+    const address     = document.getElementById('modal-address').value.trim();
+    const group       = document.getElementById('modal-group').value.trim();
+    const reference   = document.getElementById('modal-reference').value.trim();
+    const deposit     = document.getElementById('modal-deposit').value.trim();
     const total_price = parseInt(document.getElementById('modal-total-price').value) || 0;
     const given_price = parseInt(document.getElementById('modal-given-price').value) || 0;
-    
-    const mobileError = document.getElementById('modal-mobile-error');
-    
-    if (!name || !mobile) {
-      showToast("Name and mobile number are mandatory fields.", "error");
-      return;
-    }
-    
-    if (mobile.length !== 10 || isNaN(mobile)) {
-      mobileError.classList.remove('d-none');
-      showToast("Mobile number must be exactly 10 numeric digits.", "error");
-      return;
-    } else {
-      mobileError.classList.add('d-none');
-    }
-    
-    if (given_price > total_price) {
-      showToast("Paid amount cannot exceed total price.", "error");
-      return;
-    }
-    
-    // Construct grouped bookings payload
+    const errEl       = document.getElementById('modal-mobile-error');
+    if (!name || !mobile) { showToast("Name and mobile are required.", "error"); return; }
+    if (mobile.length !== 10 || isNaN(mobile)) { errEl.classList.remove('d-none'); showToast("Mobile must be 10 digits.", "error"); return; }
+    errEl.classList.add('d-none');
+    if (given_price > total_price) { showToast("Paid amount cannot exceed total.", "error"); return; }
     const bookingRows = [];
-    let conflictPresent = false;
-    let emptyRowPresent = false;
-    
-    const dateBlocks = document.querySelectorAll('.modal-date-block');
-    dateBlocks.forEach(block => {
+    let conflict = false, empty = false;
+    document.querySelectorAll('.modal-date-block').forEach(block => {
       const dateVal = block.querySelector('.modal-date-picker').value;
-      if (!dateVal) {
-        emptyRowPresent = true;
-        return;
-      }
-      
-      const prodRows = block.querySelectorAll('.booking-row-item');
-      prodRows.forEach(row => {
-        const prodInput = row.querySelector('.booking-row-product');
-        const code = prodInput.value.trim().toUpperCase();
-        
-        if (!code) {
-          emptyRowPresent = true;
-          return;
-        }
-        if (prodInput.classList.contains('input-check-invalid')) {
-          conflictPresent = true;
-        }
-        
-        bookingRows.push({
-          date: dateVal,
-          products: [code]
-        });
+      if (!dateVal) { empty = true; return; }
+      block.querySelectorAll('.booking-row-item').forEach(row => {
+        const inp  = row.querySelector('.booking-row-product');
+        const code = inp.value.trim().toUpperCase();
+        if (!code) { empty = true; return; }
+        if (inp.classList.contains('input-check-invalid')) conflict = true;
+        bookingRows.push({ date: dateVal, products: [code] });
       });
     });
-    
-    if (emptyRowPresent) {
-      showToast("Please fill all booking dates and products, or delete unused slots.", "error");
-      return;
-    }
-    
-    if (conflictPresent) {
-      showToast("Please resolve all product conflicts before saving.", "error");
-      return;
-    }
-    
+    if (empty)    { showToast("Fill all dates and products, or remove empty slots.", "error"); return; }
+    if (conflict) { showToast("Resolve all product conflicts before saving.", "error"); return; }
     document.getElementById('modalLoadingOverlay').classList.remove('d-none');
-    const saveBtn = document.getElementById('saveCustomerModalBtn');
-    saveBtn.disabled = true;
-    saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Saving...';
-    
-    const payload = {
-      customer_id: customerId,
-      name: name,
-      mobile: mobile,
-      address: address,
-      group: group,
-      reference: reference,
-      deposit: deposit,
-      total_price: total_price,
-      given_price: given_price,
-      bookings: bookingRows
-    };
-    
+    const btn = document.getElementById('saveCustomerModalBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving…';
     fetch('/profile/update', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(data => {
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customer_id:id, name, mobile, address, group, reference, deposit, total_price, given_price, bookings: bookingRows })
+    }).then(r => r.json()).then(data => {
       if (data.success) {
         showToast(data.message, "success");
         editModalObj.hide();
-        setTimeout(() => {
-          window.location.href = `/profile/${data.customer_id}`;
-        }, 800);
+        setTimeout(() => window.location.href = `/profile/${data.customer_id}`, 800);
       } else {
         document.getElementById('modalLoadingOverlay').classList.add('d-none');
-        saveBtn.disabled = false;
-        saveBtn.innerHTML = 'Save Changes';
-        showToast(data.message || "Failed to update profile.", "error");
+        btn.disabled = false; btn.innerHTML = 'Save Changes';
+        showToast(data.message || "Failed to save.", "error");
       }
-    })
-    .catch(err => {
-      console.error(err);
+    }).catch(() => {
       document.getElementById('modalLoadingOverlay').classList.add('d-none');
-      saveBtn.disabled = false;
-      saveBtn.innerHTML = 'Save Changes';
-      showToast("Internal connection error while saving profile.", "error");
+      btn.disabled = false; btn.innerHTML = 'Save Changes';
+      showToast("Connection error while saving.", "error");
     });
   }
 
-  // Opens Quick Reassignment Allocation Modal (Move date/product)
-  let activeReassignRow = null;
+  // ── ADD PAYMENT ──────────────────────────────────────────────────
+  function submitAddPayment(event, customerId) {
+    event.preventDefault();
+    const inp = document.getElementById('paymentAmountInput');
+    const btn = document.getElementById('paymentSubmitBtn');
+    const amount = parseInt(inp.value);
+    if (isNaN(amount) || amount <= 0) { showToast("Enter a valid amount.", "error"); return; }
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>';
+    fetch('/profile/add-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customer_id: customerId, amount })
+    }).then(r => r.json()).then(data => {
+      if (data.success) { showToast(data.message, "success"); setTimeout(() => location.reload(), 800); }
+      else { btn.disabled = false; btn.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Add'; showToast(data.message || "Failed.", "error"); }
+    }).catch(() => {
+      btn.disabled = false; btn.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Add';
+      showToast("Network error.", "error");
+    });
+  }
+
+  // ── AVAILABILITY CHECKS ──────────────────────────────────────────
+  function performModalAvailabilityCheck() {
+    const date = document.getElementById('modalCheckDate').value.trim();
+    const code = document.getElementById('modalCheckCode').value.trim().toUpperCase();
+    const res  = document.getElementById('modalCheckResult');
+    if (!date || !code) { showToast("Select a date and enter a costume code.", "error"); return; }
+    res.className = 'mt-3 p-2 rounded fw-bold';
+    res.style.background = 'var(--light-blue)';
+    res.style.color = 'var(--text-muted)';
+    res.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Checking…';
+    res.classList.remove('d-none');
+    fetch(`/api/check-product?product_code=${encodeURIComponent(code)}&date=${encodeURIComponent(date)}`)
+      .then(r => r.json()).then(data => {
+        if (data.available) {
+          res.style.background = 'rgba(61,186,122,0.12)'; res.style.color = 'var(--success)';
+          res.style.border = '1px solid rgba(61,186,122,0.3)';
+          res.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> '${code}' is AVAILABLE on ${date}.`;
+        } else {
+          res.style.background = 'rgba(224,82,82,0.12)'; res.style.color = 'var(--danger)';
+          res.style.border = '1px solid rgba(224,82,82,0.3)';
+          res.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> '${code}' BOOKED on ${date} by ${data.customer||'another customer'}.`;
+        }
+      }).catch(() => {
+        res.style.background = 'rgba(224,148,50,0.12)'; res.style.color = 'var(--warning)';
+        res.innerHTML = `<i class="bi bi-exclamation-circle-fill me-1"></i> Network error.`;
+      });
+  }
+
+  function performWidgetAvailabilityCheck() {
+    const date = document.getElementById('widgetCheckDate').value.trim();
+    const code = document.getElementById('widgetCheckCode').value.trim().toUpperCase();
+    const res  = document.getElementById('widgetCheckResult');
+    if (!date || !code) { showToast("Select a date and enter a costume code.", "error"); return; }
+    res.className = 'mt-3 p-2 rounded fw-bold';
+    res.style.cssText = 'background:var(--light-blue);color:var(--text-muted);font-size:0.82rem;';
+    res.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Checking…';
+    res.classList.remove('d-none');
+    fetch(`/api/check-product?product_code=${encodeURIComponent(code)}&date=${encodeURIComponent(date)}`)
+      .then(r => r.json()).then(data => {
+        if (data.available) {
+          res.style.cssText = 'background:rgba(61,186,122,0.12);color:var(--success);border:1px solid rgba(61,186,122,0.3);font-size:0.82rem;';
+          res.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> '${code}' is AVAILABLE on ${date}.`;
+        } else {
+          res.style.cssText = 'background:rgba(224,82,82,0.12);color:var(--danger);border:1px solid rgba(224,82,82,0.3);font-size:0.82rem;';
+          res.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> '${code}' BOOKED on ${date} by ${data.customer||'another customer'}.`;
+        }
+      }).catch(() => {
+        res.style.cssText = 'background:rgba(224,148,50,0.12);color:var(--warning);font-size:0.82rem;';
+        res.innerHTML = `<i class="bi bi-exclamation-circle-fill me-1"></i> Network error.`;
+      });
+  }
+
+  // ── REASSIGN ─────────────────────────────────────────────────────
   function quickReassign(date, product) {
     if (!customerData) return;
-    
-    document.getElementById('reassign-cust-id').value = customerData.id;
+    document.getElementById('reassign-cust-id').value   = customerData.id;
     document.getElementById('reassign-old-product').value = product;
-    document.getElementById('reassign-old-date').value = date;
-    
-    // Prep defaults for new inputs
+    document.getElementById('reassign-old-date').value  = date;
     document.getElementById('reassign-new-product').value = product;
-    
-    // Parse old date to HTML input date YYYY-MM-DD
-    let parsedDate = date;
+    let parsed = date;
     if (date.includes('-') && date.split('-')[0].length === 2) {
-      const parts = date.split('-');
-      parsedDate = `20${parts[2]}-${parts[1]}-${parts[0]}`;
+      const p = date.split('-'); parsed = `20${p[2]}-${p[1]}-${p[0]}`;
     }
-    document.getElementById('reassign-new-date').value = parsedDate;
+    document.getElementById('reassign-new-date').value  = parsed;
     document.getElementById('reassign-price-diff').value = 0;
-    
-    // Clear status
-    const statusDiv = document.getElementById('reassign-avail-status');
-    statusDiv.className = 'avail-indicator text-success';
-    statusDiv.innerHTML = '<i class="bi bi-check-circle-fill"></i> Currently Booked';
-    
+    const s = document.getElementById('reassign-avail-status');
+    s.className = 'avail-indicator available';
+    s.innerHTML = '<i class="bi bi-check-circle-fill"></i> Currently Booked';
     reassignModalObj.show();
   }
 
-  // Reassignment Availability Check
-  let reassignCheckTimer = null;
+  let reassignTimer = null;
   function checkReassignAvailability() {
-    const oldProduct = document.getElementById('reassign-old-product').value.trim().toUpperCase();
-    const oldDateVal = document.getElementById('reassign-old-date').value.trim();
-    
-    const newProduct = document.getElementById('reassign-new-product').value.trim().toUpperCase();
-    const newDate = document.getElementById('reassign-new-date').value;
-    const statusDiv = document.getElementById('reassign-avail-status');
-    
-    const custMobile = customerData ? customerData.mobile : "";
-    
-    let oldDateFormatted = oldDateVal;
-    
-    let newDateFormatted = newDate;
+    const oldProd  = document.getElementById('reassign-old-product').value.trim().toUpperCase();
+    const oldDate  = document.getElementById('reassign-old-date').value.trim();
+    const newProd  = document.getElementById('reassign-new-product').value.trim().toUpperCase();
+    const newDate  = document.getElementById('reassign-new-date').value;
+    const status   = document.getElementById('reassign-avail-status');
+    const confirmB = document.getElementById('confirmReassignBtn');
+    const mobile   = customerData ? customerData.mobile : '';
+    let newFmt = newDate;
     if (newDate && newDate.includes('-')) {
-      const parts = newDate.split('-');
-      newDateFormatted = `${parts[2]}-${parts[1]}-${parts[0].slice(-2)}`;
+      const p = newDate.split('-'); newFmt = `${p[2]}-${p[1]}-${p[0].slice(-2)}`;
     }
-    
-    if (oldProduct === newProduct && oldDateFormatted === newDateFormatted) {
-      statusDiv.className = 'avail-indicator text-success';
-      statusDiv.innerHTML = '<i class="bi bi-check-circle-fill"></i> Currently Booked (Unchanged)';
-      document.getElementById('confirmReassignBtn').disabled = false;
-      return;
+    if (oldProd === newProd && oldDate === newFmt) {
+      status.className = 'avail-indicator available';
+      status.innerHTML = '<i class="bi bi-check-circle-fill"></i> Unchanged';
+      confirmB.disabled = false; return;
     }
-    
-    if (!newProduct || !newDate) {
-      statusDiv.className = 'avail-indicator text-muted';
-      statusDiv.innerHTML = 'Enter new product and date';
-      document.getElementById('confirmReassignBtn').disabled = true;
-      return;
+    if (!newProd || !newDate) {
+      status.className = 'avail-indicator'; status.innerHTML = '<span style="color:var(--text-muted);">Enter product and date</span>';
+      confirmB.disabled = true; return;
     }
-    
-    statusDiv.className = 'avail-indicator checking text-secondary';
-    statusDiv.innerHTML = '<div class="spinner-border spinner-border-sm text-secondary me-1" role="status"></div> Checking availability...';
-    
-    if (reassignCheckTimer) clearTimeout(reassignCheckTimer);
-    
-    reassignCheckTimer = setTimeout(() => {
-      let url = `/api/check-product?product_code=${encodeURIComponent(newProduct)}&date=${encodeURIComponent(newDate)}`;
-      if (custMobile) {
-        url += `&exclude_mobile=${encodeURIComponent(custMobile)}`;
-      }
-      
-      fetch(url)
-        .then(res => res.json())
-        .then(res => {
-          if (res.available) {
-            statusDiv.className = 'avail-indicator available text-success';
-            statusDiv.innerHTML = '<i class="bi bi-check-circle-fill"></i> Available';
-            document.getElementById('confirmReassignBtn').disabled = false;
-          } else {
-            statusDiv.className = 'avail-indicator booked text-danger';
-            statusDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Booked by ${res.customer || 'Unknown'}`;
-            document.getElementById('confirmReassignBtn').disabled = true;
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          statusDiv.className = 'avail-indicator text-muted';
-          statusDiv.innerHTML = 'Error checking availability';
-          document.getElementById('confirmReassignBtn').disabled = true;
-        });
+    status.className = 'avail-indicator checking';
+    status.innerHTML = '<div class="spinner-border spinner-border-sm me-1"></div> Checking…';
+    if (reassignTimer) clearTimeout(reassignTimer);
+    reassignTimer = setTimeout(() => {
+      let url = `/api/check-product?product_code=${encodeURIComponent(newProd)}&date=${encodeURIComponent(newDate)}`;
+      if (mobile) url += `&exclude_mobile=${encodeURIComponent(mobile)}`;
+      fetch(url).then(r => r.json()).then(res => {
+        if (res.available) {
+          status.className = 'avail-indicator available'; status.innerHTML = '<i class="bi bi-check-circle-fill"></i> Available';
+          confirmB.disabled = false;
+        } else {
+          status.className = 'avail-indicator booked';
+          status.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Booked by ${res.customer||'Unknown'}`;
+          confirmB.disabled = true;
+        }
+      }).catch(() => {
+        status.className = 'avail-indicator'; status.innerHTML = '<span style="color:var(--text-muted);">Error</span>';
+        confirmB.disabled = true;
+      });
     }, 450);
   }
 
-  // Confirm product reallocation
   function confirmReassign() {
-    const custId = document.getElementById('reassign-cust-id').value;
-    const oldProduct = document.getElementById('reassign-old-product').value;
-    const oldDate = document.getElementById('reassign-old-date').value;
-    const newProduct = document.getElementById('reassign-new-product').value.trim().toUpperCase();
-    const newDate = document.getElementById('reassign-new-date').value;
-    const priceDiff = document.getElementById('reassign-price-diff').value;
-    
-    const confirmBtn = document.getElementById('confirmReassignBtn');
-    confirmBtn.disabled = true;
-    confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm text-white" role="status"></span>';
-    
-    const payload = {
-      customer_id: custId,
-      old_date: oldDate,
-      old_product: oldProduct,
-      new_date: newDate,
-      new_product: newProduct,
-      price_diff: priceDiff
-    };
-    
+    const btn = document.getElementById('confirmReassignBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
     fetch('/profile/reassign', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        showToast(data.message, "success");
-        reassignModalObj.hide();
-        setTimeout(() => {
-          window.location.reload();
-        }, 800);
-      } else {
-        confirmBtn.disabled = false;
-        confirmBtn.innerHTML = 'Confirm Move';
-        showToast(data.message || "Reassignment failed", "error");
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      confirmBtn.disabled = false;
-      confirmBtn.innerHTML = 'Confirm Move';
-      showToast("Network error while reassigning.", "error");
-    });
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer_id: document.getElementById('reassign-cust-id').value,
+        old_date:    document.getElementById('reassign-old-date').value,
+        old_product: document.getElementById('reassign-old-product').value,
+        new_date:    document.getElementById('reassign-new-date').value,
+        new_product: document.getElementById('reassign-new-product').value.trim().toUpperCase(),
+        price_diff:  document.getElementById('reassign-price-diff').value
+      })
+    }).then(r => r.json()).then(data => {
+      if (data.success) { showToast(data.message, "success"); reassignModalObj.hide(); setTimeout(() => location.reload(), 800); }
+      else { btn.disabled = false; btn.innerHTML = 'Confirm Move'; showToast(data.message||"Failed.", "error"); }
+    }).catch(() => { btn.disabled = false; btn.innerHTML = 'Confirm Move'; showToast("Network error.", "error"); });
   }
 
-  // Deletion dialog
+  // ── DELETE ROW ───────────────────────────────────────────────────
   let deleteRowTarget = null;
   function quickDeleteBookingRow(date, product) {
     if (!customerData) return;
-    
     deleteRowTarget = { date, product };
     document.getElementById('del-prod-code').innerText = product;
     document.getElementById('del-prod-date').innerText = date;
     document.getElementById('delete-price-diff').value = 0;
-    
     deleteModalObj.show();
   }
 
-  // Confirm deletion of product booking row
   function confirmDeleteBookingRow() {
     if (!deleteRowTarget || !customerData) return;
-    
-    const priceDiff = document.getElementById('delete-price-diff').value;
-    const deleteBtn = document.getElementById('confirmDeleteRowBtn');
-    deleteBtn.disabled = true;
-    deleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm text-white" role="status"></span>';
-    
-    const payload = {
-      customer_id: customerData.id,
-      date: deleteRowTarget.date,
-      product: deleteRowTarget.product,
-      price_diff: priceDiff
-    };
-    
+    const btn = document.getElementById('confirmDeleteRowBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
     fetch('/profile/delete-booking', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        showToast(data.message, "success");
-        deleteModalObj.hide();
-        setTimeout(() => {
-          window.location.reload();
-        }, 800);
-      } else {
-        deleteBtn.disabled = false;
-        deleteBtn.innerHTML = 'Confirm Delete';
-        showToast(data.message || "Failed to delete row", "error");
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      deleteBtn.disabled = false;
-      deleteBtn.innerHTML = 'Confirm Delete';
-      showToast("Network error during deletion.", "error");
-    });
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer_id: customerData.id,
+        date:        deleteRowTarget.date,
+        product:     deleteRowTarget.product,
+        price_diff:  document.getElementById('delete-price-diff').value
+      })
+    }).then(r => r.json()).then(data => {
+      if (data.success) { showToast(data.message, "success"); deleteModalObj.hide(); setTimeout(() => location.reload(), 800); }
+      else { btn.disabled = false; btn.innerHTML = 'Confirm Delete'; showToast(data.message||"Failed.", "error"); }
+    }).catch(() => { btn.disabled = false; btn.innerHTML = 'Confirm Delete'; showToast("Network error.", "error"); });
   }
 
-  // Booking Listing Search & Filters Integration
-  (function() {
-    let selectedGroups = [];
-    let selectedReferences = [];
-
-    // Dropdown toggles
-    function toggleDropdown(buttonId, dropdownId) {
-      const btn = document.getElementById(buttonId);
-      const dropdown = document.getElementById(dropdownId);
-      if (!btn || !dropdown) return;
-      
-      const isActive = dropdown.classList.contains('active');
-      
-      // Close other dropdowns
-      document.querySelectorAll('.multi-select-dropdown').forEach(d => {
-        if (d.id !== dropdownId) d.classList.remove('active');
-      });
-      document.querySelectorAll('.multi-select-button').forEach(b => {
-        if (b.id !== buttonId) b.classList.remove('active');
-      });
-      
-      if (!isActive) {
-        dropdown.classList.add('active');
-        btn.classList.add('active');
-      } else {
-        dropdown.classList.remove('active');
-        btn.classList.remove('active');
-      }
-    }
-
-    // Toggle Group Dropdown
-    const groupBtn = document.getElementById('groupFilterButton');
-    if (groupBtn) {
-      groupBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        toggleDropdown('groupFilterButton', 'groupDropdown');
-      });
-    }
-
-    // Toggle Reference Dropdown
-    const refBtn = document.getElementById('referenceFilterButton');
-    if (refBtn) {
-      refBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        toggleDropdown('referenceFilterButton', 'referenceDropdown');
-      });
-    }
-
-    // Update Dropdown summary text
-    function updateGroupSummary() {
-      const summary = document.getElementById('groupSummary');
-      if (!summary) return;
-      if (selectedGroups.length === 0) {
-        summary.textContent = 'All Groups';
-      } else if (selectedGroups.length === 1) {
-        summary.textContent = selectedGroups[0];
-      } else {
-        summary.textContent = selectedGroups.length + ' Groups Selected';
-      }
-    }
-
-    function updateReferenceSummary() {
-      const summary = document.getElementById('referenceSummary');
-      if (!summary) return;
-      if (selectedReferences.length === 0) {
-        summary.textContent = 'All References';
-      } else if (selectedReferences.length === 1) {
-        summary.textContent = selectedReferences[0];
-      } else {
-        summary.textContent = selectedReferences.length + ' Ref Selected';
-      }
-    }
-
-    // Perform filter search on both customer sidebar and bookings dashboard table
-    function performSearch() {
-      const searchInput = document.getElementById('customerSearchInput');
-      if (!searchInput) return;
-      
-      const query = searchInput.value.toLowerCase().trim();
-      
-      // Save filter state to sessionStorage
-      sessionStorage.setItem('profile_search', query);
-      sessionStorage.setItem('profile_selected_groups', JSON.stringify(selectedGroups));
-      sessionStorage.setItem('profile_selected_references', JSON.stringify(selectedReferences));
-
-      // 1. Filter Left Sidebar Customers
-      const customerItems = document.querySelectorAll('.customer-list-item');
-      let visibleCustomersCount = 0;
-      
-      customerItems.forEach(item => {
-        const name = (item.getAttribute('data-name') || '').toLowerCase();
-        const mobile = (item.getAttribute('data-mobile') || '').toLowerCase();
-        const group = (item.getAttribute('data-group') || '').toLowerCase();
-        const reference = (item.getAttribute('data-reference') || '').toLowerCase();
-        
-        const matchesSearch = query === '' || 
-                              name.includes(query) || 
-                              mobile.includes(query) || 
-                              group.includes(query) || 
-                              reference.includes(query);
-                              
-        const matchesGroup = selectedGroups.length === 0 || 
-                             selectedGroups.map(g => g.toLowerCase()).includes(group);
-        const matchesReference = selectedReferences.length === 0 || 
-                                 selectedReferences.map(r => r.toLowerCase()).includes(reference);
-        
-        if (matchesSearch && matchesGroup && matchesReference) {
-          item.style.setProperty('display', '', 'important');
-          visibleCustomersCount++;
-        } else {
-          item.style.setProperty('display', 'none', 'important');
-        }
-      });
-      
-      // Update sidebar customer count badge
-      const customerCountBadge = document.getElementById('customerCountBadge');
-      if (customerCountBadge) {
-        const totalCustomers = customerItems.length;
-        const isFiltered = query || selectedGroups.length > 0 || selectedReferences.length > 0;
-        if (isFiltered) {
-          customerCountBadge.textContent = `${visibleCustomersCount} / ${totalCustomers}`;
-        } else {
-          customerCountBadge.textContent = totalCustomers;
+  // ── AUTOCOMPLETE ON MOBILE ───────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    const mobileEl = document.getElementById('modal-mobile');
+    if (!mobileEl) return;
+    mobileEl.addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '').slice(0, 10);
+      if (this.value.length === 10) {
+        const cid = document.getElementById('modal-customer-id').value;
+        if (!cid || cid === 'new') {
+          fetch(`/get-navaratri-customer?mobile=${this.value}`).then(r => r.json()).then(data => {
+            if (data.exists && data.data) {
+              ['name','address','group','reference'].forEach(f => {
+                const el = document.getElementById(`modal-${f}`);
+                if (el) el.value = data.data[f] || '';
+              });
+              showToast(data.in_cycle ? "👤 Booking found — details pre-filled." : "👤 Returning customer — details pre-filled.", "success");
+            }
+          }).catch(e => console.error(e));
         }
       }
-
-      // 2. Filter Right Dashboard Table Rows (if present)
-      const rows = document.querySelectorAll('.booking-row');
-      let visibleBookingsCount = 0;
-      
-      rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        const group = (row.getAttribute('data-group') || '').toLowerCase();
-        const reference = (row.getAttribute('data-reference') || '').toLowerCase();
-        
-        const matchesSearch = query === '' || text.includes(query);
-        
-        const matchesGroup = selectedGroups.length === 0 || 
-                             selectedGroups.map(g => g.toLowerCase()).includes(group);
-        const matchesReference = selectedReferences.length === 0 || 
-                                 selectedReferences.map(r => r.toLowerCase()).includes(reference);
-        
-        if (matchesSearch && matchesGroup && matchesReference) {
-          row.style.setProperty('display', '', 'important');
-          visibleBookingsCount++;
-        } else {
-          row.style.setProperty('display', 'none', 'important');
-        }
-      });
-      
-      // Update right table booking count badge
-      const visibleBookingsCountEl = document.getElementById('visibleBookingsCount');
-      if (visibleBookingsCountEl) {
-        const totalBookings = rows.length;
-        const isFiltered = query || selectedGroups.length > 0 || selectedReferences.length > 0;
-        if (isFiltered) {
-          visibleBookingsCountEl.textContent = `${visibleBookingsCount} / ${totalBookings}`;
-        } else {
-          visibleBookingsCountEl.textContent = totalBookings;
-        }
-      }
-    }
-
-    // Checkbox changes
-    document.querySelectorAll('.group-checkbox').forEach(chk => {
-      chk.addEventListener('change', function() {
-        const val = this.value;
-        if (this.checked) {
-          if (!selectedGroups.includes(val)) selectedGroups.push(val);
-        } else {
-          selectedGroups = selectedGroups.filter(x => x !== val);
-        }
-        updateGroupSummary();
-        performSearch();
-        updateClearButtonState();
-      });
     });
+  });
 
-    document.querySelectorAll('.reference-checkbox').forEach(chk => {
-      chk.addEventListener('change', function() {
-        const val = this.value;
-        if (this.checked) {
-          if (!selectedReferences.includes(val)) selectedReferences.push(val);
-        } else {
-          selectedReferences = selectedReferences.filter(x => x !== val);
-        }
-        updateReferenceSummary();
-        performSearch();
-        updateClearButtonState();
-      });
-    });
+  // ── FILTER & SEARCH ──────────────────────────────────────────────
+  (function () {
+    let selGroups = [], selRefs = [];
 
-    // Clear filters
-    const clearBtn = document.getElementById('clearFiltersBtn');
-    if (clearBtn) {
-      clearBtn.addEventListener('click', function() {
-        const searchInput = document.getElementById('customerSearchInput');
-        if (searchInput) searchInput.value = '';
-        
-        document.querySelectorAll('.group-checkbox').forEach(c => c.checked = false);
-        document.querySelectorAll('.reference-checkbox').forEach(c => c.checked = false);
-        
-        selectedGroups = [];
-        selectedReferences = [];
-        updateGroupSummary();
-        updateReferenceSummary();
-        
-        // Clear storage
-        sessionStorage.removeItem('profile_search');
-        sessionStorage.removeItem('profile_selected_groups');
-        sessionStorage.removeItem('profile_selected_references');
-
-        performSearch();
-        updateClearButtonState();
-      });
+    function toggle(btnId, ddId) {
+      const btn = document.getElementById(btnId), dd = document.getElementById(ddId);
+      if (!btn || !dd) return;
+      const open = dd.classList.contains('active');
+      document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('active'));
+      document.querySelectorAll('.multi-select-button').forEach(b => b.classList.remove('active'));
+      if (!open) { dd.classList.add('active'); btn.classList.add('active'); }
     }
 
-    function updateClearButtonState() {
+    const gBtn = document.getElementById('groupFilterButton');
+    if (gBtn) gBtn.addEventListener('click', e => { e.stopPropagation(); toggle('groupFilterButton','groupDropdown'); });
+    const rBtn = document.getElementById('referenceFilterButton');
+    if (rBtn) rBtn.addEventListener('click', e => { e.stopPropagation(); toggle('referenceFilterButton','referenceDropdown'); });
+
+    function updateSummary(id, arr, singular, plural) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = arr.length === 0 ? `All ${plural}` : arr.length === 1 ? arr[0] : `${arr.length} ${plural}`;
+    }
+
+    function search() {
+      const q = (document.getElementById('customerSearchInput')?.value || '').toLowerCase().trim();
+      sessionStorage.setItem('it_search', q);
+      sessionStorage.setItem('it_groups', JSON.stringify(selGroups));
+      sessionStorage.setItem('it_refs',   JSON.stringify(selRefs));
+
+      let vis = 0;
+      document.querySelectorAll('.customer-list-item').forEach(item => {
+        const nm  = (item.dataset.name      || '').toLowerCase();
+        const mob = (item.dataset.mobile    || '').toLowerCase();
+        const grp = (item.dataset.group     || '').toLowerCase();
+        const ref = (item.dataset.reference || '').toLowerCase();
+        const ok  = (q === '' || nm.includes(q) || mob.includes(q) || grp.includes(q) || ref.includes(q))
+                 && (selGroups.length === 0 || selGroups.map(g=>g.toLowerCase()).includes(grp))
+                 && (selRefs.length   === 0 || selRefs.map(r=>r.toLowerCase()).includes(ref));
+        item.style.setProperty('display', ok ? '' : 'none', 'important');
+        if (ok) vis++;
+      });
+      const badge = document.getElementById('customerCountBadge');
+      if (badge) {
+        const total = document.querySelectorAll('.customer-list-item').length;
+        badge.textContent = (q || selGroups.length || selRefs.length) ? `${vis} / ${total}` : total;
+      }
+
+      let visB = 0;
+      document.querySelectorAll('.booking-row').forEach(row => {
+        const txt = row.textContent.toLowerCase();
+        const grp = (row.dataset.group     || '').toLowerCase();
+        const ref = (row.dataset.reference || '').toLowerCase();
+        const ok  = (q === '' || txt.includes(q))
+                 && (selGroups.length === 0 || selGroups.map(g=>g.toLowerCase()).includes(grp))
+                 && (selRefs.length   === 0 || selRefs.map(r=>r.toLowerCase()).includes(ref));
+        row.style.setProperty('display', ok ? '' : 'none', 'important');
+        if (ok) visB++;
+      });
+      const vb = document.getElementById('visibleBookingsCount');
+      if (vb) {
+        const total = document.querySelectorAll('.booking-row').length;
+        vb.textContent = (q || selGroups.length || selRefs.length) ? `${visB} / ${total}` : total;
+      }
+    }
+
+    function updateClear() {
       const btn = document.getElementById('clearFiltersBtn');
-      const searchInput = document.getElementById('customerSearchInput');
-      if (!btn) return;
-      const hasFilters = (searchInput && searchInput.value) || selectedGroups.length > 0 || selectedReferences.length > 0;
-      btn.disabled = !hasFilters;
+      const q   = document.getElementById('customerSearchInput')?.value || '';
+      if (btn) btn.disabled = !(q || selGroups.length || selRefs.length);
     }
 
-    const searchInput = document.getElementById('customerSearchInput');
-    if (searchInput) {
-      searchInput.addEventListener('input', function() {
-        performSearch();
-        updateClearButtonState();
+    document.querySelectorAll('.group-checkbox').forEach(c => {
+      c.addEventListener('change', function () {
+        selGroups = this.checked ? [...selGroups, this.value] : selGroups.filter(x => x !== this.value);
+        updateSummary('groupSummary', selGroups, 'Group', 'Groups');
+        search(); updateClear();
       });
-    }
+    });
+    document.querySelectorAll('.reference-checkbox').forEach(c => {
+      c.addEventListener('change', function () {
+        selRefs = this.checked ? [...selRefs, this.value] : selRefs.filter(x => x !== this.value);
+        updateSummary('referenceSummary', selRefs, 'Reference', 'References');
+        search(); updateClear();
+      });
+    });
 
-    // Restore filter state from sessionStorage on page load
-    function restoreFilterState() {
-      const savedSearch = sessionStorage.getItem('profile_search');
-      const savedGroups = sessionStorage.getItem('profile_selected_groups');
-      const savedReferences = sessionStorage.getItem('profile_selected_references');
+    document.getElementById('clearFiltersBtn')?.addEventListener('click', () => {
+      document.getElementById('customerSearchInput').value = '';
+      document.querySelectorAll('.group-checkbox, .reference-checkbox').forEach(c => c.checked = false);
+      selGroups = []; selRefs = [];
+      updateSummary('groupSummary', [], 'Group', 'Groups');
+      updateSummary('referenceSummary', [], 'Reference', 'References');
+      sessionStorage.removeItem('it_search');
+      sessionStorage.removeItem('it_groups');
+      sessionStorage.removeItem('it_refs');
+      search(); updateClear();
+    });
 
-      if (savedSearch !== null) {
-        const searchInput = document.getElementById('customerSearchInput');
-        if (searchInput) searchInput.value = savedSearch;
-      }
+    document.getElementById('customerSearchInput')?.addEventListener('input', () => { search(); updateClear(); });
 
-      if (savedGroups !== null) {
-        try {
-          selectedGroups = JSON.parse(savedGroups) || [];
-          selectedGroups.forEach(g => {
-            const chk = Array.from(document.querySelectorAll('.group-checkbox')).find(c => c.value === g);
-            if (chk) chk.checked = true;
-          });
-          updateGroupSummary();
-        } catch (e) {
-          console.error("Error parsing saved groups", e);
-        }
-      }
+    // Restore state
+    const sq = sessionStorage.getItem('it_search');
+    if (sq !== null && document.getElementById('customerSearchInput'))
+      document.getElementById('customerSearchInput').value = sq;
+    try {
+      selGroups = JSON.parse(sessionStorage.getItem('it_groups') || '[]');
+      selGroups.forEach(g => {
+        const c = [...document.querySelectorAll('.group-checkbox')].find(x => x.value === g);
+        if (c) c.checked = true;
+      });
+      updateSummary('groupSummary', selGroups, 'Group', 'Groups');
+    } catch(e) {}
+    try {
+      selRefs = JSON.parse(sessionStorage.getItem('it_refs') || '[]');
+      selRefs.forEach(r => {
+        const c = [...document.querySelectorAll('.reference-checkbox')].find(x => x.value === r);
+        if (c) c.checked = true;
+      });
+      updateSummary('referenceSummary', selRefs, 'Reference', 'References');
+    } catch(e) {}
+    search(); updateClear();
 
-      if (savedReferences !== null) {
-        try {
-          selectedReferences = JSON.parse(savedReferences) || [];
-          selectedReferences.forEach(r => {
-            const chk = Array.from(document.querySelectorAll('.reference-checkbox')).find(c => c.value === r);
-            if (chk) chk.checked = true;
-          });
-          updateReferenceSummary();
-        } catch (e) {
-          console.error("Error parsing saved references", e);
-        }
-      }
-
-      performSearch();
-      updateClearButtonState();
-    }
-
-    // Run restore state
-    restoreFilterState();
-
-    // Close dropdowns on outside click
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', e => {
       if (!e.target.closest('.multi-select-container')) {
         document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('active'));
         document.querySelectorAll('.multi-select-button').forEach(b => b.classList.remove('active'));
