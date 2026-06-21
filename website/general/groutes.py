@@ -12,6 +12,11 @@ from website.fancy.fcycle import (
     get_selected_cycle,
     get_active_cycle
 )
+from website.navaratri.ncycle import (
+    get_all_cycles as get_all_nav_cycles,
+    get_selected_cycle as get_selected_nav_cycle,
+    get_active_cycle as get_active_nav_cycle
+)
 
 general = Blueprint('general',__name__)
 
@@ -62,7 +67,17 @@ def fancy_admin():
 def navaratri_admin():
     if not session.get('logged_in'):
         return redirect(url_for('auth.login'))
-    return render_template("general/navaratri_admin.html")
+    
+    cycles = get_all_nav_cycles()
+    selected_cycle = get_selected_nav_cycle()
+    active_cycle = get_active_nav_cycle()
+    
+    return render_template(
+        "general/navaratri_admin.html",
+        cycles=cycles,
+        selected_cycle=selected_cycle,
+        active_cycle=active_cycle
+    )
 
 
 @general.route('/catalogue/fancy/')

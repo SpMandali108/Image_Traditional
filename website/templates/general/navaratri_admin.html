@@ -236,6 +236,180 @@
         font-size: 1.25rem;
     }
 }
+
+/* ── CYCLE MANAGEMENT ── */
+.cycle-block {
+    background: rgba(13, 27, 42, 0.9);
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    border-radius: 12px;
+    padding: 0;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.cycle-top {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.cycle-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.cycle-info-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.ci-label {
+    color: rgba(255,255,255,0.5);
+    min-width: 100px;
+}
+
+.ci-value {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.badge-active { background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); }
+.badge-edit   { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+.badge-locked { background: rgba(255,255,255,.05); color: var(--pale-gold); border: 1px solid rgba(255,255,255,.1); }
+
+.cycle-select-wrap {
+    padding: 1.1rem 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+    flex: 1;
+    min-width: 260px;
+}
+
+.f-select {
+    background-color: var(--dark-blue) !important;
+    border: 1px solid rgba(212, 175, 55, 0.3) !important;
+    color: #ffffff !important;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.f-select option {
+    background-color: var(--dark-blue);
+    color: #ffffff;
+}
+
+.btn-gold-action {
+    background: linear-gradient(135deg, var(--gold), #aa8a2e);
+    color: var(--navy) !important;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-gold-action:hover {
+    background: linear-gradient(135deg, var(--light-gold), var(--gold));
+    transform: translateY(-1px);
+}
+
+.cycle-bottom {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .8rem 1.4rem;
+    flex-wrap: wrap;
+}
+
+.btn-danger-action {
+    background-color: #dc2626;
+    color: white !important;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-danger-action:hover {
+    background-color: #b91c1c;
+    transform: translateY(-1px);
+}
+
+.btn-ghost-action {
+    background-color: transparent;
+    color: var(--gold) !important;
+    border: 1.5px solid var(--gold);
+    padding: 0.5rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-ghost-action:hover {
+    background-color: rgba(212, 175, 55, 0.1);
+}
+
+/* ── NEW CYCLE ROW ── */
+.new-cycle-row {
+    background: rgba(13, 27, 42, 0.9);
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    border-radius: 12px;
+    padding: .85rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.75rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.row-label {
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    white-space: nowrap;
+    padding-right: .5rem;
+    border-right: 2px solid rgba(212, 175, 55, 0.3);
+    margin-right: .1rem;
+}
+
+.f-input {
+    background-color: var(--dark-blue) !important;
+    border: 1px solid rgba(212, 175, 55, 0.3) !important;
+    color: #ffffff !important;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
 </style>
 
 <div class="formal-admin">
@@ -252,6 +426,99 @@
             🪔 Switch to Fancy Dress
         </a>
     </div>
+
+    <!-- CYCLE MANAGEMENT -->
+    <p style="font-size: .75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem;">Cycle Management</p>
+    <div class="cycle-block">
+
+        <!-- Info + Select -->
+        <div class="cycle-top">
+
+            <div class="cycle-info">
+                <div class="cycle-info-row">
+                    <span class="ci-label">Selected</span>
+                    <span class="ci-value">{{ selected_cycle.name }}</span>
+                    {% if selected_cycle.status == "active" %}
+                        <span class="badge badge-active">● Active</span>
+                    {% elif selected_cycle.edit_override %}
+                        <span class="badge badge-edit">✎ Editing</span>
+                    {% else %}
+                        <span class="badge badge-locked">🔒 Locked</span>
+                    {% endif %}
+                </div>
+                <div class="cycle-info-row">
+                    <span class="ci-label">Active cycle</span>
+                    <span class="ci-value">
+                        {% if active_cycle %}{{ active_cycle.name }}{% else %}—{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="cycle-select-wrap">
+                <form method="POST" action="/navaratri_cycles/select" style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;flex:1;">
+                    <select name="cycle_id" class="f-select" style="flex:1;min-width:180px;">
+                        <option value="default" {% if not selected_cycle or not selected_cycle._id or selected_cycle.collection_name == "Form" %}selected{% endif %}>
+                            Navaratri Original Season (Form)
+                        </option>
+                        {% for cycle in cycles %}
+                        <option value="{{ cycle._id }}"
+                            {% if selected_cycle and selected_cycle._id == cycle._id %}selected{% endif %}>
+                            {{ cycle.name }}{% if cycle.status == "active" %} (Active){% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn-gold-action">Select</button>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div class="cycle-bottom">
+            {% if active_cycle %}
+            <form method="GET" action="/navaratri_cycles/end">
+                <button type="submit" class="btn-danger-action">End Active Cycle</button>
+            </form>
+            {% endif %}
+            {% if selected_cycle.status == "closed" and not selected_cycle.edit_override %}
+            <form method="POST"
+                  action="/navaratri_cycles/unlock/{{ selected_cycle._id }}"
+                  style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+
+                <input type="text"
+                       name="id"
+                       placeholder="Admin ID"
+                       class="f-input"
+                       required
+                       style="max-width:140px;">
+
+                <input type="password"
+                       name="password"
+                       placeholder="Password"
+                       class="f-input"
+                       required
+                       style="max-width:180px;">
+
+                <button type="submit" class="btn-ghost-action">
+                    🔓 Unlock Cycle
+                </button>
+
+            </form>
+            {% endif %}
+            {% if selected_cycle.edit_override %}
+            <a href="/navaratri_cycles/lock/{{ selected_cycle._id }}" class="btn-ghost-action">🔒 Lock Again</a>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- NEW CYCLE -->
+    <form method="POST" action="/navaratri_cycles/start" class="new-cycle-row">
+        <span class="row-label">New cycle</span>
+        <input type="text" name="name" placeholder="Cycle name" class="f-input" required>
+        <input type="text" name="collection_name" placeholder="Collection name" class="f-input" required>
+        <button type="submit" class="btn-gold-action" style="flex-shrink:0;">Start</button>
+    </form>
 
     <!-- NAVIGATION GRID -->
     <div class="admin-grid">

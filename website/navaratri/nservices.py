@@ -1,6 +1,7 @@
-# nservices.py
+from werkzeug.local import LocalProxy
+from website.navaratri.ncycle import get_selected_collection
 
-from ..general.db import collection
+collection = LocalProxy(lambda: get_selected_collection())
 
 
 # ------------------ CONFLICT CHECK ------------------

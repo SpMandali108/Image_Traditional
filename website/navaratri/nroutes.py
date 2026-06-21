@@ -1,15 +1,33 @@
 import csv
 import io
+import os
 
 from bson import ObjectId
 from flask import Blueprint, Response, current_app, render_template, request, redirect, send_file, url_for, session, flash, jsonify
 from datetime import datetime
 from fpdf import FPDF
 import qrcode
+from werkzeug.local import LocalProxy
 
 from .nmodels import *
 from ..general.db import *
 from .nservices import *
+from website.navaratri.ncycle import (
+    get_active_cycle,
+    get_selected_cycle,
+    get_all_cycles,
+    set_selected_cycle,
+    create_cycle,
+    end_cycle,
+    get_selected_collection,
+    is_selected_cycle_locked,
+    navaratri_cycles
+)
+
+ADMIN_ID = os.environ.get("ADMIN_ID")
+ADMIN_PASS = os.environ.get("ADMIN_PASS")
+
+collection = LocalProxy(lambda: get_selected_collection())
 
 navaratri = Blueprint('navaratri', __name__)
 
@@ -21,6 +39,9 @@ def book():
         return redirect(url_for('navaratri.login'))
 
     if request.method == 'POST':
+        if is_selected_cycle_locked():
+            flash("❌ Selected cycle is locked.", "error")
+            return redirect(request.referrer or url_for("navaratri.dashboard_summary"))
         Name = request.form.get('name')
         mobile = request.form.get('mobile')
         given_price = request.form.get('given_price')
@@ -184,6 +205,9 @@ def modify():
         return redirect(url_for('navaratri.login'))
 
     if request.method == 'POST':
+        if is_selected_cycle_locked():
+            flash("❌ Selected cycle is locked.", "error")
+            return redirect(request.referrer or url_for("navaratri.dashboard_summary"))
         mobile = request.form.get('mobile')
         date_input = request.form.get('date')  # from <input type="date"> (YYYY-MM-DD)
         old_products_str = request.form.get('old_products')
@@ -267,6 +291,14 @@ def pay_remaining():
     mobile = request.args.get('mobile')  # case 1: GET ?mobile=xxxx
 
     if request.method == 'POST':  # case 2: POST form
+        
+        if is_selected_cycle_locked():
+            flash("❌ Selected cycle is locked.", "error")
+            return redirect(
+                request.referrer or
+                url_for("navaratri.dashboard_summary")
+            )
+
         mobile = request.form.get('mobile')
         pay_amount = request.form.get('pay_amount')
 
@@ -333,6 +365,12 @@ def delete():
         return redirect(url_for('navaratri.login'))
 
     if request.method == 'POST':
+        if is_selected_cycle_locked():
+            flash("❌ Selected cycle is locked.", "error")
+            return redirect(
+            request.referrer or
+            url_for("navaratri.dashboard_summary")
+        )
         mobile = request.form.get('mobile', "").strip()
         date_input = request.form.get('date', "").strip()
         product = request.form.get('product', "").strip()
@@ -480,6 +518,8 @@ def dashboard_summary():
     if not session.get('logged_in'):
         return redirect(url_for('navaratri.login'))
 
+    selected_cycle = get_selected_cycle()
+
     try:
         try:
             collection.find_one()
@@ -536,6 +576,7 @@ def dashboard_summary():
 
         return render_template(
             'navaratri/total.html',
+            selected_cycle=selected_cycle,
             total_customers_trad=total_customers_trad,
             total_collection_trad=total_collection_trad,
             total_given_trad=total_given_trad,
@@ -559,6 +600,7 @@ def dashboard_summary():
 
         return render_template(
             'navaratri/total.html',
+            selected_cycle=selected_cycle,
             total_customers_trad=0,
             total_collection_trad=0,
             total_given_trad=0,
@@ -935,9 +977,18 @@ def inventory():
 # Save product status to 'products' collection
 @navaratri.route("/update_status", methods=["POST"])
 def update_status():
+
+    if is_selected_cycle_locked():
+        return jsonify({
+            "success": False,
+            "message": "Selected cycle is locked"
+        }), 403
+
     data = request.json
     product_code = data.get("product_code")
     status = data.get("status")
+
+    
     if product_code and status:
         products_collection.update_one(
             {"product_code": product_code},  # if exists
@@ -956,6 +1007,13 @@ def get_statuses():
 # Clear all product statuses
 @navaratri.route("/clear_statuses", methods=["POST"])
 def clear_statuses():
+
+    if is_selected_cycle_locked():
+        return jsonify({
+            "success": False,
+            "message": "Selected cycle is locked"
+        }), 403
+
     products_collection.delete_many({})
     return jsonify({"success": True})
 
@@ -1243,7 +1301,7 @@ def navaratri_dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('auth.login'))
     
-
+    selected_cycle = get_selected_cycle()
     try:
         try:
             collection.find_one()
@@ -1287,6 +1345,7 @@ def navaratri_dashboard():
 
         return render_template(
             'navaratri/navaratri_dashboard.html',
+            selected_cycle=selected_cycle,
             total_customers_trad=total_customers_trad,
             total_collection_trad=total_collection_trad,
             total_given_trad=total_given_trad,
@@ -1307,6 +1366,7 @@ def navaratri_dashboard():
 
         return render_template(
             'navaratri/total.html',
+            selected_cycle=selected_cycle,
             total_customers_trad=0,
             total_collection_trad=0,
             total_given_trad=0,
@@ -1321,3 +1381,146 @@ def navaratri_dashboard():
             has_error=True,
             error_message=str(e)
         )
+
+@navaratri.route("/navaratri_cycles")
+def navaratri_cycles_page():
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    cycles = get_all_cycles()
+    return render_template(
+    "navaratri/navaratri_cycles.html",
+    cycles=cycles
+)
+
+
+@navaratri.route("/navaratri_cycles/create", methods=["POST"])
+def create_navaratri_cycle_route():
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    name = request.form.get("name")
+    collection_name = request.form.get("collection_name")
+
+    create_cycle(
+        name,
+        collection_name
+    )
+
+    return redirect("/navaratri_admin")
+
+
+@navaratri.route("/navaratri_cycles/end/<cycle_id>")
+def end_navaratri_cycle_route(cycle_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    end_cycle(cycle_id)
+
+    return redirect("/navaratri_admin")
+
+
+@navaratri.route("/navaratri_cycles/select/<cycle_id>")
+def select_navaratri_cycle_id(cycle_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    set_selected_cycle(cycle_id)
+
+    return redirect("/navaratri_admin")
+
+
+@navaratri.route(
+    "/navaratri_cycles/select",
+    methods=["POST"]
+)
+def select_navaratri_cycle():
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    cycle_id = request.form.get("cycle_id")
+
+    set_selected_cycle(cycle_id)
+
+    return redirect("/navaratri_admin")
+
+
+@navaratri.route("/navaratri_cycles/start", methods=["POST"])
+def start_cycle():
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    active = get_active_cycle()
+
+    if active:
+        return "End current cycle first"
+
+    name = request.form.get("name")
+    collection_name = request.form.get("collection_name")
+
+    create_cycle(
+        name,
+        collection_name
+    )
+
+    return redirect("/navaratri_admin")
+
+
+@navaratri.route("/navaratri_cycles/end")
+def end_current_cycle():
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    cycle = get_active_cycle()
+
+    if cycle:
+        end_cycle(
+            str(cycle["_id"])
+        )
+
+    return redirect("/navaratri_admin")
+
+
+@navaratri.route("/navaratri_cycles/unlock/<cycle_id>", methods=["POST"])
+def unlock_cycle(cycle_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    entered_id = request.form.get('id')
+    entered_pass = request.form.get('password')
+
+    if entered_id != ADMIN_ID or entered_pass != ADMIN_PASS:
+        flash("❌ Invalid credentials!", "error")
+        return redirect("/navaratri_admin")
+
+    navaratri_cycles.update_one(
+        {"_id": ObjectId(cycle_id)},
+        {
+            "$set": {
+                "edit_override": True
+            }
+        }
+    )
+
+    flash("🔓 Cycle unlocked successfully!", "success")
+    return redirect("/navaratri_admin")
+
+
+@navaratri.route(
+    "/navaratri_cycles/lock/<cycle_id>"
+)
+def lock_cycle(cycle_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    navaratri_cycles.update_one(
+        {"_id": ObjectId(cycle_id)},
+        {
+            "$set": {
+                "edit_override": False
+            }
+        }
+    )
+
+    flash("🔒 Cycle locked successfully!", "success")
+    return redirect("/navaratri_admin")
