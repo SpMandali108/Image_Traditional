@@ -795,7 +795,7 @@
                   data-mobile="{{ customer.mobile|e }}"
                   data-school="{{ customer.school|e }}"
                   data-address="{{ customer.address|e }}"
-                  onclick="openModal(this)">
+                  onclick="window.location='{{ url_for('fancy.fancy_profile', mobile=customer.mobile or '') }}';">
                 <td style="color:var(--muted);font-size:0.78rem">{{ loop.index }}</td>
                 <td>
                   <div class="d-flex align-items-center gap-3">
@@ -869,7 +869,7 @@
              data-mobile="{{ customer.mobile|e }}"
              data-school="{{ customer.school|e }}"
              data-address="{{ customer.address|e }}"
-             onclick="openModal(this)">
+             onclick="window.location='{{ url_for('fancy.fancy_profile', mobile=customer.mobile or '') }}';">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center gap-3">
               <div class="av av-{{ ai }}">{{ initials }}</div>
