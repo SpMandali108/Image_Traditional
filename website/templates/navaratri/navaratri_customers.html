@@ -1,0 +1,183 @@
+{% extends "general/base.html" %}
+
+{% block title %}Navaratri Customers Directory | Image Traditional{% endblock %}
+
+{% block robots %}
+<meta name="robots" content="noindex, nofollow" />
+{% endblock %}
+
+{% block head %}
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
+
+<style>
+  body {
+    background-color: #f3f4f6;
+  }
+  .customers-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 20px 40px 20px;
+  }
+  .header-card {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 24px 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+  .header-card h1 {
+    font-size: 1.85rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-card p {
+    margin: 5px 0 0 0;
+    opacity: 0.8;
+    font-size: 0.95rem;
+  }
+  .premium-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .search-wrapper {
+    position: relative;
+  }
+  .search-wrapper i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+  }
+  .search-field {
+    width: 100%;
+    height: 48px;
+    padding-left: 45px;
+    padding-right: 20px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+  .search-field:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+  .avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e0e7ff;
+    color: #4f46e5;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .table-responsive {
+    max-height: 600px;
+    overflow-y: auto;
+  }
+</style>
+{% endblock %}
+
+{% block logo_link %}
+<a href="/navaratri_admin" class="logo">
+    <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Image Traditional Logo">
+    <span class="logo-text">Image Traditional</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="customers-container animate__animated animate__fadeIn">
+
+  <!-- Header Section -->
+  <div class="header-card d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <h1><i class="bi bi-people-fill text-warning"></i> Customer Database (All-Time)</h1>
+      <p>Directory of all registered customers across all Navaratri cycles.</p>
+    </div>
+    <div>
+      <span class="badge bg-light text-dark fs-6 py-2 px-3 fw-bold border shadow-sm">
+        Total Registered: <span class="text-primary">{{ customers|length }}</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- Search Card -->
+  <div class="premium-card p-3 mb-4">
+    <form method="GET" action="{{ url_for('navaratri.navaratri_customers_list') }}" class="m-0">
+      <div class="search-wrapper">
+        <i class="bi bi-search"></i>
+        <input type="text" name="search" class="search-field" placeholder="Search customer directory by name, mobile, address..." value="{{ search }}">
+      </div>
+    </form>
+  </div>
+
+  <!-- Customers List Card -->
+  <div class="premium-card">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light sticky-top">
+          <tr>
+            <th class="ps-4" style="width: 250px;">Customer Info</th>
+            <th style="width: 150px;">Mobile</th>
+            <th>Address</th>
+            <th style="width: 180px;">Last Active</th>
+            <th class="text-center pe-4" style="width: 160px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if customers %}
+            {% for cust in customers %}
+              <tr>
+                <td class="ps-4">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="avatar-circle">{{ cust.name[:2].upper() if cust.name else 'CU' }}</div>
+                    <div>
+                      <div class="fw-bold text-dark">{{ cust.name or 'Unnamed Customer' }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="font-monospace text-secondary">{{ cust.mobile }}</td>
+                <td class="text-muted text-sm">{{ cust.address or '-' }}</td>
+                <td class="text-muted text-sm font-monospace">
+                  {{ cust.updated_at.strftime('%d-%m-%Y %H:%M') if cust.updated_at else 'N/A' }}
+                </td>
+                <td class="text-center pe-4">
+                  <a href="{{ url_for('navaratri.profile', mobile=cust.mobile) }}" class="btn btn-sm btn-outline-primary fw-bold px-3">
+                    <i class="bi bi-arrow-up-right-circle me-1"></i> View Bookings
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="5" class="text-center py-5 text-secondary">
+                <i class="bi bi-people mb-2" style="font-size: 2.5rem; display: block; opacity: 0.5;"></i>
+                No customer records found.
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

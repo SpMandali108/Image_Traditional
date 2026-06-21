@@ -113,7 +113,13 @@ def book():
             )
         else:
             # New customer
-            bookings = {b['date']: b['products'] for b in bookings_data}
+            bookings = {}
+            for b in bookings_data:
+                date = b['date']
+                if date in bookings:
+                    bookings[date] = list(set(bookings[date] + b['products']))
+                else:
+                    bookings[date] = b['products']
             new_customer = {
                 "Name": Name,
                 "mobile": mobile,
@@ -126,6 +132,20 @@ def book():
                 "total_price": total_price
             }
             collection.insert_one(new_customer)
+
+        # Upsert customer record into Navaratri_Customers collection
+        ncustomers.update_one(
+            {"mobile": mobile},
+            {
+                "$set": {
+                    "name": Name,
+                    "mobile": mobile,
+                    "address": address,
+                    "updated_at": datetime.now()
+                }
+            },
+            upsert=True
+        )
 
         # -------------------- Generate QR URL --------------------
         store_base_url = "https://image-traditional.onrender.com/download-bill"
@@ -145,12 +165,7 @@ def book():
 def listing():
     if not session.get('logged_in'):
         return redirect(url_for('navaratri.login'))
-
-    bookings = list(collection.find())
-    for b in bookings:
-        b['remaining'] = b.get('total_price', 0) - b.get('given_price', 0)
-
-    return render_template("navaratri/listing.html", bookings=bookings)
+    return redirect(url_for('navaratri.profile'))
 
 @navaratri.route('/calendar', methods=['GET', 'POST'])
 def calendar():
@@ -449,7 +464,8 @@ def delete():
     return render_template("navaratri/delete.html")
 
 @navaratri.route('/profile', methods=['GET', 'POST'])
-def profile():
+@navaratri.route('/profile/<customer_id>', methods=['GET'])
+def profile(customer_id=None):
     if not session.get('logged_in'):
         return redirect(url_for('navaratri.login'))
     customer = None
@@ -462,18 +478,403 @@ def profile():
     if request.method == 'POST':
         mobile = request.form.get('mobile')
 
-    if mobile:
+    if customer_id:
+        try:
+            customer = collection.find_one({"_id": ObjectId(customer_id)})
+            if not customer:
+                error = "Customer not found by ID"
+        except Exception as e:
+            error = f"Invalid customer ID: {str(e)}"
+    elif mobile:
         customer = collection.find_one({"mobile": mobile})
-        if customer:
-            customer['remaining'] = customer.get('total_price', 0) - customer.get('given_price', 0)
-        else:
+        if not customer:
             error = "Customer not found"
+
+    if customer:
+        customer['remaining'] = customer.get('total_price', 0) - customer.get('given_price', 0)
 
     bookings = list(collection.find())
     for b in bookings:
         b['remaining'] = b.get('total_price', 0) - b.get('given_price', 0)
 
-    return render_template("navaratri/profile.html", customer=customer, error=error,bookings=bookings)
+    return render_template("navaratri/profile.html", customer=customer, error=error, bookings=bookings)
+
+# ------------------ API: Live Availability Check ------------------
+@navaratri.route('/api/check-product', methods=['GET'])
+def api_check_product():
+    if not session.get('logged_in'):
+        return jsonify({"available": False, "error": "Unauthorized"}), 401
+        
+    product_code = request.args.get('product_code', '').strip().upper()
+    date_input = request.args.get('date', '').strip()
+    exclude_mobile = request.args.get('exclude_mobile', '').strip()
+    
+    if not product_code or not date_input:
+        return jsonify({"available": False, "error": "Product code and date are required"}), 400
+        
+    try:
+        date_obj = datetime.strptime(date_input, "%Y-%m-%d")
+        date_str = date_obj.strftime("%d-%m-%y")
+    except ValueError:
+        date_str = date_input
+        
+    has_conflict, conflicts = check_booking_conflict(date_str, [product_code], exclude_mobile=exclude_mobile or None)
+    if has_conflict:
+        conflict = conflicts[0]
+        return jsonify({
+            "available": False,
+            "customer": conflict.get('customer_name', 'Unknown')
+        })
+    else:
+        return jsonify({"available": True})
+
+# ------------------ API: Product Code Suggestion ------------------
+@navaratri.route('/api/suggest-products', methods=['GET'])
+def api_suggest_products():
+    if not session.get('logged_in'):
+        return jsonify([]), 401
+    try:
+        all_products = list(products.find({}, {"_id": 1}))
+        codes = [p["_id"] for p in all_products]
+        if not codes:
+            # Fallback if Storage collection has no entries yet
+            codes = [f'C{i}' for i in range(1, 151)] + [f'K{i}' for i in range(1, 174)]
+        return jsonify(sorted(list(set(codes))))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ------------------ API: Unified Save/Update Profile ------------------
+@navaratri.route('/profile/update', methods=['POST'])
+def profile_update():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+    if is_selected_cycle_locked():
+        return jsonify({"success": False, "message": "❌ Selected cycle is locked."}), 403
+        
+    data = request.json or request.form
+    if not data:
+        return jsonify({"success": False, "message": "No data provided"}), 400
+        
+    customer_id = data.get('customer_id')
+    name = data.get('name', '').strip()
+    mobile = data.get('mobile', '').strip()
+    address = data.get('address', '').strip()
+    deposit = data.get('deposit', '').strip()
+    group = data.get('group', '').strip()
+    reference = data.get('reference', '').strip()
+    
+    try:
+        total_price = int(data.get('total_price', 0))
+    except:
+        total_price = 0
+        
+    try:
+        given_price = int(data.get('given_price', 0))
+    except:
+        given_price = 0
+        
+    bookings_raw = data.get('bookings', [])
+    
+    if not name or not mobile:
+        return jsonify({"success": False, "message": "Name and Mobile are required."}), 400
+        
+    if not mobile.isdigit() or len(mobile) != 10:
+        return jsonify({"success": False, "message": "Mobile number must be a 10-digit number."}), 400
+        
+    # Check mobile conflicts
+    if customer_id and customer_id != 'new':
+        existing = collection.find_one({"mobile": mobile})
+        if existing and str(existing['_id']) != customer_id:
+            return jsonify({"success": False, "message": f"Mobile number {mobile} is already registered to another customer ({existing.get('Name')})."}), 400
+    else:
+        existing = collection.find_one({"mobile": mobile})
+        if existing:
+            return jsonify({"success": False, "message": f"Mobile number {mobile} is already registered to customer {existing.get('Name')}."}), 400
+
+    # Process and clean bookings
+    formatted_bookings = {}
+    
+    if isinstance(bookings_raw, list):
+        for item in bookings_raw:
+            date = item.get('date', '').strip()
+            prods = item.get('products', [])
+            if isinstance(prods, str):
+                prods = [p.strip().upper() for p in prods.split(',') if p.strip()]
+            else:
+                prods = [p.strip().upper() for p in prods if p.strip()]
+                
+            if not date or not prods:
+                continue
+                
+            try:
+                date_obj = datetime.strptime(date, "%Y-%m-%d")
+                formatted_date = date_obj.strftime("%d-%m-%y")
+            except ValueError:
+                formatted_date = date
+                
+            if formatted_date in formatted_bookings:
+                formatted_bookings[formatted_date] = list(set(formatted_bookings[formatted_date] + prods))
+            else:
+                formatted_bookings[formatted_date] = prods
+
+    # Run conflict checks for the bookings (excluding this customer)
+    for date_str, products_list in formatted_bookings.items():
+        has_conflict, conflicts = check_booking_conflict(date_str, products_list, exclude_mobile=mobile)
+        if has_conflict:
+            conflict_msg = f"❌ Conflict: Following product(s) are already booked on {date_str}:<br>"
+            for conflict in conflicts:
+                conflict_msg += f"• '{conflict['product']}' by {conflict['customer_name']} ({conflict['customer_mobile']})<br>"
+            return jsonify({"success": False, "message": conflict_msg}), 400
+
+    store_base_url = "https://image-traditional.onrender.com/download-bill"
+    qr_url = f"{store_base_url}?mobile={mobile}"
+    
+    customer_data = {
+        "Name": name,
+        "mobile": mobile,
+        "address": address,
+        "deposit": deposit,
+        "group": group,
+        "reference": reference,
+        "bookings": formatted_bookings,
+        "given_price": given_price,
+        "total_price": total_price,
+        "qr_url": qr_url
+    }
+    
+    if customer_id and customer_id != 'new':
+        collection.update_one(
+            {"_id": ObjectId(customer_id)},
+            {"$set": customer_data}
+        )
+        message = "✅ Customer profile updated successfully!"
+        ret_id = customer_id
+    else:
+        result = collection.insert_one(customer_data)
+        message = "✅ Customer profile created successfully!"
+        ret_id = str(result.inserted_id)
+
+    # Upsert customer record into Navaratri_Customers collection
+    ncustomers.update_one(
+        {"mobile": mobile},
+        {
+            "$set": {
+                "name": name,
+                "mobile": mobile,
+                "address": address,
+                "updated_at": datetime.now()
+            }
+        },
+        upsert=True
+    )
+        
+    return jsonify({"success": True, "message": message, "customer_id": ret_id})
+
+# ------------------ API: Add Payment to Customer ------------------
+@navaratri.route('/profile/add-payment', methods=['POST'])
+def profile_add_payment():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+    if is_selected_cycle_locked():
+        return jsonify({"success": False, "message": "❌ Selected cycle is locked."}), 403
+
+    data = request.json or {}
+    customer_id = data.get('customer_id')
+    try:
+        amount = int(data.get('amount', 0))
+    except (ValueError, TypeError):
+        return jsonify({"success": False, "message": "Invalid payment amount."}), 400
+
+    if not customer_id:
+        return jsonify({"success": False, "message": "Customer ID is required."}), 400
+    if amount <= 0:
+        return jsonify({"success": False, "message": "Payment amount must be greater than zero."}), 400
+
+    try:
+        customer = collection.find_one({"_id": ObjectId(customer_id)})
+        if not customer:
+            return jsonify({"success": False, "message": "Customer not found."}), 404
+
+        total_price = customer.get('total_price', 0)
+        given_price = customer.get('given_price', 0)
+        remaining = total_price - given_price
+
+        if amount > remaining:
+            return jsonify({"success": False, "message": f"Payment amount exceeds remaining balance of ₹{remaining}."}), 400
+
+        new_given_price = given_price + amount
+        collection.update_one(
+            {"_id": ObjectId(customer_id)},
+            {"$set": {"given_price": new_given_price}}
+        )
+
+        return jsonify({
+            "success": True,
+            "message": f"Successfully added payment of ₹{amount}.",
+            "new_given_price": new_given_price,
+            "new_remaining": total_price - new_given_price
+        })
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error updating payment: {str(e)}"}), 500
+
+# ------------------ API: Product Reassignment ------------------
+@navaratri.route('/profile/reassign', methods=['POST'])
+def profile_reassign():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+    if is_selected_cycle_locked():
+        return jsonify({"success": False, "message": "Selected cycle is locked"}), 403
+        
+    data = request.json or request.form
+    customer_id = data.get('customer_id')
+    old_date = data.get('old_date', '').strip()
+    old_product = data.get('old_product', '').strip().upper()
+    new_date = data.get('new_date', '').strip()
+    new_product = data.get('new_product', '').strip().upper()
+    price_diff_str = data.get('price_diff', '0').strip()
+    
+    if not customer_id or not old_date or not old_product or not new_date or not new_product:
+        return jsonify({"success": False, "message": "Missing required fields"}), 400
+        
+    try:
+        old_date_formatted = datetime.strptime(old_date, "%Y-%m-%d").strftime("%d-%m-%y") if '-' in old_date and len(old_date) == 10 else old_date
+    except:
+        old_date_formatted = old_date
+        
+    try:
+        new_date_formatted = datetime.strptime(new_date, "%Y-%m-%d").strftime("%d-%m-%y") if '-' in new_date and len(new_date) == 10 else new_date
+    except:
+        new_date_formatted = new_date
+        
+    customer = collection.find_one({"_id": ObjectId(customer_id)})
+    if not customer:
+        return jsonify({"success": False, "message": "Customer not found"}), 404
+        
+    bookings = customer.get('bookings', {})
+    
+    if old_date_formatted not in bookings or old_product not in bookings[old_date_formatted]:
+        return jsonify({"success": False, "message": f"Product '{old_product}' not found in bookings on {old_date_formatted}"}), 400
+        
+    has_conflict, conflicts = check_booking_conflict(new_date_formatted, [new_product], exclude_mobile=customer.get('mobile'))
+    if has_conflict:
+        conflict = conflicts[0]
+        return jsonify({"success": False, "message": f"❌ Conflict: Product '{new_product}' is already booked on {new_date_formatted} by {conflict['customer_name']}."}), 400
+        
+    bookings[old_date_formatted].remove(old_product)
+    if not bookings[old_date_formatted]:
+        bookings.pop(old_date_formatted)
+        
+    if new_date_formatted in bookings:
+        bookings[new_date_formatted] = list(set(bookings[new_date_formatted] + [new_product]))
+    else:
+        bookings[new_date_formatted] = [new_product]
+        
+    try:
+        price_diff = int(price_diff_str)
+    except:
+        price_diff = 0
+    new_total = max(0, customer.get('total_price', 0) + price_diff)
+    
+    collection.update_one(
+        {"_id": ObjectId(customer_id)},
+        {"$set": {"bookings": bookings, "total_price": new_total}}
+    )
+    return jsonify({"success": True, "message": "✅ Product reassigned successfully!"})
+
+# ------------------ API: Add Single Booking Row ------------------
+@navaratri.route('/profile/add-booking', methods=['POST'])
+def profile_add_booking():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+    if is_selected_cycle_locked():
+        return jsonify({"success": False, "message": "Selected cycle is locked"}), 403
+        
+    data = request.json or request.form
+    customer_id = data.get('customer_id')
+    date_input = data.get('date', '').strip()
+    product = data.get('product', '').strip().upper()
+    price_diff_str = data.get('price_diff', '0').strip()
+    
+    if not customer_id or not date_input or not product:
+        return jsonify({"success": False, "message": "Missing required fields"}), 400
+        
+    try:
+        date_formatted = datetime.strptime(date_input, "%Y-%m-%d").strftime("%d-%m-%y") if '-' in date_input and len(date_input) == 10 else date_input
+    except:
+        date_formatted = date_input
+        
+    customer = collection.find_one({"_id": ObjectId(customer_id)})
+    if not customer:
+        return jsonify({"success": False, "message": "Customer not found"}), 404
+        
+    has_conflict, conflicts = check_booking_conflict(date_formatted, [product], exclude_mobile=customer.get('mobile'))
+    if has_conflict:
+        conflict = conflicts[0]
+        return jsonify({"success": False, "message": f"❌ Conflict: Product '{product}' is already booked on {date_formatted} by {conflict['customer_name']}."}), 400
+        
+    bookings = customer.get('bookings', {})
+    if date_formatted in bookings:
+        bookings[date_formatted] = list(set(bookings[date_formatted] + [product]))
+    else:
+        bookings[date_formatted] = [product]
+        
+    try:
+        price_diff = int(price_diff_str)
+    except:
+        price_diff = 0
+    new_total = customer.get('total_price', 0) + price_diff
+    
+    collection.update_one(
+        {"_id": ObjectId(customer_id)},
+        {"$set": {"bookings": bookings, "total_price": new_total}}
+    )
+    return jsonify({"success": True, "message": "✅ Booking added successfully!"})
+
+# ------------------ API: Delete Single Booking Row ------------------
+@navaratri.route('/profile/delete-booking', methods=['POST'])
+def profile_delete_booking():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+    if is_selected_cycle_locked():
+        return jsonify({"success": False, "message": "Selected cycle is locked"}), 403
+        
+    data = request.json or request.form
+    customer_id = data.get('customer_id')
+    date_input = data.get('date', '').strip()
+    product = data.get('product', '').strip().upper()
+    price_diff_str = data.get('price_diff', '0').strip()
+    
+    if not customer_id or not date_input or not product:
+        return jsonify({"success": False, "message": "Missing required fields"}), 400
+        
+    try:
+        date_formatted = datetime.strptime(date_input, "%Y-%m-%d").strftime("%d-%m-%y") if '-' in date_input and len(date_input) == 10 else date_input
+    except:
+        date_formatted = date_input
+        
+    customer = collection.find_one({"_id": ObjectId(customer_id)})
+    if not customer:
+        return jsonify({"success": False, "message": "Customer not found"}), 404
+        
+    bookings = customer.get('bookings', {})
+    if date_formatted not in bookings or product not in bookings[date_formatted]:
+        return jsonify({"success": False, "message": f"Booking not found for {product} on {date_formatted}"}), 400
+        
+    bookings[date_formatted].remove(product)
+    if not bookings[date_formatted]:
+        bookings.pop(date_formatted)
+        
+    try:
+        price_diff = int(price_diff_str)
+    except:
+        price_diff = 0
+    new_total = max(0, customer.get('total_price', 0) - price_diff)
+    
+    collection.update_one(
+        {"_id": ObjectId(customer_id)},
+        {"$set": {"bookings": bookings, "total_price": new_total}}
+    )
+    return jsonify({"success": True, "message": "✅ Booking row deleted successfully!"})
 
 @navaratri.route('/check', methods=['GET', 'POST'])
 def check():
@@ -919,9 +1320,8 @@ def generate_qr(mobile):
     if not customer:
         return "Customer not found", 404
 
-    qr_url = customer.get("qr_url")
-    if not qr_url:
-        return "QR URL not found", 404
+    # Generate QR URL dynamically matching the current hosting environment (localhost / production)
+    qr_url = url_for('navaratri.download_bill_page', mobile=mobile, _external=True)
 
     qr_img = qrcode.make(qr_url)
     buf = io.BytesIO()
@@ -1524,3 +1924,115 @@ def lock_cycle(cycle_id):
 
     flash("🔒 Cycle locked successfully!", "success")
     return redirect("/navaratri_admin")
+
+
+# ------------------ API: Get Customer for Autocomplete ------------------
+@navaratri.route("/get-navaratri-customer")
+def get_navaratri_customer():
+    if not session.get('logged_in'):
+        return jsonify({"exists": False, "error": "Unauthorized"}), 401
+    mobile = request.args.get("mobile", "").strip()
+    if not mobile:
+        return jsonify({"exists": False})
+
+    # Self-healing migration: Seed from active bookings if empty
+    if ncustomers.count_documents({}) == 0:
+        try:
+            for b in collection.find():
+                m = b.get("mobile")
+                if m:
+                    ncustomers.update_one(
+                        {"mobile": m},
+                        {
+                            "$set": {
+                                "name": b.get("Name"),
+                                "mobile": m,
+                                "address": b.get("address", ""),
+                                "updated_at": datetime.now()
+                            }
+                        },
+                        upsert=True
+                    )
+        except Exception as e:
+            print("Migration error:", e)
+
+    # Check if they have a booking in this cycle first
+    active_customer = collection.find_one({"mobile": mobile})
+    if active_customer:
+        return jsonify({
+            "exists": True,
+            "in_cycle": True,
+            "data": {
+                "name": active_customer.get("Name") or active_customer.get("name", ""),
+                "mobile": active_customer.get("mobile", ""),
+                "address": active_customer.get("address", ""),
+                "group": active_customer.get("group", ""),
+                "reference": active_customer.get("reference", "")
+            }
+        })
+
+    # Otherwise, fall back to the all-time database
+    customer = ncustomers.find_one({"mobile": mobile}, {"_id": 0})
+    if customer:
+        return jsonify({
+            "exists": True,
+            "in_cycle": False,
+            "data": {
+                "name": customer.get("name", ""),
+                "mobile": customer.get("mobile", ""),
+                "address": customer.get("address", ""),
+                "group": "",
+                "reference": ""
+            }
+        })
+    return jsonify({"exists": False})
+
+
+# ------------------ Page: Navaratri Customers Directory ------------------
+@navaratri.route("/navaratri-customers")
+def navaratri_customers_list():
+    if not session.get('logged_in'):
+        return redirect(url_for('navaratri.login'))
+
+    search = request.args.get("search", "").strip()
+    query = {}
+    if search:
+        query = {
+            "$or": [
+                {"name": {"$regex": search, "$options": "i"}},
+                {"mobile": {"$regex": search, "$options": "i"}},
+                {"address": {"$regex": search, "$options": "i"}}
+            ]
+        }
+
+    # Self-healing migration: Seed from active bookings if empty
+    if ncustomers.count_documents({}) == 0:
+        try:
+            for b in collection.find():
+                m = b.get("mobile")
+                if m:
+                    ncustomers.update_one(
+                        {"mobile": m},
+                        {
+                            "$set": {
+                                "name": b.get("Name"),
+                                "mobile": m,
+                                "address": b.get("address", ""),
+                                "updated_at": datetime.now()
+                            }
+                        },
+                        upsert=True
+                    )
+        except Exception as e:
+            print("Migration error:", e)
+
+    customers = list(
+        ncustomers.find(query)
+        .sort("updated_at", -1)
+    )
+
+    return render_template(
+        "navaratri/navaratri_customers.html",
+        customers=customers,
+        search=search
+    )
