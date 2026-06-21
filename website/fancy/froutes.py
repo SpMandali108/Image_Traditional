@@ -1063,3 +1063,95 @@ def lock_cycle(cycle_id):
 
     flash("🔒 Cycle locked successfully!", "success")
     return redirect("/fancy_admin")
+
+@fancy.route("/fancy-customers")
+def fancy_customers():
+
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    search = request.args.get("search", "").strip()
+
+    query = {}
+
+    if search:
+        query = {
+            "$or": [
+                {"name": {"$regex": search, "$options": "i"}},
+                {"mobile": {"$regex": search, "$options": "i"}},
+                {"school": {"$regex": search, "$options": "i"}},
+                {"address": {"$regex": search, "$options": "i"}}
+            ]
+        }
+
+    customers = list(
+        fcustomers.find(query)
+        .sort("updated_at", -1)
+    )
+
+    return render_template(
+        "fancy/fancy_customers.html",
+        customers=customers,
+        search=search
+    )
+
+@fancy.route(
+    "/fancy-customer/<customer_id>",
+    methods=["GET", "POST"]
+)
+def fancy_customer(customer_id):
+
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    customer = fcustomers.find_one(
+        {"_id": ObjectId(customer_id)}
+    )
+
+    if not customer:
+        return "Customer Not Found"
+
+    if request.method == "POST":
+
+        fcustomers.update_one(
+            {"_id": ObjectId(customer_id)},
+            {
+                "$set": {
+                    "name": request.form.get("name"),
+                    "mobile": request.form.get("mobile"),
+                    "school": request.form.get("school"),
+                    "address": request.form.get("address"),
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+
+        flash("Customer Updated", "success")
+
+        return redirect(
+            url_for("fancy.fancy_customers")
+        )
+
+    return render_template(
+        "fancy/fancy_customer_edit.html",
+        customer=customer
+    )
+
+@fancy.route(
+    "/fancy-customer/delete/<customer_id>",
+    methods=["POST"]
+)
+def delete_fancy_customer(customer_id):
+
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    fcustomers.delete_one(
+        {"_id": ObjectId(customer_id)}
+    )
+
+    flash("Customer Deleted", "success")
+
+    return redirect(
+        url_for("fancy.fancy_customers")
+    )

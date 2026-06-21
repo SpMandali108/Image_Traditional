@@ -1,0 +1,1236 @@
+{% extends "general/base.html" %}
+
+{% block title %}Fancy Customers Directory | Image Traditional{% endblock %}
+
+{% block head %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% endblock %}
+
+{% block logo_link %}
+<a href="/fancy_admin" class="logo">
+    <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Image Traditional Logo">
+    <span class="logo-text">Image Traditional</span>
+</a>
+{% endblock %}
+{% block robots %}
+<meta name="robots" content="noindex, nofollow" />
+{% endblock %}
+
+{% block content %}
+<style>
+  /* ══════════════════════════════════════════
+     TOKEN LAYER — inherits base.css variables
+     ══════════════════════════════════════════ */
+  :root {
+    --gold-dim:    rgba(212, 175, 55, 0.10);
+    --gold-ring:   rgba(212, 175, 55, 0.25);
+    --gold-glow:   rgba(212, 175, 55, 0.15);
+    --red:         #ef4444;
+    --red-dim:     rgba(239, 68, 68, 0.12);
+    --red-ring:    rgba(239, 68, 68, 0.30);
+    --radius-card: 12px;
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.45);
+    --ease:        0.18s ease;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+
+  /* ── Gold accent bar ── */
+  .accent-bar {
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), #f4d35e, var(--gold), transparent);
+    border-radius: 2px;
+    margin-bottom: 28px;
+    opacity: 0.85;
+  }
+
+  /* ── Page header ── */
+  .page-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 5px;
+  }
+
+  .page-title {
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .page-subtitle {
+    font-size: 0.84rem;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* ── Pill badges ── */
+  .pill-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 13px;
+    border-radius: 20px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    background: var(--navy);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  .pill-count span { color: var(--gold); }
+
+  .pill-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 13px;
+    border-radius: 20px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-ring);
+    color: var(--gold);
+  }
+
+  /* ── Density toggle button ── */
+  .btn-density {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 8px;
+    padding: 6px 11px;
+    cursor: pointer;
+    transition: border-color var(--ease), color var(--ease);
+    font-size: 0.85rem;
+  }
+
+  .btn-density:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── Divider ── */
+  .section-hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 6px 0 24px;
+  }
+
+  /* ══ KPI STAT CARDS ══ */
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow-card);
+    transition: border-color var(--ease), transform var(--ease), box-shadow var(--ease);
+  }
+
+  .stat-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 1px var(--gold-ring), var(--shadow-card);
+  }
+
+  .stat-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.05rem;
+    color: var(--gold);
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  /* ══ SEARCH BAR ══ */
+  .sticky-controls {
+    position: sticky;
+    top: 58px;
+    z-index: 90;
+    background: var(--bg);
+    padding: 10px 0 14px;
+  }
+
+  .search-wrapper { position: relative; }
+
+  .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 0.84rem;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .search-field {
+    width: 100%;
+    height: 48px;
+    padding: 0 110px 0 44px;
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    caret-color: #ffffff !important;
+    font-size: 0.9rem;
+    transition: border-color var(--ease), box-shadow var(--ease);
+  }
+
+  .search-field::placeholder { color: rgba(255,255,255,0.45) !important; opacity: 1 !important; }
+
+  .search-field:focus {
+    outline: none !important;
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 0 3px var(--gold-glow) !important;
+  }
+
+  .search-shortcut {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.67rem;
+    font-weight: 600;
+    padding: 3px 7px;
+    border-radius: 5px;
+    pointer-events: none;
+  }
+
+  .search-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 0.81rem;
+    color: var(--muted);
+  }
+
+  .search-meta strong { color: var(--text); }
+
+  .btn-clear {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 20px;
+    padding: 4px 13px;
+    font-size: 0.77rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color var(--ease), color var(--ease);
+  }
+
+  .btn-clear:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ══ TABLE PANEL ══ */
+  .table-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Nuclear Bootstrap reset */
+  .crm-table,
+  .crm-table > :not(caption) > * > * {
+    background-color: transparent !important;
+    color: var(--text) !important;
+    box-shadow: none !important;
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: transparent;
+    --bs-table-hover-bg: transparent;
+    --bs-table-active-bg: transparent;
+    --bs-table-border-color: transparent;
+  }
+
+  .crm-table thead tr {
+    background-color: var(--navy) !important;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .crm-table thead th {
+    padding: 12px 18px;
+    font-size: 0.69rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    color: var(--gold) !important;
+    border: none !important;
+    background-color: var(--navy) !important;
+  }
+
+  .crm-table tbody tr,
+  .crm-table tbody tr:nth-of-type(odd),
+  .crm-table tbody tr:nth-of-type(even) {
+    background-color: var(--surface) !important;
+    border-bottom: 1px solid var(--border) !important;
+    cursor: pointer;
+    transition: background-color var(--ease);
+  }
+
+  .crm-table tbody tr:last-child { border-bottom: none !important; }
+
+  .crm-table tbody tr:hover,
+  .crm-table tbody tr:nth-of-type(odd):hover,
+  .crm-table tbody tr:nth-of-type(even):hover {
+    background-color: var(--gold-dim) !important;
+  }
+
+  .crm-table td {
+    padding: 14px 18px;
+    vertical-align: middle;
+    color: var(--text) !important;
+    border: none !important;
+    font-size: 0.88rem;
+    background-color: transparent !important;
+  }
+
+  .table-compact .crm-table td { padding: 9px 18px !important; }
+
+  /* ── Avatars ── */
+  .av {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.82rem;
+    flex-shrink: 0;
+  }
+
+  .av-1 { background: rgba(212,175,55,0.14); color: var(--gold);  border: 1px solid rgba(212,175,55,0.35); }
+  .av-2 { background: rgba(96,165,250,0.14); color: #93c5fd;      border: 1px solid rgba(96,165,250,0.35); }
+  .av-3 { background: rgba(52,211,153,0.14); color: #6ee7b7;      border: 1px solid rgba(52,211,153,0.35); }
+  .av-4 { background: rgba(167,139,250,0.14); color: #c4b5fd;     border: 1px solid rgba(167,139,250,0.35); }
+  .av-5 { background: rgba(244,114,182,0.14); color: #f9a8d4;     border: 1px solid rgba(244,114,182,0.35); }
+
+  .cust-name { font-weight: 600; color: var(--text); font-size: 0.9rem; line-height: 1.2; }
+  .cust-id   { font-size: 0.7rem; color: var(--muted); font-family: 'Courier New', monospace; margin-top: 2px; }
+
+  /* ── Row buttons ── */
+  .btn-copy-inline {
+    background: none; border: none; padding: 0 0 0 6px;
+    color: var(--muted); cursor: pointer;
+    transition: color var(--ease); line-height: 1;
+  }
+  .btn-copy-inline:hover { color: var(--gold); }
+
+  .btn-row {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 7px;
+    padding: 5px 9px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: border-color var(--ease), color var(--ease), background var(--ease);
+  }
+  .btn-row:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+  .btn-row-gold {
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-ring);
+    color: var(--gold);
+    border-radius: 7px;
+    padding: 5px 11px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background var(--ease), border-color var(--ease);
+  }
+  .btn-row-gold:hover { background: rgba(212,175,55,0.22); border-color: var(--gold); color: #f4d35e; }
+
+  /* ── Truncate ── */
+  .truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ══ EMPTY STATE ══ */
+  .empty-state { padding: 56px 24px; text-align: center; }
+  .empty-state-icon { font-size: 2.6rem; color: var(--border); margin-bottom: 14px; }
+  .empty-state h5 { color: var(--text); font-weight: 700; margin-bottom: 8px; }
+  .empty-state p  { color: var(--muted); font-size: 0.84rem; max-width: 300px; margin: 0 auto 18px; }
+
+  .btn-reset {
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-ring);
+    color: var(--gold);
+    padding: 7px 20px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background var(--ease);
+  }
+  .btn-reset:hover { background: rgba(212,175,55,0.22); color: #f4d35e; }
+
+  /* ══ MOBILE CARDS ══ */
+  @media (max-width: 767.98px) {
+    .mobile-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color var(--ease);
+    }
+    .mobile-card:hover { border-color: var(--gold); }
+
+    .mob-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .mob-value { font-size: 0.87rem; color: var(--text); }
+
+    .mob-number-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.87rem;
+      color: var(--text);
+    }
+
+    .btn-mob-copy {
+      background: none; border: none;
+      color: var(--gold); font-size: 0.76rem;
+      cursor: pointer; padding: 0;
+    }
+
+    .mob-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    .btn-mob-view {
+      display: block; width: 100%; text-align: center;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-ring);
+      color: var(--gold);
+      border-radius: 8px; padding: 9px;
+      font-size: 0.83rem; font-weight: 600;
+      text-decoration: none;
+      transition: background var(--ease);
+    }
+    .btn-mob-view:hover { background: rgba(212,175,55,0.2); color: #f4d35e; }
+  }
+
+  /* ══ SKELETON LOADER ══ */
+  @keyframes shimmer {
+    0%   { opacity: 0.5; }
+    50%  { opacity: 0.22; }
+    100% { opacity: 0.5; }
+  }
+  .skel {
+    background: var(--border);
+    border-radius: 6px;
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+
+  /* ══ MODAL OVERLAY ══ */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 15, 25, 0.78);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.22s ease, visibility 0.22s;
+  }
+
+  .modal-overlay.show { opacity: 1; visibility: visible; }
+
+  .modal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    width: 620px;
+    max-width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+    transform: scale(0.96) translateY(10px);
+    transition: transform 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .modal-overlay.show .modal-card { transform: scale(1) translateY(0); }
+
+  .modal-accent { height: 4px; background: linear-gradient(90deg, var(--gold), var(--gold-dark)); }
+
+  .modal-header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-title-text {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+
+  .btn-modal-close {
+    background: none; border: none;
+    color: var(--muted); font-size: 1.6rem;
+    line-height: 1; cursor: pointer;
+    padding: 0; transition: color var(--ease);
+  }
+  .btn-modal-close:hover { color: var(--gold); }
+
+  /* Modal avatar banner */
+  .modal-avatar-banner {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+
+  .modal-av {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  /* Form controls */
+  .field-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .form-field {
+    width: 100%;
+    background: var(--bg) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px;
+    color: #ffffff !important;
+    caret-color: #ffffff !important;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    transition: border-color var(--ease), box-shadow var(--ease);
+    resize: vertical;
+  }
+
+  .form-field::placeholder { color: rgba(255,255,255,0.4) !important; opacity: 1 !important; }
+
+  .form-field:focus {
+    outline: none !important;
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 0 3px var(--gold-glow) !important;
+  }
+
+  /* Modal action buttons */
+  .btn-gold {
+    background: var(--gold) !important;
+    border: 1px solid var(--gold) !important;
+    color: var(--navy) !important;
+    font-weight: 700;
+    padding: 9px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: background var(--ease), box-shadow var(--ease);
+  }
+  .btn-gold:hover {
+    background: var(--gold-dark) !important;
+    border-color: var(--gold-dark) !important;
+    box-shadow: 0 0 0 3px var(--gold-ring) !important;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 9px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: border-color var(--ease), color var(--ease), background var(--ease);
+  }
+  .btn-ghost:hover { border-color: var(--text); color: var(--text); background: var(--bg); }
+
+  .btn-danger {
+    background: var(--red-dim);
+    border: 1px solid rgba(239,68,68,0.35);
+    color: var(--red);
+    padding: 9px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: background var(--ease), border-color var(--ease);
+  }
+  .btn-danger:hover { background: rgba(239,68,68,0.22); border-color: var(--red); }
+
+  /* Danger zone strip inside modal */
+  .danger-strip {
+    background: var(--red-dim);
+    border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .danger-strip p {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin: 3px 0 0;
+  }
+
+  /* ══ TOAST ══ */
+  .crm-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+    font-size: 0.87rem;
+    font-weight: 500;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.55);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: opacity 0.2s ease, visibility 0.2s, transform 0.2s ease;
+    z-index: 9999;
+  }
+  .crm-toast.show { opacity: 1; visibility: visible; transform: translateY(0); }
+</style>
+
+{# ══ Jinja2 telemetry ══ #}
+{% set total_count   = customers|length %}
+{% set uniq_schools  = namespace(list=[]) %}
+{% set uniq_mobiles  = namespace(list=[]) %}
+{% set upd_count     = namespace(n=0) %}
+{% for c in customers %}
+  {% if c.school  and c.school  != '-' and c.school  not in uniq_schools.list  %}{% set uniq_schools.list  = uniq_schools.list  + [c.school]  %}{% endif %}
+  {% if c.mobile  and c.mobile  != '-' and c.mobile  not in uniq_mobiles.list  %}{% set uniq_mobiles.list  = uniq_mobiles.list  + [c.mobile]  %}{% endif %}
+  {% if c.updated_at %}{% set upd_count.n = upd_count.n + 1 %}{% endif %}
+{% endfor %}
+
+{# ══════════════════════════════════════════ PAGE ══ #}
+<div class="container-fluid px-3 px-md-4">
+
+  <div class="accent-bar"></div>
+
+  {# ── Header ── #}
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start mb-4">
+    <div class="mb-3 mb-md-0">
+      <p class="page-eyebrow"><i class="fas fa-address-book me-1"></i> Customer Registry</p>
+      <h1 class="page-title">Fancy Customers Directory</h1>
+      <p class="page-subtitle">Browse records, school costume associations, and payment histories.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2 flex-shrink-0 mt-1">
+      <span class="pill-count"><span>{{ total_count }}</span> Records</span>
+      {% if search %}<span class="pill-filter"><i class="fas fa-filter"></i> Filter Active</span>{% endif %}
+      <button id="density-toggle" onclick="toggleDensity()" class="btn-density" title="Toggle compact view">
+        <i class="fas fa-compress-alt" id="density-icon"></i>
+      </button>
+    </div>
+  </div>
+
+  <hr class="section-hr">
+
+  <div id="main-content-area">
+
+    {# ── KPI Strip ── #}
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-users"></i></div>
+          <div><div class="stat-label">Total Records</div><div class="stat-value">{{ total_count }}</div></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="color:#93c5fd"><i class="fas fa-school"></i></div>
+          <div><div class="stat-label">Schools</div><div class="stat-value">{{ uniq_schools.list|length }}</div></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="color:#6ee7b7"><i class="fas fa-phone-alt"></i></div>
+          <div><div class="stat-label">Unique Mobiles</div><div class="stat-value">{{ uniq_mobiles.list|length }}</div></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="color:#f9a8d4"><i class="fas fa-history"></i></div>
+          <div><div class="stat-label">Updated Ledger</div><div class="stat-value">{{ upd_count.n }}</div></div>
+        </div>
+      </div>
+    </div>
+
+    {# ── Search ── #}
+    <div class="sticky-controls mb-4">
+      <form method="GET" action="{{ url_for('fancy.fancy_customers') }}" id="search-form">
+        <div class="search-wrapper">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            id="search-input"
+            type="text"
+            class="form-control search-field"
+            name="search"
+            placeholder="Search by name, mobile, school, address…"
+            value="{{ search }}"
+            autocomplete="off"
+          >
+          <span class="search-shortcut d-none d-md-inline-block">Ctrl K</span>
+        </div>
+      </form>
+      {% if search %}
+        <div class="search-meta">
+          <span>Found <strong>{{ total_count }}</strong> results for "<span style="color:var(--gold)">{{ search }}</span>"</span>
+          <a href="{{ url_for('fancy.fancy_customers') }}" class="btn-clear"><i class="fas fa-times me-1"></i>Clear</a>
+        </div>
+      {% endif %}
+      <div id="live-search-meta" class="search-meta" style="display:none"></div>
+    </div>
+
+    {# ── Desktop Table ── #}
+    <div class="d-none d-md-block table-panel mb-4" id="table-wrapper">
+      <div class="table-responsive">
+        <table id="customers-table" class="table crm-table mb-0">
+          <thead>
+            <tr>
+              <th style="width:46px">#</th>
+              <th>Customer</th>
+              <th>Mobile</th>
+              <th>School</th>
+              <th style="max-width:260px">Address</th>
+              <th>Updated</th>
+              <th class="text-end" style="width:100px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="desktop-tbody">
+            {% for customer in customers %}
+              {% set np = customer.name.split() if customer.name else [] %}
+              {% set initials = (np[0][0]+np[1][0])|upper if np|length>=2 else (np[0][0]|upper if np|length==1 else 'C') %}
+              {% set ai = (customer.name|length % 5)+1 if customer.name else 1 %}
+
+              <tr class="customer-row"
+                  data-id="{{ customer._id|string }}"
+                  data-name="{{ customer.name|e }}"
+                  data-mobile="{{ customer.mobile|e }}"
+                  data-school="{{ customer.school|e }}"
+                  data-address="{{ customer.address|e }}"
+                  onclick="openModal(this)">
+                <td style="color:var(--muted);font-size:0.78rem">{{ loop.index }}</td>
+                <td>
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="av av-{{ ai }}">{{ initials }}</div>
+                    <div>
+                      <div class="cust-name">{{ customer.name or '-' }}</div>
+                      <div class="cust-id">{{ customer._id|string|truncate(14,True,'') }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <span>{{ customer.mobile or '-' }}</span>
+                    {% if customer.mobile %}
+                      <button onclick="event.stopPropagation();copyText('{{ customer.mobile }}',this)"
+                              class="btn-copy-inline" title="Copy"><i class="far fa-copy"></i></button>
+                    {% endif %}
+                  </div>
+                </td>
+                <td style="color:var(--muted)">{{ customer.school or '-' }}</td>
+                <td style="max-width:260px">
+                  <div class="truncate-2" style="color:var(--muted);font-size:0.83rem" title="{{ customer.address }}">
+                    {{ customer.address or '-' }}
+                  </div>
+                </td>
+                <td style="color:var(--muted);font-size:0.8rem">
+                  {% if customer.updated_at %}{{ customer.updated_at.strftime('%d %b %Y') }}{% else %}—{% endif %}
+                </td>
+                <td class="text-end" onclick="event.stopPropagation()">
+                  <div class="d-flex gap-2 justify-content-end">
+                    <button onclick="copyText('{{ customer.mobile }}',this)" class="btn-row" title="Copy"><i class="fas fa-copy"></i></button>
+                    <button onclick="openModal(this.closest('tr'))" class="btn-row-gold" title="Edit"><i class="fas fa-user-edit"></i></button>
+                  </div>
+                </td>
+              </tr>
+            {% else %}
+              <tr id="desktop-empty-row">
+                <td colspan="7">
+                  <div class="empty-state">
+                    <div class="empty-state-icon"><i class="fas fa-user-slash"></i></div>
+                    <h5>No Customers Found</h5>
+                    <p>No records match your current filter. Clear the search to view all customers.</p>
+                    {% if search %}<a href="{{ url_for('fancy.fancy_customers') }}" class="btn-reset"><i class="fas fa-sync me-1"></i>Reset Directory</a>{% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {# JS-injected empty state for live filter #}
+      <div id="desktop-no-results" class="empty-state" style="display:none">
+        <div class="empty-state-icon"><i class="fas fa-search"></i></div>
+        <h5>No Matching Customers</h5>
+        <p>No records match your search. Try different keywords.</p>
+        <button onclick="clearSearch()" class="btn-reset"><i class="fas fa-times me-1"></i>Clear Search</button>
+      </div>
+    </div>
+
+    {# ── Mobile Cards ── #}
+    <div class="d-block d-md-none" id="mobile-list">
+      {% for customer in customers %}
+        {% set np = customer.name.split() if customer.name else [] %}
+        {% set initials = (np[0][0]+np[1][0])|upper if np|length>=2 else (np[0][0]|upper if np|length==1 else 'C') %}
+        {% set ai = (customer.name|length % 5)+1 if customer.name else 1 %}
+
+        <div class="mobile-card customer-row"
+             data-id="{{ customer._id|string }}"
+             data-name="{{ customer.name|e }}"
+             data-mobile="{{ customer.mobile|e }}"
+             data-school="{{ customer.school|e }}"
+             data-address="{{ customer.address|e }}"
+             onclick="openModal(this)">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-3">
+              <div class="av av-{{ ai }}">{{ initials }}</div>
+              <div>
+                <div class="cust-name">{{ customer.name or '-' }}</div>
+                <div style="font-size:0.69rem;color:var(--muted)">#{{ loop.index }}</div>
+              </div>
+            </div>
+            <span style="font-size:0.7rem;color:var(--muted)">
+              {% if customer.updated_at %}{{ customer.updated_at.strftime('%d %b %Y') }}{% else %}—{% endif %}
+            </span>
+          </div>
+
+          <div class="mb-2">
+            <div class="mob-label">Mobile</div>
+            <div class="mob-number-box" onclick="event.stopPropagation()">
+              <span>{{ customer.mobile or '-' }}</span>
+              {% if customer.mobile %}
+                <button onclick="copyText('{{ customer.mobile }}',this)" class="btn-mob-copy"><i class="far fa-copy me-1"></i>Copy</button>
+              {% endif %}
+            </div>
+          </div>
+          <div class="mb-2">
+            <div class="mob-label">School</div>
+            <div class="mob-value">{{ customer.school or '-' }}</div>
+          </div>
+          <div class="mb-3">
+            <div class="mob-label">Address</div>
+            <div class="mob-value truncate-2" style="color:var(--muted)">{{ customer.address or '-' }}</div>
+          </div>
+
+          <hr class="mob-divider">
+          <button onclick="event.stopPropagation();openModal(this.closest('.mobile-card'))" class="btn-mob-view">
+            <i class="fas fa-user-edit me-1"></i> Edit Profile
+          </button>
+        </div>
+      {% else %}
+        <div class="table-panel">
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="fas fa-search"></i></div>
+            <h5>No Matching Customers</h5>
+            <p>Adjust search terms or clear filters to find records.</p>
+            {% if search %}<a href="{{ url_for('fancy.fancy_customers') }}" class="btn-reset">Clear Search</a>{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+
+      <div id="mobile-no-results" class="table-panel" style="display:none">
+        <div class="empty-state">
+          <div class="empty-state-icon"><i class="fas fa-search"></i></div>
+          <h5>No Matching Customers</h5>
+          <p>Try different keywords.</p>
+          <button onclick="clearSearch()" class="btn-reset"><i class="fas fa-times me-1"></i>Clear</button>
+        </div>
+      </div>
+    </div>
+
+  </div>{# /main-content-area #}
+
+  {# ── Skeleton Loader ── #}
+  <div id="skeleton-loader" class="d-none">
+    <div class="row g-3 mb-4">
+      {% for i in range(4) %}
+        <div class="col-6 col-md-3">
+          <div class="stat-card">
+            <div class="skel" style="width:46px;height:46px;border-radius:10px;flex-shrink:0"></div>
+            <div class="flex-grow-1">
+              <div class="skel mb-2" style="height:10px;width:55%"></div>
+              <div class="skel" style="height:20px;width:38%"></div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="skel mb-4" style="height:48px;border-radius:10px"></div>
+    <div class="table-panel p-4">
+      {% for i in range(6) %}
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="skel" style="width:38px;height:38px;border-radius:50%;flex-shrink:0"></div>
+          <div class="flex-grow-1">
+            <div class="skel mb-2" style="height:12px;width:44%"></div>
+            <div class="skel" style="height:8px;width:27%"></div>
+          </div>
+          <div class="skel" style="height:12px;width:76px"></div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>{# /container-fluid #}
+
+{# ══════════════════════════════════════════
+   INLINE EDIT MODAL
+   ══════════════════════════════════════════ #}
+<div id="edit-modal" class="modal-overlay" onclick="closeModal()">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-accent"></div>
+
+    {# Modal header #}
+    <div class="modal-header-bar">
+      <h5 class="modal-title-text"><i class="fas fa-user-edit" style="color:var(--gold)"></i> Edit Customer Profile</h5>
+      <button class="btn-modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
+    </div>
+
+    <div class="p-4">
+
+      {# Avatar banner #}
+      <div class="modal-avatar-banner">
+        <div class="modal-av av av-1" id="modal-av">C</div>
+        <div>
+          <div style="font-weight:600;color:var(--text)" id="modal-banner-name">Customer Name</div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:3px">
+            ID: <code style="color:var(--gold);font-size:0.75rem" id="modal-banner-id">—</code>
+          </div>
+        </div>
+      </div>
+
+      {# Edit form #}
+      <form id="edit-form" method="POST" action="">
+        <div class="mb-3">
+          <label class="field-label">Customer Name</label>
+          <input type="text" id="f-name" name="name" class="form-field" placeholder="Full name" required>
+        </div>
+        <div class="mb-3">
+          <label class="field-label">Mobile Number</label>
+          <input type="text" id="f-mobile" name="mobile" class="form-field"
+                 placeholder="10-digit mobile" pattern="\d{10}" title="10-digit mobile number" required>
+        </div>
+        <div class="mb-3">
+          <label class="field-label">School Name</label>
+          <input type="text" id="f-school" name="school" class="form-field" placeholder="Associated school">
+        </div>
+        <div class="mb-4">
+          <label class="field-label">Address</label>
+          <textarea id="f-address" name="address" rows="3" class="form-field" placeholder="Street, city, pincode…"></textarea>
+        </div>
+
+        {# Action row #}
+        <div class="d-flex gap-2 justify-content-end pt-3" style="border-top:1px solid var(--border)">
+          <button type="button" class="btn-ghost" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn-gold"><i class="fas fa-save me-2"></i>Save Changes</button>
+        </div>
+      </form>
+
+      {# Danger zone #}
+      <div class="danger-strip">
+        <div>
+          <div style="font-size:0.82rem;font-weight:700;color:var(--red)"><i class="fas fa-exclamation-triangle me-1"></i>Danger Zone</div>
+          <p>Permanently deletes this profile. This cannot be undone.</p>
+        </div>
+        <form id="delete-form" method="POST" action="">
+          <button type="button" class="btn-danger" onclick="triggerDelete()">
+            <i class="fas fa-trash-alt me-1"></i> Delete Profile
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{# ── Toast ── #}
+<div id="crm-toast" class="crm-toast">
+  <i class="fas fa-check-circle" style="color:var(--gold)"></i>
+  <span id="toast-msg">Done!</span>
+</div>
+
+<script>
+  /* ═══════════════════════════════════════
+     MODAL
+  ═══════════════════════════════════════ */
+  const AV_CLASSES = ['av-1','av-2','av-3','av-4','av-5'];
+
+  function openModal(el) {
+    const id      = el.dataset.id;
+    const name    = el.dataset.name    || '';
+    const mobile  = el.dataset.mobile  || '';
+    const school  = el.dataset.school  || '';
+    const address = el.dataset.address || '';
+
+    // Form actions
+    document.getElementById('edit-form').action   = `/fancy-customer/${id}`;
+    document.getElementById('delete-form').action = `/fancy-customer/delete/${id}`;
+
+    // Fields
+    document.getElementById('f-name').value    = name;
+    document.getElementById('f-mobile').value  = mobile;
+    document.getElementById('f-school').value  = school;
+    document.getElementById('f-address').value = address;
+
+    // Banner
+    document.getElementById('modal-banner-name').textContent = name || 'Customer Name';
+    document.getElementById('modal-banner-id').textContent   = id;
+    syncAvatar(name);
+
+    // Open
+    document.getElementById('edit-modal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('edit-modal').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function syncAvatar(name) {
+    const av   = document.getElementById('modal-av');
+    const parts = (name || '').trim().split(/\s+/);
+    let ini = 'C';
+    if (parts.length >= 2 && parts[0] && parts[1]) ini = (parts[0][0] + parts[1][0]).toUpperCase();
+    else if (parts.length === 1 && parts[0])        ini = parts[0][0].toUpperCase();
+    av.textContent = ini;
+
+    // Style class
+    const idx = ((name || '').length % 5);
+    av.className = 'modal-av av ' + AV_CLASSES[idx];
+  }
+
+  // Live banner sync while typing
+  document.getElementById('f-name').addEventListener('input', function() {
+    document.getElementById('modal-banner-name').textContent = this.value || 'Customer Name';
+    syncAvatar(this.value);
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  function triggerDelete() {
+    if (confirm('Permanently delete this customer profile? This cannot be undone.')) {
+      document.getElementById('delete-form').submit();
+    }
+  }
+
+  /* ═══════════════════════════════════════
+     CLIPBOARD + TOAST
+  ═══════════════════════════════════════ */
+  function copyText(text, btn) {
+    if (!text || text === 'None') return;
+    navigator.clipboard.writeText(text).then(() => {
+      const icon = btn.querySelector('i');
+      if (icon) {
+        const orig = icon.className;
+        icon.className = 'fas fa-check';
+        icon.style.color = 'var(--gold)';
+        setTimeout(() => { icon.className = orig; icon.style.color = ''; }, 1500);
+      }
+      showToast('Copied: ' + text);
+    }).catch(() => showToast('Copy failed'));
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('crm-toast');
+    const m = document.getElementById('toast-msg');
+    if (!t || !m) return;
+    m.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  /* ═══════════════════════════════════════
+     DENSITY TOGGLE
+  ═══════════════════════════════════════ */
+  function toggleDensity() {
+    const w = document.getElementById('table-wrapper');
+    const i = document.getElementById('density-icon');
+    if (!w) return;
+    const compact = w.classList.toggle('table-compact');
+    i.className = compact ? 'fas fa-expand-alt' : 'fas fa-compress-alt';
+  }
+
+  /* ═══════════════════════════════════════
+     CTRL+K FOCUS
+  ═══════════════════════════════════════ */
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      const inp = document.getElementById('search-input');
+      if (inp) { inp.focus(); inp.select(); }
+    }
+  });
+
+  /* ═══════════════════════════════════════
+     SKELETON on form submit (Enter key)
+  ═══════════════════════════════════════ */
+  document.getElementById('search-form').addEventListener('submit', () => {
+    document.getElementById('main-content-area').classList.add('d-none');
+    document.getElementById('skeleton-loader').classList.remove('d-none');
+  });
+
+  /* ═══════════════════════════════════════
+     CLIENT-SIDE LIVE FILTER (zero reload)
+     Text cached once — filter loop is pure
+     string comparison, no DOM reads inside.
+  ═══════════════════════════════════════ */
+  const searchInput     = document.getElementById('search-input');
+  const desktopNoRes    = document.getElementById('desktop-no-results');
+  const mobileNoRes     = document.getElementById('mobile-no-results');
+  const liveMeta        = document.getElementById('live-search-meta');
+
+  // Cache once at page load
+  const dRows = Array.from(document.querySelectorAll('#desktop-tbody tr.customer-row'))
+    .map(r => ({ el: r, txt: r.textContent.toLowerCase() }));
+
+  const mCards = Array.from(document.querySelectorAll('#mobile-list .mobile-card'))
+    .map(c => ({ el: c, txt: c.textContent.toLowerCase() }));
+
+  let raf = null;
+
+  function filterTable(raw) {
+    const q = raw.trim().toLowerCase();
+    let dc = 0, mc = 0;
+
+    for (let i = 0; i < dRows.length; i++) {
+      const show = !q || dRows[i].txt.includes(q);
+      dRows[i].el.style.display = show ? '' : 'none';
+      if (show) dc++;
+    }
+
+    for (let i = 0; i < mCards.length; i++) {
+      const show = !q || mCards[i].txt.includes(q);
+      mCards[i].el.style.display = show ? '' : 'none';
+      if (show) mc++;
+    }
+
+    if (desktopNoRes) desktopNoRes.style.display = (dRows.length && dc === 0) ? '' : 'none';
+    if (mobileNoRes)  mobileNoRes.style.display  = (mCards.length && mc === 0) ? '' : 'none';
+
+    // Meta line
+    if (!q) {
+      liveMeta.style.display = 'none';
+    } else {
+      liveMeta.style.display = 'flex';
+      liveMeta.innerHTML = `
+        <span>Showing <strong>${dc}</strong> result${dc !== 1 ? 's' : ''} for
+          "<span style="color:var(--gold)">${escHtml(q)}</span>"
+        </span>
+        <button onclick="clearSearch()" class="btn-clear">
+          <i class="fas fa-times me-1"></i>Clear
+        </button>`;
+    }
+  }
+
+  function clearSearch() {
+    if (searchInput) { searchInput.value = ''; filterTable(''); searchInput.focus(); }
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  if (searchInput) {
+    // requestAnimationFrame: input renders first, filter runs next frame
+    searchInput.addEventListener('input', e => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => filterTable(e.target.value));
+    });
+
+    // Apply any pre-filled server-side value on load
+    if (searchInput.value) filterTable(searchInput.value);
+  }
+</script>
+{% endblock %}
