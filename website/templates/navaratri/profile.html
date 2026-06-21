@@ -2055,23 +2055,35 @@
         
         // Only search if it reaches exactly 10 digits
         if (mobileVal.length === 10) {
-          const customerId = document.getElementById('modal-customer-id').value;
+          const customerIdEl = document.getElementById('modal-customer-id');
+          const customerId = customerIdEl ? customerIdEl.value : '';
           if (!customerId || customerId === 'new') {
+            console.log("Fetching navaratri customer autocomplete for modal mobile:", mobileVal);
             fetch(`/get-navaratri-customer?mobile=${mobileVal}`)
-              .then(res => res.json())
+              .then(res => {
+                console.log("Modal autocomplete response status:", res.status);
+                return res.json();
+              })
               .then(data => {
+                console.log("Modal autocomplete data received:", data);
                 if (data.exists && data.data) {
-                  document.getElementById('modal-name').value = data.data.name || '';
-                  document.getElementById('modal-address').value = data.data.address || '';
+                  const nameEl = document.getElementById('modal-name');
+                  const addrEl = document.getElementById('modal-address');
+                  const grpEl = document.getElementById('modal-group');
+                  const refEl = document.getElementById('modal-reference');
+                  
+                  if (nameEl) nameEl.value = data.data.name || '';
+                  if (addrEl) addrEl.value = data.data.address || '';
+                  if (grpEl) grpEl.value = data.data.group || '';
+                  if (refEl) refEl.value = data.data.reference || '';
+                  
                   if (data.in_cycle) {
-                    document.getElementById('modal-group').value = data.data.group || '';
-                    document.getElementById('modal-reference').value = data.data.reference || '';
                     showToast("👤 Booking in this cycle found! Details, group, and reference pre-filled.", "success");
                   } else {
-                    document.getElementById('modal-group').value = '';
-                    document.getElementById('modal-reference').value = '';
-                    showToast("👤 Returning customer found! Details pre-filled.", "success");
+                    showToast("👤 Returning customer found! Details, group, and reference pre-filled.", "success");
                   }
+                } else {
+                  console.log("Customer not found or empty data returned for modal.");
                 }
               })
               .catch(err => console.error("Error fetching customer data:", err));

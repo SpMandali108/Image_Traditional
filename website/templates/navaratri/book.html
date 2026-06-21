@@ -352,28 +352,32 @@
       if (this.value.length === 10) {
         mobileError.classList.add("d-none");
         
-        // Autocomplete search for returning customer
+        console.log("Fetching navaratri customer autocomplete for mobile:", this.value);
         fetch(`/get-navaratri-customer?mobile=${this.value}`)
-          .then(res => res.json())
+          .then(res => {
+            console.log("Autocomplete response status:", res.status);
+            return res.json();
+          })
           .then(data => {
+            console.log("Autocomplete data received:", data);
             if (data.exists && data.data) {
               const nameEl = document.getElementById('cust-name');
               const addrEl = document.getElementById('cust-address');
               if (nameEl) nameEl.value = data.data.name || '';
               if (addrEl) addrEl.value = data.data.address || '';
+              
+              const grpEl = document.getElementById('cust-group');
+              const refEl = document.getElementById('cust-reference');
+              if (grpEl) grpEl.value = data.data.group || '';
+              if (refEl) refEl.value = data.data.reference || '';
+              
               if (data.in_cycle) {
-                const grpEl = document.getElementById('cust-group');
-                const refEl = document.getElementById('cust-reference');
-                if (grpEl) grpEl.value = data.data.group || '';
-                if (refEl) refEl.value = data.data.reference || '';
                 showToast("👤 Booking in this cycle found! Details, group, and reference pre-filled.", "success");
               } else {
-                const grpEl = document.getElementById('cust-group');
-                const refEl = document.getElementById('cust-reference');
-                if (grpEl) grpEl.value = '';
-                if (refEl) refEl.value = '';
-                showToast("👤 Returning customer found! Details pre-filled.", "success");
+                showToast("👤 Returning customer found! Details, group, and reference pre-filled.", "success");
               }
+            } else {
+              console.log("Customer not found or empty data returned.");
             }
           })
           .catch(err => console.error("Error fetching customer data:", err));

@@ -141,6 +141,8 @@ def book():
                     "name": Name,
                     "mobile": mobile,
                     "address": address,
+                    "group": group,
+                    "reference": reference,
                     "updated_at": datetime.now()
                 }
             },
@@ -662,6 +664,8 @@ def profile_update():
                 "name": name,
                 "mobile": mobile,
                 "address": address,
+                "group": group,
+                "reference": reference,
                 "updated_at": datetime.now()
             }
         },
@@ -1948,6 +1952,8 @@ def get_navaratri_customer():
                                 "name": b.get("Name"),
                                 "mobile": m,
                                 "address": b.get("address", ""),
+                                "group": b.get("group", ""),
+                                "reference": b.get("reference", ""),
                                 "updated_at": datetime.now()
                             }
                         },
@@ -1981,8 +1987,8 @@ def get_navaratri_customer():
                 "name": customer.get("name", ""),
                 "mobile": customer.get("mobile", ""),
                 "address": customer.get("address", ""),
-                "group": "",
-                "reference": ""
+                "group": customer.get("group", ""),
+                "reference": customer.get("reference", "")
             }
         })
     return jsonify({"exists": False})
@@ -2018,6 +2024,8 @@ def navaratri_customers_list():
                                 "name": b.get("Name"),
                                 "mobile": m,
                                 "address": b.get("address", ""),
+                                "group": b.get("group", ""),
+                                "reference": b.get("reference", ""),
                                 "updated_at": datetime.now()
                             }
                         },
