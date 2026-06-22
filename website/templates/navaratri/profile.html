@@ -9,853 +9,650 @@
 {% block head %}
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* ─── DESIGN TOKENS ────────────────────────────────────────────── */
+    /* ─── DESIGN TOKENS ─────────────────────────────────────────────── */
     :root {
-      --dark-blue:    #0a1929;
-      --medium-blue:  #1a2942;
-      --light-blue:   #2d3f5f;
-      --border-blue:  #3a5070;
-      --gold:         #d4af37;
-      --light-gold:   #f4d35e;
-      --pale-gold:    #fdf3c0;
-      --text-primary: #e8eaf0;
-      --text-muted:   #8fa3bc;
-      --text-dark:    #c5cfe0;
-      --danger:       #e05252;
-      --success:      #3dba7a;
-      --warning:      #e09432;
-      --info:         #4a9fd4;
-      --sidebar-w:    300px;
+      --dark-blue:    #080f1c;
+      --medium-blue:  #0f1e33;
+      --light-blue:   #162640;
+      --border-blue:  #1e3352;
+      --border-subtle:#192c44;
+      --gold:         #c9a227;
+      --light-gold:   #e8c252;
+      --pale-gold:    #fdf0c0;
+      --text-primary: #dde6f0;
+      --text-muted:   #607a96;
+      --text-dark:    #9db5cc;
+      --danger:       #d94f4f;
+      --success:      #2eaa6c;
+      --warning:      #d48b2a;
+      --info:         #3d8fc7;
+      --gold-glow:    rgba(201,162,39,0.18);
     }
 
-    /* ─── BASE ─────────────────────────────────────────────────────── */
+    /* ─── BASE ──────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
     body {
-      background-color: var(--dark-blue);
+      background: var(--dark-blue);
       color: var(--text-primary);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
     }
-    .main-content {
-      padding-top: 10px !important;
-    }
-    .profile-dashboard {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 10px 20px 48px 20px;
-    }
+    .main-content { padding-top: 0 !important; }
 
-    /* ─── SCROLLBAR ────────────────────────────────────────────────── */
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: var(--dark-blue); }
-    ::-webkit-scrollbar-thumb { background: var(--border-blue); border-radius: 3px; }
+    /* ─── SCROLLBAR ─────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-blue); border-radius: 2px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
-    /* ─── PAGE HEADER ──────────────────────────────────────────────── */
-    .page-header {
-      background: linear-gradient(135deg, var(--medium-blue) 0%, var(--light-blue) 100%);
-      border: 1px solid var(--border-blue);
-      border-top: 3px solid var(--gold);
-      border-radius: 12px;
-      padding: 22px 28px;
-      margin-bottom: 22px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 14px;
-    }
-    .page-header h1 {
-      font-size: 1.55rem;
-      font-weight: 700;
-      margin: 0;
-      color: var(--light-gold);
-      letter-spacing: 0.02em;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .page-header p {
-      margin: 4px 0 0;
-      color: var(--text-muted);
-      font-size: 0.88rem;
-    }
-    .page-header .gold-accent-bar {
-      width: 38px;
-      height: 3px;
-      background: linear-gradient(90deg, var(--gold), var(--light-gold));
-      border-radius: 2px;
-      margin-top: 6px;
-    }
-
-    /* ─── PREMIUM CARD ─────────────────────────────────────────────── */
-    .premium-card {
-      background: var(--medium-blue);
-      border: 1px solid var(--border-blue);
-      border-radius: 10px;
-      overflow: hidden;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-      transition: box-shadow 0.2s ease;
-    }
-    .premium-card:hover {
-      box-shadow: 0 6px 24px rgba(0,0,0,0.35);
-    }
-    .card-header-premium {
-      background: var(--light-blue);
-      border-bottom: 1px solid var(--border-blue);
-      padding: 13px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .card-header-premium h3 {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--light-gold);
-      margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    .card-body-premium {
-      padding: 18px;
-    }
-
-    /* ─── GOLD BADGE ────────────────────────────────────────────────── */
-    .badge-gold {
-      background: linear-gradient(135deg, var(--gold), var(--light-gold));
-      color: var(--dark-blue);
-      font-weight: 800;
-      font-size: 0.72rem;
-      padding: 3px 9px;
-      border-radius: 20px;
-      letter-spacing: 0.04em;
-    }
-    .badge-navy {
-      background: var(--dark-blue);
-      color: var(--text-muted);
-      border: 1px solid var(--border-blue);
-      font-size: 0.72rem;
-      padding: 3px 9px;
-      border-radius: 20px;
-    }
-
-    /* ─── SIDEBAR ──────────────────────────────────────────────────── */
-    .search-input-group {
+    /* ═══════════════════════════════════════════════════════════════
+       COMMAND BAR — the signature element
+       A full-width brass rail spanning the top of the admin area.
+       Playfair display title, inline KPIs, action buttons.
+    ═══════════════════════════════════════════════════════════════ */
+    .command-bar {
+      background: linear-gradient(90deg, var(--medium-blue) 0%, #0d1a2e 50%, var(--medium-blue) 100%);
+      border-bottom: 1px solid var(--border-subtle);
       position: relative;
+      overflow: hidden;
     }
-    .search-input-group i {
+    /* Brass rail shimmer — the visual signature */
+    .command-bar::before {
+      content: '';
       position: absolute;
-      left: 11px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      pointer-events: none;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(201,162,39,0.2) 15%,
+        var(--gold) 35%,
+        var(--light-gold) 50%,
+        var(--gold) 65%,
+        rgba(201,162,39,0.2) 85%,
+        transparent 100%);
     }
-    .search-input-group input {
-      padding-left: 34px;
-      background: var(--dark-blue);
-      border: 1px solid var(--border-blue);
-      color: var(--text-primary);
-      border-radius: 7px;
-      font-size: 0.82rem;
-    }
-    .search-input-group input::placeholder { color: var(--text-muted); }
-    .search-input-group input:focus {
-      background: var(--dark-blue);
-      border-color: var(--gold);
-      color: var(--text-primary);
-      box-shadow: 0 0 0 3px rgba(212,175,55,0.15);
-      outline: none;
+    /* Corner rivets */
+    .command-bar::after {
+      content: '';
+      position: absolute;
+      top: 10px; right: 18px;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, var(--light-gold), var(--gold) 60%, #8b6914);
+      box-shadow: -1200px 0 0 0 rgba(201,162,39,0.6);
     }
 
-    .customer-list-scroll {
-      max-height: 500px;
-      overflow-y: auto;
-      border-radius: 7px;
-      border: 1px solid var(--border-blue);
+    .command-bar-inner {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 28px;
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      min-height: 64px;
     }
-    .customer-list-item {
-      padding: 11px 14px;
-      border-bottom: 1px solid rgba(58,80,112,0.5);
-      cursor: pointer;
-      transition: background 0.15s ease;
+
+    /* Title segment */
+    .cb-title-seg {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 28px 14px 0;
+      border-right: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .cb-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, rgba(201,162,39,0.22), rgba(201,162,39,0.06));
+      border: 1px solid rgba(201,162,39,0.3);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--light-gold); font-size: 1rem; flex-shrink: 0;
+    }
+    .cb-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.01em;
+      line-height: 1.2;
+      margin: 0;
+      white-space: nowrap;
+    }
+    .cb-subtitle {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 1px;
+      letter-spacing: 0.02em;
+    }
+
+    /* KPI segments */
+    .cb-kpi-seg {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex: 1;
+      overflow: hidden;
+    }
+    .cb-kpi {
       display: flex;
       flex-direction: column;
-      text-decoration: none;
-      color: inherit;
+      justify-content: center;
+      padding: 12px 24px;
+      border-right: 1px solid var(--border-subtle);
+      min-width: 110px;
+      position: relative;
     }
-    .customer-list-item:last-child { border-bottom: none; }
-    .customer-list-item:hover { background: var(--light-blue); }
-    .customer-list-item.active {
-      background: rgba(212,175,55,0.12);
-      border-left: 3px solid var(--gold);
-    }
-    .customer-list-item .cust-name {
+    .cb-kpi-label {
+      font-size: 0.62rem;
       font-weight: 700;
-      color: var(--text-primary);
-      font-size: 0.85rem;
-      margin-bottom: 2px;
-    }
-    .customer-list-item .cust-details {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
       display: flex;
-      justify-content: space-between;
-      font-size: 0.76rem;
-      color: var(--text-muted);
-    }
-    .cust-tag {
-      font-size: 0.68rem;
-      background: var(--dark-blue);
-      color: var(--text-muted);
-      border: 1px solid var(--border-blue);
-      padding: 1px 6px;
-      border-radius: 10px;
-    }
-
-    /* ─── MULTI-SELECT FILTER ──────────────────────────────────────── */
-    .multi-select-container { position: relative; }
-    .multi-select-button {
-      background: var(--dark-blue);
-      border: 1px solid var(--border-blue);
-      color: var(--text-muted);
-      padding: 0 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      width: 100%;
-      text-align: left;
-      display: flex;
-      justify-content: space-between;
       align-items: center;
-      font-size: 0.78rem;
-      height: 30px;
-      transition: border-color 0.15s;
+      gap: 5px;
+      margin-bottom: 3px;
     }
-    .multi-select-button:hover { border-color: var(--gold); }
-    .multi-select-button.active {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 3px rgba(212,175,55,0.15);
+    .cb-kpi-value {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--light-gold);
+      line-height: 1;
+      letter-spacing: -0.02em;
     }
-    .multi-select-arrow { transition: transform 0.2s ease; color: var(--text-muted); font-size: 0.65rem; }
-    .multi-select-button.active .multi-select-arrow { transform: rotate(180deg); }
-    .multi-select-dropdown {
-      position: absolute;
-      top: 100%;
-      left: 0; right: 0;
-      background: var(--light-blue);
-      border: 1px solid var(--border-blue);
-      border-radius: 7px;
-      box-shadow: 0 12px 24px rgba(0,0,0,0.4);
-      max-height: 180px;
-      overflow-y: auto;
-      z-index: 1050;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-6px);
-      transition: all 0.18s ease;
-      margin-top: 3px;
-      padding: 3px 0;
-    }
-    .multi-select-dropdown.active {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-    .multi-select-option {
-      padding: 6px 12px;
-      cursor: pointer;
+    .cb-kpi.danger  .cb-kpi-value { color: var(--danger); }
+    .cb-kpi.success .cb-kpi-value { color: var(--success); }
+
+    /* Action segment */
+    .cb-actions-seg {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.8rem;
-      color: var(--text-dark);
-      transition: background 0.15s;
+      padding: 14px 0 14px 24px;
+      flex-shrink: 0;
     }
-    .multi-select-option:hover { background: rgba(212,175,55,0.1); }
-    .multi-select-option input[type="checkbox"] {
-      accent-color: var(--gold);
-      width: 14px; height: 14px;
-      cursor: pointer;
-    }
-    .multi-select-option label { cursor: pointer; margin: 0; }
-    .multi-select-summary { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* ─── INFO GRID ────────────────────────────────────────────────── */
-    .info-grid {
+    /* ─── MAIN LAYOUT ───────────────────────────────────────────────── */
+    .bm-layout {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px 28px 56px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-    .info-box {
-      background: var(--dark-blue);
-      padding: 11px 14px;
-      border-radius: 8px;
-      border: 1px solid var(--border-blue);
-    }
-    .info-label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-weight: 700;
-      color: var(--gold);
-      margin-bottom: 4px;
-    }
-    .info-value {
-      font-weight: 600;
-      color: var(--text-primary);
-      font-size: 0.88rem;
-      word-break: break-all;
+      grid-template-columns: 1fr 260px;
+      gap: 20px;
+      align-items: start;
     }
 
-    /* ─── PAYMENT SUMMARY ──────────────────────────────────────────── */
-    .payment-summary-box {
-      background: var(--dark-blue);
-      border: 1px solid var(--border-blue);
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 16px;
+    .bm-main   { min-width: 0; }
+    .bm-sidebar { position: sticky; top: 20px; }
+
+    /* ─── SIDEBAR — LEDGER REGISTER ─────────────────────────────────── */
+    .ledger-panel {
+      background: var(--medium-blue);
+      border-radius: 14px;
+      overflow: hidden;
     }
-    .payment-summary-title {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+    .ledger-head {
+      padding: 12px 16px;
+      background: var(--light-blue);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ledger-head-title {
+      font-size: 0.65rem;
       font-weight: 700;
-      color: var(--gold);
-      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
       display: flex;
       align-items: center;
       gap: 6px;
     }
-    .payment-row {
+    .ledger-head-title i { color: var(--gold); }
+    .ledger-filters { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 7px; }
+
+    /* Search */
+    .ledger-search { position: relative; }
+    .ledger-search i {
+      position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted); font-size: 0.75rem; pointer-events: none;
+    }
+    .ledger-search input {
+      width: 100%;
+      padding: 6px 10px 6px 28px;
+      background: var(--dark-blue);
+      border: 1px solid var(--border-blue);
+      color: var(--text-primary);
+      border-radius: 7px;
+      font-size: 0.76rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .ledger-search input::placeholder { color: var(--text-muted); }
+    .ledger-search input:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(201,162,39,0.1); }
+
+    /* Multi-select filter */
+    .multi-select-container { position: relative; }
+    .multi-select-button {
+      background: var(--dark-blue); border: 1px solid var(--border-blue);
+      color: var(--text-muted); padding: 0 10px; border-radius: 7px;
+      cursor: pointer; width: 100%; text-align: left;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.73rem; height: 30px; transition: border-color 0.15s;
+    }
+    .multi-select-button:hover { border-color: var(--gold); }
+    .multi-select-button.active { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(201,162,39,0.1); }
+    .multi-select-arrow { transition: transform 0.2s ease; color: var(--text-muted); font-size: 0.58rem; }
+    .multi-select-button.active .multi-select-arrow { transform: rotate(180deg); }
+    .multi-select-dropdown {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: var(--light-blue); border: 1px solid var(--border-blue);
+      border-radius: 10px; box-shadow: 0 16px 32px rgba(0,0,0,0.5);
+      max-height: 180px; overflow-y: auto; z-index: 1050;
+      opacity: 0; visibility: hidden; transform: translateY(-6px);
+      transition: all 0.16s ease; padding: 4px 0;
+    }
+    .multi-select-dropdown.active { opacity: 1; visibility: visible; transform: translateY(0); }
+    .multi-select-option {
+      padding: 6px 12px; cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.74rem; color: var(--text-dark); transition: background 0.12s;
+    }
+    .multi-select-option:hover { background: rgba(201,162,39,0.08); }
+    .multi-select-option input[type="checkbox"] { accent-color: var(--gold); width: 12px; height: 12px; cursor: pointer; }
+    .multi-select-option label { cursor: pointer; margin: 0; }
+    .multi-select-summary { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Register rows */
+    .ledger-list { max-height: 560px; overflow-y: auto; }
+    .ledger-entry {
+      padding: 9px 14px 9px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      display: flex; flex-direction: column;
+      text-decoration: none; color: inherit;
+      border-left: 2px solid transparent;
+      transition: background 0.12s, border-left-color 0.15s;
+      position: relative;
+    }
+    .ledger-entry:last-child { border-bottom: none; }
+    .ledger-entry:hover { background: rgba(22,38,64,0.5); border-left-color: var(--border-blue); }
+    .ledger-entry.active { background: rgba(201,162,39,0.07); border-left-color: var(--gold); }
+    .le-name { font-weight: 700; color: var(--text-primary); font-size: 0.82rem; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .le-meta { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); }
+    .le-due { color: var(--danger); font-weight: 700; }
+    .le-paid { color: var(--success); font-weight: 700; }
+    .le-tags { display: flex; gap: 4px; margin-top: 3px; flex-wrap: wrap; }
+    .le-tag {
+      font-size: 0.61rem; background: var(--dark-blue); color: var(--text-muted);
+      border: 1px solid var(--border-subtle); padding: 1px 5px; border-radius: 20px;
+    }
+    #clearFiltersBtn {
+      background: transparent; color: var(--danger);
+      border: 1px solid rgba(217,79,79,0.3); height: 28px;
+      font-size: 0.7rem; font-weight: 600; border-radius: 6px;
+      padding: 0 10px; cursor: pointer; transition: background 0.15s; width: 100%;
+    }
+    #clearFiltersBtn:hover:not(:disabled) { background: rgba(217,79,79,0.1); }
+    #clearFiltersBtn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* ─── IT-CARD system ────────────────────────────────────────────── */
+    .it-card {
+      background: var(--medium-blue);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .it-card-header {
+      background: var(--light-blue);
+      padding: 11px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 9px 0;
-      border-bottom: 1px solid rgba(58,80,112,0.5);
-      font-size: 0.85rem;
-      color: var(--text-dark);
+      border-bottom: 1px solid var(--border-subtle);
+      /* Brass left accent instead of top border */
+      border-left: 3px solid var(--gold);
     }
-    .payment-row:last-child { border-bottom: none; }
-    .payment-row.remaining-due {
-      background: rgba(224,82,82,0.1);
-      border: 1px solid rgba(224,82,82,0.3);
-      padding: 9px 12px;
-      border-radius: 7px;
-      margin-top: 4px;
+    .it-card-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
     }
-    .payment-row.payment-complete {
-      background: rgba(61,186,122,0.1);
-      border: 1px solid rgba(61,186,122,0.3);
-      padding: 9px 12px;
-      border-radius: 7px;
-      margin-top: 4px;
+    .it-card-title i { color: var(--gold); font-size: 0.85rem; }
+    .it-card-body { padding: 18px; }
+    .it-card-body-flush { padding: 0; }
+
+    /* ─── CUSTOMER PROFILE LAYOUT ────────────────────────────────────
+       Three-zone layout when a customer is selected:
+       [Top strip: 4 info pills across full width]
+       [Left 55%: payment block]  [Right 45%: reserved items]
+    ─────────────────────────────────────────────────────────────── */
+    .profile-top-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .pil-box {
+      background: var(--medium-blue);
+      border-radius: 10px;
+      padding: 12px 15px;
+      border-left: 2px solid var(--border-subtle);
+      transition: border-left-color 0.2s;
+    }
+    .pil-box:hover { border-left-color: var(--gold); }
+    .pil-label {
+      font-size: 0.61rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--gold); margin-bottom: 4px;
+    }
+    .pil-value { font-weight: 600; color: var(--text-primary); font-size: 0.84rem; word-break: break-word; }
+
+    /* address pill spans wider */
+    .pil-box.wide {
+      grid-column: span 2;
     }
 
-    /* Progress Bar */
-    .progress-bar-container { margin-top: 14px; }
-    .progress-track {
-      background: var(--light-blue);
-      height: 8px;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--gold), var(--light-gold));
-      transition: width 0.5s ease;
-    }
-
-    /* ─── BUTTONS ──────────────────────────────────────────────────── */
-    .btn-gold {
-      background: linear-gradient(135deg, var(--gold), var(--light-gold));
-      color: var(--dark-blue);
-      font-weight: 700;
-      border: none;
-      transition: all 0.2s ease;
-    }
-    .btn-gold:hover {
-      background: linear-gradient(135deg, var(--light-gold), var(--gold));
-      color: var(--dark-blue);
-      box-shadow: 0 4px 12px rgba(212,175,55,0.35);
-      transform: translateY(-1px);
-    }
-    .btn-ghost-gold {
-      background: transparent;
-      color: var(--gold);
-      border: 1px solid var(--gold);
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-    .btn-ghost-gold:hover {
-      background: rgba(212,175,55,0.12);
-      color: var(--light-gold);
-      border-color: var(--light-gold);
-    }
-    .btn-ghost-light {
-      background: transparent;
-      color: var(--text-dark);
-      border: 1px solid var(--border-blue);
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-    .btn-ghost-light:hover {
-      background: var(--light-blue);
-      color: var(--text-primary);
-      border-color: var(--text-muted);
-    }
-    .btn-ghost-danger {
-      background: transparent;
-      color: var(--danger);
-      border: 1px solid var(--danger);
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-    .btn-ghost-danger:hover {
-      background: rgba(224,82,82,0.12);
-      color: #ff7070;
-    }
-    .btn-ghost-success {
-      background: transparent;
-      color: var(--success);
-      border: 1px solid var(--success);
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-    .btn-ghost-success:hover {
-      background: rgba(61,186,122,0.12);
-      color: #5de09b;
-    }
-    .btn-solid-danger {
-      background: var(--danger);
-      color: #fff;
-      border: none;
-      font-weight: 700;
-    }
-    .btn-solid-danger:hover {
-      background: #cc3a3a;
-      color: #fff;
-    }
-    .btn-solid-success {
-      background: var(--success);
-      color: #fff;
-      border: none;
-      font-weight: 700;
-    }
-    .btn-solid-success:hover {
-      background: #2ea86b;
-      color: #fff;
-    }
-
-    /* ─── FORM CONTROLS ────────────────────────────────────────────── */
-    .form-control, .form-select {
+    /* ─── PAYMENT BLOCK ─────────────────────────────────────────────── */
+    .pay-summary {
       background: var(--dark-blue);
-      border: 1px solid var(--border-blue);
-      color: var(--text-primary);
-      border-radius: 7px;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .pay-block-title {
+      font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em;
+      font-weight: 700; color: var(--text-muted); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .pay-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.83rem; color: var(--text-dark);
+    }
+    .pay-row:last-child { border-bottom: none; }
+    .pay-row.remaining-due {
+      background: rgba(217,79,79,0.08); border: 1px solid rgba(217,79,79,0.2);
+      padding: 8px 12px; border-radius: 8px; margin-top: 4px;
+    }
+    .pay-row.payment-complete {
+      background: rgba(46,170,108,0.08); border: 1px solid rgba(46,170,108,0.2);
+      padding: 8px 12px; border-radius: 8px; margin-top: 4px;
+    }
+    .progress-track { background: var(--light-blue); height: 5px; border-radius: 3px; overflow: hidden; margin-top: 12px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--light-gold)); transition: width 0.5s ease; }
+    .collect-payment-form {
+      background: rgba(201,162,39,0.04);
+      border: 1px solid rgba(201,162,39,0.15);
+      border-radius: 10px; padding: 12px;
+    }
+
+    /* Action buttons row */
+    .profile-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ─── BUTTONS ───────────────────────────────────────────────────── */
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--light-gold) 100%);
+      color: #07111e; font-weight: 700; font-size: 0.8rem; border: none;
+      border-radius: 8px; padding: 8px 18px; transition: all 0.18s ease; letter-spacing: 0.01em;
+    }
+    .btn-gold:hover { box-shadow: 0 4px 16px rgba(201,162,39,0.4); transform: translateY(-1px); color: #07111e; }
+    .btn-ghost-gold {
+      background: transparent; color: var(--gold);
+      border: 1px solid rgba(201,162,39,0.45); font-weight: 600;
+      font-size: 0.8rem; border-radius: 8px; padding: 7px 16px; transition: all 0.18s ease;
+    }
+    .btn-ghost-gold:hover { background: var(--gold-glow); color: var(--light-gold); border-color: var(--gold); }
+    .btn-ghost-light {
+      background: transparent; color: var(--text-dark); border: 1px solid var(--border-blue);
+      font-weight: 600; font-size: 0.8rem; border-radius: 8px; padding: 7px 16px; transition: all 0.18s ease;
+    }
+    .btn-ghost-light:hover { background: var(--light-blue); color: var(--text-primary); }
+    .btn-ghost-danger {
+      background: transparent; color: var(--danger);
+      border: 1px solid rgba(217,79,79,0.35); font-weight: 600;
+      font-size: 0.8rem; border-radius: 8px; padding: 7px 16px; transition: all 0.18s ease;
+    }
+    .btn-ghost-danger:hover { background: rgba(217,79,79,0.1); color: #f07070; }
+    .btn-ghost-success {
+      background: transparent; color: var(--success);
+      border: 1px solid rgba(46,170,108,0.35); font-weight: 600;
+      font-size: 0.8rem; border-radius: 8px; padding: 7px 16px; transition: all 0.18s ease;
+    }
+    .btn-ghost-success:hover { background: rgba(46,170,108,0.1); color: #4ed497; }
+    .btn-solid-danger {
+      background: var(--danger); color: #fff; border: none;
+      font-weight: 700; font-size: 0.8rem; border-radius: 8px; padding: 8px 18px;
+    }
+    .btn-solid-danger:hover { background: #c23e3e; color: #fff; }
+    .btn-solid-success {
+      background: var(--success); color: #fff; border: none;
+      font-weight: 700; font-size: 0.8rem; border-radius: 8px; padding: 8px 18px;
+    }
+    .btn-solid-success:hover { background: #259a5c; color: #fff; }
+
+    /* ─── FORM CONTROLS ─────────────────────────────────────────────── */
+    .form-control, .form-select {
+      background: var(--dark-blue); border: 1px solid var(--border-blue);
+      color: var(--text-primary); border-radius: 8px; font-size: 0.82rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
     .form-control::placeholder { color: var(--text-muted); }
     .form-control:focus, .form-select:focus {
-      background: var(--dark-blue);
-      border-color: var(--gold);
-      color: var(--text-primary);
-      box-shadow: 0 0 0 3px rgba(212,175,55,0.15);
+      background: var(--dark-blue); border-color: var(--gold);
+      color: var(--text-primary); box-shadow: 0 0 0 3px rgba(201,162,39,0.12); outline: none;
     }
-    .form-label {
-      color: var(--text-dark);
-      font-weight: 600;
-      font-size: 0.83rem;
-    }
-    .input-group-text {
-      background: var(--light-blue);
-      border: 1px solid var(--border-blue);
-      color: var(--gold);
-      font-weight: 700;
-    }
-    .input-check-valid {
-      border-color: var(--success) !important;
-      box-shadow: 0 0 0 3px rgba(61,186,122,0.15) !important;
-    }
-    .input-check-invalid {
-      border-color: var(--danger) !important;
-      box-shadow: 0 0 0 3px rgba(224,82,82,0.15) !important;
-      color: #ff9090 !important;
-      font-weight: 600;
-    }
+    .form-label { color: var(--text-muted); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 5px; }
+    .input-group-text { background: var(--light-blue); border: 1px solid var(--border-blue); color: var(--gold); font-weight: 700; }
+    .input-check-valid   { border-color: var(--success) !important; box-shadow: 0 0 0 3px rgba(46,170,108,0.12) !important; }
+    .input-check-invalid { border-color: var(--danger)  !important; box-shadow: 0 0 0 3px rgba(217,79,79,0.12)  !important; color: #ff9090 !important; }
 
-    /* ─── TABLES ───────────────────────────────────────────────────── */
-    .formal-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.84rem;
-      color: var(--text-dark);
+    /* ─── BADGES ─────────────────────────────────────────────────────── */
+    .badge-gold {
+      background: linear-gradient(135deg, var(--gold), var(--light-gold));
+      color: #07111e; font-weight: 800; font-size: 0.67rem;
+      padding: 3px 9px; border-radius: 20px; letter-spacing: 0.03em;
     }
-    .formal-table thead tr {
-      background: var(--dark-blue);
-      border-bottom: 2px solid var(--gold);
+    .badge-navy {
+      background: var(--dark-blue); color: var(--text-muted);
+      border: 1px solid var(--border-blue); font-size: 0.68rem;
+      padding: 3px 9px; border-radius: 20px;
     }
-    .formal-table thead th {
-      padding: 11px 14px;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-weight: 700;
-      color: var(--gold);
-      white-space: nowrap;
-    }
-    .formal-table tbody tr {
-      border-bottom: 1px solid rgba(58,80,112,0.4);
-      transition: background 0.15s ease;
-    }
-    .formal-table tbody tr:hover { background: rgba(45,63,95,0.5); }
-    .formal-table tbody td {
-      padding: 10px 14px;
-      vertical-align: middle;
-    }
-
-    /* ─── STATUS BADGES ────────────────────────────────────────────── */
     .badge-status {
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.73rem;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
+      padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 5px;
     }
-    .badge-status.inside {
-      background: rgba(61,186,122,0.15);
-      color: var(--success);
-      border: 1px solid rgba(61,186,122,0.3);
-    }
-    .badge-status.outside {
-      background: rgba(74,159,212,0.15);
-      color: var(--info);
-      border: 1px solid rgba(74,159,212,0.3);
-    }
-    .badge-status.ambiguity {
-      background: rgba(224,148,50,0.15);
-      color: var(--warning);
-      border: 1px solid rgba(224,148,50,0.3);
-    }
+    .badge-status.inside   { background: rgba(46,170,108,0.12);  color: var(--success); border: 1px solid rgba(46,170,108,0.25); }
+    .badge-status.outside  { background: rgba(61,143,199,0.12);  color: var(--info);    border: 1px solid rgba(61,143,199,0.25); }
+    .badge-status.ambiguity{ background: rgba(212,139,42,0.12);  color: var(--warning); border: 1px solid rgba(212,139,42,0.25); }
 
     .avail-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 10px;
-      border: 1px solid transparent;
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.68rem; font-weight: 700; padding: 2px 8px;
+      border-radius: 20px; border: 1px solid transparent;
     }
-    .avail-indicator.checking {
-      background: rgba(58,80,112,0.4);
-      color: var(--text-muted);
-      border-color: var(--border-blue);
-    }
-    .avail-indicator.available {
-      background: rgba(61,186,122,0.15);
-      color: var(--success);
-      border-color: rgba(61,186,122,0.3);
-    }
-    .avail-indicator.booked {
-      background: rgba(224,82,82,0.15);
-      color: var(--danger);
-      border-color: rgba(224,82,82,0.3);
-    }
+    .avail-indicator.checking  { background: rgba(30,51,82,0.6);     color: var(--text-muted); border-color: var(--border-blue); }
+    .avail-indicator.available { background: rgba(46,170,108,0.12);  color: var(--success);    border-color: rgba(46,170,108,0.3); }
+    .avail-indicator.booked    { background: rgba(217,79,79,0.12);   color: var(--danger);     border-color: rgba(217,79,79,0.3); }
 
-    /* ─── PRODUCT THUMBNAIL ────────────────────────────────────────── */
+    /* ─── TABLES ─────────────────────────────────────────────────────── */
+    .formal-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; color: var(--text-dark); }
+    .formal-table thead tr { background: var(--dark-blue); border-bottom: 1px solid var(--border-blue); }
+    .formal-table thead th {
+      padding: 11px 14px; font-size: 0.65rem; text-transform: uppercase;
+      letter-spacing: 0.1em; font-weight: 700; color: var(--text-muted); white-space: nowrap;
+    }
+    .formal-table tbody tr { border-bottom: 1px solid rgba(30,51,82,0.5); transition: background 0.12s; }
+    .formal-table tbody tr:hover { background: rgba(22,38,64,0.6); }
+    .formal-table tbody td { padding: 10px 14px; vertical-align: middle; }
+
+    /* ─── PRODUCT THUMBNAILS / AVATARS ───────────────────────────────── */
     .reserved-product-thumbnail {
-      width: 38px;
-      height: 38px;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid var(--border-blue);
-      background: var(--dark-blue);
-      transition: transform 0.2s ease;
+      width: 34px; height: 34px; object-fit: cover;
+      border-radius: 6px; background: var(--dark-blue); transition: transform 0.2s;
     }
     .reserved-product-thumbnail:hover { transform: scale(1.12); }
-
-    /* ─── AVATAR CIRCLE ────────────────────────────────────────────── */
     .avatar-circle {
-      width: 30px;
-      height: 30px;
+      width: 30px; height: 30px;
       background: linear-gradient(135deg, var(--gold), var(--light-gold));
-      color: var(--dark-blue);
-      font-weight: 800;
-      font-size: 0.72rem;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      color: #07111e; font-weight: 800; font-size: 0.7rem;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
 
-    /* ─── KPI STRIP (overview) ─────────────────────────────────────── */
-    .kpi-strip {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-    .kpi-box {
+    /* ─── AVAILABILITY CHECKER WIDGET (dashboard) ────────────────────── */
+    .avail-widget {
       background: var(--medium-blue);
-      border: 1px solid var(--border-blue);
-      border-top: 3px solid var(--gold);
-      border-radius: 10px;
-      padding: 16px 18px;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 16px;
     }
-    .kpi-box.kpi-danger { border-top-color: var(--danger); }
-    .kpi-box.kpi-success { border-top-color: var(--success); }
-    .kpi-label {
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-weight: 700;
-      color: var(--text-muted);
-      margin-bottom: 6px;
+    .avail-widget-header {
+      padding: 11px 18px;
+      background: var(--light-blue);
+      border-bottom: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--gold);
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .kpi-value {
-      font-size: 1.65rem;
-      font-weight: 800;
-      color: var(--light-gold);
-      line-height: 1;
+    .avail-widget-result {
+      border-radius: 8px; padding: 10px 14px;
+      font-size: 0.81rem; font-weight: 600;
     }
-    .kpi-box.kpi-danger .kpi-value { color: var(--danger); }
-    .kpi-box.kpi-success .kpi-value { color: var(--success); }
 
-    /* ─── MODAL DRAG & DROP ────────────────────────────────────────── */
+    /* ─── MODAL ──────────────────────────────────────────────────────── */
     .modal-content {
       background: var(--medium-blue);
-      border: 1px solid var(--border-blue);
-      border-top: 3px solid var(--gold);
+      border: 1px solid var(--border-subtle);
+      border-top: 2px solid var(--gold);
+      border-radius: 16px;
       color: var(--text-primary);
+      overflow: hidden;
     }
     .modal-header {
       background: var(--light-blue);
-      border-bottom: 1px solid var(--border-blue);
-      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 16px 20px;
     }
-    .modal-title { color: var(--light-gold); font-weight: 700; font-size: 0.95rem; }
-    .modal-body { padding: 20px; }
-    .modal-footer {
-      background: var(--dark-blue);
-      border-top: 1px solid var(--border-blue);
-    }
+    .modal-title { color: var(--light-gold); font-weight: 700; font-size: 0.92rem; }
+    .modal-body { padding: 22px; }
+    .modal-footer { background: var(--dark-blue); border-top: 1px solid var(--border-subtle); padding: 14px 20px; }
     .modal-section-title {
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-weight: 700;
-      color: var(--gold);
-      border-bottom: 1px solid var(--border-blue);
-      padding-bottom: 8px;
-      margin-bottom: 14px;
+      font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em;
+      font-weight: 700; color: var(--gold); border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 8px; margin-bottom: 14px;
     }
-
     .modal-date-block {
-      background: var(--dark-blue);
-      border: 1px solid var(--border-blue);
-      border-left: 3px solid var(--gold);
-      border-radius: 9px;
-      padding: 12px 14px;
-      margin-bottom: 14px;
-      transition: all 0.2s ease;
+      background: var(--dark-blue); border: 1px solid var(--border-subtle);
+      border-left: 2px solid var(--gold); border-radius: 10px;
+      padding: 12px 14px; margin-bottom: 12px; transition: border-color 0.15s;
     }
     .product-dropzone {
-      min-height: 44px;
-      background: var(--medium-blue);
-      border: 1.5px dashed var(--border-blue);
-      border-radius: 8px;
-      padding: 7px;
-      margin-bottom: 8px;
-      transition: all 0.2s ease;
+      min-height: 44px; background: var(--medium-blue);
+      border: 1.5px dashed var(--border-blue); border-radius: 8px;
+      padding: 6px; margin-bottom: 8px; transition: all 0.18s ease;
     }
     .product-dropzone.drag-over {
-      background: rgba(212,175,55,0.08);
-      border-color: var(--gold);
-      border-style: solid;
-      box-shadow: 0 0 0 3px rgba(212,175,55,0.12);
+      background: rgba(201,162,39,0.06); border-color: var(--gold); border-style: solid;
     }
     .booking-row-item {
-      background: var(--light-blue);
-      border: 1px solid var(--border-blue);
-      border-radius: 7px;
-      padding: 6px 10px;
-      margin-bottom: 5px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: grab;
-      transition: all 0.18s ease;
+      background: var(--light-blue); border: 1px solid var(--border-subtle);
+      border-radius: 8px; padding: 6px 10px; margin-bottom: 5px;
+      display: flex; align-items: center; gap: 10px;
+      cursor: grab; transition: all 0.15s ease;
     }
-    .booking-row-item:hover {
-      border-color: var(--gold);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
+    .booking-row-item:hover { border-color: var(--gold); }
     .booking-row-item:active { cursor: grabbing; }
-    .booking-row-item.dragging {
-      opacity: 0.3;
-      border: 2px dashed var(--gold) !important;
-      background: rgba(212,175,55,0.06) !important;
-      transform: scale(0.97);
-    }
+    .booking-row-item.dragging { opacity: 0.25; border: 2px dashed var(--gold) !important; }
     .modal-product-thumbnail {
-      width: 32px; height: 32px;
-      object-fit: cover;
-      border-radius: 5px;
-      border: 1px solid var(--border-blue);
-      background: var(--dark-blue);
-      transition: transform 0.2s ease;
+      width: 30px; height: 30px; object-fit: cover;
+      border-radius: 6px; background: var(--dark-blue); transition: transform 0.15s;
     }
-    .booking-row-item:hover .modal-product-thumbnail { transform: scale(1.08); }
-    .drag-handle { color: var(--text-muted); padding: 0 4px; }
+    .booking-row-item:hover .modal-product-thumbnail { transform: scale(1.1); }
+    .drag-handle { color: var(--text-muted); padding: 0 2px; font-size: 1rem; }
+    .modal-date-picker { font-size: 0.78rem !important; }
+    .form-control-plaintext {
+      color: var(--text-primary); background: var(--dark-blue);
+      border: 1px solid var(--border-blue); border-radius: 8px;
+      padding: 6px 12px; font-weight: 600;
+    }
 
     /* compact drag mode */
-    #modalBookingRowsContainer.dragging-active .modal-date-block {
-      padding: 5px 10px !important;
-      margin-bottom: 6px !important;
-    }
-    #modalBookingRowsContainer.dragging-active .modal-date-block .modal-date-picker {
-      font-size: 0.74rem !important;
-      border: none !important;
-      background: transparent !important;
-      color: var(--gold) !important;
-      pointer-events: none !important;
-      box-shadow: none !important;
-      font-weight: 700 !important;
-    }
+    #modalBookingRowsContainer.dragging-active .modal-date-block { padding: 5px 10px !important; margin-bottom: 6px !important; }
+    #modalBookingRowsContainer.dragging-active .modal-date-block .modal-date-picker { font-size: 0.72rem !important; border: none !important; background: transparent !important; color: var(--gold) !important; pointer-events: none !important; box-shadow: none !important; font-weight: 700 !important; }
     #modalBookingRowsContainer.dragging-active .modal-date-block button { display: none !important; }
-    #modalBookingRowsContainer.dragging-active .product-dropzone {
-      display: flex !important;
-      flex-wrap: wrap !important;
-      gap: 5px !important;
-      min-height: 28px !important;
-      padding: 5px !important;
-      margin-bottom: 2px !important;
-    }
-    #modalBookingRowsContainer.dragging-active .booking-row-item {
-      display: inline-flex !important;
-      width: auto !important;
-      padding: 2px 8px !important;
-      margin-bottom: 0 !important;
-      border-radius: 20px !important;
-      background: var(--dark-blue) !important;
-    }
+    #modalBookingRowsContainer.dragging-active .product-dropzone { display: flex !important; flex-wrap: wrap !important; gap: 5px !important; min-height: 28px !important; padding: 5px !important; margin-bottom: 2px !important; }
+    #modalBookingRowsContainer.dragging-active .booking-row-item { display: inline-flex !important; width: auto !important; padding: 2px 8px !important; margin-bottom: 0 !important; border-radius: 20px !important; background: var(--dark-blue) !important; }
     #modalBookingRowsContainer.dragging-active .booking-row-item .avail-indicator,
     #modalBookingRowsContainer.dragging-active .booking-row-item button,
     #modalBookingRowsContainer.dragging-active .booking-row-item div:last-child,
     #modalBookingRowsContainer.dragging-active .booking-row-item .input-group button { display: none !important; }
-    #modalBookingRowsContainer.dragging-active .booking-row-item .booking-row-product {
-      border: none !important;
-      background: transparent !important;
-      box-shadow: none !important;
-      font-size: 0.76rem !important;
-      font-weight: 700 !important;
-      color: var(--light-gold) !important;
-      pointer-events: none !important;
-      max-width: 70px !important;
-      padding: 0 !important;
-    }
-    #modalBookingRowsContainer.dragging-active .booking-row-item .modal-product-thumbnail {
-      width: 18px !important; height: 18px !important;
-      border-radius: 50% !important;
-    }
+    #modalBookingRowsContainer.dragging-active .booking-row-item .booking-row-product { border: none !important; background: transparent !important; box-shadow: none !important; font-size: 0.74rem !important; font-weight: 700 !important; color: var(--light-gold) !important; pointer-events: none !important; max-width: 70px !important; padding: 0 !important; }
+    #modalBookingRowsContainer.dragging-active .booking-row-item .modal-product-thumbnail { width: 16px !important; height: 16px !important; border-radius: 50% !important; }
 
-    /* ─── ALERT OVERRIDES ──────────────────────────────────────────── */
-    .alert-info {
-      background: rgba(74,159,212,0.12);
-      border: 1px solid rgba(74,159,212,0.3);
-      color: #8fd4f5;
-      border-radius: 7px;
-      font-size: 0.82rem;
-    }
-
-    /* ─── TOAST ────────────────────────────────────────────────────── */
+    /* ─── TOAST ──────────────────────────────────────────────────────── */
     #toast-container {
-      position: fixed;
-      bottom: 22px;
-      right: 22px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 8px;
     }
     .toast-message {
-      min-width: 300px;
-      max-width: 380px;
-      background: var(--light-blue);
-      border: 1px solid var(--border-blue);
-      border-left: 4px solid var(--success);
-      border-radius: 8px;
-      padding: 13px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-      transform: translateY(16px);
-      opacity: 0;
-      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      min-width: 280px; max-width: 360px;
+      background: var(--light-blue); border: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--success); border-radius: 10px;
+      padding: 12px 16px; display: flex; justify-content: space-between;
+      align-items: center; box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      transform: translateX(24px); opacity: 0;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .toast-message.show { transform: translateY(0); opacity: 1; }
+    .toast-message.show { transform: translateX(0); opacity: 1; }
     .toast-message.error { border-left-color: var(--danger); }
     .toast-message.info  { border-left-color: var(--info); }
     .toast-content { display: flex; align-items: center; gap: 9px; }
-    .toast-text { font-weight: 600; color: var(--text-primary); font-size: 0.85rem; }
-    .toast-close {
-      background: none; border: none;
-      color: var(--text-muted); cursor: pointer;
-      font-size: 1.2rem; line-height: 1; padding: 0;
-    }
+    .toast-text { font-weight: 600; color: var(--text-primary); font-size: 0.83rem; }
+    .toast-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.1rem; line-height: 1; padding: 0; }
     .toast-close:hover { color: var(--text-primary); }
 
-    /* ─── MISC UTILITIES ───────────────────────────────────────────── */
+    /* ─── MISC ───────────────────────────────────────────────────────── */
+    .alert-info {
+      background: rgba(61,143,199,0.1); border: 1px solid rgba(61,143,199,0.25);
+      color: #85c8f0; border-radius: 8px; font-size: 0.81rem;
+    }
     .cursor-pointer { cursor: pointer; }
-    .cursor-grab    { cursor: grab; }
-    .text-gold      { color: var(--gold) !important; }
+    .text-gold       { color: var(--gold) !important; }
     .text-light-gold { color: var(--light-gold) !important; }
-    .text-it-muted  { color: var(--text-muted) !important; }
-    .border-gold    { border-color: var(--gold) !important; }
+    .text-it-muted   { color: var(--text-muted) !important; }
+    .section-divider { border: none; border-top: 1px solid var(--border-subtle); margin: 16px 0; }
 
-    .section-divider {
-      border: none;
-      border-top: 1px solid var(--border-blue);
-      margin: 18px 0;
+    /* ─── RESPONSIVE ─────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .bm-layout { grid-template-columns: 1fr; }
+      .bm-sidebar { position: static; }
+      .command-bar-inner { flex-wrap: wrap; min-height: auto; padding: 12px 16px; gap: 10px; }
+      .cb-title-seg { border-right: none; padding-right: 0; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle); width: 100%; }
+      .cb-kpi-seg { flex-wrap: wrap; }
+      .cb-kpi { border-right: none; padding: 6px 16px 6px 0; min-width: 90px; }
+      .cb-actions-seg { border-top: 1px solid var(--border-subtle); padding-left: 0; width: 100%; }
+      .profile-top-strip { grid-template-columns: repeat(2, 1fr); }
+      .pil-box.wide { grid-column: span 2; }
+      .bm-layout { padding: 14px 14px 48px; }
     }
-
-    /* clear filters */
-    #clearFiltersBtn {
-      background: transparent;
-      color: var(--danger);
-      border: 1px solid var(--danger);
-      height: 28px;
-      font-size: 0.74rem;
-      font-weight: 600;
-      border-radius: 5px;
-      padding: 0 10px;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    #clearFiltersBtn:hover:not(:disabled) { background: rgba(224,82,82,0.12); }
-    #clearFiltersBtn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-    /* readonly plaintext in modals */
-    .form-control-plaintext {
-      color: var(--text-primary);
-      background: var(--dark-blue);
-      border: 1px solid var(--border-blue);
-      border-radius: 7px;
-      padding: 6px 12px;
-      font-weight: 700;
-    }
-
-    /* mobile */
-    @media (max-width: 768px) {
-      .kpi-strip { grid-template-columns: 1fr; }
-      .page-header h1 { font-size: 1.25rem; }
+    @media (max-width: 520px) {
+      .profile-top-strip { grid-template-columns: 1fr 1fr; }
     }
   </style>
 {% endblock %}
@@ -868,471 +665,493 @@
 {% endblock %}
 
 {% block content %}
-<div class="profile-dashboard">
 
-  <!-- ── PAGE HEADER ──────────────────────────────────────────────── -->
-  <div class="page-header">
-    <div>
-      <h1><i class="bi bi-journal-bookmark-fill text-gold"></i> Booking Management</h1>
-      <div class="gold-accent-bar"></div>
-      <p class="mt-2">Search customers · manage invoices · check availability · reallocate products</p>
-    </div>
-    <div class="d-flex gap-2 flex-wrap">
-      <button class="btn btn-ghost-gold btn-sm fw-bold px-3" onclick="openWidgetAvailabilityModal()">
-        <i class="bi bi-calendar-check-fill me-1"></i> Check Availability
-      </button>
-      <button class="btn btn-gold btn-sm fw-bold px-3" onclick="openNewCustomerModal()">
-        <i class="bi bi-person-plus-fill me-1"></i> New Booking
-      </button>
-    </div>
-  </div>
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- COMMAND BAR — signature element                                    -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+{% if not customer %}
+  {% set stats = namespace(total_customers=bookings|length, total_items=0, total_due=0) %}
+  {% for cust in bookings %}
+    {% set stats.total_due = stats.total_due + cust.remaining %}
+    {% if cust.bookings %}
+      {% for d, items in cust.bookings.items() %}
+        {% set stats.total_items = stats.total_items + items|length %}
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
 
-  <div class="row g-3">
+<div class="command-bar">
+  <div class="command-bar-inner">
 
-    <!-- ── SIDEBAR ─────────────────────────────────────────────────── -->
-    <div class="col-lg-3 col-md-4">
-      <div class="premium-card">
-        <div class="card-header-premium">
-          <h3><i class="bi bi-people-fill"></i> Customers</h3>
-          <span class="badge-gold" id="customerCountBadge">{{ bookings|length }}</span>
-        </div>
-        <div class="card-body-premium p-3" style="overflow: visible;">
-
-          <div class="search-input-group mb-2">
-            <i class="bi bi-search"></i>
-            <input type="text" id="customerSearchInput" class="form-control form-control-sm" placeholder="Name, mobile, reference…">
-          </div>
-
-          <div class="d-flex flex-column gap-2 mb-2">
-            <!-- Group filter -->
-            <div class="multi-select-container">
-              <div class="multi-select-button" id="groupFilterButton">
-                <span class="multi-select-summary" id="groupSummary">All Groups</span>
-                <i class="bi bi-chevron-down multi-select-arrow"></i>
-              </div>
-              <div class="multi-select-dropdown" id="groupDropdown">
-                {% set groups = [] %}
-                {% for b in bookings %}
-                  {% set grp = b.get("group", "N/A") %}
-                  {% if grp and grp not in groups %}{% set _ = groups.append(grp) %}{% endif %}
-                {% endfor %}
-                {% for grp in groups|sort %}
-                <div class="multi-select-option">
-                  <input type="checkbox" id="sidebar-group-chk-{{ loop.index }}" value="{{ grp }}" class="group-checkbox">
-                  <label for="sidebar-group-chk-{{ loop.index }}">{{ grp }}</label>
-                </div>
-                {% endfor %}
-              </div>
-            </div>
-
-            <!-- Reference filter -->
-            <div class="multi-select-container">
-              <div class="multi-select-button" id="referenceFilterButton">
-                <span class="multi-select-summary" id="referenceSummary">All References</span>
-                <i class="bi bi-chevron-down multi-select-arrow"></i>
-              </div>
-              <div class="multi-select-dropdown" id="referenceDropdown">
-                {% set references = [] %}
-                {% for b in bookings %}
-                  {% set ref = b.get("reference", "") %}
-                  {% if ref and ref not in references %}{% set _ = references.append(ref) %}{% endif %}
-                {% endfor %}
-                {% for ref in references|sort %}
-                <div class="multi-select-option">
-                  <input type="checkbox" id="sidebar-ref-chk-{{ loop.index }}" value="{{ ref }}" class="reference-checkbox">
-                  <label for="sidebar-ref-chk-{{ loop.index }}">{{ ref }}</label>
-                </div>
-                {% endfor %}
-              </div>
-            </div>
-
-            <button id="clearFiltersBtn" disabled>
-              <i class="bi bi-x-circle me-1"></i> Clear Filters
-            </button>
-          </div>
-
-          <!-- Customer List -->
-          <div class="customer-list-scroll" id="customerListContainer">
-            {% for cust in bookings|sort(attribute='Name') %}
-              <a href="{{ url_for('navaratri.profile', customer_id=cust._id|string) }}"
-                 class="customer-list-item {% if customer and customer._id|string == cust._id|string %}active{% endif %}"
-                 data-name="{{ cust.Name|lower }}"
-                 data-mobile="{{ cust.mobile }}"
-                 data-group="{{ cust.group|lower if cust.group else '' }}"
-                 data-reference="{{ cust.reference|lower if cust.reference else '' }}">
-                <span class="cust-name text-truncate d-block">{{ cust.Name }}</span>
-                <div class="cust-details">
-                  <span><i class="bi bi-phone me-1"></i>{{ cust.mobile }}</span>
-                  {% if cust.remaining > 0 %}
-                    <span style="color: var(--danger); font-weight: 700;">₹{{ cust.remaining }} Due</span>
-                  {% else %}
-                    <span style="color: var(--success); font-weight: 700;">Paid</span>
-                  {% endif %}
-                </div>
-                {% if cust.group or cust.reference %}
-                  <div class="mt-1 d-flex flex-wrap gap-1">
-                    {% if cust.group %}<span class="cust-tag"><i class="bi bi-people-fill me-1"></i>{{ cust.group }}</span>{% endif %}
-                    {% if cust.reference %}<span class="cust-tag"><i class="bi bi-link-45deg me-1"></i>{{ cust.reference }}</span>{% endif %}
-                  </div>
-                {% endif %}
-              </a>
-            {% endfor %}
-          </div>
-
-        </div>
+    <!-- Title -->
+    <div class="cb-title-seg">
+      <div class="cb-icon"><i class="bi bi-journal-bookmark-fill"></i></div>
+      <div>
+        <h1 class="cb-title">Booking Management</h1>
+        <div class="cb-subtitle">Navaratri Cycle · Image Traditional</div>
       </div>
     </div>
 
-    <!-- ── MAIN AREA ──────────────────────────────────────────────── -->
-    <div class="col-lg-9 col-md-8">
-
+    <!-- KPIs -->
+    <div class="cb-kpi-seg">
       {% if customer %}
-
-        <div class="row g-3">
-
-          <!-- Personal Overview + Payment -->
-          <div class="col-xl-6 col-lg-12">
-            <div class="premium-card">
-              <div class="card-header-premium">
-                <h3><i class="bi bi-person-badge-fill"></i> Personal Overview</h3>
-                <span class="badge-navy">Navaratri Cycle</span>
-              </div>
-              <div class="card-body-premium">
-
-                <div class="info-grid">
-                  <div class="info-box">
-                    <div class="info-label">Customer Name</div>
-                    <div class="info-value" id="disp-name">{{ customer.Name }}</div>
-                  </div>
-                  <div class="info-box">
-                    <div class="info-label">Mobile Number</div>
-                    <div class="info-value" id="disp-mobile">{{ customer.mobile }}</div>
-                  </div>
-                </div>
-
-                <div class="info-grid">
-                  <div class="info-box">
-                    <div class="info-label">Group / Organization</div>
-                    <div class="info-value" id="disp-group">{{ customer.group or 'Not specified' }}</div>
-                  </div>
-                  <div class="info-box">
-                    <div class="info-label">Reference Person</div>
-                    <div class="info-value" id="disp-reference">{{ customer.reference or 'Not provided' }}</div>
-                  </div>
-                </div>
-
-                <div class="info-box mb-3">
-                  <div class="info-label">Complete Address</div>
-                  <div class="info-value" id="disp-address">{{ customer.address or 'Not provided' }}</div>
-                </div>
-
-                <div class="info-box mb-3">
-                  <div class="info-label">Security Deposit</div>
-                  <div class="info-value" id="disp-deposit">{{ customer.deposit or 'Not provided' }}</div>
-                </div>
-
-                <!-- Payment Summary -->
-                <div class="payment-summary-box">
-                  <div class="payment-summary-title">
-                    <i class="bi bi-credit-card-2-back-fill"></i> Payment Summary
-                  </div>
-                  <div class="payment-row">
-                    <span>Total Invoice</span>
-                    <span class="fw-bold text-light-gold" id="disp-total">₹{{ customer.total_price }}</span>
-                  </div>
-                  <div class="payment-row">
-                    <span>Amount Received</span>
-                    <span class="fw-bold" style="color: var(--success)" id="disp-given">₹{{ customer.given_price }}</span>
-                  </div>
-
-                  {% if customer.remaining > 0 %}
-                    <div class="payment-row remaining-due">
-                      <span class="fw-bold" style="color: var(--danger)">Balance Due</span>
-                      <span class="fw-bold" style="color: var(--danger)" id="disp-remaining">₹{{ customer.remaining }}</span>
-                    </div>
-                    <div class="mt-3 p-2 rounded" style="background: var(--dark-blue); border: 1px solid var(--border-blue);">
-                      <div class="info-label mb-2">Collect Payment</div>
-                      <form id="addPaymentForm" class="d-flex gap-2 m-0" onsubmit="submitAddPayment(event, '{{ customer._id|string }}')">
-                        <div class="input-group input-group-sm">
-                          <span class="input-group-text">₹</span>
-                          <input type="number" id="paymentAmountInput" name="amount" class="form-control"
-                                 placeholder="Amount" max="{{ customer.remaining }}" min="1" required>
-                        </div>
-                        <button type="submit" class="btn btn-solid-success btn-sm fw-bold text-nowrap px-3" id="paymentSubmitBtn">
-                          <i class="bi bi-plus-circle me-1"></i> Add
-                        </button>
-                      </form>
-                    </div>
-                  {% else %}
-                    <div class="payment-row payment-complete">
-                      <span class="fw-bold" style="color: var(--success)">
-                        <i class="bi bi-patch-check-fill me-1"></i> Paid in Full
-                      </span>
-                      <span class="fw-bold" style="color: var(--success)">₹0</span>
-                    </div>
-                  {% endif %}
-
-                  <div class="progress-bar-container">
-                    <div class="d-flex justify-content-between mb-1" style="font-size: 0.74rem; color: var(--text-muted);">
-                      <span>Collection Progress</span>
-                      <span id="disp-percentage">
-                        {% set pct = (customer.given_price / customer.total_price * 100) if customer.total_price > 0 else 0 %}
-                        {{ "%.1f"|format(pct) }}%
-                      </span>
-                    </div>
-                    <div class="progress-track">
-                      <div class="progress-fill" id="disp-progress-fill" style="width: {{ pct }}%"></div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="d-flex gap-2 mb-2">
-                  <button class="btn btn-gold flex-fill fw-bold btn-sm" onclick="openEditModal()">
-                    <i class="bi bi-pencil-square me-1"></i> Edit Booking
-                  </button>
-                  <form method="POST" action="{{ url_for('navaratri.download_customer') }}" class="m-0 flex-fill">
-                    <input type="hidden" name="mobile" value="{{ customer.mobile }}">
-                    <button type="submit" class="btn btn-ghost-success w-100 fw-bold btn-sm">
-                      <i class="bi bi-file-earmark-pdf-fill me-1"></i> Download Bill
-                    </button>
-                  </form>
-                </div>
-                <button class="btn btn-ghost-light w-100 fw-bold btn-sm" onclick="openQrModal('{{ customer.mobile }}')">
-                  <i class="bi bi-qr-code me-1"></i> View QR Code
-                </button>
-
-              </div>
-            </div>
-          </div>
-
-          <!-- Reserved Items Table -->
-          <div class="col-xl-6 col-lg-12">
-            <div class="premium-card">
-              <div class="card-header-premium">
-                <h3><i class="bi bi-calendar-check-fill"></i> Reserved Items</h3>
-                <span class="badge-gold" id="disp-booking-count">
-                  {% set total_prods = namespace(val=0) %}
-                  {% for date, items in customer.bookings.items() %}
-                    {% set total_prods.val = total_prods.val + items|length %}
-                  {% endfor %}
-                  {{ total_prods.val }} Item(s)
-                </span>
-              </div>
-              <div class="card-body-premium p-0">
-                <div class="table-responsive">
-                  <table class="formal-table" id="bookingTable">
-                    <thead>
-                      <tr>
-                        <th class="ps-4">Date</th>
-                        <th>Product</th>
-                        <th>Status</th>
-                        <th class="text-end pe-4">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% if customer.bookings %}
-                        {% for date, items in customer.bookings.items() %}
-                          {% for item in items %}
-                            <tr data-date="{{ date }}" data-product="{{ item }}">
-                              <td class="ps-4 fw-bold" style="color: var(--light-gold); font-size: 0.8rem;">{{ date }}</td>
-                              <td>
-                                <div class="d-flex align-items-center gap-2">
-                                  {% if item and item|upper|first == 'K' %}
-                                    <img src="/static/Kediya/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png'; this.style.opacity=0.4;" class="reserved-product-thumbnail">
-                                  {% else %}
-                                    <img src="/static/Choli/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png'; this.style.opacity=0.4;" class="reserved-product-thumbnail">
-                                  {% endif %}
-                                  <a href="{{ url_for('navaratri.code_detail', code=item) }}"
-                                     class="badge-navy text-decoration-none font-monospace fw-bold" style="font-size: 0.78rem; padding: 4px 8px; border-radius: 6px;">
-                                    {{ item }}
-                                  </a>
-                                </div>
-                              </td>
-                              <td>
-                                <span class="badge-status inside" data-product-status="{{ item }}">
-                                  <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Loading…
-                                </span>
-                              </td>
-                              <td class="text-end pe-4">
-                                <div class="btn-group btn-group-sm">
-                                  <button type="button" class="btn btn-ghost-light btn-sm" title="Reassign Product"
-                                          onclick="quickReassign('{{ date }}', '{{ item }}')">
-                                    <i class="bi bi-arrow-left-right"></i>
-                                  </button>
-                                  <button type="button" class="btn btn-ghost-danger btn-sm" title="Delete Row"
-                                          onclick="quickDeleteBookingRow('{{ date }}', '{{ item }}')">
-                                    <i class="bi bi-trash3-fill"></i>
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          {% endfor %}
-                        {% endfor %}
-                      {% else %}
-                        <tr>
-                          <td colspan="4" class="text-center py-5" style="color: var(--text-muted);">
-                            <i class="bi bi-box-seam d-block mb-2" style="font-size: 2rem; color: var(--border-blue);"></i>
-                            No reserved products for this customer.
-                          </td>
-                        </tr>
-                      {% endif %}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-
+        <div class="cb-kpi">
+          <div class="cb-kpi-label"><i class="bi bi-person-fill"></i> Customer</div>
+          <div class="cb-kpi-value" style="font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;">{{ customer.Name }}</div>
         </div>
-
+        <div class="cb-kpi">
+          <div class="cb-kpi-label"><i class="bi bi-phone-fill"></i> Mobile</div>
+          <div class="cb-kpi-value" style="font-size:0.95rem; font-family:monospace;">{{ customer.mobile }}</div>
+        </div>
+        <div class="cb-kpi">
+          <div class="cb-kpi-label"><i class="bi bi-receipt"></i> Invoice</div>
+          <div class="cb-kpi-value" style="font-size:1rem;">₹{{ customer.total_price }}</div>
+        </div>
+        <div class="cb-kpi {% if customer.remaining > 0 %}danger{% else %}success{% endif %}">
+          <div class="cb-kpi-label"><i class="bi bi-{% if customer.remaining > 0 %}exclamation-circle{% else %}patch-check-fill{% endif %}"></i> Balance</div>
+          <div class="cb-kpi-value" style="font-size:1rem;">{% if customer.remaining > 0 %}₹{{ customer.remaining }} Due{% else %}Paid{% endif %}</div>
+        </div>
       {% else %}
-
-        <!-- ── OVERVIEW DASHBOARD (no customer selected) ──────────── -->
-
-        <!-- KPI Strip -->
-        {% set stats = namespace(total_customers=bookings|length, total_items=0, total_due=0) %}
-        {% for cust in bookings %}
-          {% set stats.total_due = stats.total_due + cust.remaining %}
-          {% if cust.bookings %}
-            {% for d, items in cust.bookings.items() %}
-              {% set stats.total_items = stats.total_items + items|length %}
-            {% endfor %}
-          {% endif %}
-        {% endfor %}
-
-        <div class="kpi-strip">
-          <div class="kpi-box">
-            <div class="kpi-label"><i class="bi bi-people-fill me-1"></i> Total Customers</div>
-            <div class="kpi-value" id="statsCountCustomers">{{ stats.total_customers }}</div>
-          </div>
-          <div class="kpi-box kpi-success">
-            <div class="kpi-label"><i class="bi bi-box-seam me-1"></i> Costumes Rented</div>
-            <div class="kpi-value">{{ stats.total_items }}</div>
-          </div>
-          <div class="kpi-box kpi-danger">
-            <div class="kpi-label"><i class="bi bi-exclamation-circle me-1"></i> Pending Receivables</div>
-            <div class="kpi-value">₹{{ stats.total_due }}</div>
-          </div>
+        <div class="cb-kpi">
+          <div class="cb-kpi-label"><i class="bi bi-people-fill"></i> Customers</div>
+          <div class="cb-kpi-value" id="statsCountCustomers">{{ stats.total_customers }}</div>
         </div>
-
-        <!-- Availability Checker -->
-        <div class="premium-card mb-3">
-          <div class="card-header-premium">
-            <h3><i class="bi bi-calendar-check-fill"></i> Live Availability Checker</h3>
-          </div>
-          <div class="card-body-premium">
-            <div class="row g-2 align-items-end">
-              <div class="col-md-5">
-                <label class="form-label" style="font-size: 0.75rem;">Select Date</label>
-                <input type="date" id="widgetCheckDate" class="form-control form-control-sm">
-              </div>
-              <div class="col-md-5">
-                <label class="form-label" style="font-size: 0.75rem;">Costume Code</label>
-                <input type="text" id="widgetCheckCode" placeholder="e.g. K-120 or C-45"
-                       class="form-control form-control-sm text-uppercase">
-              </div>
-              <div class="col-md-2">
-                <button type="button" class="btn btn-gold btn-sm w-100 fw-bold" onclick="performWidgetAvailabilityCheck()">
-                  <i class="bi bi-search me-1"></i> Check
-                </button>
-              </div>
-            </div>
-            <div id="widgetCheckResult" class="mt-3 d-none p-2 rounded fw-bold" style="font-size: 0.82rem;"></div>
-          </div>
+        <div class="cb-kpi success">
+          <div class="cb-kpi-label"><i class="bi bi-box-seam"></i> Rented Out</div>
+          <div class="cb-kpi-value">{{ stats.total_items }}</div>
         </div>
-
-        <!-- Bookings Summary Table -->
-        <div class="premium-card mb-0">
-          <div class="card-header-premium">
-            <h3><i class="bi bi-list-stars"></i> Active Bookings</h3>
-            <span class="badge-gold" id="visibleBookingsCount">{{ bookings|length }}</span>
-          </div>
-          <div class="card-body-premium p-0">
-            <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
-              <table class="formal-table">
-                <thead>
-                  <tr>
-                    <th class="ps-4">Customer</th>
-                    <th>Mobile</th>
-                    <th>Group</th>
-                    <th>Reference</th>
-                    <th>Items</th>
-                    <th>Financials</th>
-                    <th class="text-end pe-4">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% if bookings %}
-                    {% for cust in bookings|sort(attribute='Name') %}
-                      <tr class="booking-row cursor-pointer"
-                          data-group="{{ cust.group or '' }}"
-                          data-reference="{{ cust.reference or '' }}"
-                          onclick="window.location.href='{{ url_for('navaratri.profile', customer_id=cust._id|string) }}'">
-                        <td class="ps-4">
-                          <div class="d-flex align-items-center gap-2">
-                            <div class="avatar-circle">{{ cust.Name[:2].upper() }}</div>
-                            <span class="fw-bold" style="color: var(--light-gold);">{{ cust.Name }}</span>
-                          </div>
-                        </td>
-                        <td class="font-monospace" style="color: var(--text-muted); font-size: 0.8rem;">{{ cust.mobile }}</td>
-                        <td>
-                          {% if cust.group %}
-                            <span class="badge-navy"><i class="bi bi-people-fill me-1"></i>{{ cust.group }}</span>
-                          {% else %}<span style="color: var(--text-muted);">—</span>{% endif %}
-                        </td>
-                        <td>
-                          {% if cust.reference %}
-                            <span class="badge-navy"><i class="bi bi-link-45deg me-1"></i>{{ cust.reference }}</span>
-                          {% else %}<span style="color: var(--text-muted);">—</span>{% endif %}
-                        </td>
-                        <td>
-                          {% set total_prods = namespace(val=0) %}
-                          {% if cust.bookings %}
-                            {% for d, items in cust.bookings.items() %}
-                              {% set total_prods.val = total_prods.val + items|length %}
-                            {% endfor %}
-                          {% endif %}
-                          <span class="badge-gold"><i class="bi bi-box-seam me-1"></i>{{ total_prods.val }}</span>
-                        </td>
-                        <td>
-                          <div style="font-size: 0.78rem; color: var(--text-muted);">₹{{ cust.given_price }} / ₹{{ cust.total_price }}</div>
-                          {% if cust.remaining > 0 %}
-                            <span class="avail-indicator booked mt-1"><i class="bi bi-exclamation-circle-fill"></i> ₹{{ cust.remaining }} Due</span>
-                          {% else %}
-                            <span class="avail-indicator available mt-1"><i class="bi bi-check-circle-fill"></i> Paid</span>
-                          {% endif %}
-                        </td>
-                        <td class="text-end pe-4" onclick="event.stopPropagation();">
-                          <a href="{{ url_for('navaratri.profile', customer_id=cust._id|string) }}"
-                             class="btn btn-ghost-gold btn-sm fw-bold px-3">
-                            <i class="bi bi-eye-fill me-1"></i> View
-                          </a>
-                        </td>
-                      </tr>
-                    {% endfor %}
-                  {% else %}
-                    <tr>
-                      <td colspan="7" class="text-center py-5" style="color: var(--text-muted);">
-                        <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: var(--border-blue);"></i>
-                        No bookings in the current cycle.
-                      </td>
-                    </tr>
-                  {% endif %}
-                </tbody>
-              </table>
-            </div>
-          </div>
+        <div class="cb-kpi danger">
+          <div class="cb-kpi-label"><i class="bi bi-exclamation-circle"></i> Receivables</div>
+          <div class="cb-kpi-value">₹{{ stats.total_due }}</div>
         </div>
-
       {% endif %}
     </div>
+
+    <!-- Actions -->
+    <div class="cb-actions-seg">
+      <button class="btn btn-ghost-gold btn-sm" onclick="openWidgetAvailabilityModal()">
+        <i class="bi bi-calendar-check-fill me-1"></i> Availability
+      </button>
+      <button class="btn btn-gold btn-sm" onclick="openNewCustomerModal()">
+        <i class="bi bi-person-plus-fill me-1"></i> New Booking
+      </button>
+    </div>
+
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════════ -->
-<!-- MODALS                                                            -->
-<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- MAIN LAYOUT  (main-left · sidebar-right)                          -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="bm-layout">
+
+  <!-- ── MAIN CONTENT ─────────────────────────────────────────────── -->
+  <div class="bm-main">
+
+    {% if customer %}
+
+      <!-- ── PROFILE: TOP INFO STRIP ─────────────────────────────── -->
+      <div class="profile-top-strip">
+        <div class="pil-box">
+          <div class="pil-label">Group / Org</div>
+          <div class="pil-value" id="disp-group">{{ customer.group or '—' }}</div>
+        </div>
+        <div class="pil-box">
+          <div class="pil-label">Reference Person</div>
+          <div class="pil-value" id="disp-reference">{{ customer.reference or '—' }}</div>
+        </div>
+        <div class="pil-box wide">
+          <div class="pil-label">Address</div>
+          <div class="pil-value" id="disp-address">{{ customer.address or 'Not provided' }}</div>
+        </div>
+        <div class="pil-box">
+          <div class="pil-label">Security Deposit</div>
+          <div class="pil-value" id="disp-deposit">{{ customer.deposit or '—' }}</div>
+        </div>
+        <div class="pil-box">
+          <div class="pil-label">Customer Name</div>
+          <div class="pil-value" id="disp-name">{{ customer.Name }}</div>
+        </div>
+      </div>
+
+      <!-- ── PROFILE: TWO COLUMNS ────────────────────────────────── -->
+      <div class="row g-3">
+
+        <!-- Left: Payment + Actions -->
+        <div class="col-xl-5 col-lg-12">
+          <div class="it-card">
+            <div class="it-card-header">
+              <h3 class="it-card-title"><i class="bi bi-credit-card-2-back-fill"></i> Payment</h3>
+              <span class="badge-navy">
+                {% set pct = (customer.given_price / customer.total_price * 100) if customer.total_price > 0 else 0 %}
+                {{ "%.0f"|format(pct) }}% collected
+              </span>
+            </div>
+            <div class="it-card-body">
+
+              <div class="pay-summary">
+                <div class="pay-block-title"><i class="bi bi-receipt text-gold"></i> Summary</div>
+                <div class="pay-row">
+                  <span>Total Invoice</span>
+                  <span class="fw-bold text-light-gold" id="disp-total">₹{{ customer.total_price }}</span>
+                </div>
+                <div class="pay-row">
+                  <span>Amount Received</span>
+                  <span class="fw-bold" style="color:var(--success)" id="disp-given">₹{{ customer.given_price }}</span>
+                </div>
+
+                {% if customer.remaining > 0 %}
+                  <div class="pay-row remaining-due">
+                    <span class="fw-bold" style="color:var(--danger)">Balance Due</span>
+                    <span class="fw-bold" style="color:var(--danger)" id="disp-remaining">₹{{ customer.remaining }}</span>
+                  </div>
+                {% else %}
+                  <div class="pay-row payment-complete">
+                    <span class="fw-bold" style="color:var(--success)"><i class="bi bi-patch-check-fill me-1"></i>Paid in Full</span>
+                    <span class="fw-bold" style="color:var(--success)">₹0</span>
+                  </div>
+                {% endif %}
+
+                <div class="progress-track">
+                  <div class="progress-fill" id="disp-progress-fill" style="width:{{ pct }}%"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-1" style="font-size:0.68rem; color:var(--text-muted);">
+                  <span>Collection progress</span>
+                  <span id="disp-percentage">{{ "%.1f"|format(pct) }}%</span>
+                </div>
+              </div>
+
+              {% if customer.remaining > 0 %}
+                <div class="collect-payment-form mb-3">
+                  <div class="form-label mb-2">Collect Payment</div>
+                  <form id="addPaymentForm" class="d-flex gap-2 m-0" onsubmit="submitAddPayment(event, '{{ customer._id|string }}')">
+                    <div class="input-group input-group-sm flex-grow-1">
+                      <span class="input-group-text">₹</span>
+                      <input type="number" id="paymentAmountInput" name="amount" class="form-control"
+                             placeholder="Amount" max="{{ customer.remaining }}" min="1" required>
+                    </div>
+                    <button type="submit" class="btn btn-solid-success btn-sm fw-bold text-nowrap" id="paymentSubmitBtn">
+                      <i class="bi bi-plus-circle me-1"></i>Add
+                    </button>
+                  </form>
+                </div>
+              {% endif %}
+
+              <!-- Action buttons -->
+              <div class="profile-actions">
+                <button class="btn btn-gold flex-fill" onclick="openEditModal()">
+                  <i class="bi bi-pencil-square me-1"></i> Edit Booking
+                </button>
+                <form method="POST" action="{{ url_for('navaratri.download_customer') }}" class="m-0 flex-fill">
+                  <input type="hidden" name="mobile" value="{{ customer.mobile }}">
+                  <button type="submit" class="btn btn-ghost-success w-100 fw-bold">
+                    <i class="bi bi-file-earmark-pdf-fill me-1"></i> Bill PDF
+                  </button>
+                </form>
+              </div>
+              <button class="btn btn-ghost-light w-100 mt-2" onclick="openQrModal('{{ customer.mobile }}')">
+                <i class="bi bi-qr-code me-1"></i> View QR Code
+              </button>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Reserved Items -->
+        <div class="col-xl-7 col-lg-12">
+          <div class="it-card">
+            <div class="it-card-header">
+              <h3 class="it-card-title"><i class="bi bi-calendar-check-fill"></i> Reserved Items</h3>
+              <span class="badge-gold" id="disp-booking-count">
+                {% set total_prods = namespace(val=0) %}
+                {% for date, items in customer.bookings.items() %}
+                  {% set total_prods.val = total_prods.val + items|length %}
+                {% endfor %}
+                {{ total_prods.val }} Item(s)
+              </span>
+            </div>
+            <div class="it-card-body-flush">
+              <div class="table-responsive">
+                <table class="formal-table" id="bookingTable">
+                  <thead>
+                    <tr>
+                      <th class="ps-4">Date</th>
+                      <th>Product</th>
+                      <th>Status</th>
+                      <th class="text-end pe-4">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% if customer.bookings %}
+                      {% for date, items in customer.bookings.items() %}
+                        {% for item in items %}
+                          <tr data-date="{{ date }}" data-product="{{ item }}">
+                            <td class="ps-4 fw-bold" style="color:var(--light-gold);font-size:0.78rem;">{{ date }}</td>
+                            <td>
+                              <div class="d-flex align-items-center gap-2">
+                                {% if item and item|upper|first == 'K' %}
+                                  <img src="/static/Kediya/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png';this.style.opacity=0.4;" class="reserved-product-thumbnail">
+                                {% else %}
+                                  <img src="/static/Choli/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png';this.style.opacity=0.4;" class="reserved-product-thumbnail">
+                                {% endif %}
+                                <a href="{{ url_for('navaratri.code_detail', code=item) }}"
+                                   class="badge-navy text-decoration-none font-monospace fw-bold" style="font-size:0.76rem;padding:4px 8px;">
+                                  {{ item }}
+                                </a>
+                              </div>
+                            </td>
+                            <td>
+                              <span class="badge-status inside" data-product-status="{{ item }}">
+                                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Loading…
+                              </span>
+                            </td>
+                            <td class="text-end pe-4">
+                              <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-ghost-light btn-sm" title="Reassign"
+                                        onclick="quickReassign('{{ date }}', '{{ item }}')">
+                                  <i class="bi bi-arrow-left-right"></i>
+                                </button>
+                                <button type="button" class="btn btn-ghost-danger btn-sm" title="Delete"
+                                        onclick="quickDeleteBookingRow('{{ date }}', '{{ item }}')">
+                                  <i class="bi bi-trash3-fill"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      {% endfor %}
+                    {% else %}
+                      <tr>
+                        <td colspan="4" class="text-center py-5" style="color:var(--text-muted);">
+                          <i class="bi bi-box-seam d-block mb-2" style="font-size:2rem;color:var(--border-blue);"></i>
+                          No reserved products for this customer.
+                        </td>
+                      </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    {% else %}
+
+      <!-- ── DASHBOARD VIEW (no customer selected) ─────────────────── -->
+
+      <!-- Availability Checker -->
+      <div class="avail-widget">
+        <div class="avail-widget-header">
+          <h3 class="it-card-title"><i class="bi bi-calendar-check-fill"></i> Live Availability Checker</h3>
+        </div>
+        <div class="it-card-body">
+          <div class="row g-2 align-items-end">
+            <div class="col-md-5">
+              <label class="form-label">Select Date</label>
+              <input type="date" id="widgetCheckDate" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-5">
+              <label class="form-label">Costume Code</label>
+              <input type="text" id="widgetCheckCode" placeholder="e.g. K-120 or C-45"
+                     class="form-control form-control-sm text-uppercase">
+            </div>
+            <div class="col-md-2">
+              <button type="button" class="btn btn-gold w-100" onclick="performWidgetAvailabilityCheck()">
+                <i class="bi bi-search me-1"></i> Check
+              </button>
+            </div>
+          </div>
+          <div id="widgetCheckResult" class="mt-3 d-none avail-widget-result"></div>
+        </div>
+      </div>
+
+      <!-- Active Bookings Table -->
+      <div class="it-card mb-0">
+        <div class="it-card-header">
+          <h3 class="it-card-title"><i class="bi bi-list-stars"></i> Active Bookings</h3>
+          <span class="badge-gold" id="visibleBookingsCount">{{ bookings|length }}</span>
+        </div>
+        <div class="it-card-body-flush">
+          <div class="table-responsive" style="max-height:460px;overflow-y:auto;">
+            <table class="formal-table">
+              <thead>
+                <tr>
+                  <th class="ps-4">Customer</th>
+                  <th>Mobile</th>
+                  <th>Group</th>
+                  <th>Reference</th>
+                  <th>Items</th>
+                  <th>Financials</th>
+                  <th class="text-end pe-4">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if bookings %}
+                  {% for cust in bookings|sort(attribute='Name') %}
+                    <tr class="booking-row cursor-pointer"
+                        data-group="{{ cust.group or '' }}"
+                        data-reference="{{ cust.reference or '' }}"
+                        onclick="window.location.href='{{ url_for('navaratri.profile', customer_id=cust._id|string) }}'">
+                      <td class="ps-4">
+                        <div class="d-flex align-items-center gap-2">
+                          <div class="avatar-circle">{{ cust.Name[:2].upper() }}</div>
+                          <span class="fw-bold" style="color:var(--light-gold);">{{ cust.Name }}</span>
+                        </div>
+                      </td>
+                      <td class="font-monospace" style="color:var(--text-muted);font-size:0.78rem;">{{ cust.mobile }}</td>
+                      <td>
+                        {% if cust.group %}
+                          <span class="badge-navy"><i class="bi bi-people-fill me-1"></i>{{ cust.group }}</span>
+                        {% else %}<span style="color:var(--text-muted);">—</span>{% endif %}
+                      </td>
+                      <td>
+                        {% if cust.reference %}
+                          <span class="badge-navy"><i class="bi bi-link-45deg me-1"></i>{{ cust.reference }}</span>
+                        {% else %}<span style="color:var(--text-muted);">—</span>{% endif %}
+                      </td>
+                      <td>
+                        {% set total_prods = namespace(val=0) %}
+                        {% if cust.bookings %}
+                          {% for d, items in cust.bookings.items() %}{% set total_prods.val = total_prods.val + items|length %}{% endfor %}
+                        {% endif %}
+                        <span class="badge-gold"><i class="bi bi-box-seam me-1"></i>{{ total_prods.val }}</span>
+                      </td>
+                      <td>
+                        <div style="font-size:0.76rem;color:var(--text-muted);">₹{{ cust.given_price }} / ₹{{ cust.total_price }}</div>
+                        {% if cust.remaining > 0 %}
+                          <span class="avail-indicator booked mt-1"><i class="bi bi-exclamation-circle-fill"></i> ₹{{ cust.remaining }} Due</span>
+                        {% else %}
+                          <span class="avail-indicator available mt-1"><i class="bi bi-check-circle-fill"></i> Paid</span>
+                        {% endif %}
+                      </td>
+                      <td class="text-end pe-4" onclick="event.stopPropagation();">
+                        <a href="{{ url_for('navaratri.profile', customer_id=cust._id|string) }}"
+                           class="btn btn-ghost-gold btn-sm fw-bold px-3">
+                          <i class="bi bi-eye-fill me-1"></i> View
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="7" class="text-center py-5" style="color:var(--text-muted);">
+                      <i class="bi bi-inbox d-block mb-2" style="font-size:2rem;color:var(--border-blue);"></i>
+                      No bookings in the current cycle.
+                    </td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    {% endif %}
+  </div>
+
+  <!-- ── SIDEBAR — LEDGER REGISTER ────────────────────────────────── -->
+  <div class="bm-sidebar">
+    <div class="ledger-panel">
+
+      <div class="ledger-head">
+        <div class="ledger-head-title">
+          <i class="bi bi-person-lines-fill"></i> Customer Register
+        </div>
+        <span class="badge-gold" id="customerCountBadge">{{ bookings|length }}</span>
+      </div>
+
+      <div class="ledger-filters">
+        <div class="ledger-search">
+          <i class="bi bi-search"></i>
+          <input type="text" id="customerSearchInput" placeholder="Name, mobile, group…">
+        </div>
+
+        <div class="multi-select-container">
+          <div class="multi-select-button" id="groupFilterButton">
+            <span class="multi-select-summary" id="groupSummary">All Groups</span>
+            <i class="bi bi-chevron-down multi-select-arrow"></i>
+          </div>
+          <div class="multi-select-dropdown" id="groupDropdown">
+            {% set groups = [] %}
+            {% for b in bookings %}
+              {% set grp = b.get("group", "N/A") %}
+              {% if grp and grp not in groups %}{% set _ = groups.append(grp) %}{% endif %}
+            {% endfor %}
+            {% for grp in groups|sort %}
+            <div class="multi-select-option">
+              <input type="checkbox" id="sidebar-group-chk-{{ loop.index }}" value="{{ grp }}" class="group-checkbox">
+              <label for="sidebar-group-chk-{{ loop.index }}">{{ grp }}</label>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="multi-select-container">
+          <div class="multi-select-button" id="referenceFilterButton">
+            <span class="multi-select-summary" id="referenceSummary">All References</span>
+            <i class="bi bi-chevron-down multi-select-arrow"></i>
+          </div>
+          <div class="multi-select-dropdown" id="referenceDropdown">
+            {% set references = [] %}
+            {% for b in bookings %}
+              {% set ref = b.get("reference", "") %}
+              {% if ref and ref not in references %}{% set _ = references.append(ref) %}{% endif %}
+            {% endfor %}
+            {% for ref in references|sort %}
+            <div class="multi-select-option">
+              <input type="checkbox" id="sidebar-ref-chk-{{ loop.index }}" value="{{ ref }}" class="reference-checkbox">
+              <label for="sidebar-ref-chk-{{ loop.index }}">{{ ref }}</label>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button id="clearFiltersBtn" disabled>
+          <i class="bi bi-x-circle me-1"></i> Clear Filters
+        </button>
+      </div>
+
+      <!-- Customer list -->
+      <div class="ledger-list" id="customerListContainer">
+        {% for cust in bookings|sort(attribute='Name') %}
+          <a href="{{ url_for('navaratri.profile', customer_id=cust._id|string) }}"
+             class="ledger-entry {% if customer and customer._id|string == cust._id|string %}active{% endif %}"
+             data-name="{{ cust.Name|lower }}"
+             data-mobile="{{ cust.mobile }}"
+             data-group="{{ cust.group|lower if cust.group else '' }}"
+             data-reference="{{ cust.reference|lower if cust.reference else '' }}">
+            <span class="le-name">{{ cust.Name }}</span>
+            <div class="le-meta">
+              <span><i class="bi bi-phone me-1"></i>{{ cust.mobile }}</span>
+              {% if cust.remaining > 0 %}
+                <span class="le-due">₹{{ cust.remaining }}</span>
+              {% else %}
+                <span class="le-paid"><i class="bi bi-check-circle-fill me-1"></i>Paid</span>
+              {% endif %}
+            </div>
+            {% if cust.group or cust.reference %}
+              <div class="le-tags">
+                {% if cust.group %}<span class="le-tag"><i class="bi bi-people-fill me-1"></i>{{ cust.group }}</span>{% endif %}
+                {% if cust.reference %}<span class="le-tag">{{ cust.reference }}</span>{% endif %}
+              </div>
+            {% endif %}
+          </a>
+        {% endfor %}
+      </div>
+
+    </div>
+  </div>
+
+</div>
+<!-- end .bm-layout -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- MODALS                                                             -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
 
 <!-- QR Code Modal -->
 <div class="modal fade" id="qrCodeModal" tabindex="-1" aria-hidden="true">
@@ -1345,8 +1164,8 @@
       <div class="modal-body text-center p-4">
         <img id="modalQrCodeImg" src="" alt="QR Code"
              class="img-fluid rounded p-1 mb-3"
-             style="max-height:200px; width:200px; height:200px; border:1px solid var(--border-blue); background: var(--dark-blue);">
-        <p style="font-size: 0.78rem; color: var(--text-muted);">Scan to view the bill on a phone.</p>
+             style="max-height:200px;width:200px;height:200px;border:1px solid var(--border-blue);background:var(--dark-blue);">
+        <p style="font-size:0.76rem;color:var(--text-muted);">Scan to view the bill on a phone.</p>
       </div>
     </div>
   </div>
@@ -1371,12 +1190,12 @@
             <input type="text" id="modalCheckCode" placeholder="e.g. K-120" class="form-control form-control-sm text-uppercase">
           </div>
           <div class="col-md-2">
-            <button type="button" class="btn btn-gold btn-sm w-100 fw-bold" onclick="performModalAvailabilityCheck()">
+            <button type="button" class="btn btn-gold w-100" onclick="performModalAvailabilityCheck()">
               <i class="bi bi-search"></i>
             </button>
           </div>
         </div>
-        <div id="modalCheckResult" class="mt-3 d-none p-2 rounded fw-bold" style="font-size: 0.82rem;"></div>
+        <div id="modalCheckResult" class="mt-3 d-none avail-widget-result"></div>
       </div>
     </div>
   </div>
@@ -1390,18 +1209,17 @@
         <h5 class="modal-title" id="editCustomerModalLabel"><i class="bi bi-pencil-square me-2"></i>Edit Booking</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body p-4">
+      <div class="modal-body p-4" style="position:relative;">
 
-        <div id="modalLoadingOverlay" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(10,25,41,0.75); z-index: 10; border-radius: 10px;">
+        <div id="modalLoadingOverlay" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(8,15,28,0.8);z-index:10;border-radius:14px;">
           <div class="text-center">
-            <div class="spinner-border" style="color: var(--gold); width:3rem; height:3rem;" role="status"></div>
-            <p class="mt-3 fw-bold" style="color: var(--light-gold);">Saving booking data…</p>
+            <div class="spinner-border" style="color:var(--gold);width:3rem;height:3rem;" role="status"></div>
+            <p class="mt-3 fw-bold" style="color:var(--light-gold);">Saving booking data…</p>
           </div>
         </div>
 
         <form id="editCustomerForm">
           <input type="hidden" id="modal-customer-id" value="">
-
           <div class="modal-section-title"><i class="bi bi-person-fill me-1"></i> Customer Details</div>
           <div class="row g-3 mb-4">
             <div class="col-md-6">
@@ -1411,7 +1229,7 @@
             <div class="col-md-6">
               <label class="form-label">Mobile (10 digits) *</label>
               <input type="tel" id="modal-mobile" required placeholder="10-digit mobile" class="form-control" maxlength="10" pattern="[0-9]{10}">
-              <div id="modal-mobile-error" class="mt-1 d-none" style="font-size:0.75rem; color: var(--danger);">Please enter exactly 10 digits.</div>
+              <div id="modal-mobile-error" class="mt-1 d-none" style="font-size:0.73rem;color:var(--danger);">Please enter exactly 10 digits.</div>
             </div>
             <div class="col-12">
               <label class="form-label">Address</label>
@@ -1449,7 +1267,6 @@
               <i class="bi bi-plus-circle-fill me-1"></i> Add Date
             </button>
           </div>
-
           <div id="modalBookingRowsContainer"></div>
         </form>
       </div>
@@ -1499,15 +1316,13 @@
           <div class="mb-3">
             <label class="form-label">Price Difference (₹)</label>
             <input type="number" id="reassign-price-diff" class="form-control" value="0" placeholder="e.g. 100 or -50">
-            <small style="color: var(--text-muted); font-size: 0.75rem;">Positive adds, negative deducts from invoice.</small>
+            <small style="color:var(--text-muted);font-size:0.73rem;">Positive adds, negative deducts from invoice.</small>
           </div>
         </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-ghost-light fw-bold" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-gold fw-bold" id="confirmReassignBtn" onclick="confirmReassign()">
-          Confirm Move
-        </button>
+        <button type="button" class="btn btn-gold fw-bold" id="confirmReassignBtn" onclick="confirmReassign()">Confirm Move</button>
       </div>
     </div>
   </div>
@@ -1516,27 +1331,27 @@
 <!-- Delete Booking Row Modal -->
 <div class="modal fade" id="deleteBookingRowModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header" style="border-top-color: var(--danger);">
-        <h5 class="modal-title" style="color: var(--danger);">
+    <div class="modal-content" style="border-top-color:var(--danger);">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color:var(--danger);">
           <i class="bi bi-exclamation-triangle-fill me-2"></i>Delete Booking Row
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4 text-center">
-        <i class="bi bi-trash-fill mb-3 d-block" style="font-size: 2.5rem; color: var(--danger);"></i>
-        <h5 class="fw-bold mb-2" style="color: var(--text-primary);">Confirm Deletion</h5>
-        <p style="color: var(--text-muted); font-size: 0.84rem;" class="mb-4">
+        <i class="bi bi-trash-fill mb-3 d-block" style="font-size:2.5rem;color:var(--danger);"></i>
+        <h5 class="fw-bold mb-2" style="color:var(--text-primary);">Confirm Deletion</h5>
+        <p style="color:var(--text-muted);font-size:0.82rem;" class="mb-4">
           The booking allocation below will be permanently removed. Customer record stays intact.
         </p>
-        <div class="info-box mb-4 text-start">
-          <div class="mb-1" style="font-size: 0.82rem;"><strong class="text-gold">Product:</strong> <span id="del-prod-code" class="font-monospace" style="color: var(--text-primary);"></span></div>
-          <div style="font-size: 0.82rem;"><strong class="text-gold">Date:</strong> <span id="del-prod-date" style="color: var(--text-primary);"></span></div>
+        <div class="pay-summary mb-4 text-start">
+          <div class="mb-1" style="font-size:0.81rem;"><strong class="text-gold">Product:</strong> <span id="del-prod-code" class="font-monospace" style="color:var(--text-primary);"></span></div>
+          <div style="font-size:0.81rem;"><strong class="text-gold">Date:</strong> <span id="del-prod-date" style="color:var(--text-primary);"></span></div>
         </div>
         <div class="text-start">
           <label class="form-label">Reduce Invoice By (₹)</label>
           <input type="number" id="delete-price-diff" class="form-control" value="0" min="0">
-          <small style="color: var(--text-muted); font-size: 0.75rem;">Optional: deduct from the customer's total bill.</small>
+          <small style="color:var(--text-muted);font-size:0.73rem;">Optional: deduct from the customer's total bill.</small>
         </div>
       </div>
       <div class="modal-footer justify-content-between">
@@ -1583,9 +1398,9 @@
   let checkAvailabilityTimers = {};
 
   document.addEventListener("DOMContentLoaded", function () {
-    editModalObj    = new bootstrap.Modal(document.getElementById('editCustomerModal'));
+    editModalObj     = new bootstrap.Modal(document.getElementById('editCustomerModal'));
     reassignModalObj = new bootstrap.Modal(document.getElementById('reassignModal'));
-    deleteModalObj  = new bootstrap.Modal(document.getElementById('deleteBookingRowModal'));
+    deleteModalObj   = new bootstrap.Modal(document.getElementById('deleteBookingRowModal'));
 
     fetchProductSuggestions();
     if (customerData) updateInventoryStatusBadges();
@@ -1712,7 +1527,7 @@
     t.className = `toast-message ${type} show`;
     t.innerHTML = `
       <div class="toast-content">
-        <span style="font-size:1.1rem">${type==='success'?'✅':type==='error'?'❌':'ℹ️'}</span>
+        <span style="font-size:1.05rem">${type==='success'?'✅':type==='error'?'❌':'ℹ️'}</span>
         <span class="toast-text">${message}</span>
       </div>
       <button class="toast-close" onclick="this.parentElement.classList.remove('show');setTimeout(()=>this.parentElement.remove(),300);">&times;</button>`;
@@ -1733,9 +1548,9 @@
     div.className = 'modal-date-block';
     div.id = blockId;
     div.innerHTML = `
-      <div class="d-flex justify-content-between align-items-center mb-2 pb-2" style="border-bottom:1px solid var(--border-blue);">
+      <div class="d-flex justify-content-between align-items-center mb-2 pb-2" style="border-bottom:1px solid var(--border-subtle);">
         <div class="d-flex align-items-center gap-2">
-          <span style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold);">
+          <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);">
             <i class="bi bi-calendar-event me-1"></i>Date
           </span>
           <input type="date" class="form-control form-control-sm modal-date-picker" value="${parsedDate}"
@@ -1781,10 +1596,10 @@
                  list="product-suggestions"
                  ${isOriginal ? 'readonly' : ''}
                  oninput="onModalProductInput('${blockId}','${rowId}',this)">
-          ${isOriginal ? `<button type="button" class="btn btn-ghost-gold btn-sm" style="font-size:0.72rem;" onclick="enableProductReplace('${rowId}')">Replace</button>` : ''}
+          ${isOriginal ? `<button type="button" class="btn btn-ghost-gold btn-sm" style="font-size:0.7rem;" onclick="enableProductReplace('${rowId}')">Replace</button>` : ''}
         </div>
         <div class="avail-indicator mt-1" id="avail-status-${rowId}">
-          ${isOriginal ? '<i class="bi bi-check-circle-fill"></i> Confirmed' : '<span style="color:var(--text-muted);font-size:0.7rem;">Enter date & code</span>'}
+          ${isOriginal ? '<i class="bi bi-check-circle-fill"></i> Confirmed' : '<span style="color:var(--text-muted);font-size:0.68rem;">Enter date & code</span>'}
         </div>
       </div>
       <div>
@@ -2014,7 +1829,7 @@
     const code = document.getElementById('modalCheckCode').value.trim().toUpperCase();
     const res  = document.getElementById('modalCheckResult');
     if (!date || !code) { showToast("Select a date and enter a costume code.", "error"); return; }
-    res.className = 'mt-3 p-2 rounded fw-bold';
+    res.className = 'mt-3 avail-widget-result';
     res.style.background = 'var(--light-blue)';
     res.style.color = 'var(--text-muted)';
     res.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Checking…';
@@ -2022,16 +1837,16 @@
     fetch(`/api/check-product?product_code=${encodeURIComponent(code)}&date=${encodeURIComponent(date)}`)
       .then(r => r.json()).then(data => {
         if (data.available) {
-          res.style.background = 'rgba(61,186,122,0.12)'; res.style.color = 'var(--success)';
-          res.style.border = '1px solid rgba(61,186,122,0.3)';
+          res.style.background = 'rgba(46,170,108,0.1)'; res.style.color = 'var(--success)';
+          res.style.border = '1px solid rgba(46,170,108,0.25)';
           res.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> '${code}' is AVAILABLE on ${date}.`;
         } else {
-          res.style.background = 'rgba(224,82,82,0.12)'; res.style.color = 'var(--danger)';
-          res.style.border = '1px solid rgba(224,82,82,0.3)';
+          res.style.background = 'rgba(217,79,79,0.1)'; res.style.color = 'var(--danger)';
+          res.style.border = '1px solid rgba(217,79,79,0.25)';
           res.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> '${code}' BOOKED on ${date} by ${data.customer||'another customer'}.`;
         }
       }).catch(() => {
-        res.style.background = 'rgba(224,148,50,0.12)'; res.style.color = 'var(--warning)';
+        res.style.background = 'rgba(212,139,42,0.1)'; res.style.color = 'var(--warning)';
         res.innerHTML = `<i class="bi bi-exclamation-circle-fill me-1"></i> Network error.`;
       });
   }
@@ -2041,21 +1856,21 @@
     const code = document.getElementById('widgetCheckCode').value.trim().toUpperCase();
     const res  = document.getElementById('widgetCheckResult');
     if (!date || !code) { showToast("Select a date and enter a costume code.", "error"); return; }
-    res.className = 'mt-3 p-2 rounded fw-bold';
-    res.style.cssText = 'background:var(--light-blue);color:var(--text-muted);font-size:0.82rem;';
+    res.className = 'mt-3 avail-widget-result';
+    res.style.cssText = 'background:var(--light-blue);color:var(--text-muted);';
     res.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Checking…';
     res.classList.remove('d-none');
     fetch(`/api/check-product?product_code=${encodeURIComponent(code)}&date=${encodeURIComponent(date)}`)
       .then(r => r.json()).then(data => {
         if (data.available) {
-          res.style.cssText = 'background:rgba(61,186,122,0.12);color:var(--success);border:1px solid rgba(61,186,122,0.3);font-size:0.82rem;';
+          res.style.cssText = 'background:rgba(46,170,108,0.1);color:var(--success);border:1px solid rgba(46,170,108,0.25);';
           res.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> '${code}' is AVAILABLE on ${date}.`;
         } else {
-          res.style.cssText = 'background:rgba(224,82,82,0.12);color:var(--danger);border:1px solid rgba(224,82,82,0.3);font-size:0.82rem;';
+          res.style.cssText = 'background:rgba(217,79,79,0.1);color:var(--danger);border:1px solid rgba(217,79,79,0.25);';
           res.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> '${code}' BOOKED on ${date} by ${data.customer||'another customer'}.`;
         }
       }).catch(() => {
-        res.style.cssText = 'background:rgba(224,148,50,0.12);color:var(--warning);font-size:0.82rem;';
+        res.style.cssText = 'background:rgba(212,139,42,0.1);color:var(--warning);';
         res.innerHTML = `<i class="bi bi-exclamation-circle-fill me-1"></i> Network error.`;
       });
   }
@@ -2063,15 +1878,15 @@
   // ── REASSIGN ─────────────────────────────────────────────────────
   function quickReassign(date, product) {
     if (!customerData) return;
-    document.getElementById('reassign-cust-id').value   = customerData.id;
+    document.getElementById('reassign-cust-id').value    = customerData.id;
     document.getElementById('reassign-old-product').value = product;
-    document.getElementById('reassign-old-date').value  = date;
+    document.getElementById('reassign-old-date').value   = date;
     document.getElementById('reassign-new-product').value = product;
     let parsed = date;
     if (date.includes('-') && date.split('-')[0].length === 2) {
       const p = date.split('-'); parsed = `20${p[2]}-${p[1]}-${p[0]}`;
     }
-    document.getElementById('reassign-new-date').value  = parsed;
+    document.getElementById('reassign-new-date').value = parsed;
     document.getElementById('reassign-price-diff').value = 0;
     const s = document.getElementById('reassign-avail-status');
     s.className = 'avail-indicator available';
@@ -2171,7 +1986,7 @@
     }).catch(() => { btn.disabled = false; btn.innerHTML = 'Confirm Delete'; showToast("Network error.", "error"); });
   }
 
-  // ── AUTOCOMPLETE ON MOBILE ───────────────────────────────────────
+  // ── MOBILE AUTOCOMPLETE ──────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', () => {
     const mobileEl = document.getElementById('modal-mobile');
     if (!mobileEl) return;
@@ -2225,7 +2040,7 @@
       sessionStorage.setItem('it_refs',   JSON.stringify(selRefs));
 
       let vis = 0;
-      document.querySelectorAll('.customer-list-item').forEach(item => {
+      document.querySelectorAll('.ledger-entry').forEach(item => {
         const nm  = (item.dataset.name      || '').toLowerCase();
         const mob = (item.dataset.mobile    || '').toLowerCase();
         const grp = (item.dataset.group     || '').toLowerCase();
@@ -2238,7 +2053,7 @@
       });
       const badge = document.getElementById('customerCountBadge');
       if (badge) {
-        const total = document.querySelectorAll('.customer-list-item').length;
+        const total = document.querySelectorAll('.ledger-entry').length;
         badge.textContent = (q || selGroups.length || selRefs.length) ? `${vis} / ${total}` : total;
       }
 
