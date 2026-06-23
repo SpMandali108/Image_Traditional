@@ -281,13 +281,118 @@
 }
 
 .stats-card {
-    background: var(--primary-bg);
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(8px);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1rem;
     box-shadow: var(--shadow);
-    min-width: 120px;
+    min-width: 140px;
+    transition: all 0.2s ease;
 }
+.stats-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(212, 175, 55, 0.35);
+}
+
+.stats-card-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+
+.stats-card-val {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.text-blue { color: #3b82f6; }
+.text-green { color: #10b981; }
+.text-amber { color: #f59e0b; }
+
+/* ── Premium Header Card with Dot Grid Background ── */
+.premium-header-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 12px;
+    padding: 2.25rem 2.5rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Elegant radial dot grid pattern */
+.premium-header-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(rgba(212, 175, 55, 0.18) 1.5px, transparent 1.5px);
+    background-size: 16px 16px;
+    opacity: 0.85;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Subtle gradient wave indicator line */
+.premium-header-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #d4af37 0%, #f4d35e 50%, transparent 100%);
+    z-index: 2;
+}
+
+.premium-header-content {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.premium-header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.35rem;
+    margin-top: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.premium-header-subtitle {
+    color: var(--text);
+    opacity: 0.8;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+/* Status Dot Indicators */
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+.status-dot-paid { background-color: #10b981; box-shadow: 0 0 8px #10b981; }
+.status-dot-pending { background-color: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+
 
 .booking-card {
     background: var(--primary-bg);
@@ -366,26 +471,26 @@
 
 <div class="bookings-container">
     <!-- Header Section -->
-    <div style="margin-bottom: 2rem;">
-        <div class="header-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+    <div class="premium-header-card">
+        <div class="premium-header-content">
             <div>
-                <h1 style="font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; margin-top: 0;">Bookings Management</h1>
-                <p style="color: var(--text-secondary); margin: 0;">Manage and track all your customer bookings</p>
+                <h1 class="premium-header-title">Bookings Management</h1>
+                <p class="premium-header-subtitle">Manage and track all your customer bookings</p>
             </div>
             <div class="stats-row" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
                 <div class="stats-card">
-                    <div style="font-size: 0.875rem; color: var(--text-secondary);">Total Bookings</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: #3b82f6;" id="bookingsCount">{{ bookings|length }}</div>
+                    <div class="stats-card-label">Total Bookings</div>
+                    <div class="stats-card-val text-blue" id="bookingsCount">{{ bookings|length }}</div>
                 </div>
                 <div class="stats-card">
-                    <div style="font-size: 0.875rem; color: var(--text-secondary);">Total Revenue</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: #10b981;" id="totalRevenue">
+                    <div class="stats-card-label">Total Revenue</div>
+                    <div class="stats-card-val text-green" id="totalRevenue">
                         ₹{% set total = 0 %}{% for booking in bookings %}{% set total = total + (booking.get("total_price", 0)|float) %}{% endfor %}{{ total|round(2) }}
                     </div>
                 </div>
                 <div class="stats-card" id="pendingCard" style="display: none;">
-                    <div style="font-size: 0.875rem; color: var(--text-secondary);">Pending Amount</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: #f59e0b;" id="pendingAmount">₹0</div>
+                    <div class="stats-card-label">Pending Amount</div>
+                    <div class="stats-card-val text-amber" id="pendingAmount">₹0</div>
                 </div>
             </div>
         </div>
@@ -559,11 +664,11 @@
                                 {% set remaining = (booking.get("remaining", 0)|float) %}
                                 {% if remaining > 0 %}
                                     <span class="badge badge-pending">
-                                        Pending: ₹{{ remaining|round(2) }}
+                                        <span class="status-dot status-dot-pending"></span>Pending: ₹{{ remaining|round(2) }}
                                     </span>
                                 {% else %}
                                     <span class="badge badge-paid">
-                                        Paid
+                                        <span class="status-dot status-dot-paid"></span>Paid
                                     </span>
                                 {% endif %}
                             </td>
@@ -629,11 +734,11 @@
                         {% set remaining = (booking.get("remaining", 0)|float) %}
                         {% if remaining > 0 %}
                             <span class="badge badge-pending">
-                                Remaining: ₹{{ remaining|round(2) }}
+                                <span class="status-dot status-dot-pending"></span>Remaining: ₹{{ remaining|round(2) }}
                             </span>
                         {% else %}
                             <span class="badge badge-paid">
-                                Fully Paid
+                                <span class="status-dot status-dot-paid"></span>Fully Paid
                             </span>
                         {% endif %}
                     </div>
