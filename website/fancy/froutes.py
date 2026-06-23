@@ -22,14 +22,10 @@ from website.fancy.fcycle import (
     create_cycle,
     end_cycle,
     get_active_collection,
-    get_selected_collection,
-    is_selected_cycle_locked
+    get_selected_collection
 )
 
 fancy = Blueprint('fancy', __name__)
-
-ADMIN_ID = os.environ.get("ADMIN_ID")
-ADMIN_PASS = os.environ.get("ADMIN_PASS")
 
 # ------------------ MAIN ------------------
 
@@ -160,7 +156,7 @@ def update_booking():
     try:
         data = request.json
 
-        print("DATA =", data)
+        current_app.logger.info(f"DATA = {data}")
 
         collection = get_selected_collection()
 
@@ -184,7 +180,7 @@ def update_booking():
         return jsonify(success=True)
 
     except Exception as e:
-        print("ERROR:", e)
+        current_app.logger.error(f"ERROR: {e}")
         return jsonify(success=False, message=str(e))
 
 @fancy.route("/get_customer")

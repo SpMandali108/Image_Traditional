@@ -19,3 +19,15 @@ products = db["Storage"]
 fcustomers = db["Fancy_Customers"]
 finventory = db["Fancy_Inventory"]
 ncustomers = db["Navaratri_Customers"]
+
+import secrets
+ADMIN_ID = os.environ.get("ADMIN_ID")
+ADMIN_PASS = os.environ.get("ADMIN_PASS")
+
+if not ADMIN_ID or not ADMIN_PASS:
+    if not ADMIN_ID:
+        ADMIN_ID = secrets.token_urlsafe(16)
+        print(f"WARNING: ADMIN_ID not configured! Using random: {ADMIN_ID}")
+    if not ADMIN_PASS:
+        ADMIN_PASS = secrets.token_urlsafe(16)
+        print(f"WARNING: ADMIN_PASS not configured! Using random: {ADMIN_PASS}")

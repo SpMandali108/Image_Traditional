@@ -29,25 +29,11 @@ import qrcode
 # =========================
 auth = Blueprint("auth", __name__)
 
-load_dotenv()
-
-mongo_url = os.environ.get("client")
-client = MongoClient(mongo_url, tls=True, tlsAllowInvalidCertificates=True)
-
-db = client["Image_Traditional"]
-
-collection = db["Form"]
-fancy_2024_2025 = db["Fancy"]
-fancy_collection = db["Fancy_2025_2026"]
-products_collection = db["products"]
-bags = db["bags"]
-products = db["Storage"]
-fcustomers = db["Fancy_Customers"]
-finventory = db["Fancy_Inventory"]
-
-
-ADMIN_ID = os.environ.get("ADMIN_ID")
-ADMIN_PASS = os.environ.get("ADMIN_PASS")
+from .general.db import (
+    db, collection, fancy_2024_2025, fancy_collection,
+    products_collection, bags, products, fcustomers, finventory,
+    ADMIN_ID, ADMIN_PASS
+)
 
 @auth.route('/admin')
 def admin():

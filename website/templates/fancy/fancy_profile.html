@@ -331,6 +331,24 @@
     text-decoration: none;
 }
 
+/* ── Actions Buttons ─────────────────────────────────────────── */
+.btn-edit {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0.4rem 1rem; background: #f4d35e; color: #0a1929;
+    border-radius: 6px; font-size: 0.82rem; font-weight: 700;
+    border: none; cursor: pointer; margin-right: 6px;
+    transition: opacity 0.15s;
+}
+.btn-edit:hover { opacity: 0.85; }
+.btn-delete {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0.4rem 1rem; background: #dc3545; color: #fff;
+    border-radius: 6px; font-size: 0.82rem; font-weight: 700;
+    border: none; cursor: pointer;
+    transition: opacity 0.15s;
+}
+.btn-delete:hover { opacity: 0.85; }
+
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 768px) {
     .profile-container { padding: 1.25rem 1rem 3rem; }
@@ -422,24 +440,25 @@
                     <th>End Date</th>
                     <th>Price</th>
                     <th>Details</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
 
-{% for fb in fbookings %}
+{% for fb in bookings %}
 
 <tr class="booking-row"
     data-search="{{ fb.name }} {{ fb.mobile }} {{ fb.address }} {{ fb.school }} {{ fb.costume }} {{ fb.details }}">
 
-    <td>{{ fb.name }}</td>
-    <td>{{ fb.mobile }}</td>
-    <td>{{ fb.school }}</td>
-    <td>{{ fb.costume }}</td>
-    <td>₹{{ fb.price }}</td>
+    <td><span class="season-badge">{{ fb.season }}</span></td>
+    <td><span class="costume-box">{{ fb.costume }}</span></td>
+    <td>{{ fb.start_date }}</td>
+    <td>{{ fb.end_date }}</td>
+    <td><span class="price-text">₹{{ fb.price }}</span></td>
+    <td>{{ fb.details or '-' }}</td>
 
     <td>
-
-        <button
+        <button class="btn-edit"
         onclick="openEditModal(
         '{{ fb._id }}',
         '{{ fb.name }}',
@@ -455,15 +474,10 @@
             Edit
         </button>
 
-        <button
+        <button class="btn-delete"
         onclick="deleteBooking('{{ fb._id }}')">
             Delete
         </button>
-
-        <a href="{{ url_for('fancy.fancy_profile', mobile=fb.mobile) }}">
-            Profile
-        </a>
-
     </td>
 
 </tr>

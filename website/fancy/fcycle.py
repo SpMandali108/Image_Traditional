@@ -208,15 +208,6 @@ def is_selected_cycle_locked():
     if not cycle:
         return True
 
-    return cycle.get("status") != "active"
-
-def is_selected_cycle_locked():
-
-    cycle = get_selected_cycle()
-
-    if not cycle:
-        return True
-
     if cycle.get("status") == "active":
         return False
 

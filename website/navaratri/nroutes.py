@@ -24,9 +24,6 @@ from website.navaratri.ncycle import (
     navaratri_cycles
 )
 
-ADMIN_ID = os.environ.get("ADMIN_ID")
-ADMIN_PASS = os.environ.get("ADMIN_PASS")
-
 collection = LocalProxy(lambda: get_selected_collection())
 
 navaratri = Blueprint('navaratri', __name__)
@@ -150,8 +147,7 @@ def book():
         )
 
         # -------------------- Generate QR URL --------------------
-        store_base_url = "https://image-traditional.onrender.com/download-bill"
-        qr_url = f"{store_base_url}?mobile={mobile}"
+        qr_url = url_for('navaratri.download_bill_page', mobile=mobile, _external=True)
 
         collection.update_one(
             {"mobile": mobile},
@@ -188,8 +184,8 @@ def calendar():
                 # If already DD-MM-YY
                 formatted_date = date  
 
-            print("DEBUG: input =", date)
-            print("DEBUG: formatted =", formatted_date)
+            current_app.logger.debug(f"DEBUG: input = {date}")
+            current_app.logger.debug(f"DEBUG: formatted = {formatted_date}")
 
             # ✅ Use formatted_date for querying Mongo
             customers = collection.find({f"bookings.{formatted_date}": {"$exists": True}})
@@ -350,18 +346,7 @@ def pay_remaining():
         )
 
         # -------------------- Generate QR URL --------------------
-        qr_url = url_for('navaratri.download_customer', mobile=mobile, _external=True)
-        collection.update_one(
-            {"mobile": mobile},
-            {"$set": {"qr_url": qr_url}}
-        )
-
-         # Your live website store URL
-        store_base_url = "https://image-traditional.onrender.com/download-bill"
-
-        # Append mobile number as query parameter
-        qr_url = f"{store_base_url}?mobile={mobile}"
-
+        qr_url = url_for('navaratri.download_bill_page', mobile=mobile, _external=True)
         collection.update_one(
             {"mobile": mobile},
             {"$set": {"qr_url": qr_url}}
@@ -628,8 +613,7 @@ def profile_update():
                 conflict_msg += f"• '{conflict['product']}' by {conflict['customer_name']} ({conflict['customer_mobile']})<br>"
             return jsonify({"success": False, "message": conflict_msg}), 400
 
-    store_base_url = "https://image-traditional.onrender.com/download-bill"
-    qr_url = f"{store_base_url}?mobile={mobile}"
+    qr_url = url_for('navaratri.download_bill_page', mobile=mobile, _external=True)
     
     customer_data = {
         "Name": name,
@@ -901,7 +885,7 @@ def check():
             # If already in DD-MM-YY
             formatted_date = date
 
-        print("DEBUG check: input =", date, " formatted =", formatted_date)
+        current_app.logger.debug(f"DEBUG check: input = {date} formatted = {formatted_date}")
 
         # ✅ Pass converted date to your conflict checker
         has_conflict, conflicts = check_booking_conflict(formatted_date, [product])
@@ -1080,7 +1064,8 @@ def download_customer():
     # ------- Customer Details -------
     def add_field(label, value):
         pdf.set_x(15)
-        text = f"{label}: {value}"
+        value_sanitized = sanitize_latin1(value)
+        text = f"{label}: {value_sanitized}"
         pdf.cell(pdf.get_string_width(text)+4, 8, text, border=1)
         pdf.ln(10)
 
@@ -1569,7 +1554,7 @@ def available():
                         booked.add(p.strip().upper())
 
             # Debug prints (check server console)
-            print(f"[DEBUG] Booked on {formatted_date} => {len(booked)} items: {sorted(booked)[:50]}")
+            current_app.logger.debug(f"[DEBUG] Booked on {formatted_date} => {len(booked)} items: {sorted(booked)[:50]}")
 
             # Build remaining lists (exclude booked codes)
             remaining_c = [p for p in all_c if p["code"].upper() not in booked]
@@ -1617,7 +1602,7 @@ def add_product():
                     "bag_id": str(bag_id)
                 })
             except Exception as e:
-                print(f"Skipping duplicate code: {code}")
+                current_app.logger.warning(f"Skipping duplicate code: {code}")
 
     return redirect(url_for('navaratri.Storage'))
 
@@ -1960,7 +1945,7 @@ def get_navaratri_customer():
                         upsert=True
                     )
         except Exception as e:
-            print("Migration error:", e)
+            current_app.logger.error(f"Migration error: {e}")
 
     # Check if they have a booking in this cycle first
     active_customer = collection.find_one({"mobile": mobile})
@@ -2032,7 +2017,7 @@ def navaratri_customers_list():
                         upsert=True
                     )
         except Exception as e:
-            print("Migration error:", e)
+            current_app.logger.error(f"Migration error: {e}")
 
     customers = list(
         ncustomers.find(query)

@@ -125,6 +125,13 @@ def export_bookings_csv(collection):
 # 📄 PDF GENERATION
 # =========================
 
+def sanitize_latin1(text):
+    if text is None:
+        return ""
+    if not isinstance(text, str):
+        text = str(text)
+    return text.encode('latin-1', 'ignore').decode('latin-1')
+
 def generate_customer_pdf(customer):
     class PDF(FPDF):
         def header(self):
@@ -135,8 +142,10 @@ def generate_customer_pdf(customer):
     pdf.add_page()
     pdf.set_font("Arial", size=10)
 
-    pdf.cell(0, 10, f"Name: {customer.get('Name')}", ln=True)
-    pdf.cell(0, 10, f"Mobile: {customer.get('mobile')}", ln=True)
+    name = sanitize_latin1(customer.get('Name'))
+    mobile = sanitize_latin1(customer.get('mobile'))
+    pdf.cell(0, 10, f"Name: {name}", ln=True)
+    pdf.cell(0, 10, f"Mobile: {mobile}", ln=True)
 
     pdf_output = pdf.output(dest="S")
 
@@ -151,6 +160,7 @@ def generate_customer_pdf(customer):
         download_name="customer.pdf",
         mimetype="application/pdf"
     )
+
 
 
 # =========================
