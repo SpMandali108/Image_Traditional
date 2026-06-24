@@ -11,475 +11,1039 @@
 {% endblock %}
 
 {% block content %}
+<!-- Google Fonts for Luxury Aesthetics -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
 <style>
-.filter-label {
-    font-weight: 600;
-    color: #374151;
-    font-size: 0.95rem;
-}
-/* Modern Code Library Styles */
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-}
+        /* ── Design Tokens ───────────────────────────────────────────── */
+    :root {
+        --dark-blue:       #0f172a;
+        --medium-blue:     #1e293b;
+        --light-blue:      rgba(30, 41, 59, 0.45);
+        --glass-bg:        rgba(30, 41, 59, 0.65);
+        --glass-border:    rgba(255, 255, 255, 0.08);
+        --gold:            #d4af37;
+        --light-gold:      #f5d76e;
+        --gold-dark:       #b8941e;
+        --text-light:      #f1f5f9;
+        --text-muted:      #94a3b8;
+        --border-subtle:   #334155;
+        --border-strong:   rgba(212, 175, 55, 0.3);
+        --success:         #10b981;
+        --danger:          #ef4444;
+        --warning:         #f59e0b;
+        --shadow-card:     0 8px 32px rgba(0, 0, 0, 0.35);
+        --radius-card:     24px;
+        --radius-md:       16px;
+        --radius-sm:       12px;
+        --font-display:    'Inter', system-ui, sans-serif;
+    }
 
-.header {
-    text-align: center;
-    margin-bottom: 3rem;
-}
+    body {
+        background: var(--dark-blue) !important;
+        color: var(--text-light) !important;
+        font-family: var(--font-display);
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+    }
 
-.header h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 0.5rem;
-}
+    
 
-.header p {
-    font-size: 1.1rem;
-    color: #64748b;
-}
-
-.filter-section {
-    background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-}
-
-.search-container {
-    flex: 1;
-    min-width: 250px;
-}
-
-.search-input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    background: white;
-    color: #374151;
-    font-size: 0.95rem;
-    transition: all 0.2s ease;
-    margin-top: 0.5rem;
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
-}
-
-.search-input::placeholder {
-    color: #9ca3af;
-}
-
-.radio-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.radio-group {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.radio-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    font-size: 0.95rem;
-    color: #374151;
-    font-weight: 500;
-}
-
-.radio-label input[type="radio"] {
-    width: 16px;
-    height: 16px;
-    border: 2px solid #d1d5db;
-    border-radius: 50%;
-    appearance: none;
-    cursor: pointer;
-    position: relative;
-    transition: all 0.2s ease;
-}
-
-.radio-label input[type="radio"]:checked {
-    border-color: #3b82f6;
-    background: #3b82f6;
-}
-
-.radio-label input[type="radio"]:checked::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: white;
-}
-
-.radio-label input[type="radio"]:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
-}
-
-.radio-text {
-    user-select: none;
-}
-
-.results-counter {
-    margin-left: auto;
-    color: #64748b;
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.code-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-top: 2rem;
-}
-
-.code-card {
-    background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-    transition: all 0.3s ease;
-    text-decoration: none;
-    color: inherit;
-    display: block;
-    position: relative;
-    overflow: hidden;
-}
-
-.code-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
-
-.code-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
-}
-
-.code-card:hover::before {
-    transform: scaleX(1);
-}
-
-.code-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.code-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #0f172a;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-}
-
-.series-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.series-c {
-    background: #dbeafe;
-    color: #1d4ed8;
-}
-
-.series-k {
-    background: #fce7f3;
-    color: #be185d;
-}
-
-.series-other {
-    background: #f3f4f6;
-    color: #374151;
-}
-
-
-
-.empty-state {
-    text-align: center;
-    padding: 4rem 1rem;
-    color: #64748b;
-}
-
-.empty-state svg {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 1rem;
-    opacity: 0.5;
-}
-
-.no-codes-state {
-    text-align: center;
-    padding: 6rem 2rem;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-    margin: 2rem 0;
-}
-
-.no-codes-icon {
-    margin: 0 auto 2rem;
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 10px 25px -5px rgb(59 130 246 / 0.3);
-}
-
-.no-codes-icon svg {
-    width: 40px;
-    height: 40px;
-    color: white;
-}
-
-.no-codes-state h2 {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 1rem;
-}
-
-.no-codes-state p {
-    font-size: 1.1rem;
-    color: #64748b;
-    margin-bottom: 2rem;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.no-codes-actions {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-}
-
-.refresh-btn {
-    background: #3b82f6;
-    color: white;
-    border: none;
-    padding: 0.875rem 1.5rem;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.refresh-btn:hover {
-    background: #2563eb;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgb(59 130 246 / 0.4);
-}
-
-.refresh-btn:active {
-    transform: translateY(0);
-}
-
-.fade-in {
-    animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-width: 768px) {
-    .container {
-        padding: 1rem;
+    .main-header {
+        background: rgba(3, 7, 12, 0.75) !important;
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border-subtle) !important;
+        box-shadow: var(--shadow-card) !important;
     }
     
-    .header h1 {
-        font-size: 2rem;
+    .logo-text {
+        color: var(--text-light) !important;
     }
     
-    .filter-section {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 1.5rem;
+    .contact-btn, .admin-btn {
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid var(--border-strong) !important;
+        color: var(--gold) !important;
     }
-    
-    .search-container {
-        min-width: auto;
+    .contact-btn:hover, .admin-btn:hover {
+        background: var(--gold) !important;
+        color: var(--dark-blue) !important;
     }
-    
-    .radio-container {
+
+    .main-content {
+        padding: 0 !important;
+        background: transparent !important;
+    }
+
+    .container-fluid {
+        max-width: 1720px;
+        margin: 0 auto;
+        padding: 2.5rem 2rem 4rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Page Header - Sleek Glassmorphism */
+    .page-header {
+        background: var(--glass-bg);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-card);
+        box-shadow: var(--shadow-card);
+        backdrop-filter: blur(20px);
+        overflow: hidden;
+        margin-bottom: 2.5rem;
+        position: relative;
+    }
+
+    .page-header-accent {
+        height: 4px;
+        background: linear-gradient(90deg, transparent 0%, var(--gold) 30%, var(--light-gold) 70%, transparent 100%);
+    }
+
+    .page-header-body {
+        display: flex;
         align-items: center;
+        justify-content: space-between;
+        padding: 1.5rem 2.5rem;
+        gap: 1.5rem;
+        flex-wrap: wrap;
     }
-    
+
+    .page-header-identity {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .page-eyebrow {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--gold);
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: -0.03em;
+        background: linear-gradient(135deg, #ffffff 30%, var(--light-gold) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .page-subtitle {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-top: 0.2rem;
+    }
+
+    /* Split Screen Explorer Layout */
+    .explorer-layout {
+        display: grid;
+        grid-template-columns: 58% 40%;
+        gap: 2%;
+        align-items: start;
+    }
+
+    /* Left Side: Catalog */
+    .catalog-section {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    /* Floating Seamless Filter Row */
+    .filter-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-card);
+        backdrop-filter: blur(20px);
+        padding: 1.5rem 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        box-shadow: var(--shadow-card);
+    }
+
+    .filter-label {
+        font-weight: 700;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--gold);
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Elegant Custom Search Bar */
+    .search-container {
+        position: relative;
+        flex: 1;
+        min-width: 280px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.8rem 1.2rem 0.8rem 2.8rem;
+        border: 1.5px solid var(--border-subtle);
+        border-radius: 50px;
+        background: rgba(3, 7, 12, 0.4);
+        color: var(--text-light);
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .search-container::before {
+        content: '002';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        left: 1.2rem;
+        top: 61%;
+        transform: translateY(-50%);
+        color: var(--gold);
+        font-size: 0.95rem;
+        pointer-events: none;
+        transition: color 0.3s;
+        z-index: 2;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.25);
+        background: rgba(3, 7, 12, 0.6);
+    }
+
+    /* Luxury Pill Tab Filter Buttons */
+    .capsule-group {
+        display: flex;
+        background: rgba(3, 7, 12, 0.4);
+        border: 1px solid var(--border-subtle);
+        border-radius: 50px;
+        padding: 5px;
+        gap: 4px;
+    }
+
+    .capsule-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.6rem 1.3rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        user-select: none;
+        border: none;
+        background: transparent;
+    }
+
+    .capsule-btn:hover {
+        color: var(--text-light);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .capsule-btn.active {
+        background: var(--gold);
+        color: var(--dark-blue) !important;
+        font-weight: 800;
+        box-shadow: 0 6px 16px rgba(212, 175, 55, 0.35);
+    }
+
     .results-counter {
-        text-align: center;
+        margin-left: auto;
+        color: var(--gold);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border: 1px solid var(--border-strong);
+        padding: 8px 18px;
+        border-radius: 50px;
+        background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.02) 100%);
+    }
+
+    /* Scrollable catalog list */
+    .scrollable-catalog-list {
+        max-height: calc(100vh - 240px);
+        overflow-y: auto;
+        padding: 0.5rem 0.5rem 0.5rem 0;
+    }
+
+    .scrollable-catalog-list::-webkit-scrollbar { width: 6px; }
+    .scrollable-catalog-list::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 10px; }
+    .scrollable-catalog-list::-webkit-scrollbar-thumb {
+        background: var(--border-strong);
+        border-radius: 10px;
+    }
+    .scrollable-catalog-list::-webkit-scrollbar-thumb:hover {
+        background: var(--gold);
+    }
+
+    /* ── Traditional Abhla (Mirror-work) Circular Grid ────────────── */
+    .mirror-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: flex-start;
+    }
+
+    /* Reflective Mirror Coin buttons */
+    .mirror-coin {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.02) 60%, rgba(0, 0, 0, 0.4) 100%), rgba(11, 18, 30, 0.45);
+        border: 2px solid rgba(212, 175, 55, 0.25);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.05);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none !important;
+        opacity: 0;
+        transform: scale(0.9) translateY(5px);
+    }
+
+    .mirror-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-light);
+        z-index: 3;
+        letter-spacing: -0.2px;
+        transition: color 0.2s;
+    }
+
+    /* Hover Reflection Glare */
+    .mirror-coin:hover {
+        transform: scale(1.08) translateY(-2px);
+        border-color: var(--light-gold);
+        box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3), inset 0 2px 8px rgba(255, 255, 255, 0.12);
+        background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.05) 55%, rgba(0, 0, 0, 0.3) 100%), rgba(11, 18, 30, 0.65);
+    }
+
+    /* Selected Mirror Coin styling */
+    .mirror-coin.active {
+        background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.25) 0%, rgba(212, 175, 55, 0.2) 50%, rgba(0, 0, 0, 0.4) 100%), rgba(212, 175, 55, 0.15);
+        border-color: var(--light-gold);
+        box-shadow: 0 0 22px rgba(212, 175, 55, 0.55), inset 0 2px 8px rgba(255, 255, 255, 0.2);
+    }
+
+    .mirror-coin.active .mirror-title {
+        color: var(--light-gold);
+        text-shadow: 0 0 4px rgba(212, 175, 55, 0.5);
+    }
+
+    .mirror-coin.fade-in {
+        animation: coinReveal 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes coinReveal {
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* Hanging Status Bead */
+    .status-dot {
+        position: absolute;
+        bottom: -2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        z-index: 5;
+        border: 1px solid var(--dark-blue);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.5);
     }
     
-    .code-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
+    .status-dot.status-inside { background: #10b981; box-shadow: 0 0 8px #10b981; } 
+    .status-dot.status-outside { background: #ef4444; box-shadow: 0 0 8px #ef4444; } 
+    .status-dot.status-ambiguity { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; } 
+    .status-dot.status-loading { background: var(--text-muted); animation: pulseDot 1s infinite alternate; }
+
+    @keyframes pulseDot {
+        0% { opacity: 0.4; }
+        100% { opacity: 1; }
     }
-}
+
+    /* ── Right Column: Sticky details panel ─────────────────────── */
+    .explorer-details-panel {
+        position: sticky;
+        top: 90px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .explorer-card {
+        background: var(--glass-bg) !important;
+        border: 1px solid var(--border-subtle) !important;
+        border-radius: var(--radius-card) !important;
+        box-shadow: var(--shadow-card) !important;
+        backdrop-filter: blur(25px);
+        min-height: 520px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .detail-header-bar {
+        padding: 1.25rem 2rem;
+        background: rgba(3, 7, 12, 0.4) !important;
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .detail-title {
+        font-family: var(--font-display);
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .card-badge {
+        font-size: 0.7rem;
+        font-weight: 800;
+        padding: 5px 14px;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .explorer-body {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        flex: 1;
+    }
+
+    /* Costume Portrait Frame */
+    .costume-image-frame {
+        width: 100%;
+        height: 280px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-subtle);
+        background: rgba(3, 7, 12, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 2px 8px rgba(0,0,0,0.25);
+        transition: all 0.3s ease;
+    }
+
+    .costume-img {
+        width: 90%;
+        height: 90%;
+        object-fit: contain;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border-radius: var(--radius-sm);
+        filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+    }
+
+    .costume-image-frame:hover {
+        border-color: var(--border-strong);
+        transform: translateY(-2px);
+        box-shadow: inset 0 2px 10px rgba(0,0,0,0.4);
+    }
+
+    .costume-image-frame:hover .costume-img {
+        transform: scale(1.04);
+    }
+
+    .image-placeholder-icon {
+        font-size: 3.5rem;
+        color: rgba(212, 175, 55, 0.15);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .image-placeholder-icon span {
+        font-family: var(--font-display);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 2px;
+    }
+
+    /* Schedule Timeline */
+    .schedule-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        flex: 1;
+    }
+
+    .schedule-header {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--gold);
+        letter-spacing: 0.15em;
+        margin-bottom: 0.25rem;
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .schedule-list {
+        max-height: 220px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding-right: 6px;
+    }
+
+    .schedule-list::-webkit-scrollbar { width: 4px; }
+    .schedule-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 2px; }
+
+    /* Timeline Row items */
+    .schedule-row {
+        background: rgba(3, 7, 12, 0.25);
+        border: 1px solid var(--border-subtle);
+        border-left: 4px solid var(--gold);
+        border-radius: 12px;
+        padding: 0.9rem 1.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .schedule-row:hover {
+        border-color: var(--border-strong);
+        background: rgba(3, 7, 12, 0.45);
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .schedule-date {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .schedule-client-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 3px;
+    }
+
+    .schedule-name {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--text-light);
+        text-decoration: underline !important;
+        transition: color 0.2s;
+    }
+    .schedule-name:hover {
+        color: var(--gold);
+    }
+
+    .schedule-mobile {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-decoration: none !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: color 0.2s;
+    }
+    .schedule-mobile:hover {
+        color: var(--gold);
+    }
+
+    /* Loader Overlay */
+    .loader-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(3, 7, 12, 0.8);
+        backdrop-filter: blur(12px);
+        z-index: 100;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Selected Details Panel Placeholder */
+    .explorer-empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 3rem 2rem;
+        margin: auto;
+        color: var(--text-muted);
+        gap: 10px;
+    }
+
+    .explorer-empty-state i {
+        font-size: 3rem;
+        opacity: 0.8;
+        animation: pulseIcon 2s infinite alternate;
+    }
+
+    @keyframes pulseIcon {
+        0% { transform: scale(0.95); opacity: 0.6; }
+        100% { transform: scale(1.05); opacity: 0.9; }
+    }
+
+    .explorer-empty-state h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-light);
+        margin: 0;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .explorer-empty-state p {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        max-width: 280px;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    /* Utility entry classes */
+    .fade-in {
+        animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    #fullscreenLink {
+        background: rgba(212, 175, 55, 0.08);
+        border: 1px solid var(--border-strong);
+        color: var(--gold);
+        font-weight: 700;
+        width: 100%;
+        justify-content: center;
+        padding: 12px;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.15em;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    #fullscreenLink:hover {
+        background: var(--gold);
+        color: var(--dark-blue) !important;
+        box-shadow: 0 6px 16px rgba(212, 175, 55, 0.3);
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 1200px) {
+        .explorer-layout {
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+        }
+        .explorer-details-panel {
+            position: static;
+        }
+        .scrollable-catalog-list {
+            max-height: none;
+            overflow-y: visible;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding: 1.5rem 1rem;
+        }
+        .page-header-body {
+            padding: 1.25rem 1.5rem;
+        }
+        .filter-card {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1.5rem;
+            padding: 1.25rem 1.5rem;
+        }
+        .results-counter {
+            margin-left: 0;
+            text-align: center;
+        }
+        .mirror-grid {
+            justify-content: center;
+            gap: 0.65rem;
+        }
+        .mirror-coin {
+            width: 60px;
+            height: 60px;
+        }
+        .mirror-title {
+            font-size: 0.8rem;
+        }
+    }
 </style>
 
-<div class="container">
-    <div class="header">
-        <h1>Code Library</h1>
-        <p>Browse and explore your code collection</p>
-    </div>
-
-    <div class="filter-section">
-        <div class="search-container">
-            <label for="searchInput" class="filter-label">Search Codes:</label>
-            <input type="text" id="searchInput" class="search-input" placeholder="Search by code name..." oninput="filterCodes()">
-        </div>
-        
-        <div class="radio-container">
-            <span class="filter-label">Filter by Series:</span>
-            <div class="radio-group">
-                <label class="radio-label">
-                    <input type="radio" name="series" value="all" checked onchange="filterCodes()">
-                    <span class="radio-text">All</span>
-                </label>
-                <label class="radio-label">
-                    <input type="radio" name="series" value="C" onchange="filterCodes()">
-                    <span class="radio-text">C Series</span>
-                </label>
-                <label class="radio-label">
-                    <input type="radio" name="series" value="K" onchange="filterCodes()">
-                    <span class="radio-text">K Series</span>
-                </label>
+<div class="container-fluid">
+    
+    <!-- ── Page Header ──────────────────────────────────────── -->
+    <div class="page-header">
+        <div class="page-header-accent"></div>
+        <div class="page-header-body">
+            <div class="page-header-identity">
+                <span class="page-eyebrow">Image Traditional &mdash; Rental Management System</span>
+                <h1 class="page-title">Costume Explorer Library</h1>
+                <span class="page-subtitle">Unified catalog grid. Select a mirror code (Abhla) to review schedules and images.</span>
             </div>
         </div>
-        
-        <div class="results-counter" id="resultsCounter">
-            Showing <span id="resultCount">0</span> codes
-        </div>
     </div>
 
-    {% if codes %}
-    <div class="code-grid" id="codeGrid">
-        {% for code in codes %}
-        <a href="/code/{{ code }}" class="code-card" data-series="{{ code[0] }}">
-            <div class="code-header">
-                <div class="code-title">{{ code }}</div>
-                <div class="series-badge {% if code[0] == 'C' %}series-c{% elif code[0] == 'K' %}series-k{% else %}series-other{% endif %}">
-                    {{ code[0] }} Series
+    <!-- ── Split Screen Explorer Layout ──────────────────────── -->
+    <div class="explorer-layout">
+
+        <!-- ── Left Column (Catalog grid) ────────────────────── -->
+        <div class="catalog-section">
+            
+            <!-- Filters Card -->
+            <div class="filter-card">
+                <div class="search-container">
+                    <label for="searchInput" class="filter-label">Search Library:</label>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Type a costume code (e.g. C12, K85)..." oninput="filterCodes()">
+                </div>
+                
+                <div class="radio-container">
+                    <span class="filter-label">Filter by Series:</span>
+                    <!-- Capsule group selector pills -->
+                    <div class="capsule-group">
+                        <button class="capsule-btn active" id="filter-all" onclick="setSeriesFilter('all')">All Outfits</button>
+                        <button class="capsule-btn" id="filter-C" onclick="setSeriesFilter('C')">Chaniya Choli (C)</button>
+                        <button class="capsule-btn" id="filter-K" onclick="setSeriesFilter('K')">Kediya (K)</button>
+                    </div>
+                </div>
+                
+                <div class="results-counter" id="resultsCounter">
+                    Showing <span id="resultCount">0</span> costumes
                 </div>
             </div>
-        </a>
-        {% endfor %}
-    </div>
 
-    <div class="empty-state" id="emptyState" style="display: none;">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M9 2a1 1 0 000 2h6a1 1 0 100-2H9z"/>
-            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2h1a1 1 0 000 2H6v6.586l.293-.293a1 1 0 011.414 0l4 4a1 1 0 001.414-1.414L10.414 11H15a1 1 0 100-2h-5.586l2.707-2.707a1 1 0 00-1.414-1.414l-4 4A1 1 0 006 9.586V5z" clip-rule="evenodd"/>
-        </svg>
-        <h3>No codes found</h3>
-        <p>Try adjusting your search or filter to see more results.</p>
-    </div>
-    {% else %}
-    <div class="no-codes-state">
-        <div class="no-codes-icon">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/>
-                <path d="M8 11l2 2 4-4" stroke="white" stroke-width="2" fill="none"/>
-            </svg>
+            <!-- Scrollable mirror catalog list -->
+            <div class="scrollable-catalog-list">
+                {% if codes %}
+                <div class="mirror-grid" id="codeGrid">
+                    {% for code in codes %}
+                    <div class="mirror-coin" data-series="{{ code[0] }}" onclick="loadCostumeDetails('{{ code }}', this)" title="Costume {{ code }}">
+                        <span class="mirror-title">{{ code }}</span>
+                        <!-- Floating Status dot at the bottom -->
+                        <span class="status-dot status-loading"></span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Empty State for filter mismatch -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <i class="fa-solid fa-magnifying-glass-minus"></i>
+                    <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-light); margin-bottom: 0.25rem;">No Outfits Match Filters</h3>
+                    <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">Try adjusting your keyword searches or category pill selections.</p>
+                </div>
+                {% endif %}
+            </div>
         </div>
-        <h2>No Codes Available</h2>
-        <p>Your code library is empty. Start by adding some codes to see them here.</p>
-        <div class="no-codes-actions">
-            <button onclick="window.location.reload()" class="refresh-btn">
-                Refresh Page
-            </button>
+
+        <!-- ── Right Column (Sticky Details panel) ────────────── -->
+        <div class="explorer-details-panel">
+            <div class="explorer-card">
+                
+                <!-- Loader Overlay -->
+                <div class="loader-overlay" id="loaderOverlay">
+                    <div class="text-center" style="color: var(--gold);">
+                        <i class="fa-solid fa-arrows-spin fa-spin" style="font-size: 2.5rem; margin-bottom: 8px; display: block;"></i>
+                        <span style="font-weight: 800; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1.5px; font-family: var(--font-display);">Fetching Costume Schedule...</span>
+                    </div>
+                </div>
+
+                <!-- Header Bar -->
+                <div class="detail-header-bar">
+                    <span class="detail-title" id="detailCostumeCode">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--gold);"></i> Costume Details
+                    </span>
+                    <span class="card-badge" id="detailStatusBadge" style="display: none;"></span>
+                </div>
+
+                <!-- Details Body -->
+                <div class="explorer-body" id="explorerBody" style="display: none;">
+                    
+                    <!-- Costume image frame -->
+                    <div class="costume-image-frame">
+                        <img id="costumeImage" src="" alt="Costume Outfit" class="costume-img" 
+                             onload="this.style.display='block'; this.style.opacity='1';"
+                             onerror="handleImageError(this)">
+                        
+                        <div class="image-placeholder-icon" id="imagePlaceholder">
+                            <i class="fa-solid fa-image"></i>
+                            <span>No Photo Available</span>
+                        </div>
+                    </div>
+
+                    <!-- Costume Rent Reservations Schedule -->
+                    <div class="schedule-container">
+                        <div class="schedule-header">
+                            <i class="fa-solid fa-calendar-days"></i> Booking &amp; Renter Schedule
+                        </div>
+                        <div class="schedule-list" id="scheduleList">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Full details page fallback anchor -->
+                    <a href="" id="fullscreenLink" class="btn" style="background: rgba(212, 175, 55, 0.1); border: 1px solid var(--border-strong); color: var(--gold); font-weight: 800; width: 100%; justify-content: center; padding: 10px; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.1em; border-radius: var(--radius-sm); transition: all 0.2s;"
+                       onmouseover="this.style.background='var(--gold)'; this.style.color='#050a11';"
+                       onmouseout="this.style.background='rgba(212, 175, 55, 0.1)'; this.style.color='var(--gold)';">
+                        <i class="fa-solid fa-expand"></i> View Fullscreen Detail Page
+                    </a>
+                </div>
+
+                <!-- Default Selection Placeholder -->
+                <div class="explorer-empty-state" id="explorerEmptyState">
+                    <i class="fa-solid fa-arrows-to-eye" style="color: var(--gold);"></i>
+                    <h3>Explore Costume Details</h3>
+                    <p>Click on any circular mirror code (Abhla) on the left layout to inspect schedule dates, renters, and visual image preview.</p>
+                </div>
+
+            </div>
         </div>
+
     </div>
-    {% endif %}
 </div>
 
 <script>
-function filterCodes() {
-    const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-    const selectedSeries = document.querySelector('input[name="series"]:checked').value;
-    const cards = document.querySelectorAll(".code-card");
-    const emptyState = document.getElementById("emptyState");
-    const resultCount = document.getElementById("resultCount");
-    
-    let visibleCount = 0;
-    
-    cards.forEach(card => {
-        const codeTitle = card.querySelector('.code-title').textContent.toLowerCase();
-        const series = card.getAttribute("data-series");
+    let globalStatuses = {};
+    let activeSeriesFilter = 'all';
+
+    // Fetch live inventory statuses and apply to dot indicators
+    function loadCostumeStatuses() {
+        fetch('/get_statuses')
+            .then(res => res.json())
+            .then(data => {
+                globalStatuses = data;
+                document.querySelectorAll('.mirror-coin').forEach(coin => {
+                    const titleText = coin.querySelector('.mirror-title').textContent.trim();
+                    const status = data[titleText] || 'inside'; // default to inside
+                    const dot = coin.querySelector('.status-dot');
+                    
+                    if (dot) {
+                        dot.className = `status-dot status-${status}`;
+                    }
+                });
+            })
+            .catch(err => {
+                console.error("Error loading statuses:", err);
+                document.querySelectorAll('.status-dot').forEach(dot => {
+                    dot.className = 'status-dot status-inside';
+                });
+            });
+    }
+
+    // Handle image loading errors
+    function handleImageError(imgEl) {
+        imgEl.style.display = 'none';
+        document.getElementById('imagePlaceholder').style.display = 'flex';
+    }
+
+    // Set series filter from luxury capsule tabs
+    function setSeriesFilter(value) {
+        activeSeriesFilter = value;
+        document.querySelectorAll('.capsule-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`filter-${value}`).classList.add('active');
+        filterCodes();
+    }
+
+    // Dynamic AJAX loading of specific Costume Code details
+    function loadCostumeDetails(code, coinEl) {
+        // Toggle selected styling in catalog list
+        document.querySelectorAll('.mirror-coin').forEach(el => el.classList.remove('active'));
+        coinEl.classList.add('active');
+
+        // Show loading spinner
+        const loader = document.getElementById('loaderOverlay');
+        loader.style.display = 'flex';
+
+        // Perform AJAX schedule query
+        fetch(`/code/${code}?json=true`)
+            .then(res => res.json())
+            .then(data => {
+                loader.style.display = 'none';
+                document.getElementById('explorerEmptyState').style.display = 'none';
+                document.getElementById('explorerBody').style.display = 'flex';
+
+                // Update title in explorer header
+                document.getElementById('detailCostumeCode').innerHTML = `<i class="fa-solid fa-circle-dot" style="color: var(--gold);"></i> ${code}`;
+
+                // Set status badge in explorer header
+                const statusBadge = document.getElementById('detailStatusBadge');
+                statusBadge.style.display = 'inline-block';
+                const status = globalStatuses[code] || 'inside';
+                statusBadge.className = 'card-badge';
+                if (status === 'outside') {
+                    statusBadge.style.background = 'rgba(231, 76, 60, 0.15)';
+                    statusBadge.style.color = 'var(--danger)';
+                    statusBadge.style.border = '1px solid rgba(231, 76, 60, 0.3)';
+                    statusBadge.textContent = 'Checked Out';
+                } else if (status === 'ambiguity') {
+                    statusBadge.style.background = 'rgba(243, 156, 18, 0.15)';
+                    statusBadge.style.color = 'var(--warning)';
+                    statusBadge.style.border = '1px solid rgba(243, 156, 18, 0.3)';
+                    statusBadge.textContent = 'Ambiguity';
+                } else {
+                    statusBadge.style.background = 'rgba(46, 204, 113, 0.15)';
+                    statusBadge.style.color = 'var(--success)';
+                    statusBadge.style.border = '1px solid rgba(46, 204, 113, 0.3)';
+                    statusBadge.textContent = 'In Shop';
+                }
+
+                // Load image
+                const img = document.getElementById('costumeImage');
+                const placeholder = document.getElementById('imagePlaceholder');
+                if (data.image_url) {
+                    img.src = data.image_url;
+                    img.style.display = 'none';
+                    img.style.opacity = '0';
+                    placeholder.style.display = 'none';
+                } else {
+                    img.src = '';
+                    img.style.display = 'none';
+                    placeholder.style.display = 'flex';
+                }
+
+                // Update Fullscreen link
+                document.getElementById('fullscreenLink').href = `/code/${code}`;
+
+                // Render booking schedule
+                const scheduleList = document.getElementById('scheduleList');
+                scheduleList.innerHTML = '';
+                
+                if (data.bookings_by_date && data.bookings_by_date.length > 0) {
+                    data.bookings_by_date.forEach(entry => {
+                        entry.bookings.forEach(booking => {
+                            const row = document.createElement('div');
+                            row.className = 'schedule-row fade-in';
+                            row.innerHTML = `
+                                <div class="schedule-date">
+                                    <i class="fa-regular fa-clock" style="color: var(--gold); font-size: 0.78rem;"></i> ${entry.date}
+                                </div>
+                                <div class="schedule-client-info">
+                                    <a href="/profile/${booking.user.id}" class="schedule-name" onclick="event.stopPropagation();">${booking.user.Name}</a>
+                                    <a href="tel:${booking.user.mobile}" class="schedule-mobile" onclick="event.stopPropagation();"><i class="fa-solid fa-phone" style="font-size: 0.6rem;"></i> ${booking.user.mobile}</a>
+                                </div>
+                            `;
+                            scheduleList.appendChild(row);
+                        });
+                    });
+                } else {
+                    scheduleList.innerHTML = `
+                        <div class="empty-state" style="padding: 1.5rem; margin: 0; background: transparent; border: none;">
+                            <i class="fa-regular fa-calendar-check" style="font-size: 1.5rem; color: var(--success); display: block; margin-bottom: 4px;"></i>
+                            <span style="font-size: 0.78rem; font-weight: 800; color: var(--success); display: block; text-transform: uppercase;">🟢 Ready / In Shop</span>
+                            <span style="font-size: 0.72rem; color: var(--text-muted);">This traditional costume has no active reservations.</span>
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => {
+                loader.style.display = 'none';
+                console.error("Error loading details:", err);
+                alert("Error fetching details from the server.");
+            });
+    }
+
+    // High performance filters (batch DOM rendering)
+    function filterCodes() {
+        const searchTerm = document.getElementById("searchInput").value.trim().toLowerCase();
+        const coins = document.querySelectorAll(".mirror-coin");
+        const emptyState = document.getElementById("emptyState");
+        const resultCount = document.getElementById("resultCount");
+        const grid = document.getElementById("codeGrid");
         
-        const matchesSearch = codeTitle.includes(searchTerm);
-        const matchesSeries = selectedSeries === "all" || selectedSeries === series;
+        let visibleCount = 0;
         
-        const shouldShow = matchesSearch && matchesSeries;
+        // Temporarily detach grid rendering to prevent layout calculations on each loop iteration
+        grid.style.display = "none";
         
-        if (shouldShow) {
-            card.style.display = "block";
-            card.classList.add("fade-in");
-            visibleCount++;
+        coins.forEach(coin => {
+            const codeTitle = coin.querySelector('.mirror-title').textContent.toLowerCase();
+            const series = coin.getAttribute("data-series");
+            
+            const matchesSearch = codeTitle.includes(searchTerm);
+            const matchesSeries = activeSeriesFilter === "all" || activeSeriesFilter === series;
+            
+            if (matchesSearch && matchesSeries) {
+                coin.style.display = "inline-flex";
+                visibleCount++;
+            } else {
+                coin.style.display = "none";
+            }
+        });
+        
+        // Re-display grid
+        grid.style.display = "flex";
+        resultCount.textContent = visibleCount;
+        
+        if (visibleCount === 0) {
+            emptyState.style.display = "block";
         } else {
-            card.style.display = "none";
-            card.classList.remove("fade-in");
+            emptyState.style.display = "none";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        if (document.querySelectorAll('.mirror-coin').length > 0) {
+            filterCodes();
+            loadCostumeStatuses();
+            
+            // CSS entry animations with staggered wave effect
+            document.querySelectorAll(".mirror-coin").forEach((coin, index) => {
+                coin.style.animationDelay = `${(index % 80) * 8}ms`;
+                coin.classList.add("fade-in");
+            });
         }
     });
-    
-    resultCount.textContent = visibleCount;
-    
-    if (visibleCount === 0) {
-        emptyState.style.display = "block";
-    } else {
-        emptyState.style.display = "none";
-    }
-}
-
-document.addEventListener("DOMContentLoaded", function() {
-    // Only run filter if codes exist
-    if (document.querySelectorAll('.code-card').length > 0) {
-        filterCodes();
-        
-        const cards = document.querySelectorAll(".code-card");
-        cards.forEach((card, index) => {
-            card.style.animationDelay = `${index * 0.1}s`;
-            card.classList.add("fade-in");
-        });
-    }
-});
 </script>
 {% endblock %}

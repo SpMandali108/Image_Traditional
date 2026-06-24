@@ -2,282 +2,913 @@
 
 {% block title %}Booking Calendar | Image Traditional{% endblock %}
 
-
-
 {% block robots %}
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="noindex, nofollow" />
 {% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/calendar.css') }}">
-{% endblock %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-{% block logo_link %}
-<a href="/navaratri_admin" class="logo">
-    <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Image Traditional Logo">
-    <span class="logo-text">Image Traditional</span>
-</a>
+<style>
+/* ── Design Tokens ── */
+:root {
+    --dark-blue:     #0a1929;
+    --medium-blue:   #1a2942;
+    --light-blue:    #2d3f5f;
+    --gold:          #d4af37;
+    --light-gold:    #f4d35e;
+    --gold-dim:      rgba(212,175,55,0.18);
+    --gold-border:   rgba(212,175,55,0.28);
+    --text-light:    #f0f4f8;
+    --text-muted:    #8fa3bf;
+    --border:        rgba(255,255,255,0.07);
+    --success:       #22c55e;
+    --danger:        #ef4444;
+    --info:          #3b82f6;
+    --surface-1:     rgba(26,41,66,0.85);
+    --surface-2:     rgba(15,28,48,0.6);
+    --radius:        16px;
+    --radius-sm:     10px;
+    --radius-xs:     6px;
+    --shadow:        0 4px 24px rgba(0,0,0,0.4);
+    --shadow-lg:     0 12px 48px rgba(0,0,0,0.5);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    background: var(--dark-blue) !important;
+    color: var(--text-light) !important;
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ── Page Shell ── */
+.cal-page {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 5rem;
+}
+
+/* ── Page Header ── */
+.page-hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.page-hd-left {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.page-hd-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-sm);
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    color: var(--gold);
+    flex-shrink: 0;
+}
+
+.page-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.2rem;
+}
+
+.page-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-light);
+    margin: 0;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
+
+.page-subtitle {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+    font-weight: 400;
+}
+
+/* ── Layout Grid ── */
+.cal-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* ── Panel (shared card style) ── */
+.panel {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+    gap: 1rem;
+    min-height: 56px;
+}
+
+.panel-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0;
+}
+
+.panel-title-dot {
+    width: 3px;
+    height: 14px;
+    background: var(--gold);
+    border-radius: 20px;
+    flex-shrink: 0;
+}
+
+.panel-body {
+    padding: 1.5rem;
+}
+
+/* ── FullCalendar Overrides ── */
+#calendar {
+    --fc-border-color: transparent;
+    --fc-today-bg-color: rgba(212,175,55,0.06);
+    --fc-page-bg-color: transparent;
+    --fc-neutral-bg-color: transparent;
+    --fc-list-event-hover-bg-color: rgba(212,175,55,0.08);
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th { border: none !important; }
+
+.fc .fc-scrollgrid { border: none !important; }
+.fc .fc-scrollgrid-section > td { border: none !important; }
+
+.fc { color: var(--text-light); }
+
+.fc .fc-button-primary {
+    background: transparent !important;
+    border: 1px solid var(--gold-border) !important;
+    color: var(--text-muted) !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    padding: 0.4rem 0.9rem !important;
+    border-radius: var(--radius-xs) !important;
+    transition: all 0.2s !important;
+    box-shadow: none !important;
+}
+
+.fc .fc-button-primary:hover {
+    background: var(--gold-dim) !important;
+    border-color: var(--gold) !important;
+    color: var(--light-gold) !important;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+    background: var(--gold) !important;
+    border-color: var(--gold) !important;
+    color: #0a1929 !important;
+}
+
+.fc .fc-toolbar-title {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: var(--text-light) !important;
+    letter-spacing: -0.01em;
+}
+
+.fc .fc-col-header-cell-cushion {
+    color: var(--gold) !important;
+    font-size: 0.65rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    text-decoration: none !important;
+    padding: 0.7rem 0.4rem !important;
+}
+
+.fc .fc-daygrid-day-number {
+    color: var(--text-muted) !important;
+    font-size: 0.78rem !important;
+    font-weight: 500 !important;
+    padding: 0.45rem 0.55rem !important;
+    text-decoration: none !important;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+    background: rgba(212,175,55,0.07) !important;
+}
+
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+    color: var(--light-gold) !important;
+    font-weight: 800 !important;
+}
+
+.fc .fc-daygrid-day {
+    border-radius: 8px !important;
+    transition: background 0.15s;
+}
+
+.fc .fc-daygrid-day:hover {
+    background: rgba(255,255,255,0.03) !important;
+    cursor: pointer;
+}
+
+.fc .fc-bg-event {
+    background: rgba(212,175,55,0.18) !important;
+    border: none !important;
+    border-radius: 6px !important;
+    margin: 3px !important;
+    opacity: 1 !important;
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 1.25rem !important;
+}
+
+/* ── Sidebar Scroll Container ── */
+.sidebar-scroll {
+    max-height: 76vh;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.sidebar-scroll::-webkit-scrollbar { width: 5px; }
+.sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb {
+    background: var(--gold-border);
+    border-radius: 10px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+/* ── Date Header inside Sidebar ── */
+.date-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+}
+
+.date-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--light-gold);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ── KPI Strip ── */
+.kpi-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.kpi {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.9rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.kpi-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.kpi-icon.gold { background: var(--gold-dim); color: var(--gold); }
+.kpi-icon.red  { background: rgba(239,68,68,0.12); color: var(--danger); }
+
+.kpi-val {
+    font-size: 1.4rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.kpi-val.gold { color: var(--gold); }
+.kpi-val.red  { color: var(--danger); }
+
+.kpi-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+
+/* ── Booking Card ── */
+.booking-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.booking-card:last-child { margin-bottom: 0; }
+
+.booking-card:hover {
+    border-color: var(--gold-border);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+    transform: translateY(-1px);
+}
+
+.bc-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.bc-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--light-gold);
+    margin: 0 0 3px;
+    line-height: 1.2;
+}
+
+.bc-phone {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.15s;
+}
+
+.bc-phone:hover { color: var(--light-gold); }
+
+.badge-pill {
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.badge-success { background: rgba(34,197,94,0.12); color: var(--success); border: 1px solid rgba(34,197,94,0.22); }
+.badge-danger  { background: rgba(239,68,68,0.12);  color: var(--danger);  border: 1px solid rgba(239,68,68,0.22); }
+
+/* Meta rows */
+.bc-meta {
+    padding: 0.85rem 1.25rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.meta-item {}
+.meta-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 1px;
+}
+.meta-val {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-light);
+    line-height: 1.3;
+}
+
+.meta-item.full { grid-column: 1 / -1; }
+
+/* Costume section */
+.bc-costumes {
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.bc-costumes-title {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.65rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.costume-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.costume-row:last-child { border-bottom: none; padding-bottom: 0; }
+.costume-row:first-child { padding-top: 0; }
+
+.code-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 50px;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-border);
+    color: var(--gold);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: all 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.code-tag:hover {
+    background: var(--gold);
+    color: #0a1929 !important;
+    box-shadow: 0 2px 10px rgba(212,175,55,0.28);
+}
+
+.handover-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+}
+
+.handover-line {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    line-height: 1.3;
+}
+
+.h-label {
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.h-name-link {
+    color: var(--light-gold);
+    font-weight: 600;
+    text-decoration: none !important;
+    font-size: 0.72rem;
+    transition: color 0.15s;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.h-name-link:hover { color: var(--gold); text-decoration: underline !important; }
+
+.h-phone-link {
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    text-decoration: none !important;
+    transition: color 0.15s;
+    flex-shrink: 0;
+}
+
+.h-phone-link:hover { color: var(--light-gold); }
+
+.h-free {
+    color: var(--success);
+    font-size: 0.72rem;
+    font-weight: 500;
+}
+
+/* Financial Footer */
+.bc-fin {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 0.75rem 1.25rem;
+    background: rgba(0,0,0,0.15);
+}
+
+.fin-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 0 0.5rem;
+}
+
+.fin-item + .fin-item {
+    border-left: 1px solid var(--border);
+}
+
+.fin-label {
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+
+.fin-val {
+    font-size: 0.88rem;
+    font-weight: 800;
+}
+
+/* ── Divider with icon ── */
+.status-icon {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.55rem;
+}
+
+/* ── Ghost Button ── */
+.btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--gold-border);
+    background: transparent;
+    color: var(--gold);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    transition: all 0.2s;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-ghost:hover {
+    background: var(--gold);
+    color: #0a1929 !important;
+    border-color: var(--gold);
+}
+
+/* ── Empty States ── */
+.empty-state {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.empty-state-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.5;
+}
+
+.empty-state-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-light);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+}
+
+.empty-state-desc {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+    .cal-grid {
+        grid-template-columns: 1fr;
+    }
+    .sidebar-scroll {
+        max-height: none;
+        overflow-y: visible;
+    }
+}
+
+@media (max-width: 600px) {
+    .cal-page { padding: 1rem 1rem 4rem; }
+    .page-title { font-size: 1.25rem; }
+    .bc-meta { grid-template-columns: 1fr; }
+}
+</style>
 {% endblock %}
 
 {% block content %}
+<div class="cal-page">
 
-<style>
-    /* ===== Default Table Cell Styling ===== */
- .tprice-label {
-            background-color: rgba(33, 150, 243, 0.15);
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-weight: bold;
-            color: #2b3ddb;
-        }
-.gprice-label {
-            background-color: rgba(33, 150, 243, 0.15);
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-weight: bold;
-            color: #f08832;
-        }
-.rprice-label {
-            background-color: rgba(33, 150, 243, 0.15);
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-weight: bold;
-            color: #e95353;
-        }
-.costume-label {
-            background-color: rgba(230, 189, 55, 0.226);
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-weight: bold;
-            color: #7e6d0c;
-        }
-
-
-    
-</style>
-<div class="container py-5">
-    <h2 class="mb-4 text-center">
-        <i class="bi bi-calendar3"></i> 🗓️ Booking Calendar
-    </h2>
-
-    <form method="POST" class="mb-4" id="dateForm">
-    <div class="input-group">
-        <input type="date" name="date" class="form-control dark-mode-input" required id="dateInput">
-        <button type="submit" class="btn btn-primary dark-mode-btn">Search Bookings</button>
+    <!-- ── Page Header ─────────────────────────────────────── -->
+    <div class="page-hd">
+        <div class="page-hd-left">
+            <div class="page-hd-icon">
+                <i class="fa-solid fa-calendar-days"></i>
+            </div>
+            <div>
+                <div class="page-eyebrow">Image Traditional &mdash; Rental Management</div>
+                <h1 class="page-title">Booking Calendar</h1>
+                <div class="page-subtitle">Track costume reservations and daily back-to-back handovers across Navaratri</div>
+            </div>
+        </div>
+        {% if date and bookings %}
+        <a href="{{ url_for('navaratri.export_calendar_bookings', date=date) }}" class="btn-ghost">
+            <i class="fa-solid fa-file-arrow-down"></i> Export CSV
+        </a>
+        {% endif %}
     </div>
-</form>
+
+    <!-- ── Two-Column Grid ─────────────────────────────────── -->
+    <div class="cal-grid">
+
+        <!-- Left: Calendar Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title">
+                    <span class="panel-title-dot"></span>
+                    Navaratri Schedule
+                </h2>
+            </div>
+            <div class="panel-body">
+                <div id="calendar"></div>
+            </div>
+        </div>
+
+        <!-- Right: Bookings Sidebar -->
+        <div class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title">
+                    <span class="panel-title-dot"></span>
+                    {% if date %}
+                        Bookings &mdash; {{ date }}
+                    {% else %}
+                        Reservations
+                    {% endif %}
+                </h2>
+                {% if date and bookings %}
+                <a href="{{ url_for('navaratri.export_calendar_bookings', date=date) }}" class="btn-ghost">
+                    <i class="fa-solid fa-file-arrow-down"></i> CSV
+                </a>
+                {% endif %}
+            </div>
+            <div class="panel-body">
+
+                {% if date %}
+                    {% if bookings %}
+
+                        <!-- KPI Strip -->
+                        {% set b2b = namespace(count=0) %}
+                        {% for b in bookings %}
+                            {% for p in b.products %}
+                                {% if p.yesterday %}{% set b2b.count = b2b.count + 1 %}{% endif %}
+                            {% endfor %}
+                        {% endfor %}
+
+                        <div class="kpi-strip">
+                            <div class="kpi">
+                                <div class="kpi-icon gold"><i class="fa-solid fa-ticket"></i></div>
+                                <div>
+                                    <div class="kpi-val gold">{{ bookings | length }}</div>
+                                    <div class="kpi-label">Reservations</div>
+                                </div>
+                            </div>
+                            <div class="kpi">
+                                <div class="kpi-icon red"><i class="fa-solid fa-arrows-spin"></i></div>
+                                <div>
+                                    <div class="kpi-val red">{{ b2b.count }}</div>
+                                    <div class="kpi-label">B2B Handovers</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Booking Cards -->
+                        <div class="sidebar-scroll">
+                            {% for b in bookings %}
+                            <div class="booking-card" onclick="window.location.href='{{ url_for('navaratri.profile', customer_id=b.id) }}'">
+
+                                <!-- Top: Name + Badge -->
+                                <div class="bc-top">
+                                    <div>
+                                        <div class="bc-name">{{ b.Name }}</div>
+                                        <a href="tel:{{ b.mobile }}" class="bc-phone" onclick="event.stopPropagation();">
+                                            <i class="fa-solid fa-phone" style="font-size:0.6rem;"></i> {{ b.mobile }}
+                                        </a>
+                                    </div>
+                                    {% if b.deposit and b.deposit != "Not provided" %}
+                                        <span class="badge-pill badge-success">{{ b.deposit }}</span>
+                                    {% else %}
+                                        <span class="badge-pill badge-danger">No Deposit</span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Meta Grid -->
+                                <div class="bc-meta">
+                                    {% if b.group %}
+                                    <div class="meta-item">
+                                        <div class="meta-label">Group</div>
+                                        <div class="meta-val">{{ b.group }}</div>
+                                    </div>
+                                    {% endif %}
+                                    {% if b.reference %}
+                                    <div class="meta-item">
+                                        <div class="meta-label">Reference</div>
+                                        <div class="meta-val">{{ b.reference }}</div>
+                                    </div>
+                                    {% endif %}
+                                    {% if b.address %}
+                                    <div class="meta-item full">
+                                        <div class="meta-label">Address</div>
+                                        <div class="meta-val">{{ b.address }}</div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Costume Handover Tracker -->
+                                <div class="bc-costumes">
+                                    <div class="bc-costumes-title">
+                                        <i class="fa-solid fa-shirt" style="color:var(--gold);font-size:0.7rem;"></i>
+                                        Handover &amp; Return Tracker
+                                    </div>
+
+                                    {% for p in b.products %}
+                                    <div class="costume-row">
+                                        <a href="{{ url_for('navaratri.code_detail', code=p.code) }}" class="code-tag" onclick="event.stopPropagation();">
+                                            <i class="fa-solid fa-tag" style="font-size:0.58rem;"></i>{{ p.code }}
+                                        </a>
+
+                                        <div class="handover-info">
+                                            <!-- Yesterday -->
+                                            <div class="handover-line">
+                                                {% if p.yesterday %}
+                                                    <i class="fa-solid fa-circle-exclamation" style="color:var(--danger);font-size:0.65rem;flex-shrink:0;"></i>
+                                                    <span class="h-label">Yest:</span>
+                                                    <a href="{{ url_for('navaratri.profile', customer_id=p.yesterday.id) }}" class="h-name-link" onclick="event.stopPropagation();">{{ p.yesterday.name }}</a>
+                                                    <a href="tel:{{ p.yesterday.mobile }}" class="h-phone-link" onclick="event.stopPropagation();">({{ p.yesterday.mobile }})</a>
+                                                {% else %}
+                                                    <i class="fa-solid fa-circle-check" style="color:var(--success);font-size:0.65rem;flex-shrink:0;"></i>
+                                                    <span class="h-free">In shop — ready</span>
+                                                {% endif %}
+                                            </div>
+                                            <!-- Tomorrow -->
+                                            <div class="handover-line">
+                                                {% if p.tomorrow %}
+                                                    <i class="fa-solid fa-arrow-right" style="color:var(--info);font-size:0.65rem;flex-shrink:0;"></i>
+                                                    <span class="h-label">Tmrw:</span>
+                                                    <a href="{{ url_for('navaratri.profile', customer_id=p.tomorrow.id) }}" class="h-name-link" onclick="event.stopPropagation();">{{ p.tomorrow.name }}</a>
+                                                {% else %}
+                                                    <i class="fa-solid fa-circle-check" style="color:var(--success);font-size:0.65rem;flex-shrink:0;"></i>
+                                                    <span class="h-free">Free tomorrow</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Financials -->
+                                <div class="bc-fin">
+                                    <div class="fin-item">
+                                        <span class="fin-label">Total</span>
+                                        <span class="fin-val" style="color:var(--text-light);">₹{{ b.total_price }}</span>
+                                    </div>
+                                    <div class="fin-item">
+                                        <span class="fin-label">Paid</span>
+                                        <span class="fin-val" style="color:var(--success);">₹{{ b.given_price }}</span>
+                                    </div>
+                                    <div class="fin-item">
+                                        <span class="fin-label">Due</span>
+                                        {% if b.remaining > 0 %}
+                                            <span class="fin-val" style="color:var(--danger);">₹{{ b.remaining }}</span>
+                                        {% else %}
+                                            <span class="fin-val" style="color:var(--success);font-size:0.72rem;display:flex;align-items:center;gap:3px;">
+                                                <i class="fa-solid fa-circle-check" style="font-size:0.65rem;"></i> Cleared
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i class="fa-solid fa-calendar-xmark"></i></div>
+                            <div class="empty-state-title">No Bookings</div>
+                            <div class="empty-state-desc">No reservations found for <strong style="color:var(--light-gold);">{{ date }}</strong>. Try selecting another date.</div>
+                        </div>
+                    {% endif %}
+
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="fa-solid fa-hand-pointer"></i></div>
+                        <div class="empty-state-title">Select a Date</div>
+                        <div class="empty-state-desc">Click any date on the calendar to load costume reservations for that day.</div>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+</div>
 
 <script>
-    // Auto-submit form on date change
-    const dateInput = document.getElementById('dateInput');
-    const dateForm = document.getElementById('dateForm');
+document.addEventListener('DOMContentLoaded', () => {
+    const calendarEl = document.getElementById('calendar');
+    const initialDateStr = "{{ iso_date or '' }}";
 
-    dateInput.addEventListener('change', function() {
-        dateForm.submit();
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        initialDate: initialDateStr || undefined,
+        height: 'auto',
+        aspectRatio: 1.5,
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,dayGridWeek'
+        },
+        dateClick: info => {
+            location.href = '?date=' + info.dateStr;
+        },
+        events: {{ booked_dates|tojson }}.map(d => ({
+            start: d,
+            display: 'background'
+        }))
     });
+
+    calendar.render();
+});
 </script>
-
-
-    {% if date %}
-        <h4 class="heading" style="color: rgb(77, 161, 46);">Bookings for <strong>{{ date }}</strong></h4>
-
-        {% if bookings %}
-            <div class="row">
-                <!-- Regular Bookings -->
-                {% set regular_bookings = bookings | selectattr('products', 'defined') | list %}
-                {% if regular_bookings %}
-                <div class="col-12 mb-4">
-                    <h5 class="text-primary">
-                        <i class="bi bi-bag"></i> Traditional Bookings ({{ regular_bookings | length }})
-                    </h5>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped dark-mode-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Mobile</th>
-                                    <th>Address</th>
-                                    <th>Deposit</th>
-                                    <th>Group</th>
-                                    <th>Reference</th>
-                                    <th>Products</th>
-                                    <th>Total Price</th>
-                                    <th>Given Price</th>
-                                    <th>Remaining</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for b in regular_bookings %}
-                                <tr class="table-row" <tr class="table-row" style="cursor: pointer;"
-    onclick="window.location.href='{{ url_for('navaratri.profile', mobile=b.mobile) }}'">
-                                    <td><strong>{{ b.Name }}</strong></td>
-                                    <td>
-                                        <a href="tel:{{ b.mobile }}" class="text-decoration-none">
-                                            <i class="bi bi-telephone"></i> {{ b.mobile }}
-                                        </a>
-                                    </td>
-                                    <td>{{ b.address }}</td>
-                                    <td>
-                                        {% if b.deposit != "Not provided" %}
-                                            <span class="badge bg-success">{{ b.deposit }}</span>
-                                        {% else %}
-                                            <span class="badge bg-warning">{{ b.deposit }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ b.group }}</td>
-                                    <td>{{ b.reference }}</td>
-                                    <td>
-    {% if b.products %}
-        <ul class="list-unstyled mb-0">
-            {% for product in b.products %}
-                <li>
-                    <i class="bi bi-box"></i> 
-                    <a href="{{ url_for('navaratri.code_detail', code=product) }}" class="text-decoration-none">
-                        {{ product }}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <em class="text-muted">No products</em>
-    {% endif %}
-</td>
-
-                                    <td>
-                                        <span class="tprice-label">₹{{ b.total_price }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="gprice-label">₹{{ b.given_price }}</span>
-                                    </td>
-                                    <td>
-                                        {%if b.remaining > 0%}
-                                        <span class="rprice-label">₹{{ b.remaining }}</span>
-                                        {% else %}
-                                        <span class="text-success">₹0</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Fancy Bookings -->
-                {% set fancy_bookings = bookings | rejectattr('products', 'defined') | list %}
-                {% if fancy_bookings %}
-                <div class="col-12 mb-4">
-                    <h5 class="text-info">
-                        <i class="bi bi-star"></i> Fancy Dress Bookings ({{ fancy_bookings | length }})
-                    </h5>
-                    
-                    <!-- Legend -->
-                    <div class="alert alert-info mb-3" role="alert">
-                        <small>
-                            <strong>Color Guide:</strong>
-                            <span class="badge bg-success ms-2">START</span> Booking starts today
-                            <span class="badge bg-danger ms-2">END</span> Booking ends today
-                        </small>
-                    </div>
-                    
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped dark-mode-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Mobile</th>
-                                    <th>Address</th>
-                                    <th>Date Range</th>
-                                    <th>Price</th>
-                                    <th>Costume</th>
-                                    <th>Details</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for b in fancy_bookings %}
-                                <tr class="{% if b.date_match_type == 'start' %}booking-start-date{% elif b.date_match_type == 'end' %}booking-end-date{% elif b.date_match_type == 'both' %}booking-same-date{% endif %}">
-                                    <td><strong>{{ b.Name }}</strong></td>
-                                    <td>
-                                        <a href="tel:{{ b.mobile }}" class="text-decoration-none">
-                                            <i class="bi bi-telephone"></i> {{ b.mobile }}
-                                        </a>
-                                    </td>
-                                    <td>{{ b.address }}</td>
-                                    <td>
-                                        <small>
-                                            <strong>Start:</strong> {{ b.start_date }}
-                                            {% if b.date_match_type == 'start' or b.date_match_type == 'both' %}
-                                                <span class="badge bg-success ms-1">START</span>
-                                            {% endif %}
-                                            <br>
-                                            <strong>End:</strong> {{ b.end_date }}
-                                            {% if b.date_match_type == 'end' or b.date_match_type == 'both' %}
-                                                <span class="badge bg-danger ms-1">END</span>
-                                            {% endif %}
-                                        </small>
-                                    </td>
-                                    <td>
-                                        {% if b.price and b.price != 0 %}
-                                            <span class="price-label" >₹{{ b.price }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if b.costume %}
-                                            <span class="costume-label">{{ b.costume }}</span>
-                                        {% else %}
-                                            <em class="text-muted">No costume</em>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if b.details %}
-                                            <small>{{ b.details }}</small>
-                                        {% else %}
-                                            <em class="text-muted">No details</em>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Summary Card -->
-            <div class="card mt-4 dark-mode-card">
-                <div class="card-header">
-                    <h6 class="mb-0"><i class="bi bi-graph-up"></i> Booking Summary</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-4">
-                            <h4 class="text-primary">{{ bookings | length }}</h4>
-                            <small>Total Bookings</small>
-                        </div>
-                        <div class="col-md-4">
-                            <h4 class="text-success">{{ regular_bookings | length }}</h4>
-                            <small>Traditional Bookings</small>
-                        </div>
-                        <div class="col-md-4">
-                            <h4 class="text-info">{{ fancy_bookings | length }}</h4>
-                            <small>Fancy Dress Bookings</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        {% else %}
-            <div class="alert alert-warning" role="alert">
-                <i class="bi bi-exclamation-triangle"></i> No bookings found for {{ date }}.
-            </div>
-        {% endif %}
-    {% else %}
-        <div class="text-center mt-5">
-            <i class="bi bi-calendar-check" style="font-size: 3rem; color: var(--muted);"></i>
-            <p class="mt-3 text-muted">Select a date above to view bookings</p>
-        </div>
-    {% endif %}
-</div>
 {% endblock %}

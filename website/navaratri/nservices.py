@@ -35,4 +35,60 @@ from website.general.utils import (
 )
 
 def get_all_product_counts():
-    return _get_all_product_counts(collection)
+    return _get_all_product_counts(collection)
+
+
+def log_action(name, mobile, action, details):
+    """
+    Log an action for the Navaratri portal.
+    Logs are stored in a collection specific to the selected cycle: f"{collection_name}_logs".
+    """
+    from datetime import datetime
+    from website.general.db import db
+    from website.navaratri.ncycle import get_selected_cycle
+
+    cycle = get_selected_cycle()
+    if not cycle:
+        return
+
+    collection_name = cycle.get("collection_name")
+    if not collection_name:
+        return
+
+    logs_col = db[f"{collection_name}_logs"]
+
+    # Try to find the name if it is not provided
+    if not name and mobile:
+        try:
+            # First search selected cycle collection
+            cust = db[collection_name].find_one({"mobile": mobile})
+            if cust:
+                name = cust.get("Name") or cust.get("name")
+            else:
+                # Fallback to general navaratri customers
+                from website.general.db import ncustomers
+                cust = ncustomers.find_one({"mobile": mobile})
+                if cust:
+                    name = cust.get("name") or cust.get("Name")
+        except Exception:
+            pass
+
+    now = datetime.now()
+    date_stamp = now.strftime("%Y-%m-%d")
+    time_stamp = now.strftime("%H:%M:%S")
+
+    log_entry = {
+        "name": name or "",
+        "mobile": mobile or "",
+        "action": action,
+        "details": details,
+        "date_stamp": date_stamp,
+        "time_stamp": time_stamp,
+        "timestamp": now
+    }
+
+    try:
+        logs_col.insert_one(log_entry)
+    except Exception:
+        pass
+

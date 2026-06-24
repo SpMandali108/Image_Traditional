@@ -157,6 +157,13 @@ def book():
             {"$set": {"qr_url": qr_url}}
         )
 
+        try:
+            details_list = [f"{b['date']}: {b['products']}" for b in bookings_data]
+            details = f"Booked products: {', '.join(details_list)}. Total: ₹{total_price}, Paid: ₹{given_price_val}."
+            log_action(Name, mobile, "book", details)
+        except Exception:
+            pass
+
         flash("✅ Booking successful!", "success")
         return redirect(url_for('navaratri.QR', mobile=mobile))
 
@@ -173,46 +180,101 @@ def calendar():
     if not session.get('logged_in'):
         return redirect(url_for('navaratri.login'))
 
-    date = None
+    date = request.args.get('date') or request.form.get('date')
     bookings_on_date = []
 
-    if request.method == 'POST':
-        date = request.form.get('date')  # Example: "2025-08-29"
-        if date:
+    # Gather all booked dates for highlights
+    booked_dates = set()
+    try:
+        for doc in collection.find():
+            bookings = doc.get("bookings", {})
+            for date_key in bookings.keys():
+                if date_key not in ("given_price", "total_price"):
+                    try:
+                        date_obj = datetime.strptime(date_key, "%d-%m-%y")
+                        booked_dates.add(date_obj.strftime("%Y-%m-%d"))
+                    except ValueError:
+                        pass
+    except Exception as e:
+        current_app.logger.error(f"Error gathering booked dates: {e}")
+
+    selected_date_obj = None
+    if date:
+        try:
+            # Convert YYYY-MM-DD → Date object
+            selected_date_obj = datetime.strptime(date, "%Y-%m-%d")
+            formatted_date = selected_date_obj.strftime("%d-%m-%y")
+        except ValueError:
             try:
-                # Convert YYYY-MM-DD → DD-MM-YY
-                date_obj = datetime.strptime(date, "%Y-%m-%d")
-                formatted_date = date_obj.strftime("%d-%m-%y")
+                selected_date_obj = datetime.strptime(date, "%d-%m-%y")
+                formatted_date = date
             except ValueError:
-                # If already DD-MM-YY
-                formatted_date = date  
+                selected_date_obj = None
+                formatted_date = date
 
-            current_app.logger.debug(f"DEBUG: input = {date}")
-            current_app.logger.debug(f"DEBUG: formatted = {formatted_date}")
-
-            # ✅ Use formatted_date for querying Mongo
-            customers = collection.find({f"bookings.{formatted_date}": {"$exists": True}})
+        if selected_date_obj:
+            from datetime import timedelta
+            yesterday_date_str = (selected_date_obj - timedelta(days=1)).strftime("%d-%m-%y")
+            tomorrow_date_str = (selected_date_obj + timedelta(days=1)).strftime("%d-%m-%y")
             
-            bookings_on_date = []
+            # Fetch bookings for yesterday and tomorrow to map back-to-back rentals
+            yesterday_customers = list(collection.find({f"bookings.{yesterday_date_str}": {"$exists": True}}))
+            tomorrow_customers = list(collection.find({f"bookings.{tomorrow_date_str}": {"$exists": True}}))
+            
+            yesterday_map = {}
+            for yc in yesterday_customers:
+                y_prods = yc.get("bookings", {}).get(yesterday_date_str, [])
+                for yp in y_prods:
+                    yesterday_map[yp] = {
+                        "name": yc.get("Name", "Unknown"),
+                        "mobile": yc.get("mobile", ""),
+                        "id": str(yc["_id"])
+                    }
+                    
+            tomorrow_map = {}
+            for tc in tomorrow_customers:
+                t_prods = tc.get("bookings", {}).get(tomorrow_date_str, [])
+                for tp in t_prods:
+                    tomorrow_map[tp] = {
+                        "name": tc.get("Name", "Unknown"),
+                        "mobile": tc.get("mobile", ""),
+                        "id": str(tc["_id"])
+                    }
+            
+            # Fetch current day's bookings
+            customers = collection.find({f"bookings.{formatted_date}": {"$exists": True}})
             for c in customers:
+                prods = c["bookings"].get(formatted_date, [])
+                prods_details = []
+                for p in prods:
+                    prods_details.append({
+                        "code": p,
+                        "yesterday": yesterday_map.get(p),
+                        "tomorrow": tomorrow_map.get(p)
+                    })
+                
                 entry = {
+                    "id": str(c["_id"]),
                     "Name": c.get("Name"),
                     "mobile": c.get("mobile"),
                     "address": c.get("address", ""),
                     "deposit": c.get("deposit", "Not provided"),
                     "group": c.get("group", ""),
                     "reference": c.get("reference", ""),
-                    "products": c["bookings"].get(formatted_date, []),
+                    "products": prods_details,
                     "total_price": c.get("total_price", 0),
                     "given_price": c.get("given_price", 0),
                     "remaining": c.get("total_price", 0) - c.get("given_price", 0)
                 }
                 bookings_on_date.append(entry)
 
+    iso_date = selected_date_obj.strftime("%Y-%m-%d") if selected_date_obj else ""
     return render_template(
         "navaratri/calendar.html",
-        date=date,  # Keep original input date for display
-        bookings=bookings_on_date
+        date=date,
+        iso_date=iso_date,
+        bookings=bookings_on_date,
+        booked_dates=list(booked_dates)
     )
 
 @navaratri.route('/modify', methods=['GET', 'POST'])
@@ -293,6 +355,11 @@ def modify():
             }}
         )
 
+        try:
+            log_action(customer.get("Name"), mobile, "edit", f"Modified booking on {date}. Replaced products {old_products} with {new_products}. Price difference: ₹{price_diff}. New total: ₹{new_total_price}.")
+        except Exception:
+            pass
+
         flash(f"✅ Booking updated for {mobile} on {date}!", "success")
         return redirect(url_for('navaratri.modify'))
 
@@ -354,6 +421,11 @@ def pay_remaining():
             {"_id": customer["_id"]},
             {"$set": {"qr_url": qr_url}}
         )
+
+        try:
+            log_action(customer.get("Name"), mobile, "payment", f"Paid remaining amount: ₹{pay_amount_val}. New given price: ₹{new_given_price} of total ₹{total_price}.")
+        except Exception:
+            pass
 
         return redirect(url_for('navaratri.QR', mobile=mobile))
 
@@ -447,6 +519,11 @@ def delete():
                 "total_price": new_price
             }}
         )
+
+        try:
+            log_action(customer.get("Name"), mobile, "delete", f"Deleted product '{product}' on {date}. Reduced price by ₹{price_diff}. New total: ₹{new_price}.")
+        except Exception:
+            pass
 
         flash(f"✅ Product '{product}' removed from booking on {date}. Price reduced by {price_diff}.", "success")
         return redirect(url_for('navaratri.delete'))
@@ -663,6 +740,14 @@ def profile_update():
         },
         upsert=True
     )
+
+    try:
+        if customer_id and customer_id != 'new':
+            log_action(name, mobile, "edit", f"Updated customer profile via profile page. Total: ₹{total_price}, Given: ₹{given_price}. Bookings: {formatted_bookings}")
+        else:
+            log_action(name, mobile, "book", f"Created customer profile via profile page. Total: ₹{total_price}, Given: ₹{given_price}. Bookings: {formatted_bookings}")
+    except Exception:
+        pass
         
     return jsonify({"success": True, "message": message, "customer_id": ret_id})
 
@@ -703,6 +788,11 @@ def profile_add_payment():
             {"_id": ObjectId(customer_id)},
             {"$set": {"given_price": new_given_price}}
         )
+
+        try:
+            log_action(customer.get("Name"), customer.get("mobile"), "payment", f"Added payment of ₹{amount} via profile page. New given price: ₹{new_given_price} of total ₹{total_price}.")
+        except Exception:
+            pass
 
         return jsonify({
             "success": True,
@@ -775,6 +865,12 @@ def profile_reassign():
         {"_id": ObjectId(customer_id)},
         {"$set": {"bookings": bookings, "total_price": new_total}}
     )
+
+    try:
+        log_action(customer.get("Name"), customer.get("mobile"), "edit", f"Reassigned product from '{old_product}' on {old_date_formatted} to '{new_product}' on {new_date_formatted}. Price difference: ₹{price_diff_str}. New total: ₹{new_total}.")
+    except Exception:
+        pass
+
     return jsonify({"success": True, "message": "✅ Product reassigned successfully!"})
 
 # ------------------ API: Add Single Booking Row ------------------
@@ -824,6 +920,12 @@ def profile_add_booking():
         {"_id": ObjectId(customer_id)},
         {"$set": {"bookings": bookings, "total_price": new_total}}
     )
+
+    try:
+        log_action(customer.get("Name"), customer.get("mobile"), "book", f"Added booking of product '{product}' on {date_formatted} via profile page. Price difference: ₹{price_diff_str}. New total: ₹{new_total}.")
+    except Exception:
+        pass
+
     return jsonify({"success": True, "message": "✅ Booking added successfully!"})
 
 # ------------------ API: Delete Single Booking Row ------------------
@@ -870,6 +972,12 @@ def profile_delete_booking():
         {"_id": ObjectId(customer_id)},
         {"$set": {"bookings": bookings, "total_price": new_total}}
     )
+
+    try:
+        log_action(customer.get("Name"), customer.get("mobile"), "delete", f"Deleted booking row of product '{product}' on {date_formatted} via profile page. Price reduced by ₹{price_diff_str}. New total: ₹{new_total}.")
+    except Exception:
+        pass
+
     return jsonify({"success": True, "message": "✅ Booking row deleted successfully!"})
 
 @navaratri.route('/check', methods=['GET', 'POST'])
@@ -1285,6 +1393,11 @@ def download_customer():
 
     filename = f"{customer.get('Name', 'customer')}_Profile.pdf"
 
+    try:
+        log_action(customer.get("Name"), customer.get("mobile"), "bill_download", f"Downloaded rental booking bill/invoice: {filename}.")
+    except Exception:
+        pass
+
     return send_file(
         pdf_buffer,
         as_attachment=True,
@@ -1437,6 +1550,93 @@ def export_bookings():
     )
 
 
+@navaratri.route("/export-calendar-bookings")
+def export_calendar_bookings():
+    if not session.get('logged_in'):
+        return redirect(url_for('navaratri.login'))
+
+    date = request.args.get("date", "").strip()
+    if not date:
+        return "No date provided", 400
+
+    try:
+        from datetime import timedelta
+        date_obj = datetime.strptime(date, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d-%m-%y")
+    except ValueError:
+        return "Invalid date format. Expected YYYY-MM-DD", 400
+
+    # Calculate yesterday's and tomorrow's date strings
+    yesterday_obj = date_obj - timedelta(days=1)
+    yesterday_date_str = yesterday_obj.strftime("%d-%m-%y")
+    
+    tomorrow_obj = date_obj + timedelta(days=1)
+    tomorrow_date_str = tomorrow_obj.strftime("%d-%m-%y")
+
+    # Query MongoDB for bookings on formatted_date, yesterday, and tomorrow
+    customers = list(collection.find({f"bookings.{formatted_date}": {"$exists": True}}))
+    yesterday_customers = list(collection.find({f"bookings.{yesterday_date_str}": {"$exists": True}}))
+    tomorrow_customers = list(collection.find({f"bookings.{tomorrow_date_str}": {"$exists": True}}))
+    
+    # Map product codes to yesterday's renter details
+    yesterday_map = {}
+    for yc in yesterday_customers:
+        y_prods = yc.get("bookings", {}).get(yesterday_date_str, [])
+        for yp in y_prods:
+            yesterday_map[yp] = {
+                "name": yc.get("Name", "Unknown"),
+                "mobile": yc.get("mobile", "N/A")
+            }
+            
+    # Map product codes to tomorrow's renter details
+    tomorrow_map = {}
+    for tc in tomorrow_customers:
+        t_prods = tc.get("bookings", {}).get(tomorrow_date_str, [])
+        for tp in t_prods:
+            tomorrow_map[tp] = {
+                "name": tc.get("Name", "Unknown"),
+                "mobile": tc.get("mobile", "N/A")
+            }
+
+    # Prepare CSV fieldnames matching the web dashboard
+    fieldnames = [
+        "Customer Name", 
+        "Customer Mobile", 
+        "Product Code", 
+        "Booked Yesterday", 
+        "Booked Tomorrow"
+    ]
+
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=fieldnames)
+    writer.writeheader()
+
+    for c in customers:
+        products = c.get("bookings", {}).get(formatted_date, [])
+        for product in products:
+            y_info = yesterday_map.get(product)
+            t_info = tomorrow_map.get(product)
+
+            row = {
+                "Customer Name": c.get("Name", "N/A"),
+                "Customer Mobile": c.get("mobile", "N/A"),
+                "Product Code": product,
+                "Booked Yesterday": f"{y_info['name']} - {y_info['mobile']}" if y_info else "",
+                "Booked Tomorrow": f"{t_info['name']} - {t_info['mobile']}" if t_info else ""
+            }
+            writer.writerow(row)
+
+    output.seek(0)
+    filename = f"Bookings_{date}.csv"
+
+    # Return CSV file response
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment;filename={filename}"}
+    )
+
+
 @navaratri.route("/download-bill", methods=["GET", "POST"])
 def download_bill_page():
     cust_id = request.args.get("id", "") or request.form.get("id", "")
@@ -1567,65 +1767,56 @@ def code_detail(code):
     if not session.get('logged_in'):
         return redirect(url_for('navaratri.login'))
 
-
     pipeline = [
-    {"$project": {
-        "Name": 1,
-        "mobile": 1,
-        "address": 1,
-        "deposit": 1,
-        "group": 1,
-        "reference": 1,
-        "given_price": 1,
-        "total_price": 1,
-        "bookingsArr": {"$objectToArray": "$bookings"}  # convert object to array
-    }},
-    {"$unwind": "$bookingsArr"},
-    {"$match": {"bookingsArr.v": {"$in": [code]}}}, 
-    {"$project": {
-        "dateStr": "$bookingsArr.k",
-        "day": {"$toInt": {"$substr": ["$bookingsArr.k", 0, 2]}},
-        "month": {"$toInt": {"$substr": ["$bookingsArr.k", 3, 2]}},
-        "year": {"$toInt": {"$concat": ["20", {"$substr": ["$bookingsArr.k", 6, 2]}]}},
-        "user": {
-            "Name": "$Name",
-            "mobile": "$mobile",
-            "address": "$address",
-            "group": "$group",
-            "reference": "$reference",
-            "deposit": "$deposit"
-        },
-        "given_price": "$given_price",
-        "total_price": "$total_price"
-    }},
-    {"$group": {
-        "_id": "$dateStr",
-        "year": {"$first": "$year"},
-        "month": {"$first": "$month"},
-        "day": {"$first": "$day"},
-        "bookings": {"$push": {
-            "user": "$user",
+        {"$project": {
+            "Name": 1,
+            "mobile": 1,
+            "address": 1,
+            "deposit": 1,
+            "group": 1,
+            "reference": 1,
+            "given_price": 1,
+            "total_price": 1,
+            "bookingsArr": {"$objectToArray": "$bookings"}  # convert object to array
+        }},
+        {"$unwind": "$bookingsArr"},
+        {"$match": {"bookingsArr.v": {"$in": [code]}}}, 
+        {"$project": {
+            "dateStr": "$bookingsArr.k",
+            "day": {"$toInt": {"$substr": ["$bookingsArr.k", 0, 2]}},
+            "month": {"$toInt": {"$substr": ["$bookingsArr.k", 3, 2]}},
+            "year": {"$toInt": {"$concat": ["20", {"$substr": ["$bookingsArr.k", 6, 2]}]}},
+            "user": {
+                "id": {"$toString": "$_id"},
+                "Name": "$Name",
+                "mobile": "$mobile",
+                "address": "$address",
+                "group": "$group",
+                "reference": "$reference",
+                "deposit": "$deposit"
+            },
             "given_price": "$given_price",
             "total_price": "$total_price"
+        }},
+        {"$group": {
+            "_id": "$dateStr",
+            "year": {"$first": "$year"},
+            "month": {"$first": "$month"},
+            "day": {"$first": "$day"},
+            "bookings": {"$push": {
+                "user": "$user",
+                "given_price": "$given_price",
+                "total_price": "$total_price"
+            }}
         }}
-    }}
-]
-
-
+    ]
 
     results = list(collection.aggregate(pipeline))
 
-# Sort in Python by year, month, day
+    # Sort in Python by year, month, day
     results.sort(key=lambda r: (r["year"], r["month"], r["day"]))
 
-# Prepare for template
-    bookings_by_date = [{"date": r["_id"], "bookings": r["bookings"]} for r in results]
-
-
-    if not results:
-        return render_template("navaratri/no_booking.html", code=code)
-
-    # simplify for template
+    # Prepare for template
     bookings_by_date = [{"date": r["_id"], "bookings": r["bookings"]} for r in results]
 
     # build image path (static/images/c1.jpg, k1.jpg etc.)
@@ -1635,6 +1826,18 @@ def code_detail(code):
         image_url = url_for("static", filename=f"Choli/{code}.webp")
     else:
         image_url = None
+
+    # Dynamic JSON Output handler for AJAX Costume Explorer
+    if request.args.get('json') == 'true' or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({
+            "success": True,
+            "code": code,
+            "image_url": image_url,
+            "bookings_by_date": bookings_by_date
+        })
+
+    if not results:
+        return render_template("navaratri/no_booking.html", code=code)
 
     return render_template(
         "navaratri/code.html",
@@ -2185,3 +2388,23 @@ def navaratri_customers_list():
         customers=customers,
         search=search
     )
+
+
+@navaratri.route("/navaratri_logs")
+def navaratri_logs():
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    selected_cycle = get_selected_cycle()
+    logs = []
+    if selected_cycle:
+        collection_name = selected_cycle.get("collection_name")
+        if collection_name:
+            logs_col = db[f"{collection_name}_logs"]
+            logs = list(logs_col.find().sort("timestamp", -1))
+
+    return render_template(
+        "navaratri/navaratri_logs.html",
+        logs=logs,
+        selected_cycle=selected_cycle
+    )

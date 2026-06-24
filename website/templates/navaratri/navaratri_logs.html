@@ -1,0 +1,515 @@
+{% extends "general/base.html" %}
+{% block title %}Action Logs - Navaratri Portal | Image Traditional{% endblock %}
+
+{% block logo_link %}
+<a href="/admin" class="logo">
+    <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Image Traditional Logo">
+    <span class="logo-text">Image Traditional</span>
+</a>
+{% endblock %}
+
+{% block robots %}
+<meta name="robots" content="noindex, nofollow" />
+{% endblock %}
+
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+:root {
+    --navy:     #0a1628;
+    --surface:  #0f1e32;
+    --card:     #111f33;
+    --card-h:   #152540;
+    --gold:     #d4af37;
+    --gold-lt:  #e8c84a;
+    --gold-dk:  #a88c2c;
+    --gold-bg:  rgba(212,175,55,.08);
+    --gold-bd:  rgba(212,175,55,.22);
+    --gold-bd-h:rgba(212,175,55,.5);
+    --white:    #f0f4f8;
+    --text:     #b8c5d4;
+    --muted:    #5e7490;
+    --border:   rgba(255,255,255,.07);
+
+    /* Action Colors */
+    --c-book:       #10b981;
+    --c-book-bg:    rgba(16,185,129,.1);
+    --c-book-bd:    rgba(16,185,129,.25);
+
+    --c-edit:       #f5a623;
+    --c-edit-bg:    rgba(245,166,35,.1);
+    --c-edit-bd:    rgba(245,166,35,.25);
+
+    --c-delete:     #ef4444;
+    --c-delete-bg:  rgba(239,68,68,.1);
+    --c-delete-bd:  rgba(239,68,68,.25);
+
+    --c-payment:    #3b82f6;
+    --c-payment-bg: rgba(59,130,246,.1);
+    --c-payment-bd: rgba(59,130,246,.25);
+
+    --c-bill:       #8b5cf6;
+    --c-bill-bg:    rgba(139,92,246,.1);
+    --c-bill-bd:    rgba(139,92,246,.25);
+
+    --r4: 4px; --r8: 8px; --r12: 12px;
+    --t: .18s ease;
+}
+
+.adm {
+    min-height: calc(100vh - 80px);
+    background: var(--navy);
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+}
+
+/* ── TOPBAR ── */
+.adm-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--gold-bd);
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.adm-brand {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+}
+
+.adm-brand-icon {
+    width: 32px; height: 32px;
+    background: var(--gold-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r8);
+    display: grid; place-items: center;
+    font-size: 1rem;
+}
+
+.adm-brand h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: .2px;
+}
+
+.adm-brand h1 span { color: var(--gold); }
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .35rem .9rem;
+    background: transparent;
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r4);
+    color: var(--gold);
+    font-size: .78rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: var(--t);
+}
+.back-btn:hover { background: var(--gold-bg); border-color: var(--gold-bd-h); color: var(--gold-lt); }
+
+/* ── BODY ── */
+.adm-body { padding: 1.75rem 2rem 3rem; }
+
+/* ── COUNTER CARDS ── */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r12);
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 4px; height: 100%;
+}
+
+.stat-all::before { background: var(--gold); }
+.stat-book::before { background: var(--c-book); }
+.stat-edit::before { background: var(--c-edit); }
+.stat-delete::before { background: var(--c-delete); }
+.stat-payment::before { background: var(--c-payment); }
+.stat-bill::before { background: var(--c-bill); }
+
+.stat-label {
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.stat-val {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-top: .25rem;
+}
+
+/* ── SEARCH & FILTER BAR ── */
+.filter-row {
+    background: var(--card);
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r12);
+    padding: .85rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+}
+
+.f-input, .f-select {
+    padding: .5rem .85rem;
+    background: rgba(10,22,40,.8);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: var(--r8);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: .8rem;
+    outline: none;
+    transition: var(--t);
+}
+.f-input:focus, .f-select:focus { border-color: var(--gold-bd-h); }
+.f-select { cursor: pointer; }
+.f-select option { background: #0d1b2a; }
+
+.search-box { flex: 1; min-width: 200px; }
+
+/* ── LOGS TABLE CONTAINER ── */
+.logs-container {
+    background: var(--card);
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r12);
+    overflow: hidden;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.logs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .82rem;
+    text-align: left;
+}
+
+.logs-table th {
+    background: var(--surface);
+    color: var(--white);
+    font-weight: 600;
+    padding: .85rem 1.1rem;
+    border-bottom: 1px solid var(--gold-bd);
+    white-space: nowrap;
+}
+
+.logs-table td {
+    padding: .85rem 1.1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    line-height: 1.5;
+}
+
+.logs-table tr:hover td {
+    background: var(--card-h);
+}
+
+.logs-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Action Badges */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .2rem .6rem;
+    border-radius: var(--r4);
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+}
+
+.badge-book { background: var(--c-book-bg); color: var(--c-book); border: 1px solid var(--c-book-bd); }
+.badge-edit { background: var(--c-edit-bg); color: var(--c-edit); border: 1px solid var(--c-edit-bd); }
+.badge-delete { background: var(--c-delete-bg); color: var(--c-delete); border: 1px solid var(--c-delete-bd); }
+.badge-payment { background: var(--c-payment-bg); color: var(--c-payment); border: 1px solid var(--c-payment-bd); }
+.badge-bill_download { background: var(--c-bill-bg); color: var(--c-bill); border: 1px solid var(--c-bill-bd); }
+
+/* Details text column */
+.details-col {
+    color: var(--white);
+    max-width: 450px;
+    word-break: break-word;
+}
+
+.cust-name {
+    font-weight: 600;
+    color: var(--white);
+}
+
+.cust-mobile {
+    font-family: monospace;
+    color: var(--muted);
+    font-size: .78rem;
+}
+
+.timestamp-col {
+    white-space: nowrap;
+    color: var(--text);
+}
+
+.timestamp-date {
+    font-weight: 500;
+}
+
+.timestamp-time {
+    color: var(--muted);
+    font-size: .75rem;
+}
+
+.no-logs {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--muted);
+}
+
+.no-logs i {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: .5rem;
+    color: var(--gold-bd);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+    .adm-nav { padding: 0 1rem; height: auto; padding-top: .5rem; padding-bottom: .5rem; }
+    .adm-body { padding: 1.25rem 1rem 2rem; }
+    .filter-row { flex-direction: column; align-items: stretch; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+    .stats-row { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="adm animate__animated animate__fadeIn">
+
+    <!-- NAV -->
+    <nav class="adm-nav">
+        <div class="adm-brand">
+            <div class="adm-brand-icon">📜</div>
+            <h1>Navaratri Action Logs <span>({{ selected_cycle.name if selected_cycle else 'No Cycle' }})</span></h1>
+        </div>
+        <a href="/navaratri_admin" class="back-btn">← Back to Admin</a>
+    </nav>
+
+    <div class="adm-body">
+
+        <!-- STATS / COUNTERS -->
+        <div class="stats-row">
+            <div class="stat-card stat-all">
+                <span class="stat-label">Total Logs</span>
+                <span class="stat-val" id="cnt-all">0</span>
+            </div>
+            <div class="stat-card stat-book">
+                <span class="stat-label">Books</span>
+                <span class="stat-val" id="cnt-book">0</span>
+            </div>
+            <div class="stat-card stat-edit">
+                <span class="stat-label">Edits</span>
+                <span class="stat-val" id="cnt-edit">0</span>
+            </div>
+            <div class="stat-card stat-delete">
+                <span class="stat-label">Deletions</span>
+                <span class="stat-val" id="cnt-delete">0</span>
+            </div>
+            <div class="stat-card stat-payment">
+                <span class="stat-label">Payments</span>
+                <span class="stat-val" id="cnt-payment">0</span>
+            </div>
+            <div class="stat-card stat-bill">
+                <span class="stat-label">Bills</span>
+                <span class="stat-val" id="cnt-bill">0</span>
+            </div>
+        </div>
+
+        <!-- SEARCH & FILTER BAR -->
+        <div class="filter-row">
+            <input type="text" id="search-input" class="f-input search-box" placeholder="Search logs by name, mobile, details...">
+            
+            <select id="action-filter" class="f-select">
+                <option value="">All Action Types</option>
+                <option value="book">Book</option>
+                <option value="edit">Edit</option>
+                <option value="delete">Delete</option>
+                <option value="payment">Payment</option>
+                <option value="bill_download">Bill Download</option>
+            </select>
+        </div>
+
+        <!-- LOGS TABLE -->
+        <div class="logs-container">
+            <div class="table-responsive">
+                <table class="logs-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 140px;">Timestamp</th>
+                            <th style="width: 180px;">Customer</th>
+                            <th style="width: 120px;">Action</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-tbody">
+                        {% if logs %}
+                            {% for log in logs %}
+                                <tr class="log-row" data-action="{{ log.action }}" data-text="{{ log.name|lower }} {{ log.mobile }} {{ log.details|lower }}">
+                                    <td class="timestamp-col">
+                                        <div class="timestamp-date">{{ log.date_stamp }}</div>
+                                        <div class="timestamp-time">{{ log.time_stamp }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="cust-name">{{ log.name or '—' }}</div>
+                                        <div class="cust-mobile">{{ log.mobile or '—' }}</div>
+                                    </td>
+                                    <td>
+                                        {% if log.action == 'book' %}
+                                            <span class="badge badge-book">➕ Book</span>
+                                        {% elif log.action == 'edit' %}
+                                            <span class="badge badge-edit">✏️ Edit</span>
+                                        {% elif log.action == 'delete' %}
+                                            <span class="badge badge-delete">❌ Delete</span>
+                                        {% elif log.action == 'payment' %}
+                                            <span class="badge badge-payment">💰 Payment</span>
+                                        {% elif log.action == 'bill_download' %}
+                                            <span class="badge badge-bill_download">📄 Bill</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary text-white">{{ log.action }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="details-col">
+                                        {{ log.details }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr id="empty-row">
+                                <td colspan="4" class="no-logs">
+                                    <i>📜</i>
+                                    No actions logged for this cycle yet.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const searchInput = document.getElementById("search-input");
+    const actionFilter = document.getElementById("action-filter");
+    const tbody = document.getElementById("logs-tbody");
+    const rows = Array.from(tbody.querySelectorAll(".log-row"));
+    const emptyRow = document.getElementById("empty-row");
+
+    // Recalculate stats based on original dataset
+    function calculateStats() {
+        const stats = {
+            all: rows.length,
+            book: 0,
+            edit: 0,
+            delete: 0,
+            payment: 0,
+            bill_download: 0
+        };
+
+        rows.forEach(row => {
+            const action = row.getAttribute("data-action");
+            if (stats.hasOwnProperty(action)) {
+                stats[action]++;
+            }
+        });
+
+        document.getElementById("cnt-all").textContent = stats.all;
+        document.getElementById("cnt-book").textContent = stats.book;
+        document.getElementById("cnt-edit").textContent = stats.edit;
+        document.getElementById("cnt-delete").textContent = stats.delete;
+        document.getElementById("cnt-payment").textContent = stats.payment;
+        document.getElementById("cnt-bill").textContent = stats.bill_download;
+    }
+
+    // Filter logs in real-time
+    function filterLogs() {
+        const query = searchInput.value.toLowerCase().trim();
+        const selectedAction = actionFilter.value;
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const action = row.getAttribute("data-action");
+            const text = row.getAttribute("data-text");
+
+            const matchesSearch = !query || text.includes(query);
+            const matchesAction = !selectedAction || action === selectedAction;
+
+            if (matchesSearch && matchesAction) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        if (visibleCount === 0 && rows.length > 0) {
+            if (!document.getElementById("no-results-row")) {
+                const noResRow = document.createElement("tr");
+                noResRow.id = "no-results-row";
+                noResRow.innerHTML = `<td colspan="4" class="no-logs"><i>🔍</i>No logs match your search/filter criteria.</td>`;
+                tbody.appendChild(noResRow);
+            }
+        } else {
+            const noResRow = document.getElementById("no-results-row");
+            if (noResRow) {
+                noResRow.remove();
+            }
+        }
+    }
+
+    // Bind event listeners
+    searchInput.addEventListener("input", filterLogs);
+    actionFilter.addEventListener("change", filterLogs);
+
+    // Initial run
+    calculateStats();
+});
+</script>
+{% endblock %}
