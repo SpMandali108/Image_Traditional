@@ -1489,8 +1489,9 @@
   function getProductImagePath(code) {
     if (!code) return '/static/Home_Img/favicon.png';
     const u = code.trim().toUpperCase();
-    if (u.startsWith('C')) return `/static/Choli/${u}.webp`;
-    if (u.startsWith('K')) return `/static/Kediya/${u}.webp`;
+    if (u.startsWith('C')) return `/static/CholiJpg/${u}.jpg`;
+    if (u.startsWith('K')) return `/static/KediyaJpg/${u}.jpg`;
+    if (u.startsWith('G')) return `/static/GroupJpg/${u}.jpg`;
     return '/static/Home_Img/favicon.png';
   }
 
@@ -1529,12 +1530,12 @@
   }
 
   // ── DATE BLOCK ───────────────────────────────────────────────────
-  function addModalDateBlock(date = "") {
+  function addModalDateBlock(date = "", addDefaultProduct = true) {
     const container = document.getElementById('modalBookingRowsContainer');
     const blockId = 'block-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-    let parsedDate = date;
-    if (date && date.includes('-') && date.split('-')[0].length === 2) {
-      const p = date.split('-');
+    let parsedDate = typeof date === 'string' ? date : '';
+    if (parsedDate && parsedDate.includes('-') && parsedDate.split('-')[0].length === 2) {
+      const p = parsedDate.split('-');
       parsedDate = `20${p[2]}-${p[1]}-${p[0]}`;
     }
     const div = document.createElement('div');
@@ -1558,6 +1559,9 @@
         <i class="bi bi-plus-circle me-1"></i> Add Product
       </button>`;
     container.appendChild(div);
+    if (addDefaultProduct) {
+      addModalProductRow(blockId, '', false);
+    }
     return blockId;
   }
 
@@ -1612,7 +1616,9 @@
   function onModalProductInput(blockId, rowId, el) {
     const code = el.value.trim().toUpperCase();
     const row = document.getElementById(rowId);
-    row.querySelector('.modal-product-thumbnail').src = getProductImagePath(code);
+    const img = row.querySelector('.modal-product-thumbnail');
+    img.style.opacity = '1';
+    img.src = getProductImagePath(code);
     triggerAvailabilityCheck(rowId);
   }
 
@@ -1718,7 +1724,7 @@
     const groups = {};
     customerData.bookings.forEach(b => { if (!groups[b.date]) groups[b.date] = []; groups[b.date].push(b.product); });
     Object.keys(groups).forEach(d => {
-      const bid = addModalDateBlock(d);
+      const bid = addModalDateBlock(d, false);
       groups[d].forEach(p => addModalProductRow(bid, p, true));
     });
     editModalObj.show();
@@ -1733,8 +1739,7 @@
     document.getElementById('modal-given-price').value = 0;
     const c = document.getElementById('modalBookingRowsContainer');
     c.innerHTML = '';
-    const bid = addModalDateBlock('');
-    addModalProductRow(bid, '', false);
+    const bid = addModalDateBlock('', true);
     editModalObj.show();
   }
 

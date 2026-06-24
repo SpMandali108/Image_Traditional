@@ -713,6 +713,13 @@ def profile_update():
         "qr_url": qr_url
     }
     
+    existing_cust = None
+    if customer_id and customer_id != 'new':
+        try:
+            existing_cust = collection.find_one({"_id": ObjectId(customer_id)})
+        except:
+            pass
+
     if customer_id and customer_id != 'new':
         collection.update_one(
             {"_id": ObjectId(customer_id)},
@@ -743,9 +750,47 @@ def profile_update():
 
     try:
         if customer_id and customer_id != 'new':
-            log_action(name, mobile, "edit", f"Updated customer profile via profile page. Total: ₹{total_price}, Given: ₹{given_price}. Bookings: {formatted_bookings}")
+            if existing_cust:
+                changes = []
+                for label, key in [("Name", "Name"), ("Mobile", "mobile"), ("Address", "address"), ("Deposit", "deposit"), ("Group", "group"), ("Reference", "reference")]:
+                    old_v = existing_cust.get(key, "")
+                    new_v = customer_data.get(key, "")
+                    if str(old_v).strip() != str(new_v).strip():
+                        changes.append(f"{label}: '{old_v}' -> '{new_v}'")
+                
+                if existing_cust.get("total_price", 0) != total_price:
+                    changes.append(f"Total Price: ₹{existing_cust.get('total_price', 0)} -> ₹{total_price}")
+                if existing_cust.get("given_price", 0) != given_price:
+                    changes.append(f"Paid Amount: ₹{existing_cust.get('given_price', 0)} -> ₹{given_price}")
+                
+                old_books = existing_cust.get("bookings", {})
+                all_dates = set(old_books.keys()) | set(formatted_bookings.keys())
+                book_changes = []
+                for d in all_dates:
+                    old_p = old_books.get(d, [])
+                    new_p = formatted_bookings.get(d, [])
+                    if set(old_p) != set(new_p):
+                        added = set(new_p) - set(old_p)
+                        removed = set(old_p) - set(new_p)
+                        parts = []
+                        if added:
+                            parts.append(f"added {list(added)}")
+                        if removed:
+                            parts.append(f"removed {list(removed)}")
+                        book_changes.append(f"on {d} ({' and '.join(parts)})")
+                
+                if book_changes:
+                    changes.append(f"Bookings: {', '.join(book_changes)}")
+                
+                if changes:
+                    details = f"Updated customer details: {'; '.join(changes)}."
+                else:
+                    details = "Updated customer profile (no value changes detected)."
+            else:
+                details = f"Updated customer profile via profile page. Total: ₹{total_price}, Given: ₹{given_price}. Bookings: {formatted_bookings}."
+            log_action(name, mobile, "edit", details)
         else:
-            log_action(name, mobile, "book", f"Created customer profile via profile page. Total: ₹{total_price}, Given: ₹{given_price}. Bookings: {formatted_bookings}")
+            log_action(name, mobile, "book", f"Created customer profile. Total: ₹{total_price}, Given: ₹{given_price}. Bookings: {formatted_bookings}.")
     except Exception:
         pass
         

@@ -402,9 +402,11 @@
     if (!code) return '/static/Home_Img/favicon.png';
     const upper = code.trim().toUpperCase();
     if (upper.startsWith('C')) {
-      return `/static/Choli/${upper}.webp`;
+      return `/static/CholiJpg/${upper}.jpg`;
     } else if (upper.startsWith('K')) {
-      return `/static/Kediya/${upper}.webp`;
+      return `/static/KediyaJpg/${upper}.jpg`;
+    } else if (upper.startsWith('G')) {
+      return `/static/GroupJpg/${upper}.jpg`;
     }
     return '/static/Home_Img/favicon.png';
   }
@@ -529,6 +531,7 @@
     // Update thumbnail photo instantly
     const rowDiv = document.getElementById(productRowId);
     const imgEl = rowDiv.querySelector('.product-thumbnail');
+    imgEl.style.opacity = '1';
     imgEl.src = getProductImagePath(codeVal);
     
     // Trigger availability check for this specific row
