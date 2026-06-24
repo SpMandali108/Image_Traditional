@@ -1300,8 +1300,9 @@ def export_bookings():
 
 @navaratri.route("/download-bill", methods=["GET", "POST"])
 def download_bill_page():
-    mobile = request.args.get("mobile", "")
-    return render_template("navaratri/download_bill.html", mobile=mobile)
+    mobile = request.args.get("mobile", "") or request.form.get("mobile", "")
+    customer = collection.find_one({"mobile": mobile}) if mobile else None
+    return render_template("navaratri/download_bill.html", mobile=mobile, customer=customer)
 
 @navaratri.route("/generate-qr/<mobile>")
 def generate_qr(mobile):

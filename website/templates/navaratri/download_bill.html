@@ -1,24 +1,513 @@
 {% extends "general/base.html" %}
 
-{% block title %}Download Customer Bill{% endblock %}
+{% block title %}Booking Verified | Download Customer Bill{% endblock %}
+
 {% block robots %}
 <meta name="robots" content="noindex, nofollow" />
 {% endblock %}
 
+{% block head %}
+<!-- Font Awesome 6.5.0 for premium icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- Bootstrap 5.3.2 for layout grid and base styling compatibility -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+    /* Styling to match Image Traditional Premium Dark Blue and Gold theme */
+    :root {
+        --primary-gold: #d4af37;
+        --primary-gold-dark: #b8961e;
+        --gold-glow: rgba(212, 175, 55, 0.4);
+        --premium-navy: #0a1120;
+        --card-bg: #131e35;
+        --border-color: rgba(212, 175, 55, 0.28);
+        --text-white: #f8fafc;
+        --text-muted: #94a3b8;
+        --emerald-success: #10b981;
+    }
+
+    /* Force page to fit in 100vh with no scroll on typical mobile devices */
+    html, body {
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        background-color: var(--premium-navy) !important;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Hide default header on download bill page to save vertical space */
+    .main-header {
+        display: none !important;
+    }
+
+    .main-content {
+        min-height: 100vh;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--premium-navy);
+    }
+
+    .download-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        padding: 10px;
+    }
+
+    .download-card {
+        background: linear-gradient(135deg, var(--card-bg) 0%, #0c1424 100%);
+        border: 2px solid var(--border-color);
+        border-radius: 20px;
+        padding: 1.25rem;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(212, 175, 55, 0.15);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+    }
+
+    .download-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-gold) 0%, var(--primary-gold-dark) 100%);
+    }
+
+    /* Brand Header branding */
+    .brand-container {
+        margin-bottom: 0.1rem;
+    }
+
+    .brand-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .brand-logo {
+        width: 38px;
+        height: 38px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 1px solid var(--primary-gold);
+    }
+
+    .brand-title {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--primary-gold);
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+
+    .brand-subtitle {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+        margin-bottom: 0;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    /* Customer details box */
+    .customer-panel {
+        background: rgba(8, 15, 29, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 0.85rem;
+        text-align: left;
+    }
+
+    .customer-welcome {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-white);
+        margin-bottom: 0.5rem;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+        padding-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .customer-name-sub {
+        font-size: 0.76rem;
+        display: block;
+        color: var(--text-muted);
+        font-weight: normal;
+        margin-top: 1px;
+    }
+
+    .info-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+    }
+
+    .info-label {
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .info-value {
+        color: var(--text-white);
+        font-weight: 600;
+    }
+
+    /* Balance block */
+    .balance-box {
+        background: rgba(212, 175, 55, 0.1);
+        border-left: 4px solid var(--primary-gold);
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        margin-top: 0.4rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .balance-box.paid-in-full {
+        background: rgba(16, 185, 129, 0.1);
+        border-left-color: var(--emerald-success);
+    }
+
+    .balance-label {
+        font-weight: 700;
+        color: var(--primary-gold);
+        font-size: 0.88rem;
+    }
+
+    .balance-box.paid-in-full .balance-label {
+        color: var(--emerald-success);
+    }
+
+    .balance-value {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--text-white);
+    }
+
+    /* Huge CTA Pulse Button */
+    .btn-download-bill {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1px;
+        width: 100%;
+        padding: 0.85rem 1.25rem;
+        background: linear-gradient(135deg, var(--primary-gold) 0%, var(--primary-gold-dark) 100%);
+        color: #0a1120 !important;
+        border: none;
+        border-radius: 14px;
+        cursor: pointer;
+        box-shadow: 0 4px 18px var(--gold-glow);
+        text-decoration: none;
+        transition: all 0.2s ease-in-out;
+        animation: pulse-gold 2s infinite;
+    }
+
+    .btn-download-bill:hover {
+        transform: scale(1.01);
+        background: linear-gradient(135deg, #f4d360 0%, var(--primary-gold-dark) 100%);
+        box-shadow: 0 6px 22px rgba(212, 175, 55, 0.55);
+    }
+
+    .btn-download-bill:active {
+        transform: scale(0.98);
+    }
+
+    .btn-text-primary {
+        font-size: 1.2rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-text-secondary {
+        font-size: 0.76rem;
+        font-weight: 600;
+        opacity: 0.95;
+    }
+
+    @keyframes pulse-gold {
+        0% {
+            box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.6);
+        }
+        70% {
+            box-shadow: 0 0 0 8px rgba(212, 175, 55, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+        }
+    }
+
+    /* Manual search form if customer not found or mobile missing */
+    .search-panel {
+        background: rgba(8, 15, 29, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 1.1rem;
+        text-align: center;
+    }
+
+    .search-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-white);
+        margin-bottom: 0.25rem;
+    }
+
+    .search-subtitle {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-bottom: 0.8rem;
+    }
+
+    .search-input-group {
+        display: flex;
+        gap: 8px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 0.6rem 0.8rem;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(12, 20, 36, 0.9);
+        color: var(--text-white);
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-gold);
+        box-shadow: 0 0 0 2px var(--gold-glow);
+    }
+
+    .btn-search {
+        padding: 0.6rem 1.1rem;
+        border-radius: 8px;
+        border: none;
+        background: var(--primary-gold);
+        color: #0a1120;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-search:hover {
+        background: var(--primary-gold-dark);
+    }
+
+    /* Support section (extremely simple grid) */
+    .support-section {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 0.8rem;
+    }
+
+    .support-title {
+        font-size: 0.76rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.45rem;
+        text-align: center;
+    }
+
+    .support-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+
+    .btn-support {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0.45rem;
+        border-radius: 10px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-decoration: none !important;
+        transition: all 0.2s ease;
+    }
+
+    .btn-whatsapp {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--emerald-success) !important;
+        border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-whatsapp:hover {
+        background: var(--emerald-success);
+        color: white !important;
+    }
+
+    .btn-call {
+        background: rgba(212, 175, 55, 0.06);
+        color: var(--primary-gold) !important;
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-call:hover {
+        background: var(--primary-gold);
+        color: #0a1120 !important;
+    }
+
+    .support-btn-sub {
+        font-size: 0.65rem;
+        font-weight: normal;
+        opacity: 0.85;
+        margin-top: 1px;
+    }
+
+    .footer-note {
+        font-size: 0.68rem;
+        color: var(--text-muted);
+        opacity: 0.75;
+        font-style: italic;
+        line-height: 1.3;
+    }
+</style>
+{% endblock %}
+
 {% block logo_link %}
-<a href="/" class="logo">
-    <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Image Traditional Logo">
-    <span class="logo-text">Image Traditional</span>
-</a>
+<!-- Logo overrides ignored because desktop header is hidden -->
 {% endblock %}
 
 {% block content %}
-<div class="container" style="max-width:500px; margin:2rem auto; text-align:center;">
-    <h2>Download Customer Bill</h2>
-    <form action="{{ url_for('navaratri.download_customer') }}" method="post">
-        <!-- Hidden input to pass the mobile number -->
-        <input type="hidden" name="mobile" value="{{ mobile }}">
-        <button type="submit" class="btn btn-primary">Download Bill</button>
-    </form>
+<div class="download-wrapper">
+    <div class="download-card">
+        
+        <!-- Brand Header -->
+        <div class="brand-container">
+            <div class="brand-header">
+                <img class="brand-logo" src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Logo">
+                <h1 class="brand-title">Image Traditional</h1>
+            </div>
+            <div class="brand-subtitle">Rental Store • અમદાવાદ (Ahmedabad)</div>
+        </div>
+
+        {% if customer %}
+        <!-- Customer Details Panel -->
+        <div class="customer-panel">
+            <div class="customer-welcome">
+                <div>
+                    <span class="customer-name-sub">નમસ્તે / Welcome</span>
+                    <strong>{{ customer.Name }}</strong>
+                </div>
+                <div style="font-size: 1.3rem; color: var(--emerald-success);">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-row">
+                    <span class="info-label">Mobile / ફોન નંબર</span>
+                    <span class="info-value">{{ mobile }}</span>
+                </div>
+                
+                {% if customer.total_price is not none %}
+                <div class="info-row">
+                    <span class="info-label">Total Bill / કુલ બિલ</span>
+                    <span class="info-value">₹{{ customer.total_price }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Paid / જમા રકમ</span>
+                    <span class="info-value" style="color: var(--emerald-success);">₹{{ customer.given_price }}</span>
+                </div>
+                
+                {% set remaining = (customer.total_price | default(0)) - (customer.given_price | default(0)) %}
+                <div class="balance-box {% if remaining <= 0 %}paid-in-full{% endif %}">
+                    <span class="balance-label">
+                        {% if remaining > 0 %}
+                            Remaining / બાકી રકમ
+                        {% else %}
+                            Paid in Full / બિલ ચુકવેલ છે
+                        {% endif %}
+                    </span>
+                    <span class="balance-value">₹{{ remaining }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Big Pulse CTA Button to Download PDF -->
+        <form action="{{ url_for('navaratri.download_customer') }}" method="post" style="margin: 0; width: 100%;">
+            <input type="hidden" name="mobile" value="{{ mobile }}">
+            <button type="submit" class="btn-download-bill">
+                <span class="btn-text-primary">
+                    <i class="fa-solid fa-file-pdf"></i> DOWNLOAD BILL
+                </span>
+                <span class="btn-text-secondary">અહીં ક્લિક કરીને બિલ ડાઉનલોડ કરો</span>
+            </button>
+        </form>
+
+        {% else %}
+        <!-- Search Panel if Customer is not found -->
+        <div class="search-panel">
+            <h2 class="search-title">Find Your Bill / બિલ શોધો</h2>
+            <div class="search-subtitle">અમદાવાદ (Ahmedabad)</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.4;">
+                {% if mobile %}
+                    Could not find bill for <strong>{{ mobile }}</strong>. Please check and enter the correct mobile number:
+                {% else %}
+                    Enter your registered mobile number to download your bill:
+                {% endif %}
+            </p>
+            <form action="{{ url_for('navaratri.download_bill_page') }}" method="post" class="search-input-group">
+                <input type="tel" name="mobile" class="search-input" placeholder="e.g. 9898012345" required pattern="[0-9]{10}">
+                <button type="submit" class="btn-search">Search / શોધો</button>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Need Help Section -->
+        <div class="support-section">
+            <div class="support-title">Need Help? / મદદ જોઈએ છે?</div>
+            <div class="support-grid">
+                <a href="https://wa.me/919428610384?text=Hello%20Image%20Traditional,%20I%20need%20assistance%20with%20my%20booking%20bill." target="_blank" class="btn-support btn-whatsapp">
+                    <span><i class="fa-brands fa-whatsapp"></i> WhatsApp</span>
+                    <span class="support-btn-sub">વોટ્સએપ મેસેજ કરો</span>
+                </a>
+                <a href="tel:+919428610384" class="btn-support btn-call">
+                    <span><i class="fa-solid fa-phone-volume"></i> Call Shop</span>
+                    <span class="support-btn-sub">દુકાન પર ફોન કરો</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            Thank you for visiting Image Traditional.<br>ઇમેજ ટ્રેડિશનલની મુલાકાત લેવા બદલ આભાર.
+        </div>
+
+    </div>
 </div>
 {% endblock %}
