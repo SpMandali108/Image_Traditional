@@ -146,11 +146,14 @@ def book():
             upsert=True
         )
 
+        # Find the customer to get the generated ObjectId
+        cust_record = collection.find_one({"mobile": mobile})
+
         # -------------------- Generate QR URL --------------------
-        qr_url = url_for('navaratri.download_bill_page', mobile=mobile, _external=True)
+        qr_url = url_for('navaratri.download_bill_page', id=str(cust_record["_id"]), _external=True)
 
         collection.update_one(
-            {"mobile": mobile},
+            {"_id": cust_record["_id"]},
             {"$set": {"qr_url": qr_url}}
         )
 
@@ -346,9 +349,9 @@ def pay_remaining():
         )
 
         # -------------------- Generate QR URL --------------------
-        qr_url = url_for('navaratri.download_bill_page', mobile=mobile, _external=True)
+        qr_url = url_for('navaratri.download_bill_page', id=str(customer["_id"]), _external=True)
         collection.update_one(
-            {"mobile": mobile},
+            {"_id": customer["_id"]},
             {"$set": {"qr_url": qr_url}}
         )
 
@@ -613,7 +616,12 @@ def profile_update():
                 conflict_msg += f"• '{conflict['product']}' by {conflict['customer_name']} ({conflict['customer_mobile']})<br>"
             return jsonify({"success": False, "message": conflict_msg}), 400
 
-    qr_url = url_for('navaratri.download_bill_page', mobile=mobile, _external=True)
+    if customer_id and customer_id != 'new':
+        ret_id = customer_id
+    else:
+        ret_id = str(ObjectId())
+
+    qr_url = url_for('navaratri.download_bill_page', id=ret_id, _external=True)
     
     customer_data = {
         "Name": name,
@@ -634,11 +642,11 @@ def profile_update():
             {"$set": customer_data}
         )
         message = "✅ Customer profile updated successfully!"
-        ret_id = customer_id
     else:
-        result = collection.insert_one(customer_data)
+        customer_data["_id"] = ObjectId(ret_id)
+        collection.insert_one(customer_data)
         message = "✅ Customer profile created successfully!"
-        ret_id = str(result.inserted_id)
+        ret_id = str(ret_id)
 
     # Upsert customer record into Navaratri_Customers collection
     ncustomers.update_one(
@@ -1012,11 +1020,19 @@ def dashboard_summary():
     
 @navaratri.route('/download-customer', methods=['POST'])
 def download_customer():
+    cust_id = request.form.get('id')
     mobile = request.form.get('mobile')
-    if not mobile:
-        return "No mobile number provided", 400
-
-    customer = collection.find_one({"mobile": mobile})
+    
+    customer = None
+    if cust_id:
+        try:
+            customer = collection.find_one({"_id": ObjectId(cust_id)})
+        except Exception:
+            pass
+            
+    if not customer and mobile:
+        customer = collection.find_one({"mobile": mobile})
+        
     if not customer:
         return "Customer not found", 404
 
@@ -1025,87 +1041,144 @@ def download_customer():
 
     class PDF(FPDF):
         def header(self):
+            # Background navy banner
+            self.set_fill_color(10, 17, 32)  # #0a1120 Premium navy
+            self.rect(0, 0, 210, 42, 'F')
+            
+            # Shop Logo
             logo_path = os.path.join(os.path.dirname(__file__), "static", "Home_Img/favicon.png")
             if os.path.exists(logo_path):
-                self.image(logo_path, 13, 5, 15)
-
-            self.set_font('times', 'B', 20)
-            self.set_x(30)
-            self.cell(0, 10, 'Image Traditional', ln=1)
-
-            self.set_x(15)
-            self.set_font('helvetica', '', 10)
+                self.image(logo_path, 15, 10, 22)
+            
+            # Title
+            self.set_text_color(212, 175, 55)  # Gold #d4af37
+            self.set_font('helvetica', 'B', 22)
+            self.set_xy(42, 10)
+            self.cell(0, 10, 'IMAGE TRADITIONAL', ln=1)
+            
+            # Address info (white text)
+            self.set_text_color(241, 245, 249)
+            self.set_font('helvetica', '', 9)
+            self.set_xy(42, 20)
             self.multi_cell(
-                0, 5,
+                95, 4.5,
                 "Nr. Laxminarayan Bus-stand, Opp Prarabdh Soc.\n"
-                "Maninagar(E), A'bad-08",
+                "Maninagar(E), Ahmedabad-08",
                 align='L'
             )
-
+            
+            # Owner & Meta Details (Right Side)
+            self.set_text_color(212, 175, 55)  # Gold
             self.set_font('helvetica', 'B', 10)
-            self.set_y(12)
-            self.cell(0, 5, "Prakash Mandali: 9428610384", align='R')
-
-            self.ln(20)
-            y = self.get_y()
-            self.line(15, y, 200, y)
-            self.ln(5)
+            self.set_xy(140, 11)
+            self.cell(55, 5, "Prakash Mandali: 9428610384", align='R', ln=1)
+            
+            self.set_text_color(241, 245, 249)
+            self.set_font('helvetica', '', 9)
+            self.set_xy(140, 17)
+            self.cell(55, 5, "Rental Booking Invoice", align='R', ln=1)
+            
+            self.set_xy(140, 23)
+            self.cell(55, 5, f"Date: {datetime.now().strftime('%d-%b-%Y')}", align='R', ln=1)
+            
+            # Space below header banner
+            self.ln(25)
 
         def footer(self):
             self.set_y(-15)
-            self.set_font('helvetica', 'I', 10)
-            self.cell(0, 10, f'Page {self.page_no()}/{{nb}}', align='C')
+            self.set_font('helvetica', 'I', 8)
+            self.set_text_color(148, 163, 184)
+            self.cell(0, 10, f'Page {self.page_no()}/{{nb}} | Image Traditional Rental Receipt', align='C')
 
     pdf = PDF('P', 'mm', 'A4')
     pdf.alias_nb_pages()
     pdf.add_page()
-    pdf.set_font('times', 'B', 11)
 
-    # ------- Customer Details -------
-    def add_field(label, value):
-        pdf.set_x(15)
-        value_sanitized = sanitize_latin1(value)
-        text = f"{label}: {value_sanitized}"
-        pdf.cell(pdf.get_string_width(text)+4, 8, text, border=1)
-        pdf.ln(10)
+    # ------- Customer Details Heading -------
+    pdf.set_y(46)
+    pdf.set_font('helvetica', 'B', 11)
+    pdf.set_text_color(15, 23, 42)  # Dark slate
+    pdf.cell(0, 8, "CUSTOMER & BOOKING DETAILS", ln=1)
+    
+    # Gold separator line
+    pdf.set_draw_color(212, 175, 55)
+    pdf.set_line_width(0.5)
+    pdf.line(15, pdf.get_y(), 195, pdf.get_y())
+    pdf.ln(4)
 
-    add_field("Name", customer.get("Name", "N/A"))
-    add_field("Mobile", customer.get("mobile", "N/A"))
-    add_field("Address", customer.get("address", "N/A"))
-    add_field("Group", customer.get("group", "N/A"))
-    add_field("Reference", customer.get("reference", "N/A"))
-    add_field("Deposit", customer.get("deposit", "N/A"))
+    # ------- Two-Column Customer Details Grid -------
+    def render_row(label1, val1, label2, val2):
+        y = pdf.get_y()
+        # Col 1 Label
+        pdf.set_xy(15, y)
+        pdf.set_font('helvetica', 'B', 9)
+        pdf.set_text_color(100, 116, 139)  # Muted slate
+        pdf.cell(32, 6, sanitize_latin1(label1) + ":", border=0)
+        # Col 1 Value
+        pdf.set_font('helvetica', '', 9.5)
+        pdf.set_text_color(15, 23, 42)
+        pdf.cell(63, 6, sanitize_latin1(str(val1)), border=0)
+        
+        # Col 2 Label
+        pdf.set_font('helvetica', 'B', 9)
+        pdf.set_text_color(100, 116, 139)
+        pdf.cell(28, 6, sanitize_latin1(label2) + ":", border=0)
+        # Col 2 Value
+        pdf.set_font('helvetica', '', 9.5)
+        pdf.set_text_color(15, 23, 42)
+        pdf.cell(57, 6, sanitize_latin1(str(val2)), border=0)
+        pdf.ln(7.5)
 
-    pdf.ln(3)
+    render_row("Customer Name", customer.get("Name", "N/A"), "Group Name", customer.get("group", "N/A"))
+    render_row("Mobile Number", customer.get("mobile", "N/A"), "Reference", customer.get("reference", "N/A"))
+    render_row("Security Deposit", customer.get('deposit', 'N/A'), "Address", customer.get("address", "N/A"))
+    
+    pdf.ln(2)
+
+    # ------- Items Table Heading -------
+    pdf.set_font('helvetica', 'B', 11)
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(0, 8, "RENTAL ITEMS", ln=1)
+    
+    # Gold separator line
+    pdf.set_draw_color(212, 175, 55)
+    pdf.line(15, pdf.get_y(), 195, pdf.get_y())
+    pdf.ln(4)
 
     # ------- Table Header -------
-    pdf.set_font("helvetica", "B", 10)
+    pdf.set_font('helvetica', 'B', 10)
+    pdf.set_text_color(255, 255, 255)  # White
+    pdf.set_fill_color(10, 17, 32)      # Navy
+    pdf.set_draw_color(10, 17, 32)      # Navy
+    
     pdf.set_x(15)
-    pdf.cell(10, 10, "Sr", border=1, align="C")
-    pdf.cell(40, 10, "Product Code", border=1, align="C")
-    pdf.cell(40, 10, "Image", border=1, align="C")
-    pdf.cell(40, 10, "Date", border=1, align="C")
+    pdf.cell(15, 9, "Sr.", border=1, align="C", fill=True)
+    pdf.cell(50, 9, "Product Code", border=1, align="C", fill=True)
+    pdf.cell(60, 9, "Product Preview", border=1, align="C", fill=True)
+    pdf.cell(55, 9, "Booking Date", border=1, align="C", fill=True)
     pdf.ln()
 
+    # ------- Table Rows -------
     pdf.set_font("helvetica", "", 10)
-
-    # ------- Fill Table with Bookings -------
+    pdf.set_text_color(15, 23, 42)
+    pdf.set_draw_color(226, 232, 240)  # Soft grey borders
+    
     sr = 1
     bookings = customer.get("bookings", {})
 
     for date, codes in bookings.items():
         for code in codes:
             pdf.set_x(15)
-            pdf.cell(10, 25, str(sr), border=1, align="C")
-            pdf.cell(40, 25, code, border=1, align="C")
+            # Row height 25 to fit image
+            pdf.cell(15, 25, str(sr), border=1, align="C")
+            pdf.cell(50, 25, f"  {code}", border=1, align="L")
 
-            # Reserve image cell
+            # Image Cell
             x = pdf.get_x()
             y = pdf.get_y()
-            pdf.cell(40, 25, "", border=1)
+            pdf.cell(60, 25, "", border=1)
 
-           
-
+            img_path = None
             if code.startswith("K"):
                 img_path = os.path.join(current_app.static_folder, "KediyaJpg", f"{code}.jpg")
             elif code.startswith("C"):
@@ -1113,33 +1186,99 @@ def download_customer():
             elif code.startswith("G"):
                 img_path = os.path.join(current_app.static_folder, "GroupJpg", f"{code}.jpg")
 
-
             if img_path and os.path.exists(img_path):
-                pdf.image(img_path, x+2, y+2, 36, 21)  # fit in cell
+                # Center image inside cell: Cell width 60, height 25. Image width 36, height 21
+                pdf.image(img_path, x + 12, y + 2, 36, 21)
+            else:
+                curr_y = pdf.get_y()
+                pdf.set_xy(x, y + 10)
+                pdf.set_font("helvetica", "I", 8.5)
+                pdf.set_text_color(148, 163, 184)
+                pdf.cell(60, 5, "No Preview Available", border=0, align="C")
+                pdf.set_font("helvetica", "", 10)
+                pdf.set_text_color(15, 23, 42)
+                pdf.set_xy(x + 60, y)
 
-            pdf.cell(40, 25, date, border=1, align="C")
+            pdf.cell(55, 25, date, border=1, align="C")
             pdf.ln()
 
             sr += 1
 
-    # ------- Prices -------
+    # ------- Totals Card Section -------
     pdf.ln(5)
-    add_field("Total Price", customer.get("total_price", 0))
-    add_field("Given Price", customer.get("given_price", 0))
-    add_field("Remaining", customer["remaining"])
+    totals_start_x = 115
+    
+    total_price = customer.get("total_price", 0)
+    given_price = customer.get("given_price", 0)
+    remaining = total_price - given_price
 
-    # Output PDF
-    # Replace the PDF output section at the end of your function with this:
+    # Row: Total Price
+    pdf.set_x(totals_start_x)
+    pdf.set_font("helvetica", "B", 9.5)
+    pdf.set_text_color(100, 116, 139)
+    pdf.cell(45, 6, "Total Amount:", align="R")
+    pdf.set_font("helvetica", "B", 10.5)
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(35, 6, f"Rs. {total_price}", align="R", ln=1)
 
-    # Output PDF - CORRECTED VERSION
+    # Row: Given Price
+    pdf.set_x(totals_start_x)
+    pdf.set_font("helvetica", "B", 9.5)
+    pdf.set_text_color(100, 116, 139)
+    pdf.cell(45, 6, "Amount Paid:", align="R")
+    pdf.set_font("helvetica", "B", 10.5)
+    pdf.set_text_color(16, 185, 129)  # Success Green
+    pdf.cell(35, 6, f"Rs. {given_price}", align="R", ln=1)
+
+    # Divider line
+    pdf.set_draw_color(226, 232, 240)
+    pdf.line(totals_start_x, pdf.get_y() + 1, 195, pdf.get_y() + 1)
+    pdf.ln(2.5)
+
+    # Row: Remaining (Balance Due Box)
+    pdf.set_x(totals_start_x)
+    if remaining > 0:
+        pdf.set_fill_color(254, 242, 242)  # Light Red background
+        pdf.set_draw_color(239, 68, 68)    # Red border
+        pdf.set_text_color(220, 38, 38)    # Red text
+    else:
+        pdf.set_fill_color(240, 253, 250)  # Light Green background
+        pdf.set_draw_color(16, 185, 129)   # Green border
+        pdf.set_text_color(13, 148, 136)   # Teal text
+
+    y = pdf.get_y()
+    pdf.rect(totals_start_x, y, 80, 8.5, 'DF')
+    pdf.set_xy(totals_start_x, y + 1.25)
+    pdf.set_font("helvetica", "B", 9.5)
+    pdf.cell(45, 6, "Balance Due:", align="R")
+    pdf.set_font("helvetica", "B", 11.5)
+    pdf.cell(30, 6, f"Rs. {remaining}", align="R")
+    pdf.ln(13)
+
+    # ------- Terms & Conditions -------
+    pdf.set_x(15)
+    pdf.set_font("helvetica", "B", 8.5)
+    pdf.set_text_color(100, 116, 139)
+    pdf.cell(0, 4, "Terms & Conditions:", ln=1)
+    
+    pdf.set_font("helvetica", "", 7.5)
+    pdf.set_text_color(148, 163, 184)
+    pdf.set_x(15)
+    pdf.multi_cell(
+        180, 3.5,
+        "1. Please verify the condition of all rental items before leaving the shop.\n"
+        "2. Rental items must be returned on the scheduled return date. Delayed returns may incur penalty fees.\n"
+        "3. The security deposit is fully refundable upon returning all items without damage.\n"
+        "4. Thank you for choosing Image Traditional!",
+        align="L"
+    )
+
     # Output PDF as bytes
     pdf_output = pdf.output(dest="S")
-
-# If it's str, encode; if it's already bytes/bytearray, just wrap
     if isinstance(pdf_output, str):
         pdf_bytes = pdf_output.encode("latin1")
     else:
-        pdf_bytes = bytes(pdf_output)   # handles bytearray or bytes
+        pdf_bytes = bytes(pdf_output)
 
     pdf_buffer = io.BytesIO(pdf_bytes)
     pdf_buffer.seek(0)
@@ -1300,9 +1439,25 @@ def export_bookings():
 
 @navaratri.route("/download-bill", methods=["GET", "POST"])
 def download_bill_page():
-    mobile = request.args.get("mobile", "") or request.form.get("mobile", "")
-    customer = collection.find_one({"mobile": mobile}) if mobile else None
-    return render_template("navaratri/download_bill.html", mobile=mobile, customer=customer)
+    cust_id = request.args.get("id", "") or request.form.get("id", "")
+    customer = None
+    mobile = ""
+    
+    if cust_id:
+        try:
+            customer = collection.find_one({"_id": ObjectId(cust_id)})
+            if customer:
+                mobile = customer.get("mobile", "")
+        except Exception:
+            pass
+            
+    # Fallback to search by mobile if ID lookup is not possible
+    if not customer:
+        mobile = request.args.get("mobile", "") or request.form.get("mobile", "")
+        if mobile:
+            customer = collection.find_one({"mobile": mobile})
+            
+    return render_template("navaratri/download_bill.html", id=cust_id, mobile=mobile, customer=customer)
 
 @navaratri.route("/generate-qr/<mobile>")
 def generate_qr(mobile):
@@ -1310,8 +1465,8 @@ def generate_qr(mobile):
     if not customer:
         return "Customer not found", 404
 
-    # Generate QR URL dynamically matching the current hosting environment (localhost / production)
-    qr_url = url_for('navaratri.download_bill_page', mobile=mobile, _external=True)
+    # Generate QR URL with customer's database ID for security/privacy
+    qr_url = url_for('navaratri.download_bill_page', id=str(customer["_id"]), _external=True)
 
     qr_img = qrcode.make(qr_url)
     buf = io.BytesIO()

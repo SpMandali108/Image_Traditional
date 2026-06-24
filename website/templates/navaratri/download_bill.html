@@ -26,7 +26,7 @@
         --emerald-success: #10b981;
     }
 
-    /* Force page to fit in 100vh with no scroll on typical mobile devices */
+    /* Force page to fit in 100vh with minimal or no scroll on typical mobile devices */
     html, body {
         min-height: 100vh;
         margin: 0;
@@ -62,7 +62,7 @@
         background: linear-gradient(135deg, var(--card-bg) 0%, #0c1424 100%);
         border: 2px solid var(--border-color);
         border-radius: 20px;
-        padding: 1.25rem;
+        padding: 1.15rem;
         width: 100%;
         max-width: 400px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(212, 175, 55, 0.15);
@@ -71,7 +71,7 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        gap: 0.9rem;
+        gap: 0.85rem;
     }
 
     .download-card::before {
@@ -86,7 +86,7 @@
 
     /* Brand Header branding */
     .brand-container {
-        margin-bottom: 0.1rem;
+        margin-bottom: 0.05rem;
     }
 
     .brand-header {
@@ -97,15 +97,15 @@
     }
 
     .brand-logo {
-        width: 38px;
-        height: 38px;
+        width: 36px;
+        height: 36px;
         object-fit: cover;
         border-radius: 50%;
         border: 1px solid var(--primary-gold);
     }
 
     .brand-title {
-        font-size: 1.35rem;
+        font-size: 1.3rem;
         font-weight: 800;
         color: var(--primary-gold);
         margin: 0;
@@ -113,9 +113,9 @@
     }
 
     .brand-subtitle {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         color: var(--text-muted);
-        margin-top: 2px;
+        margin-top: 1px;
         margin-bottom: 0;
         font-weight: 600;
         letter-spacing: 0.5px;
@@ -125,25 +125,25 @@
     .customer-panel {
         background: rgba(8, 15, 29, 0.75);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 14px;
-        padding: 0.85rem;
+        border-radius: 12px;
+        padding: 0.75rem;
         text-align: left;
     }
 
     .customer-welcome {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         font-weight: 700;
         color: var(--text-white);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.4rem;
         border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
-        padding-bottom: 0.5rem;
+        padding-bottom: 0.4rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
     .customer-name-sub {
-        font-size: 0.76rem;
+        font-size: 0.72rem;
         display: block;
         color: var(--text-muted);
         font-weight: normal;
@@ -153,14 +153,14 @@
     .info-grid {
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
+        gap: 0.3rem;
     }
 
     .info-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
     }
 
     .info-label {
@@ -177,9 +177,9 @@
     .balance-box {
         background: rgba(212, 175, 55, 0.1);
         border-left: 4px solid var(--primary-gold);
-        padding: 0.5rem 0.75rem;
+        padding: 0.45rem 0.65rem;
         border-radius: 6px;
-        margin-top: 0.4rem;
+        margin-top: 0.35rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -193,7 +193,7 @@
     .balance-label {
         font-weight: 700;
         color: var(--primary-gold);
-        font-size: 0.88rem;
+        font-size: 0.82rem;
     }
 
     .balance-box.paid-in-full .balance-label {
@@ -201,9 +201,110 @@
     }
 
     .balance-value {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         font-weight: 800;
         color: var(--text-white);
+    }
+
+    /* Collapsible Accordion items styling */
+    .items-accordion {
+        background: rgba(8, 15, 29, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 0;
+        text-align: left;
+        overflow: hidden;
+    }
+
+    .items-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.65rem 0.85rem;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-white);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        list-style: none;
+        outline: none;
+        user-select: none;
+    }
+
+    .items-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .items-summary .chevron {
+        transition: transform 0.2s ease-in-out;
+        color: var(--primary-gold);
+    }
+
+    .items-accordion[open] .items-summary .chevron {
+        transform: rotate(180deg);
+    }
+
+    .items-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        padding: 0.6rem 0.65rem 0.8rem 0.65rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        background: rgba(6, 12, 23, 0.3);
+    }
+
+    @media (max-width: 360px) {
+        .items-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .item-badge {
+        background: rgba(13, 22, 38, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        padding: 4px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .item-img-wrapper {
+        width: 100%;
+        height: 52px;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #080f1d;
+    }
+
+    .item-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .item-details {
+        display: flex;
+        flex-direction: column;
+        margin-top: 4px;
+        gap: 1px;
+        width: 100%;
+    }
+
+    .item-code {
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: var(--primary-gold);
+    }
+
+    .item-date {
+        font-size: 0.58rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     /* Huge CTA Pulse Button */
@@ -214,7 +315,7 @@
         justify-content: center;
         gap: 1px;
         width: 100%;
-        padding: 0.85rem 1.25rem;
+        padding: 0.8rem 1.2rem;
         background: linear-gradient(135deg, var(--primary-gold) 0%, var(--primary-gold-dark) 100%);
         color: #0a1120 !important;
         border: none;
@@ -237,7 +338,7 @@
     }
 
     .btn-text-primary {
-        font-size: 1.2rem;
+        font-size: 1.15rem;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -247,7 +348,7 @@
     }
 
     .btn-text-secondary {
-        font-size: 0.76rem;
+        font-size: 0.75rem;
         font-weight: 600;
         opacity: 0.95;
     }
@@ -264,134 +365,52 @@
         }
     }
 
-    /* Manual search form if customer not found or mobile missing */
+    /* Store Info Section */
+    .store-info-section {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 0.7rem;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .store-info-title {
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: var(--primary-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.1rem;
+    }
+
+    .store-info-text {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        line-height: 1.35;
+        margin: 0;
+    }
+
+    /* Insecure/Access Denied Panel */
     .search-panel {
         background: rgba(8, 15, 29, 0.75);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(239, 68, 68, 0.2);
         border-radius: 14px;
-        padding: 1.1rem;
+        padding: 1.5rem 1.1rem;
         text-align: center;
     }
 
     .search-title {
-        font-size: 1.05rem;
+        font-size: 1.15rem;
         font-weight: 700;
-        color: var(--text-white);
-        margin-bottom: 0.25rem;
-    }
-
-    .search-subtitle {
-        font-size: 0.78rem;
-        color: var(--text-muted);
-        margin-bottom: 0.8rem;
-    }
-
-    .search-input-group {
-        display: flex;
-        gap: 8px;
-    }
-
-    .search-input {
-        flex: 1;
-        padding: 0.6rem 0.8rem;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        background: rgba(12, 20, 36, 0.9);
-        color: var(--text-white);
-        font-size: 0.95rem;
-        font-weight: 600;
-    }
-
-    .search-input:focus {
-        outline: none;
-        border-color: var(--primary-gold);
-        box-shadow: 0 0 0 2px var(--gold-glow);
-    }
-
-    .btn-search {
-        padding: 0.6rem 1.1rem;
-        border-radius: 8px;
-        border: none;
-        background: var(--primary-gold);
-        color: #0a1120;
-        font-weight: 700;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-
-    .btn-search:hover {
-        background: var(--primary-gold-dark);
-    }
-
-    /* Support section (extremely simple grid) */
-    .support-section {
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-        padding-top: 0.8rem;
-    }
-
-    .support-title {
-        font-size: 0.76rem;
-        color: var(--text-muted);
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 0.45rem;
-        text-align: center;
-    }
-
-    .support-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
-    }
-
-    .btn-support {
-        display: inline-flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 0.45rem;
-        border-radius: 10px;
-        font-size: 0.82rem;
-        font-weight: 700;
-        text-decoration: none !important;
-        transition: all 0.2s ease;
-    }
-
-    .btn-whatsapp {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--emerald-success) !important;
-        border: 1px solid rgba(16, 185, 129, 0.25);
-    }
-
-    .btn-whatsapp:hover {
-        background: var(--emerald-success);
-        color: white !important;
-    }
-
-    .btn-call {
-        background: rgba(212, 175, 55, 0.06);
-        color: var(--primary-gold) !important;
-        border: 1px solid var(--border-color);
-    }
-
-    .btn-call:hover {
-        background: var(--primary-gold);
-        color: #0a1120 !important;
-    }
-
-    .support-btn-sub {
-        font-size: 0.65rem;
-        font-weight: normal;
-        opacity: 0.85;
-        margin-top: 1px;
+        color: #ef4444;
+        margin-bottom: 0.75rem;
     }
 
     .footer-note {
-        font-size: 0.68rem;
+        font-size: 0.65rem;
         color: var(--text-muted);
-        opacity: 0.75;
+        opacity: 0.7;
         font-style: italic;
         line-height: 1.3;
     }
@@ -459,8 +478,44 @@
             </div>
         </div>
 
+        <!-- Rented Items Collapsible Section -->
+        {% if customer.bookings %}
+        <details class="items-accordion">
+            <summary class="items-summary">
+                <span><i class="fa-solid fa-shirt"></i> View Rented Items / સામાન જુઓ</span>
+                <i class="fa-solid fa-chevron-down chevron"></i>
+            </summary>
+            <div class="items-grid">
+                {% for date, codes in customer.bookings.items() %}
+                    {% for code in codes %}
+                        <div class="item-badge">
+                            <div class="item-img-wrapper">
+                                {% if code.startswith('K') %}
+                                    <img src="{{ url_for('static', filename='KediyaJpg/' + code + '.jpg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='Home_Img/favicon.png') }}';">
+                                {% elif code.startswith('C') %}
+                                    <img src="{{ url_for('static', filename='CholiJpg/' + code + '.jpg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='Home_Img/favicon.png') }}';">
+                                {% elif code.startswith('G') %}
+                                    <img src="{{ url_for('static', filename='GroupJpg/' + code + '.jpg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='Home_Img/favicon.png') }}';">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}">
+                                {% endif %}
+                            </div>
+                            <div class="item-details">
+                                <span class="item-code">{{ code }}</span>
+                                <span class="item-date">{{ date }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </details>
+        {% endif %}
+
         <!-- Big Pulse CTA Button to Download PDF -->
         <form action="{{ url_for('navaratri.download_customer') }}" method="post" style="margin: 0; width: 100%;">
+            {% if id %}
+                <input type="hidden" name="id" value="{{ id }}">
+            {% endif %}
             <input type="hidden" name="mobile" value="{{ mobile }}">
             <button type="submit" class="btn-download-bill">
                 <span class="btn-text-primary">
@@ -471,37 +526,29 @@
         </form>
 
         {% else %}
-        <!-- Search Panel if Customer is not found -->
+        <!-- Access Denied (Insecure/No ID Case) -->
         <div class="search-panel">
-            <h2 class="search-title">Find Your Bill / બિલ શોધો</h2>
-            <div class="search-subtitle">અમદાવાદ (Ahmedabad)</div>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.4;">
-                {% if mobile %}
-                    Could not find bill for <strong>{{ mobile }}</strong>. Please check and enter the correct mobile number:
-                {% else %}
-                    Enter your registered mobile number to download your bill:
-                {% endif %}
+            <h2 class="search-title"><i class="fa-solid fa-triangle-exclamation"></i> Access Denied</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem;">
+                For privacy and security reasons, please open the bill page using the official link or QR code provided by the store.
             </p>
-            <form action="{{ url_for('navaratri.download_bill_page') }}" method="post" class="search-input-group">
-                <input type="tel" name="mobile" class="search-input" placeholder="e.g. 9898012345" required pattern="[0-9]{10}">
-                <button type="submit" class="btn-search">Search / શોધો</button>
-            </form>
+            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0;">
+                સુરક્ષાના કારણોસર, કૃપા કરીને દુકાન દ્વારા આપવામાં આવેલ લિંક અથવા QR કોડનો ઉપયોગ કરીને બિલ જુઓ.
+            </p>
         </div>
         {% endif %}
 
-        <!-- Need Help Section -->
-        <div class="support-section">
-            <div class="support-title">Need Help? / મદદ જોઈએ છે?</div>
-            <div class="support-grid">
-                <a href="https://wa.me/919428610384?text=Hello%20Image%20Traditional,%20I%20need%20assistance%20with%20my%20booking%20bill." target="_blank" class="btn-support btn-whatsapp">
-                    <span><i class="fa-brands fa-whatsapp"></i> WhatsApp</span>
-                    <span class="support-btn-sub">વોટ્સએપ મેસેજ કરો</span>
-                </a>
-                <a href="tel:+919428610384" class="btn-support btn-call">
-                    <span><i class="fa-solid fa-phone-volume"></i> Call Shop</span>
-                    <span class="support-btn-sub">દુકાન પર ફોન કરો</span>
-                </a>
-            </div>
+        <!-- Store Info Section -->
+        <div class="store-info-section">
+            <div class="store-info-title">Store Details / દુકાનની વિગત</div>
+            <p class="store-info-text" style="margin: 0;">
+                <i class="fa-solid fa-location-dot" style="color: var(--primary-gold); margin-right: 4px;"></i>
+                Nr. Laxminarayan Bus-stand, Opp Prarabdh Soc., Maninagar(E), Ahmedabad-08
+            </p>
+            <p class="store-info-text" style="margin: 0;">
+                <i class="fa-solid fa-phone" style="color: var(--primary-gold); margin-right: 4px;"></i>
+                Prakash Mandali: +91 9428610384
+            </p>
         </div>
 
         <div class="footer-note">

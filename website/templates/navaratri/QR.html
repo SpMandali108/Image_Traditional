@@ -28,6 +28,12 @@
             <p style="margin-top:1rem;">
                 Or click <a href="{{ qr_url }}" target="_blank">here</a> to open the download page.
             </p>
+            <div style="margin-top:1.5rem;">
+                <a href="https://wa.me/91{{ customer.mobile }}?text=Hello%20{{ customer.Name }},%20here%20is%20your%20Image%20Traditional%20booking%20bill%20link:%20{{ qr_url }}" 
+                   target="_blank" class="btn btn-success" style="background-color: #25D366; border-color: #25D366; padding: 12px 24px; font-weight: bold; font-size: 1.1rem; border-radius: 8px;">
+                    <i class="fa-brands fa-whatsapp"></i> Share Bill Link via WhatsApp
+                </a>
+            </div>
         </div>
     {% else %}
         <p style="color:red; margin-top:2rem;">QR code not available for this booking.</p>
