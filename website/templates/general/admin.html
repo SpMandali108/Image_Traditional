@@ -1,350 +1,479 @@
-    {% extends "general/base.html" %}
-    {% block title %}Admin Dashboard{% endblock %}
+{% extends "general/base.html" %}
+{% block title %}Admin Dashboard | Image Traditional{% endblock %}
 
-    {% block logo_link %}
-    <a href="/" class="logo">
-        <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Image Traditional Logo">
-        <span class="logo-text">Image Traditional</span>
-    </a>
-    {% endblock %}
-    {% block robots %}
-    <meta name="robots" content="noindex, nofollow" />
-    {% endblock %}
+{% block logo_link %}
+<a href="/" class="logo">
+    <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Image Traditional Logo">
+    <span class="logo-text">Image Traditional</span>
+</a>
+{% endblock %}
 
-    {% block content %}
-    <style>
-    /* Root variables */
-    :root {
-        --navy: #0a1628;
-        --dark-blue: #0f2847;
-        --medium-blue: #1e3a5f;
-        --accent-blue: #2b5797;
-        --gold: #c9a961;
-        --light-gold: #e4c88a;
-        --pale-gold: #f5e6c8;
-    }
+{% block head %}
+<meta name="robots" content="noindex, nofollow" />
+<!-- Google Fonts for Festive Dashboard -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Marcellus&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+{% endblock %}
 
-    /* Allow scrolling */
-    html, body {
-        margin: 0;
-        overflow-x: hidden;
-    }
+{% block content %}
+<div class="festive-admin-wrapper">
+    <!-- Floating Sparkles Canvas -->
+    <canvas id="adminParticles" class="admin-particles"></canvas>
 
-    /* Main container */
-    .admin-page {
-        min-height: 100vh;
-        background: linear-gradient(135deg, var(--navy) 0%, var(--dark-blue) 50%, var(--medium-blue) 100%);
+    <!-- Swaying Garland (Toran) at top -->
+    <div class="admin-toran-container">
+        <svg viewBox="0 0 1200 80" class="admin-toran-svg" preserveAspectRatio="none">
+            <path d="M0,0 Q150,55 300,0 Q450,55 600,0 Q750,55 900,0 Q1050,55 1200,0" fill="none" stroke="var(--gold, #d4af37)" stroke-width="3" stroke-dasharray="10, 5"/>
+            <path d="M0,0 Q150,45 300,0 Q450,45 600,0 Q750,45 900,0 Q1050,45 1200,0" fill="none" stroke="var(--gold-dark, #b8961e)" stroke-width="1.5"/>
+            <!-- Hanging elements -->
+            <g class="admin-leaf"><path d="M150,28 C146,45 148,60 150,70 C152,60 154,45 150,28" fill="#15803d"/><circle cx="150" cy="26" r="8" fill="#d4af37"/></g>
+            <g class="admin-leaf"><path d="M450,28 C446,45 448,60 450,70 C452,60 454,45 450,28" fill="#15803d"/><circle cx="450" cy="26" r="8" fill="#d4af37"/></g>
+            <g class="admin-leaf"><path d="M750,28 C746,45 748,60 750,70 C752,60 754,45 750,28" fill="#15803d"/><circle cx="750" cy="26" r="8" fill="#d4af37"/></g>
+            <g class="admin-leaf"><path d="M1050,28 C1046,45 1048,60 1050,70 C1052,60 1054,45 1050,28" fill="#15803d"/><circle cx="1050" cy="26" r="8" fill="#d4af37"/></g>
+        </svg>
+    </div>
+
+    <!-- Rotating Watermark Mandala Background -->
+    <div class="admin-mandala-container">
+        <svg class="admin-mandala-svg" viewBox="0 0 200 200">
+            <defs>
+                <g id="petal-motif">
+                    <path d="M 100 100 C 90 60, 95 30, 100 0 C 105 30, 110 60, 100 100" fill="none" stroke="var(--gold, #d4af37)" stroke-width="0.3"/>
+                    <circle cx="100" cy="30" r="1.5" fill="var(--gold-dark, #b8961e)"/>
+                </g>
+            </defs>
+            <circle cx="100" cy="100" r="95" fill="none" stroke="var(--gold, #d4af37)" stroke-width="0.4" stroke-dasharray="2,4" opacity="0.3"/>
+            <g>
+                <use href="#petal-motif" transform="rotate(0 100 100)"/>
+                <use href="#petal-motif" transform="rotate(30 100 100)"/>
+                <use href="#petal-motif" transform="rotate(60 100 100)"/>
+                <use href="#petal-motif" transform="rotate(90 100 100)"/>
+                <use href="#petal-motif" transform="rotate(120 100 100)"/>
+                <use href="#petal-motif" transform="rotate(150 100 100)"/>
+                <use href="#petal-motif" transform="rotate(180 100 100)"/>
+                <use href="#petal-motif" transform="rotate(210 100 100)"/>
+                <use href="#petal-motif" transform="rotate(240 100 100)"/>
+                <use href="#petal-motif" transform="rotate(270 100 100)"/>
+                <use href="#petal-motif" transform="rotate(300 100 100)"/>
+                <use href="#petal-motif" transform="rotate(330 100 100)"/>
+            </g>
+            <circle cx="100" cy="100" r="40" fill="none" stroke="var(--gold, #d4af37)" stroke-width="0.5" opacity="0.4"/>
+        </svg>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="admin-dashboard-box">
+        
+        <!-- Header Title Section -->
+        <header class="dashboard-header">
+            <h1 class="dashboard-title">Administration Dashboard</h1>
+            <p class="dashboard-subtitle">Select the costume rental department to manage</p>
+            <div class="dashboard-divider">
+                <span class="d-line"></span>
+                <span class="d-icon">🪔</span>
+                <span class="d-line"></span>
+            </div>
+        </header>
+
+        <!-- Department Gateway Cards -->
+        <div class="gateways-grid">
+            
+            <!-- GATEWAY 1: FANCY DRESS PIPELINE -->
+            <div class="gateway-card" onclick="window.location.href='/fancy_admin'">
+                <div class="card-inner-frame">
+                    <div class="gateway-icon-container">
+                        <span class="gateway-icon">🎭</span>
+                        <div class="gateway-glow"></div>
+                    </div>
+                    <h3 class="gateway-heading">Fancy Dress Rentals</h3>
+                    <p class="gateway-desc">Comprehensive system for fancy dress customer profiles, booking cycles, returned tracking calendars, and rental stock analytics.</p>
+                    <a href="/fancy_admin" class="gateway-btn">
+                        <span>Access Panel</span>
+                        <span class="btn-arrow">➔</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- GATEWAY 2: NAVARATRI/GARBA PIPELINE -->
+            <div class="gateway-card" onclick="window.location.href='/navaratri_admin'">
+                <div class="card-inner-frame">
+                    <div class="gateway-icon-container">
+                        <span class="gateway-icon">🪔</span>
+                        <div class="gateway-glow"></div>
+                    </div>
+                    <h3 class="gateway-heading">Navaratri Collection</h3>
+                    <p class="gateway-desc">Control pipeline for Gujarati Kediya and Chaniya Choli customer records, security deposit processing, invoices, and returns.</p>
+                    <a href="/navaratri_admin" class="gateway-btn">
+                        <span>Access Panel</span>
+                        <span class="btn-arrow">➔</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- Dashboard Styling -->
+<style>
+    .festive-admin-wrapper {
         position: relative;
-        padding: 2rem 1rem;
+        background: radial-gradient(circle at 50% 50%, var(--surface, #1e293b) 0%, var(--bg, #0f172a) 100%);
+        min-height: 82vh;
+        padding: 40px 24px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius, 8px);
+        box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.6);
+        border: 1px solid var(--border, #334155);
     }
 
-    /* Decorative background elements */
-    .admin-page::before {
-        content: '';
+    .admin-particles {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: 
-            radial-gradient(circle at 20% 30%, rgba(201, 169, 97, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 70%, rgba(43, 87, 151, 0.15) 0%, transparent 50%);
         pointer-events: none;
-    }
-
-    /* Wrapper */
-    .admin-wrapper {
-        max-width: 1100px;
-        margin: 0 auto;
-        position: relative;
         z-index: 1;
     }
 
-    /* Title section */
-    .admin-header {
-        text-align: center;
-        margin-bottom: 2.5rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 2px solid var(--gold);
-        position: relative;
-    }
-
-    .admin-header::after {
-        content: '';
-        position: absolute;
-        bottom: -2px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 120px;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, var(--light-gold), transparent);
-    }
-
-    .admin-title {
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: var(--pale-gold);
-        margin: 0;
-        letter-spacing: 1px;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .title-icon {
-        font-size: 2.5rem;
-        filter: drop-shadow(0 2px 8px rgba(201, 169, 97, 0.5));
-    }
-
-    /* Card container - Horizontal layout */
-    .card-container {
-        display: flex;
-        gap: 2rem;
-        justify-content: center;
-        align-items: stretch;
-        flex-wrap: wrap;
-    }
-
-    /* Cards */
-    .admin-card {
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
-        border: 2px solid rgba(201, 169, 97, 0.25);
-        border-radius: 16px;
-        padding: 2.5rem 2rem;
-        text-align: center;
-        cursor: pointer;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-        backdrop-filter: blur(10px);
-        flex: 1;
-        min-width: 300px;
-        max-width: 450px;
-    }
-
-    /* Card decorative top border */
-    .admin-card::before {
-        content: '';
+    /* Hanging Garland */
+    .admin-toran-container {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
-        height: 5px;
-        background: linear-gradient(90deg, var(--gold), var(--light-gold), var(--gold));
+        height: 70px;
+        z-index: 10;
+        pointer-events: none;
     }
 
-    /* Card glow effect */
-    .admin-card::after {
-        content: '';
+    .admin-toran-svg {
+        width: 100%;
+        height: 100%;
+        filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));
+    }
+
+    .admin-leaf {
+        transform-origin: 50% 0%;
+        animation: toranLeafSway 5s ease-in-out infinite alternate;
+    }
+
+    .admin-leaf:nth-child(even) {
+        animation-delay: -2.5s;
+        animation-duration: 6s;
+    }
+
+    @keyframes toranLeafSway {
+        0% { transform: rotate(-3deg); }
+        100% { transform: rotate(3deg); }
+    }
+
+    /* Rotating background mandala */
+    .admin-mandala-container {
         position: absolute;
         top: 50%;
         left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(201, 169, 97, 0.2), transparent);
         transform: translate(-50%, -50%);
-        transition: width 0.4s ease, height 0.4s ease;
+        width: 50vw;
+        height: 50vw;
+        max-width: 480px;
+        max-height: 480px;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.08;
     }
 
-    .admin-card:hover {
-        transform: translateY(-8px) scale(1.02);
-        border-color: var(--gold);
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
-        box-shadow: 0 20px 60px rgba(201, 169, 97, 0.25), 0 0 40px rgba(201, 169, 97, 0.15);
+    .admin-mandala-svg {
+        width: 100%;
+        height: 100%;
+        animation: spinMotif 80s linear infinite;
+        will-change: transform;
+        transform: translate3d(0,0,0);
     }
 
-    .admin-card:hover::after {
-        width: 300px;
-        height: 300px;
+    @keyframes spinMotif {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 
-    .admin-icon {
-        font-size: 4rem;
-        margin-bottom: 1.5rem;
-        filter: drop-shadow(0 4px 12px rgba(201, 169, 97, 0.4));
+    /* Box Container */
+    .admin-dashboard-box {
         position: relative;
-        z-index: 1;
+        z-index: 5;
+        width: 100%;
+        max-width: 860px;
+        text-align: center;
     }
 
-    .admin-card h3 {
-        font-size: 1.6rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: var(--pale-gold);
-        letter-spacing: 0.5px;
-        position: relative;
-        z-index: 1;
+    .dashboard-header {
+        margin-bottom: 25px;
     }
 
-    .admin-card p {
-        color: rgba(255, 255, 255, 0.75);
-        font-weight: 500;
-        margin-bottom: 2rem;
-        line-height: 1.6;
+    .dashboard-title {
+        font-family: 'Cinzel', serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ffffff 30%, var(--gold, #d4af37) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0 0 6px 0;
+        letter-spacing: 1px;
+    }
+
+    .dashboard-subtitle {
+        font-family: 'Marcellus', serif;
+        color: var(--muted, #94a3b8);
         font-size: 1rem;
-        position: relative;
-        z-index: 1;
+        margin: 0 0 15px 0;
     }
 
-    /* Buttons */
-    .go-btn {
-        display: inline-block;
-        padding: 0.75rem 1.8rem;
-        border-radius: 8px;
-        font-weight: 700;
-        text-decoration: none;
-        color: var(--navy);
-        background: linear-gradient(135deg, var(--gold), var(--light-gold));
-        box-shadow: 0 4px 15px rgba(201, 169, 97, 0.3);
-        transition: all 0.3s ease;
-        position: relative;
-        z-index: 1;
-        border: 1px solid var(--light-gold);
+    .dashboard-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .d-line {
+        height: 1px;
+        width: 50px;
+        background: linear-gradient(90deg, transparent, var(--gold, #d4af37), transparent);
+    }
+
+    .d-icon {
+        color: var(--gold, #d4af37);
         font-size: 0.95rem;
     }
 
-    .go-btn:hover {
-        background: linear-gradient(135deg, var(--light-gold), var(--pale-gold));
-        box-shadow: 0 6px 25px rgba(201, 169, 97, 0.5);
-        transform: translateY(-2px);
+    /* Gateway grids */
+    .gateways-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
     }
 
-    /* Fancy card specific styling */
-    .fancy {
-        border-image: linear-gradient(135deg, #8b5cf6, var(--gold)) 1;
+    .gateway-card {
+        background: rgba(30, 41, 59, 0.35);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid var(--border, #334155);
+        border-radius: 16px;
+        padding: 24px 20px;
+        cursor: pointer;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s, border-color 0.3s;
+        position: relative;
+        will-change: transform;
+        transform: translate3d(0,0,0);
+        display: flex;
+        flex-direction: column;
     }
 
-    .fancy .admin-icon {
-        color: #a78bfa;
+    .gateway-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        padding: 1.5px;
+        background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), transparent, rgba(255, 255, 255, 0.05));
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
     }
 
-    /* Navaratri card specific styling */
-    .navaratri {
-        border-image: linear-gradient(135deg, #f59e0b, var(--gold)) 1;
+    .gateway-card:hover {
+        transform: translateY(-4px) translate3d(0,0,0);
+        background: rgba(30, 41, 59, 0.55);
+        border-color: var(--gold, #d4af37);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(212, 175, 55, 0.12);
     }
 
-    .navaratri .admin-icon {
-        color: #fbbf24;
+    .card-inner-frame {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
     }
 
-    /* Responsive */
+    .gateway-icon-container {
+        position: relative;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1.5px solid var(--gold, #d4af37);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+        box-shadow: inset 0 0 8px rgba(212, 175, 55, 0.1);
+    }
+
+    .gateway-icon {
+        font-size: 2rem;
+        z-index: 2;
+        filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.3));
+    }
+
+    .gateway-glow {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: 1;
+    }
+
+    .gateway-card:hover .gateway-glow {
+        opacity: 1;
+    }
+
+    .gateway-heading {
+        font-family: 'Cinzel', serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text, #f1f5f9);
+        margin: 0 0 8px 0;
+        transition: color 0.3s;
+    }
+
+    .gateway-card:hover .gateway-heading {
+        color: var(--gold, #d4af37);
+    }
+
+    .gateway-desc {
+        font-family: 'Poppins', sans-serif;
+        color: var(--muted, #94a3b8);
+        font-size: 0.88rem;
+        line-height: 1.5;
+        margin: 0 0 16px 0;
+        flex-grow: 1;
+        font-weight: 300;
+    }
+
+    .gateway-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(212, 175, 55, 0.2);
+        color: var(--gold, #d4af37);
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 0.8rem;
+        padding: 6px 16px;
+        border-radius: 20px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .gateway-card:hover .gateway-btn {
+        background: var(--gold, #d4af37);
+        color: var(--navy, #0a1929);
+        border-color: var(--gold, #d4af37);
+        box-shadow: 0 4px 8px rgba(212, 175, 55, 0.15);
+        transform: translateY(-1px);
+    }
+
+    .btn-arrow {
+        transition: transform 0.3s;
+    }
+
+    .gateway-card:hover .btn-arrow {
+        transform: translateX(3px);
+    }
+
+    /* Responsive design elements */
     @media (max-width: 768px) {
-        .admin-page {
-            padding: 1.5rem 1rem;
+        .festive-admin-wrapper {
+            padding: 30px 16px;
+            min-height: auto;
         }
-        
-        .admin-title {
+        .dashboard-title {
             font-size: 1.8rem;
         }
-        
-        .title-icon {
-            font-size: 2rem;
+        .gateways-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+            max-width: 380px;
+            margin: 0 auto;
         }
-        
-        .admin-header {
-            margin-bottom: 2rem;
+        .gateway-card {
+            padding: 20px 16px;
         }
-        
-        .card-container {
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .admin-card {
-            min-width: 280px;
-            max-width: 100%;
-            padding: 2rem 1.5rem;
-        }
-        
-        .admin-icon {
-            font-size: 3.5rem;
-        }
-        
-        .admin-card h3 {
-            font-size: 1.4rem;
-        }
-        
-        .admin-card p {
-            font-size: 0.95rem;
+        .gateway-desc {
+            margin-bottom: 12px;
         }
     }
+</style>
 
-    @media (min-width: 769px) and (max-width: 1024px) {
-        .card-container {
-            gap: 1.5rem;
+<!-- Canvas script for floating sparkles -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const canvas = document.getElementById("adminParticles");
+        if (!canvas) return;
+
+        const ctx = canvas.getContext("2d");
+        let particles = [];
+
+        function resize() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
         }
-        
-        .admin-card {
-            min-width: 280px;
-            max-width: 400px;
+        resize();
+        window.addEventListener("resize", resize);
+
+        class AdminSparkle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 20;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.vy = -(Math.random() * 0.4 + 0.15);
+                this.vx = (Math.random() - 0.5) * 0.15;
+                this.alpha = Math.random() * 0.5 + 0.3;
+                this.decay = Math.random() * 0.002 + 0.001;
+                this.color = Math.random() > 0.5 ? "#fde047" : "#eab308";
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= this.decay;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
         }
-    }
 
-    /* For very small screens */
-    @media (max-width: 480px) {
-        .admin-page {
-            padding: 1rem 0.5rem;
+        function loop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (particles.length < 15 && Math.random() < 0.08) {
+                particles.push(new AdminSparkle());
+            }
+
+            particles = particles.filter(p => {
+                p.update();
+                p.draw();
+                return p.alpha > 0 && p.y >= 0 && p.x >= 0 && p.x <= canvas.width;
+            });
+
+            requestAnimationFrame(loop);
         }
-        
-        .admin-title {
-            font-size: 1.5rem;
-        }
-        
-        .admin-card {
-            min-width: 260px;
-            padding: 1.8rem 1.2rem;
-        }
-    }
-    </style>
-
-    <div class="admin-page">
-        <div class="admin-wrapper">
-
-            <!-- Header -->
-            <div class="admin-header">
-                <h2 class="admin-title">
-                    <span class="title-icon">🛠</span>
-                    <span>Administration Dashboard</span>
-                </h2>
-            </div>
-
-            <!-- Card Container - Horizontal Layout -->
-            <div class="card-container">
-
-                <!-- FANCY CARD -->
-                <div class="admin-card fancy"
-                    onclick="window.location.href='/fancy_admin'">
-                    <div class="admin-icon">🎭</div>
-                    <h3>Fancy Dress</h3>
-                    <p>
-                        Comprehensive management system for fancy dress bookings, calendar scheduling, return tracking, and detailed analytics.
-                    </p>
-                    <a href="/fancy_admin" class="go-btn">
-                        Access Panel →
-                    </a>
-                </div>
-
-                <!-- NAVARATRI CARD -->
-                <div class="admin-card navaratri"
-                    onclick="window.location.href='/navaratri_admin'">
-                    <div class="admin-icon">🪔</div>
-                    <h3>Navaratri</h3>
-                    <p>
-                        Complete control center for Navaratri customer management, payment processing, and profile administration.
-                    </p>
-                    <a href="/navaratri_admin" class="go-btn">
-                        Access Panel →
-                    </a>
-                </div>
-
-            </div>
-
-        </div>
-    </div>
-
-    {% endblock %}
+        requestAnimationFrame(loop);
+    });
+</script>
+{% endblock %}
