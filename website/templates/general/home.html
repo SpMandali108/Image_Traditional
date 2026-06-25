@@ -182,6 +182,38 @@ Image Traditional offers vibrant Kediya, Chaniya Choli, and Fancy Dress rentals 
 
     <!-- Category Showcase - Circular Mirror Cards -->
     <div class="festive-category-grid">
+
+      <a href="{{ url_for('general.catalogue') }}" class="traditional-category-card" data-category="fancy">
+        <div class="card-mirror-frame">
+          <div class="mirror-beads-border">
+            <span class="bead b1"></span><span class="bead b2"></span><span class="bead b3"></span>
+            <span class="bead b4"></span><span class="bead b5"></span><span class="bead b6"></span>
+            <span class="bead b7"></span><span class="bead b8"></span><span class="bead b9"></span>
+            <span class="bead b10"></span><span class="bead b11"></span><span class="bead b12"></span>
+          </div>
+          
+          <div class="glass-inner-view">
+            <img src="{{ url_for('static', filename='Home_Img/costume.webp') }}" alt="Fancy Costume" class="category-image">
+            <div class="mirror-gloss-shimmer"></div>
+          </div>
+          
+          <!-- Magical spark reveal overlay -->
+          <div class="card-sparkle-overlay">
+            <div class="card-spark cs1">✦</div>
+            <div class="card-spark cs2">✦</div>
+            <div class="card-spark cs3">✦</div>
+          </div>
+        </div>
+        
+        <div class="card-info-badge">
+          <h3 class="card-headline">Fancy Dresses</h3>
+          <p class="card-tagline">School Events, Dramas &amp; Kids Costumes</p>
+          <div class="card-action-trigger">
+            <span>Explore Collection</span>
+            <span class="arrow-icon">➔</span>
+          </div>
+        </div>
+      </a>
       
       <!-- Card 1: Traditional Kediya -->
       <a href="{{ url_for('general.kediya') }}" class="traditional-category-card" data-category="kediya">
@@ -250,37 +282,7 @@ Image Traditional offers vibrant Kediya, Chaniya Choli, and Fancy Dress rentals 
       </a>
 
       <!-- Card 3: Fancy Dresses -->
-      <a href="{{ url_for('general.catalogue') }}" class="traditional-category-card" data-category="fancy">
-        <div class="card-mirror-frame">
-          <div class="mirror-beads-border">
-            <span class="bead b1"></span><span class="bead b2"></span><span class="bead b3"></span>
-            <span class="bead b4"></span><span class="bead b5"></span><span class="bead b6"></span>
-            <span class="bead b7"></span><span class="bead b8"></span><span class="bead b9"></span>
-            <span class="bead b10"></span><span class="bead b11"></span><span class="bead b12"></span>
-          </div>
-          
-          <div class="glass-inner-view">
-            <img src="{{ url_for('static', filename='Home_Img/costume.webp') }}" alt="Fancy Costume" class="category-image">
-            <div class="mirror-gloss-shimmer"></div>
-          </div>
-          
-          <!-- Magical spark reveal overlay -->
-          <div class="card-sparkle-overlay">
-            <div class="card-spark cs1">✦</div>
-            <div class="card-spark cs2">✦</div>
-            <div class="card-spark cs3">✦</div>
-          </div>
-        </div>
-        
-        <div class="card-info-badge">
-          <h3 class="card-headline">Fancy Dresses</h3>
-          <p class="card-tagline">School Events, Dramas &amp; Kids Costumes</p>
-          <div class="card-action-trigger">
-            <span>Explore Collection</span>
-            <span class="arrow-icon">➔</span>
-          </div>
-        </div>
-      </a>
+      
 
     </div>
 
