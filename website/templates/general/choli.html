@@ -1,8 +1,8 @@
 {% extends "general/base.html" %}
 
-{% block title %}Chaniya Choli | Image Traditional{% endblock %}
+{% block title %}Premium Chaniya Choli Collection | Image Traditional{% endblock %}
 
-{% block description %}Explore our extensive collection of navaratri Chaniya Choli.{% endblock %}
+{% block description %}Browse our exclusive, hand-crafted, unique traditional Chaniya Choli collection for Navratri rentals in Ahmedabad.{% endblock %}
 
 {% block logo_link %}
 <a href="/" class="logo">
@@ -12,72 +12,778 @@
 {% endblock %}
 
 {% block content %}
-<div class="catalogue">
-    {% for product in products %}
-    <div class="product-card">
-        <a href = "{{ url_for('static', filename='Choli/' ~ product.image) }}" target="_blank">
-        <img src="{{ url_for('static', filename='Choli/' ~ product.image) }}" alt="{{ product.name }}">
-        </a>
-        <h2>{{ product.name }}</h2>
-    </div>
-    {% endfor %}
-</div>
-<style>
-    body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #ffffff;
-}
-
-header {
-    background-color: #333;
-    color: white;
-    padding: 15px;
-    text-align: center;
-}
-
-.catalogue {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 20px;
-    gap: 30px;
-}
-
-.product-card {
-    background: rgb(255, 255, 255);
-    border: 1px solid #ddd;
-    padding: 10px;
-    width: 250px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.05);
-    border-radius: 8px;
+<div class="catalog-container">
     
-}
+    <!-- Header Section -->
+    <header class="catalog-header animate__animated animate__fadeInDown">
+        <h1 class="catalog-title">👗 Premium Traditional Chaniya Choli</h1>
+        <p class="catalog-subtitle">Every design in this collection is a 100% unique artisan creation. Click on any outfit to inspect its hand-embroidery and mirror work in high definition.</p>
+    </header>
 
-.product-card:hover {
-    box-shadow: 2px 2px 15px rgba(0,0,0,0.1);
-    transform: translateY(-5px);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
+    <!-- Search & Range Filters -->
+    <div class="filters-card animate__animated animate__fadeIn">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="catalogSearch" onkeyup="filterCatalog()" placeholder="Search unique costume codes (e.g. C10, C115)...">
+        </div>
+        <div class="range-controls">
+            <button class="filter-btn active" id="rangeBtnAll" onclick="filterRange('all')">Show All</button>
+            <button class="filter-btn" id="rangeBtn1" onclick="filterRange(1, 50)">C1 - C50</button>
+            <button class="filter-btn" id="rangeBtn2" onclick="filterRange(51, 100)">C51 - C100</button>
+            <button class="filter-btn" id="rangeBtn3" onclick="filterRange(101, 150)">C101 - C150</button>
+        </div>
+    </div>
 
-.product-card img {
-    width: 100%;
-    height: auto;
-    border-radius: 4px;
-}
+    <!-- Product Grid -->
+    <div class="catalogue-grid" id="catalogueGrid">
+        {% for product in products %}
+        <div class="product-card" data-code="{{ product.name }}" data-index="{{ loop.index0 }}" onclick="openLightbox({{ loop.index0 }})">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="{{ url_for('static', filename='Choli/' ~ product.image) }}" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{{ url_for('static', filename='CholiJpg/' ~ product.name ~ '.jpg') }}';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">{{ product.name }}</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 
-.product-card h2 {
-    font-size: 16px;
-    margin: 10px 0 0 0;
-}
-.product-card h2 {
-    color: #333;
-}
+<!-- Fullscreen Magnifying Lightbox Modal -->
+<div id="galleryLightbox" class="lightbox-modal">
+    <div class="lightbox-container">
+        <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+        
+        <div class="lightbox-layout">
+            <!-- Left Side: Interactive Cursor-tracking Zoom Image -->
+            <div class="lightbox-image-stage" id="zoomStage">
+                <img id="lightboxImg" src="" alt="Costume View">
+                <div class="zoom-helper-text">Hover to Zoom Embroidery Details 🔍</div>
+            </div>
+            
+            <!-- Right Side: Product Details & Inquiry -->
+            <div class="lightbox-sidebar">
+                <span class="sidebar-category">Traditional Collection</span>
+                <h2 id="lightboxTitle">Chaniya Choli C1</h2>
+                <div class="badge-row">
+                    <span class="sidebar-badge code-badge" id="sidebarCode">C1</span>
+                    <span class="sidebar-badge status-badge">Unique Piece</span>
+                </div>
+                
+                <p class="sidebar-desc" id="sidebarDesc">This traditional outfit is a one-of-a-kind Gujarati design, handcrafted by local artisans. Each piece contains unique artisan patterns, mirror work, and fabric borders.</p>
+                
+                <!-- Costume Specifications Table -->
+                
+
+                <div class="inquiry-box">
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin: 0 0 10px 0; font-weight: 600;">💬 DIRECT BOOKING INQUIRY</p>
+                    <a id="whatsappInquiryBtn" href="" target="_blank" class="action-btn-whatsapp">
+                        💬 Inquire on WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Nav Arrow Controls -->
+        <div class="lightbox-nav-row">
+            <button class="nav-arrow-btn" onclick="navigateLightbox(-1)">◀ Previous</button>
+            <span class="nav-indicator" id="lightboxIndicator">1 / 150</span>
+            <button class="nav-arrow-btn" onclick="navigateLightbox(1)">Next ▶</button>
+        </div>
+    </div>
+</div>
+
+<!-- Premium Catalog Styling -->
+<style>
+    :root {
+        --dark-bg: #0f172a;
+        --card-bg: rgba(30, 41, 59, 0.6);
+        --accent-gold: #d4af37;
+        --accent-glow: rgba(212, 175, 55, 0.15);
+        --text-light: #f8fafc;
+        --text-muted: #94a3b8;
+    }
+
+    body {
+        background: radial-gradient(circle at 50% 50%, #1e293b 0%, var(--dark-bg) 100%) !important;
+        color: var(--text-light) !important;
+        font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    }
+
+    .catalog-container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .catalog-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .catalog-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ffffff 0%, var(--accent-gold) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+
+    .catalog-subtitle {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        max-width: 750px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* Filters Card */
+    .filters-card {
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        backdrop-filter: blur(12px);
+    }
+
+    .search-box {
+        position: relative;
+        flex: 1;
+        max-width: 450px;
+        min-width: 280px;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+    }
+
+    .search-box input {
+        width: 100%;
+        background: rgba(10, 15, 25, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 30px;
+        padding: 12px 20px 12px 45px;
+        color: white;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: var(--accent-gold);
+        box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .range-controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--text-muted);
+        padding: 8px 18px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: white;
+    }
+
+    .filter-btn.active {
+        background: var(--accent-gold);
+        color: #0b0f19;
+        border-color: var(--accent-gold);
+        box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* Product Grid layout representing patchwork elements */
+    .catalogue-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 25px;
+    }
+
+    .product-card {
+        background: var(--card-bg);
+        border: 2px dashed rgba(212, 175, 55, 0.25);
+        border-radius: 16px;
+        padding: 12px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.3s, box-shadow 0.4s;
+        display: flex;
+        flex-direction: column;
+        will-change: transform;
+        transform: translate3d(0, 0, 0);
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px) translate3d(0, 0, 0);
+        border-color: var(--accent-gold);
+        box-shadow: 0 10px 25px rgba(212, 175, 55, 0.15);
+    }
+
+    .card-gold-stitch {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        right: 6px;
+        bottom: 6px;
+        border: 1px dotted rgba(212, 175, 55, 0.4);
+        border-radius: 12px;
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    .card-image-wrapper {
+        position: relative;
+        width: 100%;
+        height: 250px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .card-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+        will-change: transform;
+        transform: translate3d(0, 0, 0);
+    }
+
+    .product-card:hover .card-image-wrapper img {
+        transform: scale(1.08) translate3d(0, 0, 0);
+    }
+
+    .card-mirror-accent {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 22px;
+        height: 22px;
+        background: radial-gradient(circle, #ffffff 30%, rgba(212, 175, 55, 0.8) 70%);
+        border: 1.5px solid var(--accent-gold);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.5rem;
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+        z-index: 3;
+    }
+
+    .card-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 12px;
+        padding: 0 4px;
+        z-index: 3;
+    }
+
+    .card-code {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: white;
+        font-family: monospace;
+        letter-spacing: 0.05em;
+    }
+
+    .card-inspect-btn {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: color 0.2s;
+    }
+
+    .product-card:hover .card-inspect-btn {
+        color: white;
+    }
+
+    /* Lightbox Modal CSS */
+    .lightbox-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(6, 8, 12, 0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .lightbox-modal.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .lightbox-container {
+        background: #1e293b;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(212, 175, 55, 0.1);
+        border-radius: 24px;
+        width: 92%;
+        max-width: 840px;
+        padding: 28px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        transform: scale(0.95) translateY(10px);
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .lightbox-modal.active .lightbox-container {
+        transform: scale(1) translateY(0);
+    }
+
+    .lightbox-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        transition: all 0.2s;
+    }
+
+    .lightbox-close:hover {
+        background: #ef4444;
+        border-color: #ef4444;
+    }
+
+    .lightbox-layout {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 30px;
+    }
+
+    @media (max-width: 768px) {
+        .lightbox-layout {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+    }
+
+    /* Zoomable Stage */
+    .lightbox-image-stage {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.3);
+        height: 380px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        cursor: zoom-in;
+    }
+
+    @media (max-width: 480px) {
+        .lightbox-image-stage {
+            height: 250px;
+        }
+    }
+
+    .lightbox-image-stage img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform 0.1s ease-out;
+        transform-origin: center center;
+        will-change: transform;
+        transform: translate3d(0, 0, 0);
+    }
+
+    .zoom-helper-text {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(10, 15, 25, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        pointer-events: none;
+        z-index: 3;
+    }
+
+    .lightbox-sidebar {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: left;
+    }
+
+    .sidebar-category {
+        color: var(--accent-gold);
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 5px;
+    }
+
+    .lightbox-sidebar h2 {
+        font-size: 1.8rem;
+        color: white;
+        margin: 0 0 15px 0;
+        font-weight: 800;
+    }
+
+    .badge-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .sidebar-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .code-badge {
+        background: rgba(212, 175, 55, 0.15);
+        color: var(--accent-gold);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        font-family: monospace;
+    }
+
+    .status-badge {
+        background: rgba(255, 255, 255, 0.05);
+        color: #e2e8f0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-desc {
+        color: #e2e8f0;
+        font-size: 0.88rem;
+        line-height: 1.6;
+        margin: 0 0 25px 0;
+    }
+
+    /* Inquiry box copy details */
+    .inquiry-box {
+        background: rgba(10, 15, 25, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 15px;
+        position: relative;
+    }
+
+    /* Specs Table */
+    .specs-table-wrapper {
+        margin: 20px 0;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 15px;
+    }
+
+    .specs-table-title {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--accent-gold);
+        margin: 0 0 10px 0;
+        font-weight: 700;
+    }
+
+    .specs-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .specs-table td {
+        padding: 6px 0;
+        font-size: 0.85rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .specs-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .spec-label {
+        color: var(--text-muted);
+    }
+
+    .spec-val {
+        color: var(--text-light);
+        font-weight: 600;
+        text-align: right;
+        display: block;
+    }
+
+    .text-success {
+        color: #10b981 !important;
+    }
+
+    /* WhatsApp Button styling */
+    .action-btn-whatsapp {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        background: #25d366;
+        color: white;
+        text-decoration: none;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(37, 211, 102, 0.2);
+    }
+
+    .action-btn-whatsapp:hover {
+        background: #128c7e;
+        box-shadow: 0 5px 20px rgba(37, 211, 102, 0.4);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    /* Lightbox nav arrows */
+    .lightbox-nav-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding-top: 15px;
+    }
+
+    .nav-arrow-btn {
+        background: transparent;
+        border: none;
+        color: var(--accent-gold);
+        font-size: 0.85rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: color 0.2s;
+        padding: 5px 10px;
+    }
+
+    .nav-arrow-btn:hover {
+        color: white;
+    }
+
+    .nav-indicator {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-family: monospace;
+    }
 </style>
+
+<!-- Live Interactive Script -->
+<script>
+    // Safe injection of all items from Flask jinja Context
+    const productsList = {{ products | tojson }};
+    let currentActiveIndex = 0;
+
+    // ── Live Filtering Logic ──
+    function filterCatalog() {
+        const input = document.getElementById("catalogSearch");
+        const filter = input.value.toUpperCase().trim();
+        const grid = document.getElementById("catalogueGrid");
+        const cards = grid.getElementsByClassName("product-card");
+
+        // Clear active range filter highlights
+        document.querySelectorAll(".range-controls .filter-btn").forEach(btn => btn.classList.remove("active"));
+        document.getElementById("rangeBtnAll").classList.add("active");
+
+        for (let i = 0; i < cards.length; i++) {
+            const card = cards[i];
+            const code = card.getAttribute("data-code").toUpperCase();
+            
+            if (code.indexOf(filter) > -1) {
+                card.style.display = "flex";
+            } else {
+                card.style.display = "none";
+            }
+        }
+    }
+
+    function filterRange(start, end) {
+        // Reset Search field
+        document.getElementById("catalogSearch").value = "";
+
+        // Manage active button class
+        document.querySelectorAll(".range-controls .filter-btn").forEach(btn => btn.classList.remove("active"));
+        
+        if (start === 'all') {
+            document.getElementById("rangeBtnAll").classList.add("active");
+            document.querySelectorAll(".product-card").forEach(card => card.style.display = "flex");
+            return;
+        }
+
+        // Highlight selected range button
+        if (start === 1) document.getElementById("rangeBtn1").classList.add("active");
+        if (start === 51) document.getElementById("rangeBtn2").classList.add("active");
+        if (start === 101) document.getElementById("rangeBtn3").classList.add("active");
+
+        document.querySelectorAll(".product-card").forEach(card => {
+            const code = card.getAttribute("data-code");
+            const numericPart = parseInt(code.replace(/\D/g, ""), 10);
+            
+            if (numericPart >= start && numericPart <= end) {
+                card.style.display = "flex";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    }
+
+    // ── Fullscreen Lightbox Carousel Logic ──
+    function openLightbox(index) {
+        const lightbox = document.getElementById("galleryLightbox");
+        if (!lightbox) return;
+
+        currentActiveIndex = index;
+        updateLightboxDetails();
+
+        lightbox.classList.add("active");
+    }
+
+    function closeLightbox() {
+        const lightbox = document.getElementById("galleryLightbox");
+        if (!lightbox) return;
+
+        lightbox.classList.remove("active");
+    }
+
+    function updateLightboxDetails() {
+        const activeProduct = productsList[currentActiveIndex];
+        if (!activeProduct) return;
+
+        const img = document.getElementById("lightboxImg");
+        const title = document.getElementById("lightboxTitle");
+        const codeText = document.getElementById("sidebarCode");
+        const indicator = document.getElementById("lightboxIndicator");
+        const descText = document.getElementById("sidebarDesc");
+        const waBtn = document.getElementById("whatsappInquiryBtn");
+
+        // Set static paths
+        img.src = `/static/Choli/${activeProduct.image}`;
+        img.onerror = function() {
+            this.onerror = null;
+            this.src = `/static/CholiJpg/${activeProduct.name}.jpg`;
+            this.onerror = function() {
+                this.onerror = null;
+                this.src = '/static/Home_Img/favicon.png';
+            }
+        };
+
+        title.innerText = `Chaniya Choli - Design ${activeProduct.name}`;
+        codeText.innerText = activeProduct.name;
+        indicator.innerText = `${currentActiveIndex + 1} / ${productsList.length}`;
+        
+        if (descText) {
+            descText.innerText = "An exquisite masterpiece of traditional craftsmanship, meticulously designed to radiate elegance and grace. Handcrafted by master artisans, this exclusive attire features rich, intricate embroidery and mirror embellishments, capturing the true heritage of festive luxury.";
+        }
+
+        if (waBtn) {
+            const message = encodeURIComponent(`Hi! I am interested in renting the traditional Chaniya Choli costume with code: ${activeProduct.name}. Is it available?`);
+            waBtn.href = `https://wa.me/919327095930?text=${message}`;
+        }
+    }
+
+    function navigateLightbox(direction) {
+        currentActiveIndex = (currentActiveIndex + direction + productsList.length) % productsList.length;
+        updateLightboxDetails();
+    }
+
+    // ── Dynamic Lens Zoom Effect (Optimized) ──
+    document.addEventListener("DOMContentLoaded", function() {
+        const zoomStage = document.getElementById("zoomStage");
+        const zoomImg = document.getElementById("lightboxImg");
+
+        if (zoomStage && zoomImg) {
+            let rect = null;
+
+            zoomStage.addEventListener("mouseenter", function() {
+                rect = zoomStage.getBoundingClientRect();
+            });
+
+            zoomStage.addEventListener("mousemove", function(e) {
+                if (!rect) {
+                    rect = zoomStage.getBoundingClientRect();
+                }
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                
+                zoomImg.style.transformOrigin = `${x}% ${y}%`;
+                zoomImg.style.transform = "scale(2.2) translate3d(0, 0, 0)";
+            });
+
+            zoomStage.addEventListener("mouseleave", function() {
+                zoomImg.style.transform = "scale(1) translate3d(0, 0, 0)";
+                rect = null;
+            });
+        }
+
+        // Close lightbox on clicking backdrop
+        const lightbox = document.getElementById("galleryLightbox");
+        if (lightbox) {
+            lightbox.addEventListener("click", function(e) {
+                if (e.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+        }
+
+        // Keyboard navigation bindings (Left, Right, Escape)
+        document.addEventListener("keydown", function(e) {
+            if (!lightbox || lightbox.style.display !== "flex") return;
+            
+            if (e.key === "Escape") closeLightbox();
+            if (e.key === "ArrowLeft") navigateLightbox(-1);
+            if (e.key === "ArrowRight") navigateLightbox(1);
+        });
+    });
+</script>
 {% endblock %}

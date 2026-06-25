@@ -1,103 +1,331 @@
-{% extends "general/base.html" %} {% block title %}Home | Image Traditional{%
-endblock %} {% block description %} Image Traditional offers vibrant Kediya,
-Chaniya Choli, and Fancy Dress rentals for Navratri and cultural events.
-Celebrate tradition with us! {% endblock %} {% block content %}
+{% extends "general/base.html" %}
 
-<!-- External CSS -->
-<link
-  rel="stylesheet"
-  href="{{ url_for('static', filename='CSS/home.css') }}"
-/>
+{% block title %}Home | Image Traditional{% endblock %}
 
-<script src="{{ url_for('static', filename='JS/home.js') }}"></script>
+{% block description %}
+Image Traditional offers vibrant Kediya, Chaniya Choli, and Fancy Dress rentals for Navratri and cultural events. Celebrate tradition with us!
+{% endblock %}
 
-<div class="hero-section">
-  {% if session.get('user_id') %}
-  <div class="top-nav-buttons">
-    <a href="{{ url_for('general.fancy_admin') }}" class="nav-btn"
-      >🎭 Admin Panel</a
-    >
-    <a href="{{ url_for('auth.logout') }}" class="nav-btn">🚪 Logout</a>
+{% block head %}
+<!-- Google Fonts for Festive Look -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Marcellus&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<!-- Home Styles and Scripts -->
+<link rel="stylesheet" href="{{ url_for('static', filename='CSS/home.css') }}" />
+<script src="{{ url_for('static', filename='JS/home.js') }}" defer></script>
+
+<!-- Immersive Festive Container -->
+<div class="festive-homepage" id="festiveHomepage">
+
+  <!-- Floating Canvas Particles -->
+  <canvas id="festiveParticles" class="particles-canvas"></canvas>
+
+  <!-- Hanging Marigold & Mango Leaves Garland (Toran) -->
+  <div class="toran-wrapper">
+    <svg viewBox="0 0 1200 80" class="toran-svg" preserveAspectRatio="none">
+      <!-- Curved garlands -->
+      <path d="M0,0 Q150,60 300,0 Q450,60 600,0 Q750,60 900,0 Q1050,60 1200,0" fill="none" stroke="#d4af37" stroke-width="4" stroke-dasharray="10, 5"/>
+      <path d="M0,0 Q150,50 300,0 Q450,50 600,0 Q750,50 900,0 Q1050,50 1200,0" fill="none" stroke="#b8961e" stroke-width="2"/>
+      
+      <!-- Hanging Mango Leaves and Marigold Flowers -->
+      <!-- Leaf 1 (0px - 300px section) -->
+      <g class="hanging-element">
+        <path d="M150,32 C145,50 148,70 150,80 C152,70 155,50 150,32" fill="#15803d" stroke="#166534" stroke-width="1"/>
+        <circle cx="150" cy="30" r="10" fill="#d4af37"/>
+        <circle cx="150" cy="30" r="6" fill="#b8961e"/>
+      </g>
+      <g class="hanging-element">
+        <path d="M50,15 C47,30 49,45 50,55 C51,45 53,30 50,15" fill="#16a34a" opacity="0.9"/>
+        <circle cx="50" cy="13" r="7" fill="#b8961e"/>
+      </g>
+      <g class="hanging-element">
+        <path d="M250,15 C247,30 249,45 250,55 C251,45 253,30 250,15" fill="#16a34a" opacity="0.9"/>
+        <circle cx="250" cy="13" r="7" fill="#b8961e"/>
+      </g>
+      
+      <!-- Leaf 2 (300px - 600px section) -->
+      <g class="hanging-element">
+        <path d="M450,32 C445,50 448,70 450,80 C452,70 455,50 450,32" fill="#15803d" stroke="#166534" stroke-width="1"/>
+        <circle cx="450" cy="30" r="10" fill="#d4af37"/>
+        <circle cx="450" cy="30" r="6" fill="#b8961e"/>
+      </g>
+      <g class="hanging-element">
+        <path d="M350,15 C347,30 349,45 350,55 C351,45 353,30 350,15" fill="#16a34a" opacity="0.9"/>
+        <circle cx="350" cy="13" r="7" fill="#b8961e"/>
+      </g>
+      <g class="hanging-element">
+        <path d="M550,15 C547,30 549,45 550,55 C551,45 553,30 550,15" fill="#16a34a" opacity="0.9"/>
+        <circle cx="550" cy="13" r="7" fill="#b8961e"/>
+      </g>
+
+      <!-- Leaf 3 (600px - 900px section) -->
+      <g class="hanging-element">
+        <path d="M750,32 C745,50 748,70 750,80 C752,70 755,50 750,32" fill="#15803d" stroke="#166534" stroke-width="1"/>
+        <circle cx="750" cy="30" r="10" fill="#d4af37"/>
+        <circle cx="750" cy="30" r="6" fill="#b8961e"/>
+      </g>
+      <g class="hanging-element">
+        <path d="M650,15 C647,30 649,45 650,55 C651,45 653,30 650,15" fill="#16a34a" opacity="0.9"/>
+        <circle cx="650" cy="13" r="7" fill="#b8961e"/>
+      </g>
+      <g class="hanging-element">
+        <path d="M850,15 C847,30 849,45 850,55 C851,45 853,30 850,15" fill="#16a34a" opacity="0.9"/>
+        <circle cx="850" cy="13" r="7" fill="#b8961e"/>
+      </g>
+
+      <!-- Leaf 4 (900px - 1200px section) -->
+      <g class="hanging-element">
+        <path d="M1050,32 C1045,50 1048,70 1050,80 C1052,70 1055,50 1050,32" fill="#15803d" stroke="#166534" stroke-width="1"/>
+        <circle cx="1050" cy="30" r="10" fill="#d4af37"/>
+        <circle cx="1050" cy="30" r="6" fill="#b8961e"/>
+      </g>
+      <g class="hanging-element">
+        <path d="M950,15 C947,30 949,45 950,55 C951,45 953,30 950,15" fill="#16a34a" opacity="0.9"/>
+        <circle cx="950" cy="13" r="7" fill="#b8961e"/>
+      </g>
+      <g class="hanging-element">
+        <path d="M1150,15 C1147,30 1149,45 1150,55 C1151,45 1153,30 1150,15" fill="#16a34a" opacity="0.9"/>
+        <circle cx="1150" cy="13" r="7" fill="#b8961e"/>
+      </g>
+      
+      <!-- Nodes / Garba Pots at junctions -->
+      <circle cx="0" cy="0" r="12" fill="#b8961e"/>
+      <circle cx="300" cy="0" r="12" fill="#b8961e"/>
+      <circle cx="600" cy="0" r="12" fill="#b8961e"/>
+      <circle cx="900" cy="0" r="12" fill="#b8961e"/>
+      <circle cx="1200" cy="0" r="12" fill="#b8961e"/>
+    </svg>
   </div>
-  {% endif %}
 
-  <div class="hero-content">
-    <img
-      src="{{ url_for('static', filename='Home_Img/favicon.png') }}"
-      alt="Image Traditional Logo"
-      class="hero-logo"
-      width="100"
-      height="100"
-      loading="eager"
-    />
+  <!-- Ambient Light Effects -->
+  <div class="light-beam lb-left"></div>
+  <div class="light-beam lb-right"></div>
 
-    <h1 class="hero-title">Celebrate Navratri with Image Traditional</h1>
+  <!-- Glowing Rotating Mandala Background -->
+  <div class="mandala-bg-container">
+    <svg class="decorative-mandala" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <g id="mandala-petal">
+          <path d="M 100 100 C 88 50, 94 20, 100 0 C 106 20, 112 50, 100 100" fill="rgba(212, 175, 55, 0.02)" stroke="#d4af37" stroke-width="0.3"/>
+          <circle cx="100" cy="20" r="2.5" fill="#b8961e" opacity="0.8"/>
+          <path d="M 100 100 C 94 70, 96 45, 100 25 C 104 45, 106 70, 100 100" fill="rgba(212, 175, 55, 0.02)" stroke="#b8961e" stroke-width="0.2"/>
+        </g>
+      </defs>
+      <!-- Concentric mandala components -->
+      <circle cx="100" cy="100" r="98" fill="none" stroke="#d4af37" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+      <circle cx="100" cy="100" r="88" fill="none" stroke="#b8961e" stroke-width="0.3" stroke-dasharray="1,5" opacity="0.5"/>
+      <g id="mandala-inner">
+        <use href="#mandala-petal" transform="rotate(0 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(15 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(30 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(45 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(60 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(75 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(90 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(105 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(120 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(135 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(150 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(165 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(180 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(195 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(210 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(225 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(240 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(255 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(270 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(285 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(300 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(315 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(330 100 100)"/>
+        <use href="#mandala-petal" transform="rotate(345 100 100)"/>
+      </g>
+      <circle cx="100" cy="100" r="50" fill="none" stroke="#d4af37" stroke-width="0.5"/>
+      <circle cx="100" cy="100" r="30" fill="rgba(212, 175, 55, 0.05)" stroke="#b8961e" stroke-width="0.5" stroke-dasharray="2,2"/>
+      <circle cx="100" cy="100" r="10" fill="#b8961e" opacity="0.2"/>
+    </svg>
+  </div>
 
-    <p class="hero-description">
-      Discover the elegance of tradition with our exclusive rental collection of
-      <strong>Kediya</strong>, <strong>Chaniya Choli</strong>, and
-      <strong>Fancy Dresses</strong>.
-    </p>
-
-    <!-- Category Cards -->
-    <div class="category-grid">
-      <!-- Fancy Dresses -->
-      <a href="{{ url_for('general.catalogue') }}" class="category-card">
-        <img
-          src="{{ url_for('static', filename='Home_Img/costume.webp') }}"
-          alt="Fancy Dress"
-          class="category-image"
-          width="300"
-          height="220"
-          loading="eager"
-        />
-        <h3 class="category-title">Fancy Dresses</h3>
-        <p class="category-description">Perfect for school events and plays.</p>
-        <span class="category-btn">View Catalogue</span>
-      </a>
-
-      <!-- Kediya -->
-      <a href="{{ url_for('general.kediya') }}" class="category-card">
-        <img
-          src="{{ url_for('static', filename='Home_Img/kediya.webp') }}"
-          alt="Kediya"
-          class="category-image"
-          width="300"
-          height="220"
-          loading="lazy"
-        />
-        <h3 class="category-title">Kediya</h3>
-        <p class="category-description">Perfect for Navratri events.</p>
-        <span class="category-btn">View Catalogue</span>
-      </a>
-
-      <!-- Chaniya Choli -->
-      <a href="{{ url_for('general.choli') }}" class="category-card">
-        <img
-          src="{{ url_for('static', filename='Home_Img/choli.webp') }}"
-          alt="Chaniya Choli"
-          class="category-image"
-          width="300"
-          height="220"
-          loading="lazy"
-        />
-        <h3 class="category-title">Chaniya Choli</h3>
-        <p class="category-description">Elegant traditional outfits.</p>
-        <span class="category-btn">View Catalogue</span>
-      </a>
+  <!-- Hero Content Area -->
+  <div class="festive-hero">
+    
+    <!-- Float Logo -->
+    <div class="logo-wrapper">
+      <img
+        src="{{ url_for('static', filename='Home_Img/favicon.png') }}"
+        alt="Image Traditional Logo"
+        class="animated-hero-logo"
+        width="110"
+        height="110"
+        loading="eager"
+      />
     </div>
 
-    <!-- Instagram -->
-    <div class="instagram-section">
-      <a
-        href="https://www.instagram.com/image_traditional"
-        target="_blank"
-        class="instagram-btn"
-      >
-        📸 Visit Us on Instagram
-      </a>
+    <!-- Festive Header Titles -->
+    <div class="title-group">
+      <h1 class="festive-title">Image Traditional</h1>
+      <h2 class="festive-subtitle">Premium Costumes &amp; Festive Rental Elegance</h2>
+      <div class="golden-mandala-divider">
+        <span class="divider-line"></span>
+        <span class="divider-gem">✦</span>
+        <span class="divider-flower">❀</span>
+        <span class="divider-gem">✦</span>
+        <span class="divider-line"></span>
+      </div>
+      <p class="hero-description-text">
+        Step into the spotlight of Navratri and cultural pageants. Explore our exquisite collection of premium <strong class="glow-span">Kediya</strong>, heavily-embroidered <strong class="glow-span">Chaniya Choli</strong>, and stunning <strong class="glow-span">Fancy Dresses</strong> curated to celebrate tradition.
+      </p>
     </div>
+
+    <!-- Category Showcase - Circular Mirror Cards -->
+    <div class="festive-category-grid">
+      
+      <!-- Card 1: Traditional Kediya -->
+      <a href="{{ url_for('general.kediya') }}" class="traditional-category-card" data-category="kediya">
+        <div class="card-mirror-frame">
+          <div class="mirror-beads-border">
+            <span class="bead b1"></span><span class="bead b2"></span><span class="bead b3"></span>
+            <span class="bead b4"></span><span class="bead b5"></span><span class="bead b6"></span>
+            <span class="bead b7"></span><span class="bead b8"></span><span class="bead b9"></span>
+            <span class="bead b10"></span><span class="bead b11"></span><span class="bead b12"></span>
+          </div>
+          
+          <div class="glass-inner-view">
+            <img src="{{ url_for('static', filename='Home_Img/kediya.webp') }}" alt="Traditional Kediya Costume" class="category-image">
+            <div class="mirror-gloss-shimmer"></div>
+          </div>
+
+          <!-- Magical spark reveal overlay -->
+          <div class="card-sparkle-overlay">
+            <div class="card-spark cs1">✦</div>
+            <div class="card-spark cs2">✦</div>
+            <div class="card-spark cs3">✦</div>
+          </div>
+        </div>
+        
+        <div class="card-info-badge">
+          <h3 class="card-headline">Traditional Kediya</h3>
+          <p class="card-tagline">Heavy Authentic Gujarati Mirror Sets</p>
+          <div class="card-action-trigger">
+            <span>Explore Collection</span>
+            <span class="arrow-icon">➔</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 2: Chaniya Choli -->
+      <a href="{{ url_for('general.choli') }}" class="traditional-category-card" data-category="choli">
+        <div class="card-mirror-frame">
+          <div class="mirror-beads-border">
+            <span class="bead b1"></span><span class="bead b2"></span><span class="bead b3"></span>
+            <span class="bead b4"></span><span class="bead b5"></span><span class="bead b6"></span>
+            <span class="bead b7"></span><span class="bead b8"></span><span class="bead b9"></span>
+            <span class="bead b10"></span><span class="bead b11"></span><span class="bead b12"></span>
+          </div>
+          
+          <div class="glass-inner-view">
+            <img src="{{ url_for('static', filename='Home_Img/choli.webp') }}" alt="Chaniya Choli Costume" class="category-image">
+            <div class="mirror-gloss-shimmer"></div>
+          </div>
+
+          <!-- Magical spark reveal overlay -->
+          <div class="card-sparkle-overlay">
+            <div class="card-spark cs1">✦</div>
+            <div class="card-spark cs2">✦</div>
+            <div class="card-spark cs3">✦</div>
+          </div>
+        </div>
+        
+        <div class="card-info-badge">
+          <h3 class="card-headline">Chaniya Choli</h3>
+          <p class="card-tagline">Vibrant Embroidered Garba Dresses</p>
+          <div class="card-action-trigger">
+            <span>Explore Collection</span>
+            <span class="arrow-icon">➔</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 3: Fancy Dresses -->
+      <a href="{{ url_for('general.catalogue') }}" class="traditional-category-card" data-category="fancy">
+        <div class="card-mirror-frame">
+          <div class="mirror-beads-border">
+            <span class="bead b1"></span><span class="bead b2"></span><span class="bead b3"></span>
+            <span class="bead b4"></span><span class="bead b5"></span><span class="bead b6"></span>
+            <span class="bead b7"></span><span class="bead b8"></span><span class="bead b9"></span>
+            <span class="bead b10"></span><span class="bead b11"></span><span class="bead b12"></span>
+          </div>
+          
+          <div class="glass-inner-view">
+            <img src="{{ url_for('static', filename='Home_Img/costume.webp') }}" alt="Fancy Costume" class="category-image">
+            <div class="mirror-gloss-shimmer"></div>
+          </div>
+          
+          <!-- Magical spark reveal overlay -->
+          <div class="card-sparkle-overlay">
+            <div class="card-spark cs1">✦</div>
+            <div class="card-spark cs2">✦</div>
+            <div class="card-spark cs3">✦</div>
+          </div>
+        </div>
+        
+        <div class="card-info-badge">
+          <h3 class="card-headline">Fancy Dresses</h3>
+          <p class="card-tagline">School Events, Dramas &amp; Kids Costumes</p>
+          <div class="card-action-trigger">
+            <span>Explore Collection</span>
+            <span class="arrow-icon">➔</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Festive Interactions Panel -->
+    <div class="interactive-mood-panel">
+
+      <div class="instagram-redirect-block">
+        <a href="https://www.instagram.com/image_traditional" target="_blank" class="luxury-instagram-btn">
+          <span class="insta-icon">📸</span>
+          <span>Visit Us On Instagram</span>
+        </a>
+      </div>
+    </div>
+
   </div>
 
+  <!-- Earthen Decorative Diyas (Traditional Lamps with Flickering SVG Flames) -->
+  <div class="decorative-earthen-diya diya-bottom-left" id="diyaLeft">
+    <svg viewBox="0 0 100 60" class="earthen-diya-svg">
+      <path d="M10,42 C10,24 90,24 90,42 C90,56 10,56 10,42 Z" fill="url(#clayGradient)" stroke="#334155" stroke-width="1.5"/>
+      <ellipse cx="50" cy="42" rx="35" ry="12" fill="#d4af37" opacity="0.9"/>
+      <path d="M48,42 C48,42 50,47 52,42 Z" fill="#1e293b"/>
+      <path d="M50,30 C45,18 50,0 50,0 C50,0 55,18 50,30 Z" class="flickering-diya-flame"/>
+      
+      <defs>
+        <radialGradient id="clayGradient" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#b8961e"/>
+          <stop offset="70%" stop-color="#0f172a"/>
+          <stop offset="100%" stop-color="#0a1929"/>
+        </radialGradient>
+      </defs>
+    </svg>
+    <div class="diya-glow-halo"></div>
+  </div>
+
+  <div class="decorative-earthen-diya diya-bottom-right" id="diyaRight">
+    <svg viewBox="0 0 100 60" class="earthen-diya-svg">
+      <path d="M10,42 C10,24 90,24 90,42 C90,56 10,56 10,42 Z" fill="url(#clayGradient)" stroke="#334155" stroke-width="1.5"/>
+      <ellipse cx="50" cy="42" rx="35" ry="12" fill="#d4af37" opacity="0.9"/>
+      <path d="M48,42 C48,42 50,47 52,42 Z" fill="#1e293b"/>
+      <path d="M50,30 C45,18 50,0 50,0 C50,0 55,18 50,30 Z" class="flickering-diya-flame"/>
+    </svg>
+    <div class="diya-glow-halo"></div>
+  </div>
+
+</div>
 
 {% endblock %}
