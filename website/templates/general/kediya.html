@@ -400,7 +400,32 @@
     @media (max-width: 768px) {
         .lightbox-layout {
             grid-template-columns: 1fr;
-            gap: 20px;
+            gap: 15px;
+        }
+        .lightbox-container {
+            padding: 16px;
+            border-radius: 16px;
+            max-height: 92vh;
+            overflow-y: auto;
+            width: 95%;
+        }
+        .lightbox-image-stage {
+            height: 240px;
+        }
+        .lightbox-sidebar h2 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+        }
+        .sidebar-desc {
+            margin-bottom: 15px;
+            font-size: 0.82rem;
+        }
+        .inquiry-box {
+            padding: 10px;
+        }
+        .action-btn-whatsapp {
+            padding: 10px;
+            font-size: 0.85rem;
         }
     }
 
@@ -418,9 +443,53 @@
         cursor: zoom-in;
     }
 
-    @media (max-width: 480px) {
-        .lightbox-image-stage {
-            height: 250px;
+    @media (max-width: 580px) {
+        .catalog-container {
+            padding: 20px 10px;
+        }
+        .catalog-title {
+            font-size: 1.8rem;
+        }
+        .catalog-subtitle {
+            font-size: 0.85rem;
+        }
+        .filters-card {
+            padding: 12px;
+            gap: 12px;
+            border-radius: 12px;
+        }
+        .search-box {
+            min-width: 100%;
+        }
+        .search-box input {
+            padding: 10px 15px 10px 35px;
+            font-size: 0.85rem;
+        }
+        .range-controls {
+            justify-content: center;
+            width: 100%;
+            gap: 6px;
+        }
+        .filter-btn {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+        .catalogue-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .product-card {
+            padding: 8px;
+            border-radius: 12px;
+        }
+        .card-image-wrapper {
+            height: 170px;
+        }
+        .card-code {
+            font-size: 0.82rem;
+        }
+        .card-inspect-btn {
+            font-size: 0.7rem;
         }
     }
 
@@ -746,6 +815,7 @@
         if (zoomStage && zoomImg) {
             let rect = null;
 
+            // Desktop Mouse Events
             zoomStage.addEventListener("mouseenter", function() {
                 rect = zoomStage.getBoundingClientRect();
             });
@@ -762,6 +832,42 @@
             });
 
             zoomStage.addEventListener("mouseleave", function() {
+                zoomImg.style.transform = "scale(1) translate3d(0, 0, 0)";
+                rect = null;
+            });
+
+            // Mobile Touch Events
+            zoomStage.addEventListener("touchstart", function(e) {
+                rect = zoomStage.getBoundingClientRect();
+                if (e.touches.length > 0) {
+                    const touch = e.touches[0];
+                    const x = ((touch.clientX - rect.left) / rect.width) * 100;
+                    const y = ((touch.clientY - rect.top) / rect.height) * 100;
+                    zoomImg.style.transformOrigin = `${x}% ${y}%`;
+                    zoomImg.style.transform = "scale(2.2) translate3d(0, 0, 0)";
+                }
+                if (e.cancelable) e.preventDefault();
+            }, { passive: false });
+
+            zoomStage.addEventListener("touchmove", function(e) {
+                if (e.touches.length > 0) {
+                    if (!rect) {
+                        rect = zoomStage.getBoundingClientRect();
+                    }
+                    const touch = e.touches[0];
+                    const x = ((touch.clientX - rect.left) / rect.width) * 100;
+                    const y = ((touch.clientY - rect.top) / rect.height) * 100;
+                    
+                    const cx = Math.max(0, Math.min(100, x));
+                    const cy = Math.max(0, Math.min(100, y));
+
+                    zoomImg.style.transformOrigin = `${cx}% ${cy}%`;
+                    zoomImg.style.transform = "scale(2.2) translate3d(0, 0, 0)";
+                }
+                if (e.cancelable) e.preventDefault();
+            }, { passive: false });
+
+            zoomStage.addEventListener("touchend", function() {
                 zoomImg.style.transform = "scale(1) translate3d(0, 0, 0)";
                 rect = null;
             });

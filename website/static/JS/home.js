@@ -135,7 +135,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (isGarbaMode) {
         toggleText.textContent = "Night Garba Mode Active!";
         moodBtn.style.borderColor = "var(--theme-gold)";
-        playCelebrationChime();
       } else {
         toggleText.textContent = "Toggle Festive Garba Lights";
         moodBtn.style.borderColor = "rgba(212, 175, 55, 0.25)";
@@ -153,68 +152,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ── Synthetic Audio Effects (Web Audio API) ──
-  function playSoundTone(frequency = 750, duration = 0.08, type = "sine") {
-    try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-
-      osc.type = type;
-      osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + duration);
-
-      gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-
-      osc.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-    } catch (err) {
-      // AudioContext blocks until interaction
-    }
-  }
-
-  function playCelebrationChime() {
-    try {
-      const notes = [440, 554.37, 659.25, 880]; // A4, C#5, E5, A5 chords
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      
-      notes.forEach((freq, index) => {
-        const time = audioCtx.currentTime + index * 0.08;
-        const osc = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(freq, time);
-
-        gainNode.gain.setValueAtTime(0.08, time);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.25);
-
-        osc.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
-        osc.start(time);
-        osc.stop(time + 0.3);
-      });
-    } catch (err) {
-      // Ignore block
-    }
-  }
-
-  // ── Interactive Hover Sounds for Category Cards ──
+  // ── Interactive Hover Canvas Sparks for Category Cards (NO Audio Context) ──
   const categoryCards = document.querySelectorAll(".traditional-category-card");
   categoryCards.forEach(card => {
     let hoverTimeout = null;
 
     card.addEventListener("mouseenter", () => {
       hoverTimeout = setTimeout(() => {
-        // Play a premium soft magic bell/sparkle chime on card hover
-        playSoundTone(960, 0.12, "sine");
-        
-        // Spawn sparks in the center of the mirror frame
+        // Spawn sparks in the center of the mirror frame (silent visual feedback)
         const frame = card.querySelector(".card-mirror-frame");
         if (frame) {
           const rect = frame.getBoundingClientRect();
