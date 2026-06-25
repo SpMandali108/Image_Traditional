@@ -1205,6 +1205,81 @@ def get_navaratri_analytics(traditional_data):
     sorted_groups = sorted(group_revenue.items(), key=lambda x: x[1], reverse=True)[:10]
     sorted_references = sorted(reference_revenue.items(), key=lambda x: x[1], reverse=True)[:10]
 
+    # ── Product-Centric Analytical AI ──
+    # A. Stock Utilization & Capacity Analytics
+    total_choli_stock = 150
+    total_kediya_stock = 173
+    total_stock = total_choli_stock + total_kediya_stock
+    
+    rented_codes = set(product_counts.keys())
+    rented_cholis = {code for code in rented_codes if code.startswith('C')}
+    rented_kediyas = {code for code in rented_codes if code.startswith('K')}
+    
+    utilization_choli_pct = round((len(rented_cholis) / total_choli_stock) * 100, 1) if total_choli_stock > 0 else 0
+    utilization_kediya_pct = round((len(rented_kediyas) / total_kediya_stock) * 100, 1) if total_kediya_stock > 0 else 0
+    overall_utilization_pct = round((len(rented_codes) / total_stock) * 100, 1) if total_stock > 0 else 0
+    
+    # B. Wear and Tear Heuristics (Since products are unique, track usage levels)
+    wear_tear_alerts = []
+    for code, count in top_products:
+        if count >= 3:
+            wear_tear_alerts.append({
+                "code": code,
+                "rentals": count,
+                "util_level": "High" if count >= 4 else "Medium",
+                "action": "Inspect fabric integrity. Consider maintenance or retirement. Replace with a new unique design to keep catalog fresh." if count >= 4 else "Perform standard fabric care, starching and button checks."
+            })
+            
+    # C. Cross-Selling Style Pairings (Items booked together on same date/account)
+    associations = {}
+    for customer in traditional_data:
+        bookings = customer.get("bookings", {})
+        if not isinstance(bookings, dict):
+            continue
+        for date, products in bookings.items():
+            if not isinstance(products, list) or len(products) < 2:
+                continue
+            cholis = [p.upper().strip() for p in products if isinstance(p, str) and p.strip().upper().startswith('C')]
+            kediyas = [p.upper().strip() for p in products if isinstance(p, str) and p.strip().upper().startswith('K')]
+            for c in cholis:
+                for k in kediyas:
+                    pair = (c, k)
+                    associations[pair] = associations.get(pair, 0) + 1
+                    
+    style_pairings = []
+    sorted_pairs = sorted(associations.items(), key=lambda x: x[1], reverse=True)[:10]
+    for pair, count in sorted_pairs:
+        style_pairings.append({
+            "choli": pair[0],
+            "kediya": pair[1],
+            "count": count,
+            "suggestion": "Highly associated pair. Recommend displaying together in catalog as a pre-matched style."
+        })
+
+    # D. Catalog Showcase Rotations (Identify idle unique garments)
+    choli_all_set = {f"C{i}" for i in range(1, 151)}
+    kediya_all_set = {f"K{i}" for i in range(1, 174)}
+    unbooked_cholis = list(choli_all_set - rented_cholis)
+    unbooked_kediyas = list(kediya_all_set - rented_kediyas)
+    unbooked_cholis.sort(key=lambda x: int(x[1:]) if x[1:].isdigit() else 0)
+    unbooked_kediyas.sort(key=lambda x: int(x[1:]) if x[1:].isdigit() else 0)
+    
+    catalog_rotations = []
+    for code in unbooked_cholis[:4]:
+        catalog_rotations.append({
+            "code": code,
+            "type": "Choli",
+            "reason": "Idle this cycle (0 bookings).",
+            "action": "Rotate to homepage featured slider or display at entrance window."
+        })
+    for code in unbooked_kediyas[:4]:
+        catalog_rotations.append({
+            "code": code,
+            "type": "Kediya",
+            "reason": "Idle this cycle (0 bookings).",
+            "action": "Reposition in catalog list header or display as outfit alternative."
+        })
+
     return {
         "total_customers_trad": total_customers_trad,
         "total_collection_trad": total_collection_trad,
@@ -1228,7 +1303,19 @@ def get_navaratri_analytics(traditional_data):
         "top_customers": top_customers[:15],
         "top_debtors": top_debtors[:15],
         "top_groups": sorted_groups,
-        "top_references": sorted_references
+        "top_references": sorted_references,
+        
+        "utilization": {
+            "choli_pct": utilization_choli_pct,
+            "kediya_pct": utilization_kediya_pct,
+            "overall_pct": overall_utilization_pct,
+            "total_stock": total_stock,
+            "rented_unique": len(rented_codes),
+            "product_counts": product_counts
+        },
+        "wear_tear_alerts": wear_tear_alerts,
+        "style_pairings": style_pairings,
+        "catalog_rotations": catalog_rotations
     }
 
 def get_fancy_analytics(fancy_data):

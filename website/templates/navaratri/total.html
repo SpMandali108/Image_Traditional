@@ -1,5 +1,5 @@
 {% extends "general/base.html" %}
-{% block title %}Combined Analytics Dashboard | Image Traditional{% endblock %}
+{% block title %}Combined Analytics Dashboard & Costumes AI | Image Traditional{% endblock %}
 
 {% block head %}
 <!-- Google Fonts & Chart.js -->
@@ -483,7 +483,7 @@
   <header class="dashboard-header">
     <div class="header-info">
       <h1>Combined Performance Analytics</h1>
-      <p>Multi-portal summary and financial health trackers</p>
+      <p>Multi-portal summary, unique costume utilization metrics, and wardrobe wear tracking</p>
     </div>
     <div>
       <span class="cycle-badge">
@@ -496,6 +496,9 @@
   <nav class="tabs-nav">
     <button class="tab-btn active" onclick="switchTab(event, 'combined-tab')">
       🌟 Combined Overview
+    </button>
+    <button class="tab-btn" onclick="switchTab(event, 'product-ai-tab')" style="border: 1px solid rgba(124, 58, 237, 0.3); background: rgba(124, 58, 237, 0.05); color: #c084fc;">
+      🔮 Costume AI Insights
     </button>
     <button class="tab-btn trad-btn" onclick="switchTab(event, 'traditional-tab')">
       📸 Traditional Bookings
@@ -590,6 +593,336 @@
           <canvas id="combinedVolumeChart"></canvas>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: PRODUCT AI INSIGHTS ── -->
+  <div id="product-ai-tab" class="tab-content">
+    
+    <!-- Product KPI Grid -->
+    <div class="kpi-grid">
+      <div class="card-glass kpi-card" style="border-left: 4px solid var(--accent);">
+        <div class="kpi-header">
+          <span class="kpi-title">Traditional Catalog Utilized</span>
+          <span class="kpi-icon">📊</span>
+        </div>
+        <div class="kpi-value">{{ utilization.overall_pct }}%</div>
+        <div class="kpi-sub">
+          {{ utilization.rented_unique }} of {{ utilization.total_stock }} unique items active
+        </div>
+      </div>
+
+      <div class="card-glass kpi-card" style="border-left: 4px solid #a855f7;">
+        <div class="kpi-header">
+          <span class="kpi-title">Choli Utilization</span>
+          <span class="kpi-icon">👗</span>
+        </div>
+        <div class="kpi-value">{{ utilization.choli_pct }}%</div>
+        <div class="kpi-sub">150 unique designs in traditional stock</div>
+      </div>
+
+      <div class="card-glass kpi-card" style="border-left: 4px solid #06b6d4;">
+        <div class="kpi-header">
+          <span class="kpi-title">Kediya Utilization</span>
+          <span class="kpi-icon">🕺</span>
+        </div>
+        <div class="kpi-value">{{ utilization.kediya_pct }}%</div>
+        <div class="kpi-sub">173 unique designs in traditional stock</div>
+      </div>
+
+      <div class="card-glass kpi-card" style="border-left: 4px solid var(--warning);">
+        <div class="kpi-header">
+          <span class="kpi-title">Wear Warnings</span>
+          <span class="kpi-icon">🛠️</span>
+        </div>
+        <div class="kpi-value">{{ wear_tear_alerts|length }}</div>
+        <div class="kpi-sub">Unique items requiring fabric checks</div>
+      </div>
+    </div>
+
+    <!-- Utilization Chart & Style Matchings -->
+    <div class="charts-grid" style="grid-template-columns: 1fr 1fr;">
+      
+      <!-- Chart -->
+      <div class="card-glass chart-card">
+        <div class="chart-title-header">
+          <h2>📊 Costume Capacity vs. Rentals Utilization</h2>
+        </div>
+        <div class="chart-container-inner" style="height: 300px;">
+          <canvas id="utilizationCapacityChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Pre-Matched Styling suggestions -->
+      <div class="card-glass" style="min-height: 380px;">
+        <div class="chart-title-header">
+          <h2>Best Fitting Style Pairings (Booked Together)</h2>
+          <span class="cycle-badge" style="font-size: 0.75rem; padding: 0.25rem 0.75rem;">Top Pairs</span>
+        </div>
+        <div class="table-container" style="max-height: 300px;">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>Choli Code</th>
+                <th>Kediya Code</th>
+                <th>Pair Bookings</th>
+                <th>Action Recommendation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pair in style_pairings %}
+              <tr>
+                <td><span class="prod-tag" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.3);">{{ pair.choli }}</span></td>
+                <td><span class="prod-tag" style="background: rgba(16, 185, 129, 0.15); color: var(--success); border-color: rgba(16, 185, 129, 0.3);">{{ pair.kediya }}</span></td>
+                <td style="font-weight: 700; text-align: center;">{{ pair.count }} times</td>
+                <td style="font-size: 0.75rem; color: var(--text-muted);">{{ pair.suggestion }}</td>
+              </tr>
+              {% else %}
+              <tr class="no-hover"><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 3rem;">No associated pairings yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ── Wardrobe Matrix Explorer ── -->
+    <div class="card-glass" style="margin-bottom: 2rem; width: 100%;">
+      <div class="chart-title-header" style="margin-bottom: 1rem;">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, #ffffff 0%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            🔍 Unique Wardrobe Matrix Explorer
+          </h2>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.25rem;">
+            A real-time visual grid of all unique traditional items. Click on any costume chip to display its image, active rental count, wear and tear fabric inspection status, and unique merchandising suggestions.
+          </p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="action-btn" id="switcherCholiBtn" onclick="toggleMatrixType('Choli')" style="background: rgba(124, 58, 237, 0.15); color: #c084fc; border-color: rgba(124, 58, 237, 0.3); font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+            👗 Cholis (C1-C150)
+          </button>
+          <button class="action-btn" id="switcherKediyaBtn" onclick="toggleMatrixType('Kediya')" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+            🕺 Kediyas (K1-K173)
+          </button>
+        </div>
+      </div>
+
+      <style>
+        .matrix-explorer-grid {
+          display: grid;
+          grid-template-columns: 2.8fr 1.2fr;
+          gap: 1.5rem;
+          margin-top: 1rem;
+        }
+        @media (max-width: 900px) {
+          .matrix-explorer-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .matrix-chips-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.4rem;
+          max-height: 270px;
+          overflow-y: auto;
+          padding: 0.75rem;
+          background: rgba(15, 23, 42, 0.4);
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          align-content: flex-start;
+        }
+        /* Custom scrollbar for matrix container */
+        .matrix-chips-container::-webkit-scrollbar {
+          width: 6px;
+        }
+        .matrix-chips-container::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.15);
+          border-radius: 10px;
+        }
+        .matrix-chips-container::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+        }
+        .matrix-chip {
+          width: 46px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 6px;
+          font-family: monospace;
+          font-size: 0.72rem;
+          font-weight: 700;
+          cursor: pointer;
+          border: 1px solid;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+        }
+        .matrix-chip:hover {
+          transform: translateY(-2px) scale(1.05);
+          filter: brightness(1.25);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+          z-index: 5;
+        }
+        /* Chip States */
+        .chip-idle {
+          background: rgba(255, 255, 255, 0.02);
+          border-color: rgba(255, 255, 255, 0.06);
+          color: #64748b;
+        }
+        .chip-active-choli {
+          background: rgba(168, 85, 247, 0.12);
+          border-color: rgba(168, 85, 247, 0.3);
+          color: #c084fc;
+        }
+        .chip-active-kediya {
+          background: rgba(16, 185, 129, 0.12);
+          border-color: rgba(16, 185, 129, 0.3);
+          color: #34d399;
+        }
+        .chip-medium-wear {
+          background: rgba(245, 158, 11, 0.18);
+          border-color: rgba(245, 158, 11, 0.4);
+          color: #fbd561;
+        }
+        .chip-high-wear {
+          background: rgba(239, 68, 68, 0.18);
+          border-color: rgba(239, 68, 68, 0.4);
+          color: #f87171;
+        }
+        .chip-selected {
+          border-color: #fb923c !important;
+          box-shadow: 0 0 10px rgba(251, 146, 60, 0.4) !important;
+          font-weight: 800;
+          color: #ffffff !important;
+        }
+        .preview-box {
+          background: rgba(15, 23, 42, 0.7);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 14px;
+          padding: 1.25rem;
+          min-height: 270px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s;
+          position: relative;
+        }
+        .preview-box-active {
+          border-color: rgba(251, 146, 60, 0.3);
+          box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.5);
+        }
+        .preview-img-container {
+          width: 100%;
+          height: 130px;
+          border-radius: 10px;
+          overflow: hidden;
+          margin-bottom: 0.75rem;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: rgba(0, 0, 0, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+        }
+        .preview-img-container img {
+          max-width: 100%;
+          max-height: 100%;
+          object-fit: contain;
+          transition: transform 0.3s;
+        }
+        .preview-img-container:hover img {
+          transform: scale(1.08);
+        }
+      </style>
+
+      <div class="matrix-explorer-grid">
+        <!-- Grid Matrix -->
+        <div>
+          <div id="matrixChipsContainer" class="matrix-chips-container">
+            <!-- Chips injected via JS -->
+          </div>
+        </div>
+
+        <!-- Preview Info Panel -->
+        <div id="productPreviewBox" class="preview-box">
+          <div id="previewDefaultText" style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 2rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.5;">👘</div>
+            Select any unique traditional item chip from the matrix grid to display its live profile details and images
+          </div>
+          <div id="previewDetails" style="display: none; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <span id="previewCodeBadge" class="prod-tag" style="font-size: 0.85rem; padding: 0.25rem 0.6rem; color: white;">C45</span>
+              <span id="previewConditionPill" class="status-pill" style="font-size: 0.7rem; padding: 0.15rem 0.45rem;">Good</span>
+            </div>
+            <div class="preview-img-container">
+              <img id="previewImage" src="" alt="Costume Preview">
+            </div>
+            <div style="font-size: 0.82rem; color: #e2e8f0; margin-bottom: 0.5rem; text-align: left; display: flex; justify-content: space-between;">
+              <span>Rented: <strong id="previewRentalCount" style="color: var(--warning);">2 times</strong></span>
+              <span id="previewCatalogType" style="color: var(--text-muted);">Traditional Choli</span>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 0.6rem; text-align: left;">
+              <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.25rem;">
+                💡 Maintenance & Styling Set
+              </div>
+              <p id="previewSuggestionText" style="font-size: 0.75rem; color: #cbd5e1; line-height: 1.35; margin: 0;">
+                Pre-match this item with its best corresponding piece in the catalog.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optimization Recommendations Grid -->
+    <div class="details-grid">
+      
+      <!-- Wear & Tear Fabric Maintenance Alerts -->
+      <div class="card-glass">
+        <div class="chart-title-header">
+          <h2>🛠️ Unique Costume Wear & Tear Alerts</h2>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 380px; overflow-y: auto; padding-right: 0.25rem;">
+          {% for alert in wear_tear_alerts %}
+          <div style="background: {% if alert.util_level == 'High' %}rgba(239, 68, 68, 0.05){% else %}rgba(245, 158, 11, 0.05){% endif %}; border: 1px solid {% if alert.util_level == 'High' %}rgba(239, 68, 68, 0.15){% else %}rgba(245, 158, 11, 0.15){% endif %}; border-radius: 12px; padding: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span class="prod-tag">{{ alert.code }}</span>
+              <span class="status-pill {% if alert.util_level == 'High' %}unpaid{% else %}partial{% endif %}" style="font-size: 0.7rem; padding: 0.15rem 0.45rem;">
+                {{ alert.util_level }} Usage ({{ alert.rentals }} rentals)
+              </span>
+            </div>
+            <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.35;">{{ alert.action }}</p>
+          </div>
+          {% else %}
+          <div style="text-align: center; color: var(--text-muted); padding: 2rem;">No items have reached wear inspection limits.</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Catalog Showcase Rotations -->
+      <div class="card-glass">
+        <div class="chart-title-header">
+          <h2>🖼️ Catalog Showcase Rotations (Idle Stock)</h2>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 380px; overflow-y: auto; padding-right: 0.25rem;">
+          {% for rot in catalog_rotations %}
+          <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.15); border-radius: 12px; padding: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span class="prod-tag" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3);">{{ rot.code }}</span>
+              <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">{{ rot.type }}</span>
+            </div>
+            <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.35; margin-bottom: 0.5rem;">Reason: <em>{{ rot.reason }}</em></p>
+            <p style="font-size: 0.78rem; color: var(--warning); line-height: 1.3;">⚡ Action: {{ rot.action }}</p>
+          </div>
+          {% else %}
+          <div style="text-align: center; color: var(--text-muted); padding: 2rem;">No idle stock detected! All catalog active.</div>
+          {% endfor %}
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -1011,8 +1344,156 @@
   const fancyReturned = {{ returned_count_fancy | tojson }};
   const fancyPending = {{ not_returned_fancy | tojson }};
 
+  // Utilization Dataset
+  const utilData = {{ utilization | tojson }};
+
+  // ── Unique Wardrobe Grid Matrix Explorer JS Logic ──
+  let currentMatrixType = 'Choli';
+  
+  function renderMatrix(type) {
+    currentMatrixType = type;
+    const container = document.getElementById("matrixChipsContainer");
+    if (!container) return;
+    
+    container.innerHTML = "";
+    
+    // Set switcher buttons active states
+    const choliBtn = document.getElementById("switcherCholiBtn");
+    const kediyaBtn = document.getElementById("switcherKediyaBtn");
+    if (type === 'Choli') {
+      choliBtn.style.background = "rgba(124, 58, 237, 0.15)";
+      choliBtn.style.color = "#c084fc";
+      choliBtn.style.borderColor = "rgba(124, 58, 237, 0.3)";
+      
+      kediyaBtn.style.background = "transparent";
+      kediyaBtn.style.color = "var(--text-muted)";
+      kediyaBtn.style.borderColor = "rgba(255, 255, 255, 0.08)";
+    } else {
+      kediyaBtn.style.background = "rgba(16, 185, 129, 0.15)";
+      kediyaBtn.style.color = "#34d399";
+      kediyaBtn.style.borderColor = "rgba(16, 185, 129, 0.3)";
+      
+      choliBtn.style.background = "transparent";
+      choliBtn.style.color = "var(--text-muted)";
+      choliBtn.style.borderColor = "rgba(255, 255, 255, 0.08)";
+    }
+    
+    const countLimit = type === 'Choli' ? 150 : 173;
+    const prefix = type === 'Choli' ? 'C' : 'K';
+    
+    for (let i = 1; i <= countLimit; i++) {
+      const code = `${prefix}${i}`;
+      const count = (utilData.product_counts && utilData.product_counts[code]) || 0;
+      
+      const chip = document.createElement("div");
+      chip.className = "matrix-chip";
+      chip.innerText = code;
+      
+      // Determine chip style based on rentals
+      if (count === 0) {
+        chip.classList.add("chip-idle");
+      } else if (count >= 4) {
+        chip.classList.add("chip-high-wear");
+      } else if (count === 3) {
+        chip.classList.add("chip-medium-wear");
+      } else {
+        if (type === 'Choli') {
+          chip.classList.add("chip-active-choli");
+        } else {
+          chip.classList.add("chip-active-kediya");
+        }
+      }
+      
+      chip.onclick = () => selectProductChip(code, count, type, chip);
+      container.appendChild(chip);
+    }
+  }
+  
+  function toggleMatrixType(type) {
+    renderMatrix(type);
+  }
+  
+  function selectProductChip(code, count, type, element) {
+    // Clear other selections
+    const selected = document.querySelectorAll(".matrix-chip.chip-selected");
+    selected.forEach(c => c.classList.remove("chip-selected"));
+    
+    // Add selection to clicked element
+    element.classList.add("chip-selected");
+    
+    // Show preview panel
+    document.getElementById("previewDefaultText").style.display = "none";
+    const details = document.getElementById("previewDetails");
+    details.style.display = "block";
+    
+    document.getElementById("productPreviewBox").classList.add("preview-box-active");
+    
+    // Update badge code
+    const codeBadge = document.getElementById("previewCodeBadge");
+    codeBadge.innerText = code;
+    
+    // Color code badge depending on type
+    if (type === 'Choli') {
+      codeBadge.style.background = "rgba(168, 85, 247, 0.15)";
+      codeBadge.style.color = "#c084fc";
+      codeBadge.style.borderColor = "rgba(168, 85, 247, 0.3)";
+    } else {
+      codeBadge.style.background = "rgba(16, 185, 129, 0.15)";
+      codeBadge.style.color = "#34d399";
+      codeBadge.style.borderColor = "rgba(16, 185, 129, 0.3)";
+    }
+    
+    // Update type
+    document.getElementById("previewCatalogType").innerText = `Traditional ${type}`;
+    
+    // Update image
+    const imgElement = document.getElementById("previewImage");
+    imgElement.src = `/static/${type}/${code}.webp`;
+    imgElement.onerror = function() {
+      this.onerror = null;
+      // Try JPG fallback
+      const folderJpg = type === 'Choli' ? 'CholiJpg' : 'KediyaJpg';
+      this.src = `/static/${folderJpg}/${code}.jpg`;
+      this.onerror = function() {
+        this.onerror = null;
+        // Final fallback to blank canvas / icon placeholder
+        this.src = '/static/Home_Img/favicon.png';
+      }
+    };
+    
+    // Update rental count
+    document.getElementById("previewRentalCount").innerText = `${count} times`;
+    
+    // Condition status & suggestions
+    const condition = document.getElementById("previewConditionPill");
+    const suggestionText = document.getElementById("previewSuggestionText");
+    
+    // Reset classes
+    condition.className = "status-pill";
+    
+    if (count === 0) {
+      condition.classList.add("paid");
+      condition.innerText = "Idle (Starch & Storage)";
+      suggestionText.innerHTML = "💤 <strong>Idle Stock:</strong> High-quality unique piece currently inactive. Recommend featuring in front storefront displays or grouping into premium combo categories.";
+    } else if (count <= 2) {
+      condition.classList.add("paid");
+      condition.innerText = "Good Condition";
+      suggestionText.innerHTML = "✨ <strong>Active Set:</strong> Moderate usage. High color vibrancy. Cross-pair with a contrasting matching garment for maximum client rental appeal.";
+    } else if (count === 3) {
+      condition.classList.add("partial");
+      condition.innerText = "Fabric Check Triggered";
+      suggestionText.innerHTML = "🛠️ <strong>Fabric check:</strong> Inspect embroidery and hem stitches. Perform standard maintenance. Each artisan item is unique — restocks are impossible.";
+    } else {
+      condition.classList.add("unpaid");
+      condition.innerText = "Heavy Wear - Critical";
+      suggestionText.innerHTML = "⚠️ <strong>Physical inspection required:</strong> Inspect for structural thread wear. Restocking is impossible as each item is one-of-a-kind. Rotate out of main display if fabric degrades.";
+    }
+  }
+
   // ── Render Charts ──
   document.addEventListener("DOMContentLoaded", function() {
+    // Render Choli matrix explorer by default
+    renderMatrix('Choli');
 
     // A. COMBINED OVERVIEW CHARTS
     // A.1 Combined Revenue share Pie
@@ -1214,6 +1695,44 @@
         scales: {
           x: { ticks: { color: '#f1f5f9' }, grid: { display: false } },
           y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+        }
+      }
+    });
+
+    // E. Utilization vs Capacity Chart
+    const choliRented = Math.round((utilData.choli_pct / 100) * 150);
+    const kediyaRented = Math.round((utilData.kediya_pct / 100) * 173);
+
+    new Chart(document.getElementById('utilizationCapacityChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Choli stock', 'Kediya stock', 'Total Wardrobe'],
+        datasets: [
+          {
+            label: 'Total Unique Stock size',
+            data: [150, 173, 323],
+            backgroundColor: 'rgba(255, 255, 255, 0.06)',
+            borderColor: 'rgba(255, 255, 255, 0.15)',
+            borderWidth: 1.5,
+            borderRadius: 6
+          },
+          {
+            label: 'Rented Unique designs',
+            data: [choliRented, kediyaRented, utilData.rented_unique],
+            backgroundColor: '#c084fc',
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#94a3b8', font: { weight: '600' } } }
+        },
+        scales: {
+          x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
+          y: { ticks: { color: '#94a3b8', precision: 0 }, grid: { color: 'rgba(255, 255, 255, 0.05)' } }
         }
       }
     });
