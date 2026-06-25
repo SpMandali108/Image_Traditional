@@ -1063,6 +1063,242 @@ def check():
     return render_template("navaratri/check.html")
 
     
+# Helper functions to extract detailed analytics for the modern dashboard
+def get_navaratri_analytics(traditional_data):
+    def safe_int(val):
+        try:
+            return int(float(str(val).strip()))
+        except (ValueError, TypeError, AttributeError):
+            return 0
+
+    total_customers_trad = len(traditional_data)
+    total_collection_trad = sum(safe_int(b.get('total_price')) for b in traditional_data) + 29500
+    total_given_trad = sum(safe_int(b.get('given_price')) for b in traditional_data)
+    total_rem_trad = total_collection_trad - total_given_trad - 29500
+    avg_trad = total_collection_trad / total_customers_trad if total_customers_trad > 0 else 0
+
+    best_c, best_c_count, best_k, best_k_count = find_best_products_by_letter(traditional_data)
+    highest_booking_person, highest_booking_value = find_highest_booking_customer(traditional_data)
+
+    # Detailed statistics
+    product_counts = {}
+    choli_counts = {}
+    kediya_counts = {}
+    total_items_rented = 0
+
+    for customer in traditional_data:
+        bookings = customer.get("bookings", {})
+        if not isinstance(bookings, dict):
+            continue
+        for date, products in bookings.items():
+            if isinstance(products, list):
+                for p in products:
+                    if isinstance(p, str) and p.strip():
+                        code = p.strip().upper()
+                        product_counts[code] = product_counts.get(code, 0) + 1
+                        total_items_rented += 1
+                        if code.startswith('C'):
+                            choli_counts[code] = choli_counts.get(code, 0) + 1
+                        elif code.startswith('K'):
+                            kediya_counts[code] = kediya_counts.get(code, 0) + 1
+
+    top_cholis = sorted(choli_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+    top_kediyas = sorted(kediya_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+    top_products = sorted(product_counts.items(), key=lambda x: x[1], reverse=True)[:15]
+
+    # Aggregating bookings by date
+    bookings_by_date_dict = {}
+    for customer in traditional_data:
+        bookings = customer.get("bookings", {})
+        if not isinstance(bookings, dict):
+            continue
+        for raw_date, products in bookings.items():
+            if not isinstance(products, list) or not products:
+                continue
+            # Remove anything like ][][ or spaces
+            clean_date = raw_date.split('[')[0].strip()
+            if clean_date:
+                bookings_by_date_dict[clean_date] = bookings_by_date_dict.get(clean_date, 0) + len(products)
+
+    # Sort dates chronologically
+    sorted_date_items = []
+    for date_str, count in bookings_by_date_dict.items():
+        parsed_date = None
+        for fmt in ["%d-%m-%y", "%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y"]:
+            try:
+                parsed_date = datetime.strptime(date_str, fmt)
+                break
+            except:
+                continue
+        if not parsed_date:
+            parsed_date = datetime.min
+        sorted_date_items.append((parsed_date, date_str, count))
+
+    sorted_date_items.sort(key=lambda x: x[0])
+    bookings_by_date = [{"date": item[1], "count": item[2]} for item in sorted_date_items]
+
+    # Payment Statuses
+    fully_paid = 0
+    partially_paid = 0
+    unpaid = 0
+    for customer in traditional_data:
+        tot = safe_int(customer.get('total_price'))
+        giv = safe_int(customer.get('given_price'))
+        if tot == 0:
+            continue
+        if giv >= tot:
+            fully_paid += 1
+        elif giv > 0:
+            partially_paid += 1
+        else:
+            unpaid += 1
+
+    payment_status = {
+        "fully_paid": fully_paid,
+        "partially_paid": partially_paid,
+        "unpaid": unpaid
+    }
+
+    # Top Customers & Top Debtors
+    top_customers = []
+    for customer in traditional_data:
+        tot = safe_int(customer.get('total_price'))
+        giv = safe_int(customer.get('given_price'))
+        rem = tot - giv
+        
+        item_count = 0
+        bookings = customer.get("bookings", {})
+        if isinstance(bookings, dict):
+            for products in bookings.values():
+                if isinstance(products, list):
+                    item_count += len(products)
+
+        top_customers.append({
+            "id": str(customer.get("_id")),
+            "name": customer.get("Name") or customer.get("name") or "Unknown",
+            "mobile": customer.get("mobile") or "",
+            "address": customer.get("address") or "",
+            "total_price": tot,
+            "given_price": giv,
+            "remaining": rem,
+            "item_count": item_count
+        })
+
+    top_customers.sort(key=lambda x: x['total_price'], reverse=True)
+    top_debtors = [c for c in top_customers if c['remaining'] > 0]
+    top_debtors.sort(key=lambda x: x['remaining'], reverse=True)
+
+    # Group & Reference Analysis
+    group_revenue = {}
+    reference_revenue = {}
+    for customer in traditional_data:
+        tot = safe_int(customer.get('total_price'))
+        group = customer.get('group', '-').strip()
+        ref = customer.get('reference', 'Self').strip()
+        if not group or group == '':
+            group = '-'
+        if not ref or ref == '':
+            ref = 'Self'
+        group_revenue[group] = group_revenue.get(group, 0) + tot
+        reference_revenue[ref] = reference_revenue.get(ref, 0) + tot
+
+    sorted_groups = sorted(group_revenue.items(), key=lambda x: x[1], reverse=True)[:10]
+    sorted_references = sorted(reference_revenue.items(), key=lambda x: x[1], reverse=True)[:10]
+
+    return {
+        "total_customers_trad": total_customers_trad,
+        "total_collection_trad": total_collection_trad,
+        "total_given_trad": total_given_trad,
+        "total_rem_trad": total_rem_trad,
+        "avg_trad": avg_trad,
+        "best_c": best_c,
+        "best_c_count": best_c_count,
+        "best_k": best_k,
+        "best_k_count": best_k_count,
+        "highest_booking_person": highest_booking_person,
+        "highest_booking_value": highest_booking_value,
+        "total_items_rented": total_items_rented,
+        "choli_count": sum(c for _, c in choli_counts.items()),
+        "kediya_count": sum(c for _, c in kediya_counts.items()),
+        "top_cholis": top_cholis,
+        "top_kediyas": top_kediyas,
+        "top_products": top_products,
+        "bookings_by_date": bookings_by_date,
+        "payment_status": payment_status,
+        "top_customers": top_customers[:15],
+        "top_debtors": top_debtors[:15],
+        "top_groups": sorted_groups,
+        "top_references": sorted_references
+    }
+
+def get_fancy_analytics(fancy_data):
+    total_bookings = len(fancy_data)
+    total_revenue = sum(
+        int(b.get('price') or 0) for b in fancy_data if isinstance(b.get('price'), (int, float, str))
+    )
+    avg_revenue = total_revenue / total_bookings if total_bookings > 0 else 0
+
+    returned_count = sum(1 for b in fancy_data if b.get("returned"))
+    taken_count = sum(1 for b in fancy_data if b.get("taken"))
+    not_returned = sum(
+        1 for b in fancy_data if b.get("taken") and not b.get("returned")
+    )
+
+    costume_counter = {}
+    school_counter = {}
+    bookings_by_date_dict = {}
+
+    for b in fancy_data:
+        costume = b.get("costume")
+        school = b.get("school")
+        
+        if costume:
+            costume_counter[costume] = costume_counter.get(costume, 0) + 1
+        if school:
+            school_counter[school] = school_counter.get(school, 0) + 1
+
+        # Aggregating bookings by start date
+        raw_date = b.get("start_date")
+        if raw_date:
+            if isinstance(raw_date, datetime):
+                date_str = raw_date.strftime("%d-%m-%Y")
+            else:
+                date_str = str(raw_date).strip()
+            bookings_by_date_dict[date_str] = bookings_by_date_dict.get(date_str, 0) + 1
+
+    # Sort dates chronologically
+    sorted_date_items = []
+    for date_str, count in bookings_by_date_dict.items():
+        parsed_date = None
+        for fmt in ["%d-%m-%Y", "%Y-%m-%d", "%d-%m-%y", "%d/%m/%Y"]:
+            try:
+                parsed_date = datetime.strptime(date_str, fmt)
+                break
+            except:
+                continue
+        if not parsed_date:
+            parsed_date = datetime.min
+        sorted_date_items.append((parsed_date, date_str, count))
+
+    sorted_date_items.sort(key=lambda x: x[0])
+    bookings_by_date = [{"date": item[1], "count": item[2]} for item in sorted_date_items]
+
+    top_costumes = sorted(costume_counter.items(), key=lambda x: x[1], reverse=True)[:10]
+    top_school = sorted(school_counter.items(), key=lambda x: x[1], reverse=True)[:10]
+
+    return {
+        "total_customers_fancy": total_bookings,
+        "total_collection_fancy": total_revenue,
+        "avg_fancy": avg_revenue,
+        "returned_count_fancy": returned_count,
+        "taken_count_fancy": taken_count,
+        "not_returned_fancy": not_returned,
+        "top_costumes_fancy": top_costumes,
+        "top_school_fancy": top_school,
+        "bookings_by_date_fancy": bookings_by_date
+    }
+
+
 @navaratri.route('/dashboard')
 def dashboard_summary():
     if not session.get('logged_in'):
@@ -1080,69 +1316,23 @@ def dashboard_summary():
             return f"Error: Database connection failed - {e}"
 
         traditional_data = list(collection.find())
-
-        if not traditional_data:
-            total_customers_trad = 0
-            total_collection_trad = 0
-            total_given_trad = 0
-            total_rem_trad = 0
-            best_c = "N/A"
-            best_c_count = 0
-            best_k = "N/A"
-            best_k_count = 0
-            highest_booking_person = "N/A"
-            highest_booking_value = 0
-            avg_trad = 0
-        else:
-            def safe_int(val):
-                try:
-                    return int(val)
-                except (ValueError, TypeError):
-                    return 0
-
-            total_customers_trad = len(traditional_data)
-            total_collection_trad = sum(safe_int(b.get('total_price')) for b in traditional_data) + 29500
-            total_given_trad = sum(safe_int(b.get('given_price')) for b in traditional_data)
-            total_rem_trad = total_collection_trad - total_given_trad - 29500
-
-            best_c, best_c_count, best_k, best_k_count = find_best_products_by_letter(traditional_data)
-            highest_booking_person, highest_booking_value = find_highest_booking_customer(traditional_data)
-            avg_trad = total_collection_trad / total_customers_trad if total_customers_trad > 0 else 0
+        trad_analytics = get_navaratri_analytics(traditional_data)
 
         fancy_data = list(fancy_collection.find())
+        fancy_analytics = get_fancy_analytics(fancy_data)
 
-        if not fancy_data:
-            total_customers_fancy = 0
-            total_collection_fancy = 0
-            avg_fancy = 0
-        else:
-            total_customers_fancy = len(fancy_data)
-            total_collection_fancy = sum(
-                int(b.get('price') or 0) for b in fancy_data if isinstance(b.get('price'), (int, float, str))
-            )
-            avg_fancy = total_collection_fancy / total_customers_fancy if total_customers_fancy > 0 else 0
+        combined_collection = trad_analytics.get("total_collection_trad", 0) + fancy_analytics.get("total_collection_fancy", 0)
 
-        combined_collection = total_collection_trad + total_collection_fancy
+        # Merge all data into one context
+        context = {
+            "selected_cycle": selected_cycle,
+            "combined_collection": combined_collection,
+            "has_error": False
+        }
+        context.update(trad_analytics)
+        context.update(fancy_analytics)
 
-        return render_template(
-            'navaratri/total.html',
-            selected_cycle=selected_cycle,
-            total_customers_trad=total_customers_trad,
-            total_collection_trad=total_collection_trad,
-            total_given_trad=total_given_trad,
-            total_rem_trad=total_rem_trad,
-            best_c=best_c,
-            best_c_count=best_c_count,
-            best_k=best_k,
-            best_k_count=best_k_count,
-            highest_booking_person=highest_booking_person,
-            highest_booking_value=highest_booking_value,
-            avg_trad=avg_trad,
-            total_customers_fancy=total_customers_fancy,
-            total_collection_fancy=total_collection_fancy,
-            avg_fancy=avg_fancy,
-            combined_collection=combined_collection
-        )
+        return render_template('navaratri/total.html', **context)
 
     except Exception as e:
         import traceback
@@ -2105,60 +2295,22 @@ def navaratri_dashboard():
             return f"Error: Database connection failed - {e}"
 
         traditional_data = list(collection.find())
+        trad_analytics = get_navaratri_analytics(traditional_data)
 
-        if not traditional_data:
-            total_customers_trad = 0
-            total_collection_trad = 0
-            total_given_trad = 0
-            total_rem_trad = 0
-            best_c = "N/A"
-            best_c_count = 0
-            best_k = "N/A"
-            best_k_count = 0
-            highest_booking_person = "N/A"
-            highest_booking_value = 0
-            avg_trad = 0
-        else:
-            def safe_int(val):
-                try:
-                    return int(val)
-                except (ValueError, TypeError):
-                    return 0
+        context = {
+            "selected_cycle": selected_cycle,
+            "has_error": False
+        }
+        context.update(trad_analytics)
 
-            total_customers_trad = len(traditional_data)
-            total_collection_trad = sum(safe_int(b.get('total_price')) for b in traditional_data) + 29500
-            total_given_trad = sum(safe_int(b.get('given_price')) for b in traditional_data)
-            total_rem_trad = total_collection_trad - total_given_trad - 29500
-
-            best_c, best_c_count, best_k, best_k_count = find_best_products_by_letter(traditional_data)
-            highest_booking_person, highest_booking_value = find_highest_booking_customer(traditional_data)
-            avg_trad = total_collection_trad / total_customers_trad if total_customers_trad > 0 else 0
-
-        
-
-        return render_template(
-            'navaratri/navaratri_dashboard.html',
-            selected_cycle=selected_cycle,
-            total_customers_trad=total_customers_trad,
-            total_collection_trad=total_collection_trad,
-            total_given_trad=total_given_trad,
-            total_rem_trad=total_rem_trad,
-            best_c=best_c,
-            best_c_count=best_c_count,
-            best_k=best_k,
-            best_k_count=best_k_count,
-            highest_booking_person=highest_booking_person,
-            highest_booking_value=highest_booking_value,
-            avg_trad=avg_trad,
-            
-        )
+        return render_template('navaratri/navaratri_dashboard.html', **context)
 
     except Exception as e:
         import traceback
         traceback.print_exc()
 
         return render_template(
-            'navaratri/total.html',
+            'navaratri/navaratri_dashboard.html',
             selected_cycle=selected_cycle,
             total_customers_trad=0,
             total_collection_trad=0,

@@ -1,381 +1,470 @@
 {% extends "general/base.html" %}
-{% block title %}Booking Summary | Image Traditional{% endblock %}
+{% block title %}Combined Analytics Dashboard | Image Traditional{% endblock %}
+
 {% block head %}
+<!-- Google Fonts & Chart.js -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  /* ── Dashboard Custom Styling ── */
+  :root {
+    --accent: #7c3aed;       /* Radiant Purple for Combined */
+    --accent-glow: rgba(124, 58, 237, 0.15);
+    --trad-color: #f97316;   /* Marigold Orange for Traditional */
+    --fancy-color: #06b6d4;  /* Cyan for Fancy Dress */
+    --bg-dashboard: #0b0f19; /* Dark Space Blue */
+    --card-bg: rgba(17, 24, 39, 0.65);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
   }
 
   body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: radial-gradient(circle at 50% 50%, #15112e 0%, var(--bg-dashboard) 100%) !important;
+    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
     min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
 
   .container {
-    max-width: 1400px;
+    max-width: 1440px;
     margin: 0 auto;
-    padding: 2rem;
-    position: relative;
+    padding: 2rem 1.5rem;
   }
 
-  /* Animated background elements */
-  .bg-decoration {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: -1;
-    overflow: hidden;
+  /* ── Header ── */
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+    gap: 1.5rem;
   }
 
-  .bg-decoration::before,
-  .bg-decoration::after {
-    content: '';
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-    animation: float 20s infinite ease-in-out;
-  }
-
-  .bg-decoration::before {
-    top: 10%;
-    left: -100px;
-    animation-delay: 0s;
-  }
-
-  .bg-decoration::after {
-    bottom: 10%;
-    right: -100px;
-    animation-delay: 10s;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(180deg); }
-  }
-
-  .page-header {
-    text-align: center;
-    margin-bottom: 3rem;
-    animation: fadeInUp 0.8s ease-out;
-  }
-
-  .page-title {
-    font-size: clamp(2rem, 5vw, 3.5rem);
+  .header-info h1 {
+    font-size: 2.25rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-    text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    margin-bottom: 0.25rem;
   }
 
-  .page-subtitle {
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 400;
-    letter-spacing: 0.5px;
-  }
-
-  /* Error Alert Styles */
-  .error-alert {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    border: 1px solid #f87171;
-    border-radius: 20px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    text-align: center;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(248, 113, 113, 0.3);
-    animation: shake 0.5s ease-in-out;
-  }
-
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-  }
-
-  .error-alert h3 {
-    color: #dc2626;
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .error-alert p {
-    color: #991b1b;
-    margin-bottom: 1.5rem;
-    font-family: "JetBrains Mono", "Monaco", "Menlo", monospace;
+  .header-info p {
+    color: var(--text-muted);
     font-size: 0.95rem;
-    background: rgba(255,255,255,0.3);
-    padding: 1rem;
-    border-radius: 10px;
   }
 
-  .retry-btn {
-    display: inline-flex;
+  .cycle-badge {
+    background: rgba(124, 58, 237, 0.12);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    color: var(--accent);
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    box-shadow: 0 0 15px var(--accent-glow);
+  }
+
+  /* ── Navigation Tabs ── */
+  .tabs-nav {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.35rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tabs-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
+    display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+    white-space: nowrap;
   }
 
-  .retry-btn:hover {
-    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.6);
+  .tab-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
   }
 
-  .summary-section {
-    margin-bottom: 4rem;
-    animation: fadeInUp 0.8s ease-out;
-    animation-fill-mode: both;
+  .tab-btn.active {
+    color: #ffffff;
+    background: var(--accent);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
   }
 
-  .summary-section:nth-child(2) { animation-delay: 0.2s; }
-  .summary-section:nth-child(3) { animation-delay: 0.4s; }
-  .summary-section:nth-child(4) { animation-delay: 0.6s; }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .tab-btn.trad-btn.active {
+    background: var(--trad-color);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
   }
 
-  .section-title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 2rem;
-    color: white;
-    position: relative;
-    display: inline-block;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  .tab-btn.fancy-btn.active {
+    background: var(--fancy-color);
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
   }
 
-  .section-title::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 60%;
-    height: 4px;
-    background: linear-gradient(90deg, #f59e0b, #ef4444, #8b5cf6);
-    border-radius: 2px;
-    animation: shimmer 2s infinite;
+  .tab-content {
+    display: none;
   }
 
-  @keyframes shimmer {
-    0% { background-position: -200px 0; }
-    100% { background-position: calc(200px + 100%) 0; }
+  .tab-content.active {
+    display: block;
+    animation: fadeIn 0.4s ease-out;
   }
 
-  .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  .summary-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-radius: 24px;
-    padding: 2rem;
-    text-align: center;
+  /* ── Card Styles ── */
+  .card-glass {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 1.75rem;
     position: relative;
     overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .summary-card::before {
+  .card-glass:hover {
+    transform: translateY(-4px);
+    border-color: rgba(124, 58, 237, 0.25);
+    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(124, 58, 237, 0.05);
+  }
+
+  /* ── KPI Grid ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .kpi-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .kpi-card::before {
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
-    width: 100%;
+    left: 0;
+    width: 4px;
     height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.4),
-      transparent
-    );
-    transition: left 0.5s;
+    background: var(--accent);
+    opacity: 0.7;
   }
 
-  .summary-card:hover::before {
-    left: 100%;
-  }
+  .kpi-card.trad::before { background: var(--trad-color); }
+  .kpi-card.fancy::before { background: var(--fancy-color); }
+  .kpi-card.success::before { background: var(--success); }
+  .kpi-card.danger::before { background: var(--danger); }
 
-  .summary-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 
-      0 20px 40px rgba(0, 0, 0, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  }
-
-  .card-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #64748b;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .card-value {
-    font-size: 2.5rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-    line-height: 1.2;
-  }
-
-  .card-value small {
-    font-size: 1rem;
-    color: #64748b;
-    font-weight: 500;
-    display: block;
-    margin-top: 0.5rem;
-  }
-
-  /* Special styling for different card types */
-  .summary-card:nth-child(odd) {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(255, 255, 255, 0.95));
-  }
-
-  .summary-card:nth-child(even) {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(255, 255, 255, 0.95));
-  }
-
-  /* Download button */
-  .download-section {
+  .kpi-header {
     display: flex;
-    justify-content: center;
-    margin-top: 3rem;
-    animation: fadeInUp 0.8s ease-out 0.8s both;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
   }
 
-  .btn {
-    display: inline-flex;
+  .kpi-title {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .kpi-icon {
+    font-size: 1.25rem;
+    opacity: 0.85;
+    padding: 0.4rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+  }
+
+  .kpi-value {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+    padding-left: 0.5rem;
+  }
+
+  .kpi-sub {
+    margin-top: 0.65rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: flex;
     align-items: center;
-    gap: 0.75rem;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    padding: 1rem 2rem;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
-    border: none;
+    gap: 0.25rem;
+    padding-left: 0.5rem;
+  }
+
+  .kpi-sub.green { color: var(--success); }
+  .kpi-sub.yellow { color: var(--warning); }
+  .kpi-sub.red { color: var(--danger); }
+
+  /* ── Visual Charts Section ── */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 1024px) {
+    .charts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .chart-card {
+    min-height: 380px;
+  }
+
+  .chart-title-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .chart-title-header h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .chart-container-inner {
+    position: relative;
+    height: 300px;
+    width: 100%;
+  }
+
+  /* ── Details Sections ── */
+  .details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 1024px) {
+    .details-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Interactive Tables ── */
+  .search-wrapper {
+    position: relative;
+    margin-bottom: 1.25rem;
+  }
+
+  .search-input {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .table-container {
+    overflow-x: auto;
+    max-height: 480px;
+    overflow-y: auto;
+  }
+
+  table.modern-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.88rem;
+  }
+
+  table.modern-table th {
+    background: rgba(15, 23, 42, 0.8);
+    color: var(--text-muted);
+    font-weight: 700;
+    padding: 0.85rem 1rem;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+  }
+
+  table.modern-table td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: #e2e8f0;
+    vertical-align: middle;
+  }
+
+  table.modern-table tr {
+    transition: background 0.15s ease;
+  }
+
+  table.modern-table tr:hover:not(.no-hover) {
+    background: rgba(255, 255, 255, 0.02);
     cursor: pointer;
   }
 
-  .btn:hover {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 32px rgba(16, 185, 129, 0.6);
-    color: white;
+  /* ── Badges & Tags ── */
+  .rank-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 0.78rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
   }
+  .rank-tag.rank-1 { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+  .rank-tag.rank-2 { background: rgba(226, 232, 240, 0.1); color: #cbd5e1; border: 1px solid rgba(226, 232, 240, 0.2); }
+  .rank-tag.rank-3 { background: rgba(180, 83, 9, 0.15); color: #d97706; border: 1px solid rgba(180, 83, 9, 0.2); }
 
-  .btn-icon {
-    font-size: 1.2rem;
-    animation: bounce 2s infinite;
-  }
-
-  @keyframes bounce {
-    0%, 20%, 53%, 80%, 100% {
-      transform: translateY(0);
-    }
-    40%, 43% {
-      transform: translateY(-8px);
-    }
-    70% {
-      transform: translateY(-4px);
-    }
-  }
-
-  /* Currency symbol styling */
-  .currency {
-    color: #2563eb;
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
     font-weight: 700;
+    gap: 0.3rem;
   }
 
-  /* Responsive design */
-  @media (max-width: 768px) {
-    .container {
-      padding: 1rem;
-    }
-    
-    .summary-grid {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-    }
-    
-    .summary-card {
-      padding: 1.5rem;
-    }
-    
-    .card-value {
-      font-size: 2rem;
-    }
-    
-    .section-title {
-      font-size: 1.5rem;
-    }
+  .status-pill.paid { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
+  .status-pill.partial { background: rgba(245, 158, 11, 0.12); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+  .status-pill.unpaid { background: rgba(239, 68, 68, 0.12); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+
+  .prod-tag {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-family: monospace;
+    font-weight: 600;
   }
 
-  /* Loading animation for cards */
-  .summary-card {
-    animation: slideInUp 0.6s ease-out both;
+  .progress-track {
+    background: rgba(255, 255, 255, 0.05);
+    height: 6px;
+    border-radius: 3px;
+    width: 60px;
+    display: inline-block;
+    vertical-align: middle;
+    overflow: hidden;
+    margin-right: 0.5rem;
   }
 
-  .summary-card:nth-child(1) { animation-delay: 0.1s; }
-  .summary-card:nth-child(2) { animation-delay: 0.2s; }
-  .summary-card:nth-child(3) { animation-delay: 0.3s; }
-  .summary-card:nth-child(4) { animation-delay: 0.4s; }
-  .summary-card:nth-child(5) { animation-delay: 0.5s; }
-  .summary-card:nth-child(6) { animation-delay: 0.6s; }
-  .summary-card:nth-child(7) { animation-delay: 0.7s; }
-  .summary-card:nth-child(8) { animation-delay: 0.8s; }
+  .progress-fill {
+    background: var(--accent);
+    height: 100%;
+    border-radius: 3px;
+  }
 
-  @keyframes slideInUp {
-    from {
-      opacity: 0;
-      transform: translateY(50px) scale(0.9);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+  /* ── Buttons & Exports ── */
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    padding: 0.6rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .action-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  .action-btn.primary {
+    background: var(--accent);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+  }
+
+  .action-btn.primary:hover {
+    background: #6d28d9;
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35);
+  }
+
+  .buttons-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
   }
 </style>
 {% endblock %}
@@ -388,110 +477,747 @@
 {% endblock %}
 
 {% block content %}
-<div class="bg-decoration"></div>
-
 <div class="container">
-  <div class="page-header">
-    <h1 class="page-title">Dashboard Summary</h1>
-    <p class="page-subtitle">Comprehensive bookings overview & analytics</p>
+
+  <!-- ── Dashboard Header ── -->
+  <header class="dashboard-header">
+    <div class="header-info">
+      <h1>Combined Performance Analytics</h1>
+      <p>Multi-portal summary and financial health trackers</p>
+    </div>
+    <div>
+      <span class="cycle-badge">
+        📂 Combined Reports
+      </span>
+    </div>
+  </header>
+
+  <!-- ── Navigation Tabs ── -->
+  <nav class="tabs-nav">
+    <button class="tab-btn active" onclick="switchTab(event, 'combined-tab')">
+      🌟 Combined Overview
+    </button>
+    <button class="tab-btn trad-btn" onclick="switchTab(event, 'traditional-tab')">
+      📸 Traditional Bookings
+    </button>
+    <button class="tab-btn fancy-btn" onclick="switchTab(event, 'fancy-tab')">
+      🎭 Fancy Dress Bookings
+    </button>
+    <button class="tab-btn" onclick="switchTab(event, 'demographics-tab')">
+      📈 Trends & Demographics
+    </button>
+  </nav>
+
+  <!-- ── TAB 1: COMBINED OVERVIEW ── -->
+  <div id="combined-tab" class="tab-content active">
+
+    <!-- KPI Grid -->
+    <div class="kpi-grid">
+      <div class="card-glass kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-title">Combined Collection</span>
+          <span class="kpi-icon">💎</span>
+        </div>
+        <div class="kpi-value">₹{{ combined_collection }}</div>
+        <div class="kpi-sub">Total business billing</div>
+      </div>
+
+      <div class="card-glass kpi-card trad">
+        <div class="kpi-header">
+          <span class="kpi-title">Traditional Revenue</span>
+          <span class="kpi-icon">📸</span>
+        </div>
+        <div class="kpi-value">₹{{ total_collection_trad }}</div>
+        <div class="kpi-sub">
+          {% if combined_collection > 0 %}
+            {{ ((total_collection_trad / combined_collection) * 100)|round(1) }}% contribution
+          {% else %}
+            0% contribution
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card-glass kpi-card fancy">
+        <div class="kpi-header">
+          <span class="kpi-title">Fancy Dress Revenue</span>
+          <span class="kpi-icon">🎭</span>
+        </div>
+        <div class="kpi-value">₹{{ total_collection_fancy }}</div>
+        <div class="kpi-sub">
+          {% if combined_collection > 0 %}
+            {{ ((total_collection_fancy / combined_collection) * 100)|round(1) }}% contribution
+          {% else %}
+            0% contribution
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card-glass kpi-card success">
+        <div class="kpi-header">
+          <span class="kpi-title">Traditional Accounts</span>
+          <span class="kpi-icon">👥</span>
+        </div>
+        <div class="kpi-value">{{ total_customers_trad }}</div>
+        <div class="kpi-sub">Renting traditional costumes</div>
+      </div>
+
+      <div class="card-glass kpi-card fancy">
+        <div class="kpi-header">
+          <span class="kpi-title">Fancy Dress Bookings</span>
+          <span class="kpi-icon">📋</span>
+        </div>
+        <div class="kpi-value">{{ total_customers_fancy }}</div>
+        <div class="kpi-sub">Total events booked</div>
+      </div>
+    </div>
+
+    <!-- Combined Revenue Chart -->
+    <div class="charts-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="card-glass chart-card">
+        <div class="chart-title-header">
+          <h2>📊 Revenue Share Analysis</h2>
+        </div>
+        <div class="chart-container-inner">
+          <canvas id="combinedRevenueChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card-glass chart-card">
+        <div class="chart-title-header">
+          <h2>📈 Accounts Volume comparison</h2>
+        </div>
+        <div class="chart-container-inner">
+          <canvas id="combinedVolumeChart"></canvas>
+        </div>
+      </div>
+    </div>
   </div>
 
-  {% if has_error %}
-  <div class="error-alert">
-    <h3>⚠️ Error Loading Data</h3>
-    <p>{{ error_message }}</p>
-    <a href="{{ url_for('navaratri.dashboard_summary') }}" class="retry-btn">
-      🔄 Retry Loading
+  <!-- ── TAB 2: TRADITIONAL BOOKINGS ── -->
+  <div id="traditional-tab" class="tab-content">
+    
+    <!-- KPI Row -->
+    <div class="kpi-grid">
+      <div class="card-glass kpi-card trad">
+        <div class="kpi-header">
+          <span class="kpi-title">Traditional Accounts</span>
+          <span class="kpi-icon">👥</span>
+        </div>
+        <div class="kpi-value">{{ total_customers_trad }}</div>
+        <div class="kpi-sub">Total accounts</div>
+      </div>
+
+      <div class="card-glass kpi-card trad">
+        <div class="kpi-header">
+          <span class="kpi-title">Traditional Revenue</span>
+          <span class="kpi-icon">💰</span>
+        </div>
+        <div class="kpi-value">₹{{ total_collection_trad }}</div>
+        <div class="kpi-sub">With ₹29,500 adjustment</div>
+      </div>
+
+      <div class="card-glass kpi-card success">
+        <div class="kpi-header">
+          <span class="kpi-title">Traditional Paid</span>
+          <span class="kpi-icon">✅</span>
+        </div>
+        <div class="kpi-value">₹{{ total_given_trad }}</div>
+        <div class="kpi-sub">Total cash received</div>
+      </div>
+
+      <div class="card-glass kpi-card danger">
+        <div class="kpi-header">
+          <span class="kpi-title">Traditional Remaining</span>
+          <span class="kpi-icon">⏳</span>
+        </div>
+        <div class="kpi-value">₹{{ total_rem_trad }}</div>
+        <div class="kpi-sub">Total outstanding</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="card-glass chart-card">
+        <div class="chart-title-header">
+          <h2>📅 Traditional Booking Load</h2>
+        </div>
+        <div class="chart-container-inner">
+          <canvas id="tradTimelineChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card-glass chart-card">
+        <div class="chart-title-header">
+          <h2>💳 Ledger Statuses</h2>
+        </div>
+        <div class="chart-container-inner">
+          <canvas id="tradPaymentChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Traditional Lists -->
+    <div class="details-grid">
+      
+      <!-- Cholis -->
+      <div class="card-glass">
+        <div class="chart-title-header">
+          <h2>👗 Top Cholis Rented</h2>
+        </div>
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Rented Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p, count in top_cholis[:8] %}
+              <tr>
+                <td><span class="prod-tag">{{ p }}</span></td>
+                <td style="font-weight: 700;">{{ count }} bookings</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="2" style="color: var(--text-muted); text-align: center;">No statistics</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Kediyas -->
+      <div class="card-glass">
+        <div class="chart-title-header">
+          <h2>🕺 Top Kediyas Rented</h2>
+        </div>
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Rented Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p, count in top_kediyas[:8] %}
+              <tr>
+                <td><span class="prod-tag">{{ p }}</span></td>
+                <td style="font-weight: 700;">{{ count }} bookings</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="2" style="color: var(--text-muted); text-align: center;">No statistics</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Active Customers & Debtors List -->
+    <div class="details-grid" style="grid-template-columns: 2fr 1fr;">
+      
+      <!-- Ledger -->
+      <div class="card-glass">
+        <div class="chart-title-header">
+          <h2>👥 Traditional Ledger</h2>
+        </div>
+        <div class="search-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="ledgerSearchTotal" onkeyup="filterTotalLedger()" placeholder="Search customer ledger..." class="search-input">
+        </div>
+        <div class="table-container">
+          <table class="modern-table" id="totalLedgerTable">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Wardrobe Size</th>
+                <th>Collection</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in top_customers %}
+              <tr onclick="window.location.href='/profile?mobile={{ c.mobile }}'">
+                <td class="search-cell-total-ledger">
+                  <div style="font-weight: 700;">{{ c.name }}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">📞 {{ c.mobile }}</div>
+                </td>
+                <td>{{ c.item_count }} items</td>
+                <td>
+                  <div>Total: ₹{{ c.total_price }}</div>
+                  <div style="font-size: 0.75rem; color: var(--success);">Paid: ₹{{ c.given_price }}</div>
+                </td>
+                <td>
+                  {% if c.remaining <= 0 %}
+                    <span class="status-pill paid">Paid</span>
+                  {% elif c.given_price > 0 %}
+                    <span class="status-pill partial">Partial</span>
+                  {% else %}
+                    <span class="status-pill unpaid">Unpaid</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Debtors -->
+      <div class="card-glass">
+        <div class="chart-title-header">
+          <h2>⏳ Traditional Debtors</h2>
+        </div>
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Owes Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in top_debtors[:12] %}
+              <tr onclick="window.location.href='/profile?mobile={{ c.mobile }}'">
+                <td>
+                  <div style="font-weight: 700;">{{ c.name }}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">📞 {{ c.mobile }}</div>
+                </td>
+                <td style="font-weight: 800; color: var(--danger);">₹{{ c.remaining }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="2" style="color: var(--success); text-align: center; font-weight: 600;">Clean ledger!</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── TAB 3: FANCY BOOKINGS ── -->
+  <div id="fancy-tab" class="tab-content">
+    
+    <!-- KPI Row -->
+    <div class="kpi-grid">
+      <div class="card-glass kpi-card fancy">
+        <div class="kpi-header">
+          <span class="kpi-title">Fancy Customers</span>
+          <span class="kpi-icon">👥</span>
+        </div>
+        <div class="kpi-value">{{ total_customers_fancy }}</div>
+        <div class="kpi-sub">Total bookings</div>
+      </div>
+
+      <div class="card-glass kpi-card fancy">
+        <div class="kpi-header">
+          <span class="kpi-title">Fancy Collection</span>
+          <span class="kpi-icon">💰</span>
+        </div>
+        <div class="kpi-value">₹{{ total_collection_fancy }}</div>
+        <div class="kpi-sub">Total revenue</div>
+      </div>
+
+      <div class="card-glass kpi-card fancy">
+        <div class="kpi-header">
+          <span class="kpi-title">Fancy Avg Revenue</span>
+          <span class="kpi-icon">📈</span>
+        </div>
+        <div class="kpi-value">₹{{ avg_fancy|round(0)|int }}</div>
+        <div class="kpi-sub">Average ticket size</div>
+      </div>
+
+      <div class="card-glass kpi-card fancy">
+        <div class="kpi-header">
+          <span class="kpi-title">Costumes Out</span>
+          <span class="kpi-icon">👘</span>
+        </div>
+        <div class="kpi-value">{{ taken_count_fancy }}</div>
+        <div class="kpi-sub">{{ returned_count_fancy }} returned ({{ not_returned_fancy }} pending)</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid" style="grid-template-columns: 2fr 1fr;">
+      <div class="card-glass chart-card">
+        <div class="chart-title-header">
+          <h2>📅 Fancy Dress Bookings Timeline</h2>
+        </div>
+        <div class="chart-container-inner">
+          <canvas id="fancyTimelineChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card-glass chart-card">
+        <div class="chart-title-header">
+          <h2>🔄 Returns Distribution</h2>
+        </div>
+        <div class="chart-container-inner">
+          <canvas id="fancyReturnsChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Listings -->
+    <div class="details-grid">
+      
+      <!-- Top Costumes -->
+      <div class="card-glass">
+        <div class="chart-title-header">
+          <h2>🎭 Top Costume Volumes</h2>
+        </div>
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>Costume Name</th>
+                <th>Total Rentals</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for costume, count in top_costumes_fancy[:10] %}
+              <tr>
+                <td><strong>{{ costume }}</strong></td>
+                <td><span class="prod-tag">{{ count }} bookings</span></td>
+              </tr>
+              {% else %}
+              <tr><td colspan="2" style="color: var(--text-muted); text-align: center;">No costume rentals</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Top Schools -->
+      <div class="card-glass">
+        <div class="chart-title-header">
+          <h2>🏫 Top Schools by Volume</h2>
+        </div>
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>School Name</th>
+                <th>Total Rentals</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for school, count in top_school_fancy[:10] %}
+              <tr>
+                <td><strong>{{ school }}</strong></td>
+                <td><span class="prod-tag" style="background: rgba(6, 182, 212, 0.12); color: var(--fancy-color); border-color: rgba(6, 182, 212, 0.2);">{{ count }} bookings</span></td>
+              </tr>
+              {% else %}
+              <tr><td colspan="2" style="color: var(--text-muted); text-align: center;">No school rentals</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── TAB 4: DEMOGRAPHICS & GROUPS ── -->
+  <div id="demographics-tab" class="tab-content">
+    <div class="details-grid">
+
+      <!-- Group Distribution -->
+      <div class="card-glass">
+        <div class="chart-title-header">
+          <h2>🏢 Bookings & Revenue by Group</h2>
+        </div>
+        <div class="chart-container-inner" style="height: 340px;">
+          <canvas id="groupChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Reference Contribution -->
+      <div class="card-glass">
+        <div class="chart-title-header">
+          <h2>🤝 Reference Contribution Breakdown</h2>
+        </div>
+        <div class="chart-container-inner" style="height: 340px;">
+          <canvas id="referenceChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="buttons-row">
+    <a href="/export_bookings" class="action-btn primary" download>
+      📥 Export Bookings CSV
+    </a>
+    <a href="/admin" class="action-btn">
+      🔙 Return to General Admin
     </a>
   </div>
-  {% endif %}
 
-  <!-- Traditional Summary -->
-  <div class="summary-section">
-    <h2 class="section-title">📸 Traditional Bookings</h2>
-    <div class="summary-grid">
-      <a href="{{ url_for('navaratri.dashboard_listing') }}" style="text-decoration: none; color: inherit;">
-  <div class="summary-card">
-    <div class="card-title">👥 Total Customers</div>
-    <div class="card-value">{{ total_customers_trad }}</div>
-  </div>
-</a>
-
-      <div class="summary-card" >
-        <div class="card-title">💰 Total Collection</div>
-        <div class="card-value"><span class="currency">₹</span>{{ total_collection_trad }}</div>
-      </div>
-      <div class="summary-card">
-        <div class="card-title">✅ Amount Given</div>
-        <div class="card-value"><span class="currency">₹</span>{{ total_given_trad }}</div>
-      </div>
-      <div class="summary-card">
-        <div class="card-title">⏳ Remaining Balance</div>
-        <div class="card-value"><span class="currency">₹</span>{{ total_rem_trad }}</div>
-      </div>
-      <div class="summary-card">
-        <div class="card-title">🏆 Best C Product</div>
-        <div class="card-value">
-          {{ best_c }}
-          <small>📊 {{ best_c_count }} bookings</small>
-        </div>
-      </div>
-      <div class="summary-card">
-        <div class="card-title">🥇 Best K Product</div>
-        <div class="card-value">
-          {{ best_k }}
-          <small>📊 {{ best_k_count }} bookings</small>
-        </div>
-      </div>
-      <div class="summary-card">
-        <div class="card-title">⭐ Top Customer</div>
-        <div class="card-value">
-          {{ highest_booking_person }}
-          <small><span class="currency">₹</span>{{ highest_booking_value }} total</small>
-        </div>
-      </div>
-      <div class="summary-card">
-        <div class="card-title">📊 Average Booking</div>
-        <div class="card-value"><span class="currency">₹</span>{{ avg_trad }}</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Fancy Summary -->
-  <div class="summary-section">
-    <h2 class="section-title">🎭 Fancy Dress Bookings</h2>
-    <div class="summary-grid">
-      <div class="summary-card">
-        <div class="card-title">👥 Total Customers</div>
-        <div class="card-value">{{ total_customers_fancy }}</div>
-      </div>
-      <div class="summary-card">
-        <div class="card-title">💰 Total Collection</div>
-        <div class="card-value"><span class="currency">₹</span>{{ total_collection_fancy }}</div>
-      </div>
-      <div class="summary-card">
-        <div class="card-title">📊 Average Booking</div>
-        <div class="card-value"><span class="currency">₹</span>{{ avg_fancy|round(2) }}</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Combined Summary -->
-  <div class="summary-section">
-    <h2 class="section-title">🌟 Overall Performance</h2>
-    <div class="summary-grid">
-      <div class="summary-card">
-        <div class="card-title">💎 Combined Collection</div>
-        <div class="card-value"><span class="currency">₹</span>{{ combined_collection }}</div>
-      </div>
-    </div>
-  </div>
 </div>
 
-<div class="download-section">
-  <a href="/export_bookings" class="btn" role="button" download>
-    <span class="btn-icon">📥</span>
-    Download Bookings CSV
-  </a>
-</div>
+<!-- JavaScript Logic -->
+<script>
+  // ── Tab Management ──
+  function switchTab(evt, tabId) {
+    const contents = document.querySelectorAll(".tab-content");
+    contents.forEach(content => content.classList.remove("active"));
+
+    const buttons = document.querySelectorAll(".tab-btn");
+    buttons.forEach(btn => btn.classList.remove("active"));
+
+    document.getElementById(tabId).classList.add("active");
+    evt.currentTarget.classList.add("active");
+  }
+
+  // Ledger Filter
+  function filterTotalLedger() {
+    const input = document.getElementById("ledgerSearchTotal");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("totalLedgerTable");
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) {
+      let trItem = tr[i];
+      let searchableTextCell = trItem.getElementsByClassName("search-cell-total-ledger")[0];
+      if (searchableTextCell) {
+        let txtValue = searchableTextCell.textContent || searchableTextCell.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          trItem.style.display = "";
+        } else {
+          trItem.style.display = "none";
+        }
+      }
+    }
+  }
+
+  // ── Datasets ──
+  const traditionalCollection = {{ total_collection_trad | tojson }};
+  const fancyCollection = {{ total_collection_fancy | tojson }};
+  const traditionalCustomers = {{ total_customers_trad | tojson }};
+  const fancyCustomers = {{ total_customers_fancy | tojson }};
+
+  const tradTimeline = {{ bookings_by_date | tojson }};
+  const fancyTimeline = {{ bookings_by_date_fancy | tojson }};
+  const paymentStatus = {{ payment_status | tojson }};
+
+  const groupStats = {{ top_groups | tojson }};
+  const referenceStats = {{ top_references | tojson }};
+
+  const fancyTaken = {{ taken_count_fancy | tojson }};
+  const fancyReturned = {{ returned_count_fancy | tojson }};
+  const fancyPending = {{ not_returned_fancy | tojson }};
+
+  // ── Render Charts ──
+  document.addEventListener("DOMContentLoaded", function() {
+
+    // A. COMBINED OVERVIEW CHARTS
+    // A.1 Combined Revenue share Pie
+    new Chart(document.getElementById('combinedRevenueChart').getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: ['Traditional Revenue', 'Fancy Dress Revenue'],
+        datasets: [{
+          data: [traditionalCollection, fancyCollection],
+          backgroundColor: ['#f97316', '#06b6d4'],
+          borderColor: '#111827',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#94a3b8', font: { weight: '600' } }
+          }
+        }
+      }
+    });
+
+    // A.2 Combined Account Volume comparison
+    new Chart(document.getElementById('combinedVolumeChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Traditional customers', 'Fancy dress bookings'],
+        datasets: [{
+          label: 'Accounts Count',
+          data: [traditionalCustomers, fancyCustomers],
+          backgroundColor: ['#f97316', '#06b6d4'],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
+          y: { ticks: { color: '#94a3b8', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        }
+      }
+    });
+
+    // B. TRADITIONAL BLUEPRINT CHARTS
+    // B.1 Timeline Chart
+    new Chart(document.getElementById('tradTimelineChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: tradTimeline.map(item => item.date),
+        datasets: [{
+          label: 'Rented Items',
+          data: tradTimeline.map(item => item.count),
+          borderColor: '#f97316',
+          backgroundColor: 'rgba(249, 115, 22, 0.1)',
+          fill: true,
+          tension: 0.35,
+          borderWidth: 3,
+          pointBackgroundColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { ticks: { color: '#94a3b8', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        }
+      }
+    });
+
+    // B.2 Payment Doughnut
+    new Chart(document.getElementById('tradPaymentChart').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Fully Paid', 'Partially Paid', 'Unpaid'],
+        datasets: [{
+          data: [paymentStatus.fully_paid || 0, paymentStatus.partially_paid || 0, paymentStatus.unpaid || 0],
+          backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+          borderColor: '#111827',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#94a3b8' }
+          }
+        },
+        cutout: '65%'
+      }
+    });
+
+    // C. FANCY BLUEPRINT CHARTS
+    // C.1 Fancy Timeline
+    new Chart(document.getElementById('fancyTimelineChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: fancyTimeline.map(item => item.date),
+        datasets: [{
+          label: 'Fancy Rentals',
+          data: fancyTimeline.map(item => item.count),
+          borderColor: '#06b6d4',
+          backgroundColor: 'rgba(6, 182, 212, 0.1)',
+          fill: true,
+          tension: 0.35,
+          borderWidth: 3,
+          pointBackgroundColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+          y: { ticks: { color: '#94a3b8', precision: 0 }, grid: { color: 'rgba(255, 255, 255, 0.05)' } }
+        }
+      }
+    });
+
+    // C.2 Fancy returns distribution
+    new Chart(document.getElementById('fancyReturnsChart').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Returned', 'Out (Pending Return)'],
+        datasets: [{
+          data: [fancyReturned, fancyPending],
+          backgroundColor: ['#10b981', '#f59e0b'],
+          borderColor: '#111827',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#94a3b8' }
+          }
+        },
+        cutout: '65%'
+      }
+    });
+
+    // D. DEMOGRAPHICS & GROUPS CHARTS (TRADITIONAL)
+    // D.1 Groups
+    new Chart(document.getElementById('groupChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: groupStats.map(item => item[0]),
+        datasets: [{
+          label: 'Revenue (₹)',
+          data: groupStats.map(item => item[1]),
+          backgroundColor: '#3b82f6',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: { ticks: { color: '#f1f5f9' }, grid: { display: false } }
+        }
+      }
+    });
+
+    // D.2 References
+    new Chart(document.getElementById('referenceChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: referenceStats.map(item => item[0]),
+        datasets: [{
+          label: 'Revenue (₹)',
+          data: referenceStats.map(item => item[1]),
+          backgroundColor: '#ec4899',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#f1f5f9' }, grid: { display: false } },
+          y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+        }
+      }
+    });
+
+  });
+</script>
 {% endblock %}
