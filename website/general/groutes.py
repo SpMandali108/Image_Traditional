@@ -134,9 +134,13 @@ def fancy_sub(sub):
     # Build list of (filename, clean_display_name) tuples
     images = []
     for f in sorted(raw_images):
-        stem = os.path.splitext(f)[0]          # "bhagwan1"
-        clean = re.sub(r'\d+$', '', stem)      # "bhagwan"
-        clean = clean.replace('_', ' ').replace('-', ' ').strip().title()  # "Bhagwan"
+        stem = os.path.splitext(f)[0]
+        # Replace underscores and hyphens with spaces to separate words
+        clean = stem.replace('_', ' ').replace('-', ' ')
+        # Remove any numeric and special characters (keeping only letters and spaces)
+        clean = re.sub(r'[^a-zA-Z ]', '', clean)
+        # Collapse multiple spaces and strip
+        clean = re.sub(r'\s+', ' ', clean).strip().title()
         images.append({'file': f, 'name': clean})
 
     return render_template(

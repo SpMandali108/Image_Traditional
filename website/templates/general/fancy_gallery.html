@@ -243,12 +243,37 @@ Browse our {{ sub }} Fancy Dress collection.
     z-index: 2;
   }
 
-  .pd-card:hover {
-    transform: translateY(-8px) scale(1.01);
-    box-shadow: var(--shadow-hover);
-    border-color: rgba(201,168,76,0.3);
+  /* Hover effects only applied to devices that support hovering (desktop) to prevent double-tap issues on mobile */
+  @media (hover: hover) {
+    .pd-card:hover {
+      transform: translateY(-8px) scale(1.01);
+      box-shadow: var(--shadow-hover);
+      border-color: rgba(201, 168, 76, 0.3);
+    }
+    .pd-card:hover::after { transform: scaleX(1); }
+    
+    .pd-card:hover .pd-card-img-wrap img {
+      transform: scale(1.06);
+    }
+
+    .pd-card:hover .pd-card-overlay {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .pd-card:hover .pd-card-zoom {
+      transform: scale(1);
+    }
+
+    .pd-card-zoom:hover {
+      background: rgba(201, 168, 76, 0.25);
+    }
+
+    .pd-card-btn:hover {
+      box-shadow: 0 6px 20px rgba(201, 168, 76, 0.35);
+      transform: translateY(-1px);
+    }
   }
-  .pd-card:hover::after { transform: scaleX(1); }
 
   /* image wrapper with aspect ratio */
   .pd-card-img-wrap {
@@ -268,30 +293,25 @@ Browse our {{ sub }} Fancy Dress collection.
     display: block;
   }
 
-  .pd-card:hover .pd-card-img-wrap img {
-    transform: scale(1.06);
-  }
-
-  /* zoom overlay */
+  /* zoom overlay - disabled pointer events by default to avoid blocking clicks on mobile */
   .pd-card-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(5,13,31,0.55);
+    background: rgba(5, 13, 31, 0.55);
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     transition: opacity 0.3s;
     backdrop-filter: blur(2px);
+    pointer-events: none;
   }
-
-  .pd-card:hover .pd-card-overlay { opacity: 1; }
 
   .pd-card-zoom {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: rgba(201,168,76,0.15);
+    background: rgba(201, 168, 76, 0.15);
     border: 1.5px solid var(--gold);
     display: flex;
     align-items: center;
@@ -300,14 +320,6 @@ Browse our {{ sub }} Fancy Dress collection.
     font-size: 16px;
     transform: scale(0.8);
     transition: transform 0.3s var(--ease), background 0.2s;
-  }
-
-  .pd-card:hover .pd-card-zoom {
-    transform: scale(1);
-  }
-
-  .pd-card-zoom:hover {
-    background: rgba(201,168,76,0.25);
   }
 
   /* card footer */
@@ -345,7 +357,7 @@ Browse our {{ sub }} Fancy Dress collection.
     letter-spacing: 0.5px;
     text-decoration: none;
     transition: box-shadow 0.25s, transform 0.2s;
-    box-shadow: 0 3px 12px rgba(201,168,76,0.2);
+    box-shadow: 0 3px 12px rgba(201, 168, 76, 0.2);
   }
 
   .pd-card-btn i { font-size: 11px; }
@@ -387,6 +399,267 @@ Browse our {{ sub }} Fancy Dress collection.
     .pd-card-name { font-size: 0.75rem; }
     .pd-card-btn { font-size: 10.5px; padding: 9px 12px; }
   }
+
+  /* ── Lightbox Modal CSS ── */
+  .lightbox-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(6, 8, 12, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .lightbox-modal.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .lightbox-container {
+    background: #1e293b;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(201, 168, 76, 0.15);
+    border-radius: 24px;
+    width: 92%;
+    max-width: 840px;
+    padding: 28px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.95) translateY(10px);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .lightbox-modal.active .lightbox-container {
+    transform: scale(1) translateY(0);
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: all 0.2s;
+  }
+
+  .lightbox-close:hover {
+    background: #ef4444;
+    border-color: #ef4444;
+  }
+
+  .lightbox-layout {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 30px;
+  }
+
+  @media (max-width: 768px) {
+    .lightbox-layout {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+    .lightbox-container {
+      padding: 16px;
+      border-radius: 16px;
+      max-height: 92vh;
+      overflow-y: auto;
+      width: 95%;
+    }
+    .lightbox-image-stage {
+      height: 240px;
+    }
+    .lightbox-sidebar h2 {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+    }
+    .sidebar-desc {
+      margin-bottom: 15px;
+    }
+    .inquiry-box {
+      padding: 10px;
+    }
+    .action-btn-whatsapp {
+      padding: 10px;
+      font-size: 0.85rem;
+    }
+  }
+
+  /* Zoomable Stage */
+  .lightbox-image-stage {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.3);
+    height: 380px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: zoom-in;
+  }
+
+  .lightbox-image-stage img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.1s ease-out;
+    transform-origin: center center;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .zoom-helper-text {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(10, 15, 25, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .lightbox-sidebar {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+  }
+
+  .sidebar-category {
+    color: var(--gold-lt);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 5px;
+  }
+
+  .lightbox-sidebar h2 {
+    font-size: 1.8rem;
+    color: white;
+    margin: 0 0 15px 0;
+    font-weight: 800;
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .sidebar-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .code-badge {
+    background: rgba(201, 168, 76, 0.15);
+    color: var(--gold-lt);
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    font-family: monospace;
+  }
+
+  .status-badge {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .sidebar-desc {
+    color: #e2e8f0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    margin: 0 0 25px 0;
+  }
+
+  /* Inquiry box details */
+  .inquiry-box {
+    background: rgba(10, 15, 25, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 15px;
+    position: relative;
+  }
+
+  /* WhatsApp Button styling */
+  .action-btn-whatsapp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    background: #25d366;
+    color: white;
+    text-decoration: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.2);
+  }
+
+  .action-btn-whatsapp:hover {
+    background: #128c7e;
+    box-shadow: 0 5px 20px rgba(37, 211, 102, 0.4);
+    transform: translateY(-2px);
+    color: white;
+  }
+
+  /* Lightbox nav arrows */
+  .lightbox-nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 15px;
+  }
+
+  .nav-arrow-btn {
+    background: transparent;
+    border: none;
+    color: var(--gold-lt);
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 5px 10px;
+  }
+
+  .nav-arrow-btn:hover {
+    color: white;
+  }
+
+  .nav-indicator {
+    font-size: 0.8rem;
+    color: var(--text-mid);
+    font-family: monospace;
+  }
 </style>
 
 <!-- ── Page Header ─────────────────────────────────────── -->
@@ -419,15 +692,15 @@ Browse our {{ sub }} Fancy Dress collection.
   <div class="pd-grid">
 
     {% for image in images %}
-    <div class="pd-card">
+    <div class="pd-card" style="cursor: pointer;" onclick="openLightbox({{ loop.index0 }})">
 
       <div class="pd-card-img-wrap">
         <img src="{{ url_for('static', filename='Products/Fancy/' + sub + '/' + image.file) }}"
              alt="{{ image.name }}"
              loading="lazy">
         <div class="pd-card-overlay">
-          <a href="{{ url_for('static', filename='Products/Fancy/' + sub + '/' + image.file) }}"
-             target="_blank"
+          <a href="javascript:void(0);"
+             onclick="event.stopPropagation(); openLightbox({{ loop.index0 }});"
              class="pd-card-zoom">
             <i class="fa-solid fa-magnifying-glass-plus"></i>
           </a>
@@ -435,11 +708,11 @@ Browse our {{ sub }} Fancy Dress collection.
       </div>
 
       <div class="pd-card-footer">
-        <div class="pd-card-name">{{ image.name}}</div>
-        <a href="{{ url_for('static', filename='Products/Fancy/' + sub + '/' + image.file) }}"
-           target="_blank"
+        <div class="pd-card-name">{{ image.name }}</div>
+        <a href="javascript:void(0);"
+           onclick="event.stopPropagation(); openLightbox({{ loop.index0 }});"
            class="pd-card-btn">
-          <i class="fa-solid fa-expand"></i> View Full
+          <i class="fa-solid fa-expand"></i> Quick View
         </a>
       </div>
 
@@ -454,4 +727,189 @@ Browse our {{ sub }} Fancy Dress collection.
   </div>
 </section>
 
+<!-- Fullscreen Magnifying Lightbox Modal -->
+<div id="galleryLightbox" class="lightbox-modal">
+    <div class="lightbox-container">
+        <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+        
+        <div class="lightbox-layout">
+            <!-- Left Side: Interactive Cursor-tracking Zoom Image -->
+            <div class="lightbox-image-stage" id="zoomStage">
+                <img id="lightboxImg" src="" alt="Costume View">
+                <div class="zoom-helper-text">Hover to Zoom Details 🔍</div>
+            </div>
+            
+            <!-- Right Side: Product Details & Inquiry -->
+            <div class="lightbox-sidebar">
+                <span class="sidebar-category">Fancy Dress Collection</span>
+                <h2 id="lightboxTitle">Costume Name</h2>
+                <div class="badge-row">
+                    <span class="sidebar-badge code-badge" id="sidebarCode">Code</span>
+                    <span class="sidebar-badge status-badge">Unique Piece</span>
+                </div>
+                
+                <p class="sidebar-desc" id="sidebarDesc">An exquisite piece from our Fancy Dress collection, perfect for parties, competitions, and school events. Meticulously designed for a striking appearance and comfortable fit.</p>
+                
+                <div class="inquiry-box">
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin: 0 0 10px 0; font-weight: 600;">💬 DIRECT BOOKING INQUIRY</p>
+                    <a id="whatsappInquiryBtn" href="" target="_blank" class="action-btn-whatsapp">
+                        💬 Inquire on WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Nav Arrow Controls -->
+        <div class="lightbox-nav-row">
+            <button class="nav-arrow-btn" onclick="navigateLightbox(-1)">◀ Previous</button>
+            <span class="nav-indicator" id="lightboxIndicator">1 / 1</span>
+            <button class="nav-arrow-btn" onclick="navigateLightbox(1)">Next ▶</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Safe injection of all items from Flask jinja Context
+    const productsList = {{ images | tojson }};
+    let currentActiveIndex = 0;
+
+    function openLightbox(index) {
+        const lightbox = document.getElementById("galleryLightbox");
+        if (!lightbox) return;
+
+        currentActiveIndex = index;
+        updateLightboxDetails();
+
+        lightbox.classList.add("active");
+    }
+
+    function closeLightbox() {
+        const lightbox = document.getElementById("galleryLightbox");
+        if (!lightbox) return;
+
+        lightbox.classList.remove("active");
+    }
+
+    function updateLightboxDetails() {
+        const activeProduct = productsList[currentActiveIndex];
+        if (!activeProduct) return;
+
+        const img = document.getElementById("lightboxImg");
+        const title = document.getElementById("lightboxTitle");
+        const codeText = document.getElementById("sidebarCode");
+        const indicator = document.getElementById("lightboxIndicator");
+        const waBtn = document.getElementById("whatsappInquiryBtn");
+
+        // Extract code/name from filename
+        const filename = activeProduct.file;
+        const code = filename.substring(0, filename.lastIndexOf('.')) || filename;
+
+        img.src = `/static/Products/Fancy/{{ sub }}/${activeProduct.file}`;
+        img.onerror = function() {
+            this.onerror = null;
+            this.src = '/static/Home_Img/favicon.png';
+        };
+
+        title.innerText = activeProduct.name;
+        codeText.innerText = code;
+        indicator.innerText = `${currentActiveIndex + 1} / ${productsList.length}`;
+        
+        if (waBtn) {
+            const message = encodeURIComponent(`Hi! I am interested in renting the Fancy Dress costume from category "{{ sub }}" with design/code: ${code}. Is it available?`);
+            waBtn.href = `https://wa.me/919428610384?text=${message}`;
+        }
+    }
+
+    function navigateLightbox(direction) {
+        currentActiveIndex = (currentActiveIndex + direction + productsList.length) % productsList.length;
+        updateLightboxDetails();
+    }
+
+    // ── Dynamic Lens Zoom Effect (Optimized) ──
+    document.addEventListener("DOMContentLoaded", function() {
+        const zoomStage = document.getElementById("zoomStage");
+        const zoomImg = document.getElementById("lightboxImg");
+
+        if (zoomStage && zoomImg) {
+            let rect = null;
+
+            // Desktop Mouse Events
+            zoomStage.addEventListener("mouseenter", function() {
+                rect = zoomStage.getBoundingClientRect();
+            });
+
+            zoomStage.addEventListener("mousemove", function(e) {
+                if (!rect) {
+                    rect = zoomStage.getBoundingClientRect();
+                }
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                
+                zoomImg.style.transformOrigin = `${x}% ${y}%`;
+                zoomImg.style.transform = "scale(2.2) translate3d(0, 0, 0)";
+            });
+
+            zoomStage.addEventListener("mouseleave", function() {
+                zoomImg.style.transform = "scale(1) translate3d(0, 0, 0)";
+                rect = null;
+            });
+
+            // Mobile Touch Events
+            zoomStage.addEventListener("touchstart", function(e) {
+                rect = zoomStage.getBoundingClientRect();
+                if (e.touches.length > 0) {
+                    const touch = e.touches[0];
+                    const x = ((touch.clientX - rect.left) / rect.width) * 100;
+                    const y = ((touch.clientY - rect.top) / rect.height) * 100;
+                    zoomImg.style.transformOrigin = `${x}% ${y}%`;
+                    zoomImg.style.transform = "scale(2.2) translate3d(0, 0, 0)";
+                }
+                if (e.cancelable) e.preventDefault();
+            }, { passive: false });
+
+            zoomStage.addEventListener("touchmove", function(e) {
+                if (e.touches.length > 0) {
+                    if (!rect) {
+                        rect = zoomStage.getBoundingClientRect();
+                    }
+                    const touch = e.touches[0];
+                    const x = ((touch.clientX - rect.left) / rect.width) * 100;
+                    const y = ((touch.clientY - rect.top) / rect.height) * 100;
+                    
+                    const cx = Math.max(0, Math.min(100, x));
+                    const cy = Math.max(0, Math.min(100, y));
+
+                    zoomImg.style.transformOrigin = `${cx}% ${cy}%`;
+                    zoomImg.style.transform = "scale(2.2) translate3d(0, 0, 0)";
+                }
+                if (e.cancelable) e.preventDefault();
+            }, { passive: false });
+
+            zoomStage.addEventListener("touchend", function() {
+                zoomImg.style.transform = "scale(1) translate3d(0, 0, 0)";
+                rect = null;
+            });
+        }
+
+        // Close lightbox on clicking backdrop
+        const lightbox = document.getElementById("galleryLightbox");
+        if (lightbox) {
+            lightbox.addEventListener("click", function(e) {
+                if (e.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+        }
+
+        // Keyboard navigation bindings (Left, Right, Escape)
+        document.addEventListener("keydown", function(e) {
+            const lightbox = document.getElementById("galleryLightbox");
+            if (!lightbox || !lightbox.classList.contains("active")) return;
+            
+            if (e.key === "Escape") closeLightbox();
+            if (e.key === "ArrowLeft") navigateLightbox(-1);
+            if (e.key === "ArrowRight") navigateLightbox(1);
+        });
+    });
+</script>
 {% endblock %}
