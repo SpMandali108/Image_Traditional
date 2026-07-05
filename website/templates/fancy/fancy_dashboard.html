@@ -1,593 +1,1491 @@
 {% extends "general/base.html" %}
-{% block title %}Performance Dashboard{% endblock %}
+{% block title %}Fancy Dress BI Analytics & Cultural Forecast Dashboard{% endblock %}
+
+{% block head %}
+<meta name="robots" content="noindex, nofollow" />
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Google Fonts for premium typography -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+{% endblock %}
+
 {% block logo_link %}
 <a href="/fancy_admin" class="logo">
     <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Image Traditional Logo">
     <span class="logo-text">Image Traditional</span>
 </a>
 {% endblock %}
-{% block robots %}
-<meta name="robots" content="noindex, nofollow" />
-{% endblock %}
 
 {% block content %}
 <style>
-/* ── Design Tokens ───────────────────────────────────────────── */
+/* ── Design Tokens & System ──────────────────────────────────── */
 :root {
-    --dark-blue:      #0a1929;
-    --medium-blue:    #1a2942;
-    --light-blue:     #2d3f5f;
-    --gold:           #d4af37;
-    --light-gold:     #f4d35e;
-    --text-light:     #e8eaf6;
-    --text-muted:     rgba(232, 234, 246, 0.55);
-    --border-subtle:  rgba(212, 175, 55, 0.18);
-    --border-strong:  rgba(212, 175, 55, 0.35);
-    --shadow-card:    0 4px 28px rgba(0, 0, 0, 0.4);
-    --shadow-hover:   0 8px 36px rgba(212, 175, 55, 0.12);
-    --radius-card:    10px;
-    --radius-sm:      5px;
+    --bg-dark:          #080b11;
+    --panel-bg:         rgba(17, 24, 39, 0.7);
+    --panel-border:     rgba(255, 255, 255, 0.08);
+    --panel-border-glow: rgba(139, 92, 246, 0.35);
+    
+    /* Neon gradients & status colors */
+    --neon-blue:        #3b82f6;
+    --neon-purple:      #8b5cf6;
+    --neon-pink:        #ec4899;
+    --neon-emerald:     #10b981;
+    --neon-amber:       #f59e0b;
+    --neon-rose:        #f43f5e;
+    
+    --text-primary:     #f3f4f6;
+    --text-secondary:   #9ca3af;
+    --text-muted:       #6b7280;
+    
+    --shadow-card:      0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --shadow-hover:     0 12px 40px 0 rgba(139, 92, 246, 0.15);
+    --radius-lg:        16px;
+    --radius-md:        10px;
+    --radius-sm:        6px;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    background-color: var(--bg-dark);
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+    color: var(--text-primary);
+}
 
-/* ── Base ────────────────────────────────────────────────────── */
-.dashboard {
-    max-width: 1360px;
+.dashboard-container {
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 2.75rem 2rem 5rem;
-    font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
-    color: var(--text-light);
-    background: transparent;
+    padding: 2rem 1.5rem 4rem;
 }
 
-/* ── Divider ─────────────────────────────────────────────────── */
-.divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border-subtle) 30%, var(--border-subtle) 70%, transparent);
-    margin: 0;
-}
-
-/* ── Page Header ─────────────────────────────────────────────── */
-.page-header {
-    background: var(--medium-blue);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-card);
+/* ── Glassmorphic Card ───────────────────────────────────────── */
+.card-glass {
+    background: var(--panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
     box-shadow: var(--shadow-card);
-    margin-bottom: 2.25rem;
-    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
 }
 
-.page-header-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 2.5rem;
-    height: 4px;
-    background: linear-gradient(90deg, var(--gold) 0%, var(--light-gold) 60%, transparent 100%);
+.card-glass:hover {
+    transform: translateY(-4px);
+    border-color: var(--panel-border-glow);
+    box-shadow: var(--shadow-hover);
 }
 
-.page-header-body {
+/* ── Top Header ──────────────────────────────────────────────── */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.header-title-block h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff 30%, var(--neon-purple) 90%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.25rem;
+}
+
+.header-title-block p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.cycle-badge-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 2rem 2.5rem 2rem;
-    gap: 2rem;
+    gap: 0.75rem;
     flex-wrap: wrap;
 }
 
-.page-header-identity {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-}
-
-.page-header-eyebrow {
-    font-size: 0.65rem;
+.cycle-select {
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    padding: 0.55rem 1.25rem;
+    border-radius: 30px;
+    color: var(--neon-purple);
     font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--gold);
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
 }
 
-.page-header h1 {
-    font-size: 1.95rem;
+.cycle-select:hover {
+    border-color: var(--neon-purple);
+}
+
+.btn-excel {
+    background: linear-gradient(135deg, var(--neon-emerald), #059669);
+    border: none;
+    color: white;
+    padding: 0.6rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
     font-weight: 700;
-    color: var(--text-light);
-    letter-spacing: -0.01em;
-    line-height: 1.15;
-}
-
-.page-header-meta {
-    text-align: right;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.meta-label {
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-}
-
-.meta-value {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--light-gold);
-    letter-spacing: 0.02em;
-}
-
-.meta-sub {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-}
-
-/* Download Button */
-.btn-download {
+    text-decoration: none;
     display: inline-flex;
     align-items: center;
-    gap: 0.55rem;
-    padding: 0.65rem 1.4rem;
+    gap: 0.5rem;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    transition: all 0.25s ease;
+}
+
+.btn-excel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+    filter: brightness(1.1);
+    color: white;
+}
+
+/* ── Interactive Tabs ────────────────────────────────────────── */
+.tabs-navigation {
+    display: flex;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.4rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--panel-border);
+    margin-bottom: 2rem;
+    overflow-x: auto;
+}
+
+.tab-btn {
     background: transparent;
-    border: 1px solid var(--border-strong);
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.75rem 1.5rem;
     border-radius: var(--radius-sm);
-    color: var(--gold);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: none;
-    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.btn-download:hover {
-    background: rgba(212, 175, 55, 0.1);
-    border-color: var(--gold);
-    color: var(--light-gold);
-    text-decoration: none;
+.tab-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
 }
 
-.btn-download svg {
-    flex-shrink: 0;
+.tab-btn.active {
+    color: white;
+    background: var(--neon-purple);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.tab-pane {
+    display: none;
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* ── KPI Grid ────────────────────────────────────────────────── */
 .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
     margin-bottom: 2.25rem;
 }
 
-.kpi {
-    background: var(--medium-blue);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-card);
-    padding: 1.6rem 1.5rem 1.4rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    box-shadow: var(--shadow-card);
+.kpi-card {
     position: relative;
     overflow: hidden;
-    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.kpi-accent {
+.kpi-card::before {
+    content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--gold), var(--light-gold));
-    opacity: 0.75;
+    top: 0; left: 0; width: 100%; height: 3px;
+    background: var(--neon-purple);
 }
 
-.kpi:hover {
-    border-color: var(--border-strong);
-    box-shadow: var(--shadow-hover);
-}
+.kpi-card.kpi-bookings::before { background: var(--neon-blue); }
+.kpi-card.kpi-revenue::before { background: var(--neon-emerald); }
+.kpi-card.kpi-avg::before { background: #a78bfa; }
+.kpi-card.kpi-activecust::before { background: var(--neon-amber); }
+.kpi-card.kpi-totalstock::before { background: #06b6d4; }
+.kpi-card.kpi-returned::before { background: #14b8a6; }
+.kpi-card.kpi-pending::before { background: #e11d48; }
+.kpi-card.kpi-awaiting::before { background: #ec4899; }
 
 .kpi-label {
-    font-size: 0.65rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
 }
 
 .kpi-value {
-    font-size: 2.25rem;
-    font-weight: 700;
-    color: var(--gold);
-    line-height: 1;
+    font-size: 1.95rem;
+    font-weight: 800;
     letter-spacing: -0.03em;
-    font-variant-numeric: tabular-nums;
+    color: white;
+    line-height: 1;
 }
 
-/* ── Section Cards ───────────────────────────────────────────── */
-.section {
-    background: var(--medium-blue);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
-    margin-bottom: 1.75rem;
+.kpi-subtext {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+}
+
+/* ── Analytics Visual Grid ────────────────────────────────────── */
+.analytics-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.chart-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chart-card-title svg {
+    color: var(--neon-purple);
+}
+
+.chart-container {
+    position: relative;
+    height: 320px;
+    width: 100%;
+}
+
+/* ── Tables & Lists ──────────────────────────────────────────── */
+.search-bar-container {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.8rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 320px;
+}
+
+.search-bar-container input {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 0.85rem;
+    outline: none;
+    width: 100%;
+    margin-left: 0.5rem;
+}
+
+.search-bar-container input::placeholder {
+    color: var(--text-muted);
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--panel-border);
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.custom-table th {
+    background: rgba(255, 255, 255, 0.02);
+    padding: 0.85rem 1.25rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--panel-border);
+}
+
+.custom-table td {
+    padding: 1rem 1.25rem;
+    font-size: 0.88rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.custom-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.custom-table tbody tr:hover {
+    background: rgba(139, 92, 246, 0.04);
+}
+
+.custom-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ── Best Performers Grid ─────────────────────────────────────── */
+.performers-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.performer-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--panel-border);
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    text-align: left;
+    position: relative;
     overflow: hidden;
 }
 
-.section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.1rem 1.75rem;
-    background: rgba(10, 25, 41, 0.45);
-    border-bottom: 1px solid var(--border-subtle);
-}
+.performer-card.perf-cat-rentals { border-left: 4px solid var(--neon-blue); }
+.performer-card.perf-cat-rev { border-left: 4px solid var(--neon-emerald); }
+.performer-card.perf-prod-rentals { border-left: 4px solid var(--neon-purple); }
+.performer-card.perf-prod-rev { border-left: 4px solid var(--neon-pink); }
 
-.section-title {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
+.performer-title {
     font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--gold);
-}
-
-.section-title-bar {
-    width: 3px;
-    height: 14px;
-    background: var(--gold);
-    border-radius: 2px;
-    flex-shrink: 0;
-}
-
-.section-count {
-    font-size: 0.68rem;
-    font-weight: 600;
-    color: var(--text-muted);
+    font-weight: 700;
     letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 0.2rem 0.7rem;
-    border: 1px solid var(--border-subtle);
-    border-radius: 20px;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
 }
 
-/* ── Table ───────────────────────────────────────────────────── */
-.formal-table {
-    width: 100%;
-    border-collapse: collapse;
+.performer-value {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 0.25rem;
 }
 
-.formal-table thead tr {
-    background: rgba(10, 25, 41, 0.25);
-}
-
-.formal-table thead th {
-    padding: 0.8rem 1.75rem;
-    font-size: 0.63rem;
+.performer-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 12px;
     font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    text-align: left;
-    border-bottom: 1px solid var(--border-subtle);
-    white-space: nowrap;
 }
 
-.formal-table thead th.col-num  { text-align: center; width: 80px; }
-.formal-table thead th.col-right { text-align: right; }
+.performer-badge.blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.performer-badge.emerald { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.performer-badge.purple { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+.performer-badge.pink { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
 
-.formal-table tbody td {
-    padding: 1rem 1.75rem;
-    font-size: 0.9rem;
-    color: var(--text-light);
-    border-bottom: 1px solid rgba(212, 175, 55, 0.08);
-    vertical-align: middle;
-}
-
-.formal-table tbody td.col-num  { text-align: center; }
-.formal-table tbody td.col-right { text-align: right; }
-
-.formal-table tbody tr:last-child td { border-bottom: none; }
-
-.formal-table tbody tr {
-    transition: background 0.15s;
-}
-
-.formal-table tbody tr:hover {
-    background: rgba(212, 175, 55, 0.055);
-}
-
-/* ── Table Components ────────────────────────────────────────── */
-.rank-badge {
+.countdown-badge {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--neon-amber);
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
     display: inline-flex;
     align-items: center;
+    gap: 0.35rem;
+}
+
+.countdown-badge.critical {
+    background: rgba(244, 63, 94, 0.15);
+    color: var(--neon-rose);
+}
+
+.countdown-badge.upcoming {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--neon-blue);
+}
+
+.phone-link {
+    color: var(--neon-blue);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.phone-link:hover {
+    text-decoration: underline;
+}
+
+/* ── Interactive Modal Drill-down ────────────────────────────── */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
+    z-index: 2000;
+    padding: 1rem;
+}
+
+.modal-content {
+    background: #0d121c;
+    border: 1px solid var(--panel-border-glow);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 850px;
+    max-height: 85vh;
+    overflow: hidden;
+    padding: 2rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+    position: relative;
+    animation: modalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes modalSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+}
+
+.modal-close-btn:hover {
+    color: var(--neon-rose);
+}
+
+.clickable-row {
+    cursor: pointer;
+}
+
+.clickable-row:hover {
+    background: rgba(139, 92, 246, 0.08) !important;
+}
+
+.clickable-row td {
+    position: relative;
+}
+
+.clickable-row td:last-child::after {
+    content: '🔍 Drill down';
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
     font-size: 0.72rem;
     font-weight: 700;
-    background: var(--light-blue);
-    color: var(--text-muted);
-    border: 1px solid var(--border-subtle);
-    font-variant-numeric: tabular-nums;
+    color: var(--neon-purple);
+    opacity: 0;
+    transition: opacity 0.2s ease;
 }
 
-.rank-badge.rank-1 {
-    background: rgba(212, 175, 55, 0.2);
-    color: var(--gold);
-    border-color: var(--gold);
-    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.12);
+.clickable-row:hover td:last-child::after {
+    opacity: 1;
 }
 
-.rank-badge.rank-2 {
-    background: rgba(212, 175, 55, 0.1);
-    color: var(--light-gold);
-    border-color: rgba(212, 175, 55, 0.45);
+.clickable-row:hover td:last-child span {
+    opacity: 0.15;
 }
 
-.rank-badge.rank-3 {
-    background: rgba(212, 175, 55, 0.06);
-    color: var(--text-light);
-    border-color: rgba(212, 175, 55, 0.28);
+.modal-search-box {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 1rem;
+    margin-bottom: 1.25rem;
 }
 
-.count-pill {
-    display: inline-block;
-    padding: 0.22rem 0.8rem;
-    border-radius: 20px;
-    background: rgba(45, 63, 95, 0.7);
-    border: 1px solid var(--border-subtle);
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--text-light);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.03em;
+.modal-search-box input {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 0.88rem;
+    outline: none;
+    width: 100%;
+    margin-left: 0.6rem;
 }
 
-.amount-text {
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    color: var(--light-gold);
-    letter-spacing: 0.02em;
+.rank-circle {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
 }
 
-.customer-name {
-    font-weight: 600;
-    color: var(--text-light);
-    transition: color 0.15s;
-}
+.rank-1 .rank-circle { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid #fbbf24; }
+.rank-2 .rank-circle { background: rgba(226, 232, 240, 0.15); color: #e2e8f0; border: 1px solid #e2e8f0; }
+.rank-3 .rank-circle { background: rgba(180, 83, 9, 0.15); color: #f59e0b; border: 1px solid #b45309; }
 
-tr[style*="cursor:pointer"]:hover .customer-name {
-    color: var(--light-gold);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-color: rgba(212, 175, 55, 0.45);
-}
-
-.empty-state {
-    padding: 3rem 1.75rem;
-    text-align: center;
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    font-weight: 600;
-}
-
-/* ── Responsive ──────────────────────────────────────────────── */
-@media (max-width: 1100px) {
-    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media (max-width: 768px) {
-    .dashboard { padding: 1.5rem 1rem 3rem; }
-    .page-header-body { padding: 1.5rem; flex-direction: column; align-items: flex-start; }
-    .page-header-meta { text-align: left; }
+/* ── Responsive breakpoints ──────────────────────────────────── */
+@media (max-width: 1200px) {
     .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    .formal-table thead th,
-    .formal-table tbody td { padding: 0.8rem 1rem; }
-    .section-header { padding: 1rem 1.25rem; }
+    .performers-grid { grid-template-columns: repeat(2, 1fr); }
+    .analytics-row { grid-template-columns: 1fr !important; }
 }
 
-@media (max-width: 480px) {
-    .kpi-grid { grid-template-columns: 1fr 1fr; }
-    .dashboard { padding: 1rem 0.75rem 3rem; }
+@media (max-width: 900px) {
+    .analytics-row { grid-template-columns: 1fr; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .kpi, .formal-table tbody tr, .btn-download { transition: none; }
+@media (max-width: 640px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .performers-grid { grid-template-columns: 1fr; }
+    .dashboard-header { flex-direction: column; align-items: flex-start; }
+    .cycle-badge-container { width: 100%; }
+    .cycle-select { width: 100%; }
+    .btn-excel { width: 100%; justify-content: center; }
+}
+
+/* ── Smart Pricing Advisor & Alerts ────────────────────────── */
+.insight-metric-item {
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--panel-border);
+    background: rgba(255, 255, 255, 0.01);
+    margin-bottom: 1rem;
+}
+.insight-metric-item.highlight-danger {
+    border-left: 4px solid var(--neon-rose);
+    background: rgba(244, 63, 94, 0.04);
+}
+.insight-metric-item.highlight-warning {
+    border-left: 4px solid var(--neon-amber);
+    background: rgba(245, 158, 11, 0.04);
+}
+.insight-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    display: block;
+}
+.insight-value {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: white;
+    margin-top: 0.25rem;
+}
+.badge-status {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.75rem;
+    border-radius: 20px;
+    font-weight: 700;
 }
 </style>
 
-<div class="dashboard">
+<div class="dashboard-container">
 
-    <!-- ── Page Header ──────────────────────────────────────── -->
-    <div class="page-header">
-        <div class="page-header-top"></div>
-        <div class="page-header-body">
-            <div class="page-header-identity">
-                <span class="page-header-eyebrow">Image Traditional &mdash; Rental Management System</span>
-                <h1>Performance Dashboard</h1>
-            </div>
+    <!-- ── Dashboard Header ── -->
+    <div class="dashboard-header">
+        <div class="header-title-block">
+            <span style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--neon-purple); font-weight: 700;">Fancy Dress Rentals</span>
+            <h1>BI Performance Dashboard</h1>
+            <p>Cultural demand forecasting &amp; sales performance analytics</p>
+        </div>
 
-            <div class="page-header-meta">
-                <span class="meta-label">Reporting Period</span>
-                <span class="meta-value">Fiscal Year 2025–2026</span>
-                <span class="meta-sub">Summary &amp; Analytics Report</span>
-            </div>
-
-            <a href="{{ url_for('fancy.download_dashboard_excel') }}" class="btn-download">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Export to Excel
+        <div class="cycle-badge-container">
+            <!-- Dynamic Cycle Dropdown Selector -->
+            <select onchange="window.location.href='/fancy_dashboard?cycle_id=' + this.value" class="cycle-select">
+                {% for c in all_cycles %}
+                <option value="{{ c._id }}" {% if selected_cycle and selected_cycle._id|string == c._id|string %}selected{% endif %} style="background: #111827; color: white;">
+                    Cycle: {{ c.name }} ({{ c.status.upper() }})
+                </option>
+                {% endfor %}
+            </select>
+            
+            <a href="{{ url_for('fancy.download_dashboard_excel') }}" class="btn-excel">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export Excel
             </a>
         </div>
     </div>
 
-    <!-- ── KPI Cards ────────────────────────────────────────── -->
-    <div class="kpi-grid">
-        <div class="kpi">
-            <div class="kpi-accent"></div>
-            <div class="kpi-label">Total Bookings</div>
-            <div class="kpi-value">{{ total_bookings }}</div>
+    <!-- ── Tab Navigation ── -->
+    <div class="tabs-navigation">
+        <button class="tab-btn active" onclick="switchTab('overview')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+            Overview &amp; Cultural Demand Forecast
+        </button>
+        <button class="tab-btn" onclick="switchTab('business')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Revenue &amp; Demand Analytics
+        </button>
+    </div>
+
+    <!-- ── TAB PANE: OVERVIEW & CULTURAL DEMAND FORECAST ── -->
+    <div id="pane-overview" class="tab-pane active">
+        <!-- KPI Cards Grid -->
+        <div class="kpi-grid">
+            <div class="card-glass kpi-card kpi-bookings">
+                <div class="kpi-label">Total Bookings</div>
+                <div class="kpi-value">{{ total_bookings }}</div>
+                <div class="kpi-subtext">Bookings this cycle</div>
+            </div>
+            <div class="card-glass kpi-card kpi-revenue">
+                <div class="kpi-label">Total Revenue</div>
+                <div class="kpi-value">₹{{ total_revenue }}</div>
+                <div class="kpi-subtext">Active contract value</div>
+            </div>
+            <div class="card-glass kpi-card kpi-avg">
+                <div class="kpi-label">Avg. Order Value</div>
+                <div class="kpi-value">₹{{ "%.0f"|format(avg_revenue) }}</div>
+                <div class="kpi-subtext">Spend per booking</div>
+            </div>
+            <div class="card-glass kpi-card kpi-activecust">
+                <div class="kpi-label">Active Customers</div>
+                <div class="kpi-value">{{ active_customers }}</div>
+                <div class="kpi-subtext">Distinct clients served</div>
+            </div>
+            <div class="card-glass kpi-card kpi-totalstock">
+                <div class="kpi-label">Total Inventory Units</div>
+                <div class="kpi-value">{{ total_stock if total_stock else 0 }}</div>
+                <div class="kpi-subtext">Physical catalog units</div>
+            </div>
+            <div class="card-glass kpi-card kpi-returned">
+                <div class="kpi-label">Returned Outfits</div>
+                <div class="kpi-value">{{ returned_count }}</div>
+                <div class="kpi-subtext">Completed rentals</div>
+            </div>
+            <div class="card-glass kpi-card kpi-pending">
+                <div class="kpi-label">Pending Returns</div>
+                <div class="kpi-value">{{ not_returned }}</div>
+                <div class="kpi-subtext">Taken but not returned</div>
+            </div>
+            <div class="card-glass kpi-card kpi-awaiting">
+                <div class="kpi-label">Awaiting Pickup</div>
+                <div class="kpi-value">{{ awaiting_pickup }}</div>
+                <div class="kpi-subtext">Booked but not picked up</div>
+            </div>
         </div>
-        <div class="kpi">
-            <div class="kpi-accent"></div>
-            <div class="kpi-label">Total Revenue</div>
-            <div class="kpi-value">&#8377;{{ total_revenue }}</div>
+
+        <!-- Rental Seasonality Chart -->
+        <div class="card-glass" style="margin-bottom: 2rem;">
+            <div class="chart-card-header">
+                <span class="chart-card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Daily Rental Velocity &amp; Spike Timeline
+                </span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Seasonality of rentals across event dates</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="timelineChart"></canvas>
+            </div>
         </div>
-        <div class="kpi">
-            <div class="kpi-accent"></div>
-            <div class="kpi-label">Costumes Taken</div>
-            <div class="kpi-value">{{ taken_count }}</div>
-        </div>
-        <div class="kpi">
-            <div class="kpi-accent"></div>
-            <div class="kpi-label">Returned</div>
-            <div class="kpi-value">{{ returned_count }}</div>
-        </div>
-        <div class="kpi">
-            <div class="kpi-accent"></div>
-            <div class="kpi-label">Pending Return</div>
-            <div class="kpi-value">{{ not_returned }}</div>
+
+        <!-- Cultural Event Demand Forecast Calendar -->
+        <div class="card-glass">
+            <div class="chart-card-header" style="margin-bottom: 0.75rem;">
+                <div>
+                    <span class="chart-card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V3A2.5 2.5 0 0 1 6.5 0.5H20M14 6h6m-6 4h6m-6 4h6"/></svg>
+                        Indian Festivals &amp; Cultural Event Demand Foresight Calendar
+                    </span>
+                    <span style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-top: 0.2rem;">
+                        Real-world calendar tracking with historical rental spikes (±3 days backup) &amp; predictive dress category advice. <strong>Click row to drill down!</strong>
+                    </span>
+                </div>
+                <div class="search-bar-container" style="margin-bottom: 0;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="eventSearch" placeholder="Search event or dress..." onkeyup="filterTable('eventSearch', 'eventTable')">
+                </div>
+            </div>
+            
+            <div class="table-wrapper">
+                <table class="custom-table" id="eventTable">
+                    <thead>
+                        <tr>
+                            <th>Real-World Event (India)</th>
+                            <th>Upcoming Date</th>
+                            <th>Countdown Status</th>
+                            <th>Costume Category in Demand</th>
+                            <th>Cultural Context / Recommended Dresses</th>
+                            <th style="text-align: right;">Hist. Sales Spike Volume (±3 Days)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ev in forecast_calendar %}
+                        <tr class="clickable-row" onclick="openEventModal('{{ ev.id }}')">
+                            <td class="search-target" style="font-weight: 700; color: white;">
+                                {{ ev.name }}
+                            </td>
+                            <td>{{ ev.date }}</td>
+                            <td>
+                                {% if ev.countdown <= 30 %}
+                                <span class="countdown-badge critical">⚠️ In {{ ev.countdown }} Days</span>
+                                {% elif ev.countdown <= 60 %}
+                                <span class="countdown-badge upcoming">⏳ In {{ ev.countdown }} Days</span>
+                                {% else %}
+                                <span class="countdown-badge">📅 In {{ ev.countdown }} Days</span>
+                                {% endif %}
+                            </td>
+                            <td class="search-target" style="font-weight: 600; color: var(--neon-purple);">
+                                {{ ev.category }}
+                            </td>
+                            <td class="search-target" style="font-size: 0.82rem; color: var(--text-secondary); max-width: 320px; line-height: 1.4;">
+                                {{ ev.description }}
+                            </td>
+                            <td style="text-align: right; font-weight: 800; color: var(--neon-emerald);">
+                                <span style="display: inline-block; transition: opacity 0.2s;">{{ ev.spike_count }} Bookings</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- ── Most Rented Costumes ─────────────────────────────── -->
-    <div class="section">
-        <div class="section-header">
-            <span class="section-title">
-                <span class="section-title-bar"></span>
-                Most Rented Costumes
-            </span>
-            {% if top_costumes %}
-            <span class="section-count">{{ top_costumes|length }} Entries</span>
-            {% endif %}
+    <!-- ── TAB PANE: REVENUE & DEMAND ANALYTICS ── -->
+    <div id="pane-business" class="tab-pane">
+        <!-- Best Performing Showcase Grid -->
+        <div class="performers-grid">
+            <div class="performer-card perf-cat-rentals">
+                <div class="performer-title">Best Category (Rentals)</div>
+                <div class="performer-value">{{ strategic_insights.best_category_by_bookings }}</div>
+                <span class="performer-badge blue">Most Popular Category</span>
+            </div>
+            <div class="performer-card perf-cat-rev">
+                <div class="performer-title">Best Category (Revenue)</div>
+                <div class="performer-value">{{ strategic_insights.best_category_by_revenue }}</div>
+                <span class="performer-badge emerald">Highest Cash Contribution</span>
+            </div>
+            <div class="performer-card perf-prod-rentals">
+                <div class="performer-title">Best Product (Rentals)</div>
+                <div class="performer-value">{{ strategic_insights.best_product_by_bookings }}</div>
+                <span class="performer-badge purple">Most Rented Design</span>
+            </div>
+            <div class="performer-card perf-prod-rev">
+                <div class="performer-title">Best Product (Revenue)</div>
+                <div class="performer-value">{{ strategic_insights.best_product_by_revenue }}</div>
+                <span class="performer-badge pink">Highest Cash Generator</span>
+            </div>
         </div>
-        <div class="section-body">
-            {% if top_costumes %}
-            <table class="formal-table">
+
+        <!-- Row 1: Costume and School Revenue Charts -->
+        <div class="analytics-row" style="grid-template-columns: repeat(3, 1fr);">
+            <!-- Highest Revenue Outfits -->
+            <div class="card-glass">
+                <div class="chart-card-header">
+                    <span class="chart-card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        Highest Revenue Outfits
+                    </span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Top Costume Designs by Sales</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="costumesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Costume Category Revenue (Doughnut) -->
+            <div class="card-glass">
+                <div class="chart-card-header">
+                    <span class="chart-card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v10l8 4"/></svg>
+                        Revenue Share by Category
+                    </span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Broad group sales (e.g. Bhagwan/Mataji)</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="categoryRevenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Schools Horizontal Bar -->
+            <div class="card-glass">
+                <div class="chart-card-header">
+                    <span class="chart-card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
+                        Top Renting Schools Contribution
+                    </span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Total Revenue Generated by School</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="schoolsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Day of Week & Monthly Revenue Trends -->
+        <div class="analytics-row">
+            <!-- Day of Week Chart -->
+            <div class="card-glass">
+                <div class="chart-card-header">
+                    <span class="chart-card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        Weekly Pick-Up Peak Patterns
+                    </span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Which days see the most pickup activity</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="dayOfWeekChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Monthly Revenue Trend Chart -->
+            <div class="card-glass">
+                <div class="chart-card-header">
+                    <span class="chart-card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        Monthly Revenue Trend
+                    </span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Cycle monthly income trajectory</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="monthlyRevenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- School & Costume Lists Side by Side -->
+        <div class="analytics-row">
+            <!-- Schools List Table -->
+            <div class="card-glass">
+                <div class="chart-card-header" style="margin-bottom: 0.5rem;">
+                    <span class="chart-card-title">School Rental Leaderboard</span>
+                    <div class="search-bar-container">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="schoolSearch" placeholder="Search school..." onkeyup="filterTable('schoolSearch', 'schoolTable')">
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="custom-table" id="schoolTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 70px;">Rank</th>
+                                <th>School Name</th>
+                                <th>Bookings</th>
+                                <th style="text-align: right;">Total Sales</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sch in top_schools_by_revenue %}
+                            <tr class="{% if loop.index <= 3 %}rank-{{ loop.index }}{% endif %}">
+                                <td><div class="rank-circle">{{ loop.index }}</div></td>
+                                <td class="search-target" style="font-weight: 600;">{{ sch.name }}</td>
+                                <td>{{ sch.bookings }}</td>
+                                <td style="text-align: right;" class="price-text">₹{{ sch.revenue }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: var(--text-muted);">No school data in this cycle</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Costumes List Table -->
+            <div class="card-glass">
+                <div class="chart-card-header" style="margin-bottom: 0.5rem;">
+                    <span class="chart-card-title">Costume Performance &amp; Revenue</span>
+                    <div class="search-bar-container">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="costumeSearch" placeholder="Search costume..." onkeyup="filterTable('costumeSearch', 'costumeTable')">
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="custom-table" id="costumeTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 70px;">Rank</th>
+                                <th>Costume Type</th>
+                                <th>Bookings</th>
+                                <th style="text-align: right;">Total Sales</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cos in top_costumes_by_revenue %}
+                            <tr class="{% if loop.index <= 3 %}rank-{{ loop.index }}{% endif %}">
+                                <td><div class="rank-circle">{{ loop.index }}</div></td>
+                                <td class="search-target" style="font-weight: 600;">{{ cos.name }}</td>
+                                <td>{{ cos.bookings }}</td>
+                                <td style="text-align: right;" class="price-text">₹{{ cos.revenue }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: var(--text-muted);">No costume data in this cycle</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top All Time Customers -->
+        <div class="card-glass" style="margin-top: 1.5rem;">
+            <div class="chart-card-header" style="margin-bottom: 0.5rem;">
+                <div>
+                    <span class="chart-card-title">Top 20 Customers &mdash; All-Time Loyalty</span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.2rem;">Ranked by cumulative purchase value across all cycles</span>
+                </div>
+                <div class="search-bar-container">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="customerSearch" placeholder="Search customer..." onkeyup="filterTable('customerSearch', 'customerTable')">
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="custom-table" id="customerTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 70px;">Rank</th>
+                            <th>Customer Name</th>
+                            <th>Mobile Number</th>
+                            <th>Total Rentals Booked</th>
+                            <th style="text-align: right;">Total Paid Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in top_20_customers %}
+                        <tr style="cursor: pointer;" onclick="window.location.href='{{ url_for('fancy.fancy_profile', mobile=c.mobile) }}'">
+                            <td><div class="rank-circle">{{ loop.index }}</div></td>
+                            <td class="search-target" style="font-weight: 600;">{{ c.name }}</td>
+                            <td class="search-target">{{ c.mobile }}</td>
+                            <td>{{ c.total_bookings }}</td>
+                            <td style="text-align: right;" class="price-text">₹{{ c.total_amount }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted);">No customer profiles available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+<!-- ── DRILLDOWN MODAL DIALOG ── -->
+<div id="drilldownModal" class="modal-overlay" onclick="closeEventModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <button class="modal-close-btn" onclick="closeEventModal(null)">&times;</button>
+        <h2 id="modalEventTitle" style="font-size: 1.35rem; font-weight: 800; color: white; margin-bottom: 0.25rem;">Event History</h2>
+        <p style="font-size: 0.82rem; color: var(--neon-purple); margin-bottom: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
+            <span>📅</span> Booking Buffer window: ±3 Days range (7-day event cycle backup)
+        </p>
+        
+        <!-- Dynamic Procurement Advisor Alert Card -->
+        <div id="modalProcurementAlert" style="margin-bottom: 1.25rem; display: none;"></div>
+        
+        <!-- Search bar inside Modal -->
+        <div class="modal-search-box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-secondary);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="modalSearchInput" placeholder="Filter customer name, mobile, costume or season..." onkeyup="filterModalTable()">
+        </div>
+        
+        <div class="table-wrapper" style="overflow-y: auto; flex: 1;">
+            <table class="custom-table" id="modalTable">
                 <thead>
                     <tr>
-                        <th class="col-num">Rank</th>
-                        <th>Costume Name</th>
-                        <th class="col-right">Times Rented</th>
+                        <th>Customer Details</th>
+                        <th>Costume Type</th>
+                        <th>Event Date</th>
+                        <th>Rental Cycle</th>
+                        <th style="text-align: right;">Sales Price</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for costume, count in top_costumes %}
-                    <tr>
-                        <td class="col-num">
-                            <span class="rank-badge {% if loop.index <= 3 %}rank-{{ loop.index }}{% endif %}">
-                                {{ loop.index }}
-                            </span>
-                        </td>
-                        <td>{{ costume }}</td>
-                        <td class="col-right"><span class="count-pill">{{ count }}</span></td>
-                    </tr>
-                    {% endfor %}
+                <tbody id="modalTableBody">
+                    <!-- Populated dynamically via Javascript -->
                 </tbody>
             </table>
-            {% else %}
-            <div class="empty-state">No rental data available for this period.</div>
-            {% endif %}
         </div>
     </div>
-
-    <!-- ── Top Schools ──────────────────────────────────────── -->
-    <div class="section">
-        <div class="section-header">
-            <span class="section-title">
-                <span class="section-title-bar"></span>
-                Top Schools by Volume
-            </span>
-            {% if top_school %}
-            <span class="section-count">{{ top_school|length }} Entries</span>
-            {% endif %}
-        </div>
-        <div class="section-body">
-            {% if top_school %}
-            <table class="formal-table">
-                <thead>
-                    <tr>
-                        <th class="col-num">Rank</th>
-                        <th>School Name</th>
-                        <th class="col-right">Total Rentals</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for school, count in top_school %}
-                    <tr>
-                        <td class="col-num">
-                            <span class="rank-badge {% if loop.index <= 3 %}rank-{{ loop.index }}{% endif %}">
-                                {{ loop.index }}
-                            </span>
-                        </td>
-                        <td>{{ school }}</td>
-                        <td class="col-right"><span class="count-pill">{{ count }}</span></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <div class="empty-state">No school data available for this period.</div>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- ── Top 20 Customers ─────────────────────────────────── -->
-    <div class="section">
-        <div class="section-header">
-            <span class="section-title">
-                <span class="section-title-bar"></span>
-                Top 20 Customers &mdash; All Time
-            </span>
-            {% if top_20_customers %}
-            <span class="section-count">{{ top_20_customers|length }} of 20</span>
-            {% endif %}
-        </div>
-        <div class="section-body">
-            {% if top_20_customers %}
-            <table class="formal-table">
-                <thead>
-                    <tr>
-                        <th class="col-num">Rank</th>
-                        <th>Customer Name</th>
-                        <th class="col-num">Bookings</th>
-                        <th class="col-right">Total Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for c in top_20_customers %}
-                    <tr style="cursor:pointer"
-                        onclick="window.location.href='{{ url_for('fancy.fancy_profile', mobile=c.mobile) }}'">
-                        <td class="col-num">
-                            <span class="rank-badge {% if loop.index <= 3 %}rank-{{ loop.index }}{% endif %}">
-                                {{ loop.index }}
-                            </span>
-                        </td>
-                        <td><span class="customer-name">{{ c.name }}</span></td>
-                        <td class="col-num"><span class="count-pill">{{ c.total_bookings }}</span></td>
-                        <td class="col-right"><span class="amount-text">&#8377;{{ c.total_amount }}</span></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <div class="empty-state">No customer data available.</div>
-            {% endif %}
-        </div>
-    </div>
-
 </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ── Safe JSON serialization maps ──
+const eventBookingsData = {
+    {% for ev in forecast_calendar %}
+    "{{ ev.id }}": {
+        "name": {{ ev.name | tojson | safe }},
+        "category": {{ ev.category | tojson | safe }},
+        "spike_count": {{ ev.spike_count | tojson | safe }},
+        "total_stock": {{ ev.total_stock | tojson | safe }},
+        "deficit": {{ ev.deficit | tojson | safe }},
+        "status": {{ ev.status | tojson | safe }},
+        "bookings": {{ ev.bookings | default([]) | tojson | safe }}
+    },
+    {% endfor %}
+};
+
+// ── Drilldown Modal Actions ──
+function openEventModal(eventId) {
+    const titleEl = document.getElementById("modalEventTitle");
+    const bodyEl = document.getElementById("modalTableBody");
+    const modalEl = document.getElementById("drilldownModal");
+    const searchEl = document.getElementById("modalSearchInput");
+    const alertEl = document.getElementById("modalProcurementAlert");
+    
+    searchEl.value = ""; // Reset filter
+    
+    const eventData = eventBookingsData[eventId] || {};
+    const eventName = eventData.name || "Event Detail";
+    const bookings = eventData.bookings || [];
+    const category = eventData.category || "General";
+    const spikeCount = eventData.spike_count || 0;
+    const totalStock = eventData.total_stock || 0;
+    const deficit = eventData.deficit || 0;
+    const status = eventData.status || "Stock Adequate";
+    
+    titleEl.innerText = eventName + " — Historical Rentals Log";
+    
+    // Populate dynamic Procurement Advisor Alert card inside modal
+    alertEl.style.display = "block";
+    if (deficit > 0) {
+        const severityClass = status === "Critical Deficit" ? "highlight-danger" : "highlight-warning";
+        const alertLabel = status === "Critical Deficit" ? "🚨 CRITICAL STOCK SHORTAGE ALERT" : "⚠️ MODERATE SUPPLY GAP ALERT";
+        alertEl.className = `insight-metric-item ${severityClass}`;
+        alertEl.innerHTML = `
+            <span class="insight-label" style="font-weight: 800;">${alertLabel}</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem;">
+                <span class="insight-value" style="font-size: 1.05rem;">Projected Shortage of ${deficit} costumes in "${category}"</span>
+                <span class="badge-status" style="background: rgba(244,63,94,0.15); color: var(--neon-rose); font-weight:700;">Deficit: -${deficit}</span>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem; line-height: 1.45;">
+                <strong>AI Advisory:</strong> Peak historical bookings for this event period (±3 days window) reached <strong>${spikeCount} rentals</strong>, but you only have <strong>${totalStock} garments</strong> in stock. Stitch or procure at least <strong>${deficit} more outfits</strong> in this category to satisfy all incoming customer requests.
+            </p>
+        `;
+    } else {
+        alertEl.className = `insight-metric-item`;
+        alertEl.style.borderLeft = "4px solid var(--neon-emerald)";
+        alertEl.style.background = "rgba(16, 185, 129, 0.03)";
+        alertEl.innerHTML = `
+            <span class="insight-label" style="color: var(--neon-emerald); font-weight: 800;">✅ SUPPLY LEVEL ADEQUATE</span>
+            <span class="insight-value" style="display: block; margin-top: 0.25rem; font-size: 1.05rem;">Stock fully covers historical peak demand</span>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem; line-height: 1.45;">
+                <strong>AI Advisory:</strong> You have <strong>${totalStock} garments</strong> in stock in "${category}", which is fully sufficient to cover the peak historical demand of <strong>${spikeCount} bookings</strong>. No additional procurement is required.
+            </p>
+        `;
+    }
+    
+    renderModalTable(bookings);
+    modalEl.style.display = "flex";
+}
+
+function renderModalTable(bookings) {
+    const bodyEl = document.getElementById("modalTableBody");
+    bodyEl.innerHTML = "";
+    
+    if (bookings.length === 0) {
+        bodyEl.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 3rem 0;">No past records found for this holiday window in the database.</td></tr>`;
+        return;
+    }
+    
+    bookings.forEach(b => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td class="modal-search-target">
+                <span style="font-weight: 700; color: white; display: block;">${b.name}</span>
+                <a href="tel:${b.mobile}" class="phone-link">📞 ${b.mobile}</a>
+            </td>
+            <td class="modal-search-target" style="font-weight: 600;">${b.costume}</td>
+            <td class="modal-search-target">${b.date}</td>
+            <td class="modal-search-target" style="color: var(--neon-purple); font-weight: 700; font-size: 0.8rem;">${b.season}</td>
+            <td style="text-align: right;" class="price-text">₹${b.price}</td>
+        `;
+        bodyEl.appendChild(tr);
+    });
+}
+
+function closeEventModal(e) {
+    if (e && e.target !== e.currentTarget && e !== null) return;
+    document.getElementById("drilldownModal").style.display = "none";
+}
+
+function filterModalTable() {
+    const filter = document.getElementById("modalSearchInput").value.toLowerCase().trim();
+    const table = document.getElementById("modalTable");
+    const trs = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < trs.length; i++) { // Skip header row
+        const row = trs[i];
+        let rowContainsQuery = false;
+        const targets = row.getElementsByClassName("modal-search-target");
+        
+        for (let j = 0; j < targets.length; j++) {
+            if (targets[j].innerText.toLowerCase().includes(filter)) {
+                rowContainsQuery = true;
+                break;
+            }
+        }
+        row.style.display = rowContainsQuery ? "" : "none";
+    }
+}
+
+// ── Tab Switching Logic ──
+function switchTab(tabId) {
+    // Hide all panels
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.classList.remove('active');
+    });
+    // Show chosen panel
+    const selectedPane = document.getElementById('pane-' + tabId);
+    if (selectedPane) {
+        selectedPane.classList.add('active');
+    }
+
+    // Toggle button active classes
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Add active class to clicked button
+    const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+    }
+}
+
+// ── Client Side Table Filter ──
+function filterTable(inputId, tableId) {
+    const input = document.getElementById(inputId);
+    const filter = input.value.toLowerCase().trim();
+    const table = document.getElementById(tableId);
+    const trs = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < trs.length; i++) { // Skip header row
+        const row = trs[i];
+        let rowContainsQuery = false;
+        const targets = row.getElementsByClassName("search-target");
+        
+        if (targets.length > 0) {
+            for (let j = 0; j < targets.length; j++) {
+                if (targets[j].innerText.toLowerCase().includes(filter)) {
+                    rowContainsQuery = true;
+                    break;
+                }
+            }
+        } else {
+            // Fallback: search all cells
+            const tds = row.getElementsByTagName("td");
+            for (let j = 0; j < tds.length; j++) {
+                if (tds[j].innerText.toLowerCase().includes(filter)) {
+                    rowContainsQuery = true;
+                    break;
+                }
+            }
+        }
+        
+        if (rowContainsQuery) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    }
+}
+
+// ── Render Charts using Chart.js ──
+document.addEventListener("DOMContentLoaded", function() {
+    
+    // 1. Timeline Chart (Line Chart)
+    const bookingsTimeline = {{ bookings_by_date | default([]) | tojson | safe }};
+    const timelineLabels = bookingsTimeline.map(item => item.date);
+    const timelineData = bookingsTimeline.map(item => item.count);
+
+    new Chart(document.getElementById('timelineChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: timelineLabels.length > 0 ? timelineLabels : ["No Bookings"],
+            datasets: [{
+                label: 'Booked Volume',
+                data: timelineData.length > 0 ? timelineData : [0],
+                borderColor: '#8b5cf6', // Violet
+                backgroundColor: 'rgba(139, 92, 246, 0.08)',
+                fill: true,
+                tension: 0.35,
+                borderWidth: 3,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: '#8b5cf6',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                    ticks: { color: '#9ca3af' }
+                },
+                y: {
+                    grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                    ticks: { color: '#9ca3af', precision: 0 }
+                }
+            }
+        }
+    });
+
+    // 2. Top Costumes by Revenue (Vertical Bar Chart)
+    const costumeStats = {{ top_costumes_by_revenue | default([]) | tojson | safe }};
+    const costumeLabelsFull = costumeStats.map(item => item.name);
+    const costumeLabelsTruncated = costumeLabelsFull.map(label => label.length > 15 ? label.substring(0, 12) + '...' : label);
+    const costumeRevenue = costumeStats.map(item => item.revenue);
+
+    new Chart(document.getElementById('costumesChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: costumeLabelsTruncated.length > 0 ? costumeLabelsTruncated : ["No Outfits"],
+            datasets: [{
+                label: 'Revenue Generated (₹)',
+                data: costumeRevenue.length > 0 ? costumeRevenue : [0],
+                backgroundColor: 'rgba(59, 130, 246, 0.85)', // Electric Blue
+                borderRadius: 6,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title: function(context) {
+                            // Show the full costume name on hover instead of the truncated version!
+                            const index = context[0].dataIndex;
+                            return costumeLabelsFull[index] || '';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { 
+                        color: '#9ca3af',
+                        maxRotation: 45,
+                        minRotation: 0,
+                        font: { size: 10 }
+                    }
+                },
+                y: {
+                    grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                    ticks: { color: '#9ca3af' }
+                }
+            }
+        }
+    });
+
+    // 3. Top Schools by Revenue (Horizontal Bar Chart)
+    const schoolStats = {{ top_schools_by_revenue | default([]) | tojson | safe }};
+    const schoolLabels = schoolStats.map(item => item.name);
+    const schoolRevenue = schoolStats.map(item => item.revenue);
+
+    new Chart(document.getElementById('schoolsChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: schoolLabels.length > 0 ? schoolLabels : ["No Schools"],
+            datasets: [{
+                label: 'Revenue Contribution (₹)',
+                data: schoolRevenue.length > 0 ? schoolRevenue : [0],
+                backgroundColor: 'rgba(236, 72, 153, 0.85)', // Neon Pink
+                borderRadius: 6,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                    ticks: { color: '#9ca3af' }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: '#9ca3af' }
+                }
+            }
+        }
+    });
+
+    // 4. Day of Week Demand Chart (Bar Chart)
+    const dayOfWeekStats = {{ day_of_week_data | default([]) | tojson | safe }};
+    const dayOfWeekLabels = dayOfWeekStats.map(item => item.day);
+    const dayOfWeekData = dayOfWeekStats.map(item => item.count);
+
+    new Chart(document.getElementById('dayOfWeekChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: dayOfWeekLabels.length > 0 ? dayOfWeekLabels : ["No Days"],
+            datasets: [{
+                label: 'Pickups by Day',
+                data: dayOfWeekData.length > 0 ? dayOfWeekData : [0],
+                backgroundColor: 'rgba(139, 92, 246, 0.85)', // Neon Purple
+                borderRadius: 6,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#9ca3af' }
+                },
+                y: {
+                    grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                    ticks: { color: '#9ca3af', precision: 0 }
+                }
+            }
+        }
+    });
+
+    // 5. Monthly Revenue Trend Chart (Bar Chart)
+    const monthlyRevenueStats = {{ monthly_revenue_data | default([]) | tojson | safe }};
+    const monthlyLabels = monthlyRevenueStats.map(item => item.month);
+    const monthlyRevenue = monthlyRevenueStats.map(item => item.revenue);
+
+    new Chart(document.getElementById('monthlyRevenueChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: monthlyLabels.length > 0 ? monthlyLabels : ["No Months"],
+            datasets: [{
+                label: 'Monthly Revenue (₹)',
+                data: monthlyRevenue.length > 0 ? monthlyRevenue : [0],
+                backgroundColor: 'rgba(16, 185, 129, 0.85)', // Neon Emerald
+                borderRadius: 6,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#9ca3af' }
+                },
+                y: {
+                    grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                    ticks: { color: '#9ca3af' }
+                }
+            }
+        }
+    });
+
+    // 6. Category Revenue Contribution Chart (Doughnut Chart)
+    const categoryRevStats = {{ category_revenue_list | default([]) | tojson | safe }};
+    const categoryRevLabels = categoryRevStats.map(item => item.name);
+    const categoryRevData = categoryRevStats.map(item => item.revenue);
+
+    new Chart(document.getElementById('categoryRevenueChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: categoryRevLabels.length > 0 ? categoryRevLabels : ["No Data"],
+            datasets: [{
+                data: categoryRevData.length > 0 ? categoryRevData : [0],
+                backgroundColor: [
+                    'rgba(139, 92, 246, 0.85)', // Violet
+                    'rgba(59, 130, 246, 0.85)',  // Blue
+                    'rgba(16, 185, 129, 0.85)', // Emerald
+                    'rgba(236, 72, 153, 0.85)',  // Pink
+                    'rgba(245, 158, 11, 0.85)',  // Amber
+                    'rgba(6, 180, 212, 0.85)',   // Cyan
+                    'rgba(244, 63, 94, 0.85)'    // Rose
+                ],
+                borderWidth: 1,
+                borderColor: 'rgba(255, 255, 255, 0.1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#9ca3af',
+                        font: { size: 9 },
+                        boxWidth: 10,
+                        padding: 8
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                            return ` Revenue: ₹${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            cutout: '65%'
+        }
+    });
+
+});
+</script>
 {% endblock %}

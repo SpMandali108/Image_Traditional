@@ -384,6 +384,13 @@ def fancy_dashboard():
         return redirect(url_for('auth.login'))
 
     # -----------------------------
+    # CYCLE SELECTOR HANDLE
+    # -----------------------------
+    cycle_id = request.args.get('cycle_id')
+    if cycle_id:
+        set_selected_cycle(cycle_id)
+
+    # -----------------------------
     # SELECTED CYCLE DATA
     # -----------------------------
     collection = get_selected_collection()
@@ -420,35 +427,28 @@ def fancy_dashboard():
         and not b.get('returned')
     )
 
+    awaiting_pickup = total_bookings_count - returned_count - not_returned
+    avg_revenue = total_revenue / total_bookings_count if total_bookings_count > 0 else 0
+
     # -----------------------------
-    # MOST RENTED COSTUMES
+    # MOST RENTED COSTUMES & SCHOOLS
     # -----------------------------
     costume_counter = Counter()
+    school_counter = Counter()
 
     for b in current_bookings:
-
-        costume = b.get('costume')
-
+        costume = b.get('details')
+        school = b.get('school')
         if costume:
-            costume_counter[costume] += 1
+            costume_counter[costume.strip().title()] += 1
+        if school:
+            school_counter[school.strip().title()] += 1
 
     top_costumes = sorted(
         costume_counter.items(),
         key=lambda x: x[1],
         reverse=True
     )[:20]
-
-    # -----------------------------
-    # TOP SCHOOLS
-    # -----------------------------
-    school_counter = Counter()
-
-    for b in current_bookings:
-
-        school = b.get('school')
-
-        if school:
-            school_counter[school] += 1
 
     top_school = sorted(
         school_counter.items(),
@@ -457,26 +457,137 @@ def fancy_dashboard():
     )[:20]
 
     # -----------------------------
-    # ALL-TIME CUSTOMER DATA
+    # INVENTORY CATEGORY MAPPING & SALES LEADERS
+    # -----------------------------
+    inventory_products = list(finventory.find())
+    
+    # 1. Map costume names to categories
+    costume_to_category = {}
+    category_stock = {}
+    total_stock = 0
+
+    for p in inventory_products:
+        name = p.get("name", "").strip().title()
+        cat = p.get("category", "General").strip().title()
+        if name:
+            costume_to_category[name] = cat
+        
+        # Calculate stock per category
+        sizes = p.get("sizes", {})
+        qty = 0
+        if isinstance(sizes, dict):
+            qty = sum(int(q) for q in sizes.values() if str(q).isdigit() or isinstance(q, (int, float)))
+        category_stock[cat] = category_stock.get(cat, 0) + qty
+        total_stock += qty
+
+    # 2. Group bookings and revenue by category (costume field holds the category name in bookings schema)
+    category_bookings = {}
+    category_revenue = {}
+    for b in current_bookings:
+        cat = b.get("costume", "General").strip().title()
+        price = b.get("price", 0)
+        
+        category_bookings[cat] = category_bookings.get(cat, 0) + 1
+        category_revenue[cat] = category_revenue.get(cat, 0) + price
+
+    # 3. Calculate Best Category and Best Product highlights (excluding catch-alls like Other & General)
+    category_bookings_sorted = sorted(category_bookings.items(), key=lambda x: x[1], reverse=True)
+    category_revenue_sorted = sorted(category_revenue.items(), key=lambda x: x[1], reverse=True)
+
+    filtered_bookings = [item for item in category_bookings_sorted if item[0] not in ["Other", "General"]]
+    filtered_revenue = [item for item in category_revenue_sorted if item[0] not in ["Other", "General"]]
+    
+    best_category_by_bookings = filtered_bookings[0][0] if filtered_bookings else (category_bookings_sorted[0][0] if category_bookings_sorted else "None")
+    best_category_bookings_count = filtered_bookings[0][1] if filtered_bookings else (category_bookings_sorted[0][1] if category_bookings_sorted else 0)
+    
+    best_category_by_revenue = filtered_revenue[0][0] if filtered_revenue else (category_revenue_sorted[0][0] if category_revenue_sorted else "None")
+    best_category_revenue_val = filtered_revenue[0][1] if filtered_revenue else (category_revenue_sorted[0][1] if category_revenue_sorted else 0)
+
+    # Best Products
+    best_product_by_bookings = top_costumes[0][0] if top_costumes else "None"
+    best_product_bookings_count = top_costumes[0][1] if top_costumes else 0
+
+    # 4. Calculate Average Rental Duration (days) per Category
+    def safe_parse_date(d):
+        if not d:
+            return None
+        if isinstance(d, datetime):
+            return d.date()
+        if isinstance(d, str):
+            for fmt in ["%Y-%m-%d", "%d-%m-%Y", "%d-%m-%y"]:
+                try:
+                    return datetime.strptime(d.strip(), fmt).date()
+                except ValueError:
+                    continue
+        return None
+
+    category_durations = {}
+    category_duration_counts = {}
+    total_duration_days = 0
+    duration_bookings_count = 0
+
+    for b in current_bookings:
+        costume = b.get("costume", "").strip().title()
+        cat = costume_to_category.get(costume, "Other")
+        sd = safe_parse_date(b.get("start_date"))
+        ed = safe_parse_date(b.get("end_date"))
+        if sd and ed and ed >= sd:
+            duration = (ed - sd).days + 1
+            category_durations[cat] = category_durations.get(cat, 0) + duration
+            category_duration_counts[cat] = category_duration_counts.get(cat, 0) + 1
+            total_duration_days += duration
+            duration_bookings_count += 1
+
+    avg_durations_by_category = []
+    for cat, total_dur in category_durations.items():
+        cnt = category_duration_counts[cat]
+        avg_dur = round(total_dur / cnt, 1) if cnt > 0 else 0
+        avg_durations_by_category.append({
+            "category": cat,
+            "avg_duration": avg_dur
+        })
+    avg_durations_by_category.sort(key=lambda x: x["avg_duration"], reverse=True)
+    overall_avg_duration = round(total_duration_days / duration_bookings_count, 1) if duration_bookings_count > 0 else 0
+
+    # 5. Day of Week Demand Analysis
+    today = datetime.now().date()
+    day_of_week_counts = {
+        "Monday": 0, "Tuesday": 0, "Wednesday": 0, "Thursday": 0, "Friday": 0, "Saturday": 0, "Sunday": 0
+    }
+    days_list = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    for b in current_bookings:
+        sd = safe_parse_date(b.get("start_date"))
+        if sd:
+            day_name = days_list[sd.weekday()]
+            day_of_week_counts[day_name] += 1
+    day_of_week_data = [{"day": d, "count": day_of_week_counts[d]} for d in days_list]
+
+    # 6. Monthly Revenue Performance Analysis
+    months_list = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    monthly_revenue = {m: 0 for m in months_list}
+    for b in current_bookings:
+        sd = safe_parse_date(b.get("start_date"))
+        if sd:
+            m_name = months_list[sd.month - 1]
+            monthly_revenue[m_name] += b.get("price", 0)
+    monthly_revenue_data = [{"month": m, "revenue": monthly_revenue[m]} for m in months_list]
+
+    # 7. Active Customers count
+    active_customers = len({b.get("mobile") for b in current_bookings if b.get("mobile")})
+
+    # -----------------------------
+    # ALL-TIME CUSTOMER DATA & CYCLES
     # -----------------------------
     all_bookings = []
-
     for cycle in get_all_cycles():
-
-        cycle_collection = db[
-            cycle["collection_name"]
-        ]
-
-        all_bookings.extend(
-            list(
-                cycle_collection.find()
-            )
-        )
+        cycle_collection = db[cycle["collection_name"]]
+        cycle_bookings = list(cycle_collection.find())
+        for b in cycle_bookings:
+            b["season"] = cycle["name"]
+        all_bookings.extend(cycle_bookings)
 
     customer_totals = {}
-
     for b in all_bookings:
-
         mobile = b.get('mobile')
         name = b.get('name', 'Unknown')
         price = b.get('price', 0)
@@ -485,14 +596,12 @@ def fancy_dashboard():
             continue
 
         if mobile not in customer_totals:
-
             customer_totals[mobile] = {
                 'name': name,
                 'mobile': mobile,
                 'total_amount': 0,
                 'total_bookings': 0
             }
-
         customer_totals[mobile]['total_amount'] += price
         customer_totals[mobile]['total_bookings'] += 1
 
@@ -503,9 +612,190 @@ def fancy_dashboard():
     )[:20]
 
     # -----------------------------
-    # CURRENT SELECTED CYCLE INFO
+    # ADVANCED GRAPH METRICS & REVENUE BREAKDOWNS
     # -----------------------------
+    school_stats_dict = {}
+    costume_stats_dict = {}
+    for b in current_bookings:
+        school = b.get('school', 'Unknown').strip().title()
+        costume = b.get('details', 'Unknown').strip().title()
+        price = b.get('price', 0)
+        
+        if school:
+            if school not in school_stats_dict:
+                school_stats_dict[school] = {"bookings": 0, "revenue": 0}
+            school_stats_dict[school]["bookings"] += 1
+            school_stats_dict[school]["revenue"] += price
+            
+        if costume:
+            if costume not in costume_stats_dict:
+                costume_stats_dict[costume] = {"bookings": 0, "revenue": 0}
+            costume_stats_dict[costume]["bookings"] += 1
+            costume_stats_dict[costume]["revenue"] += price
+
+    top_schools_by_revenue = sorted(
+        [{"name": k, "bookings": v["bookings"], "revenue": v["revenue"]} for k, v in school_stats_dict.items()],
+        key=lambda x: x["revenue"],
+        reverse=True
+    )[:10]
+
+    top_costumes_by_revenue = sorted(
+        [{"name": k, "bookings": v["bookings"], "revenue": v["revenue"]} for k, v in costume_stats_dict.items()],
+        key=lambda x: x["revenue"],
+        reverse=True
+    )[:10]
+
+    # -----------------------------
+    # BOOKINGS TIMELINE (DATE NORMALIZATION)
+    # -----------------------------
+    bookings_by_date_dict = {}
+    for b in current_bookings:
+        sd = b.get("start_date")
+        date_str = None
+        if isinstance(sd, datetime):
+            date_str = sd.strftime("%d-%m-%Y")
+        elif isinstance(sd, str) and sd.strip():
+            for fmt in ["%Y-%m-%d", "%d-%m-%Y", "%d-%m-%y"]:
+                try:
+                    date_str = datetime.strptime(sd.strip(), fmt).strftime("%d-%m-%Y")
+                    break
+                except ValueError:
+                    continue
+        if date_str:
+            bookings_by_date_dict[date_str] = bookings_by_date_dict.get(date_str, 0) + 1
+
+    sorted_date_items = []
+    for date_str, count in bookings_by_date_dict.items():
+        parsed_date = None
+        for fmt in ["%d-%m-%Y", "%Y-%m-%d"]:
+            try:
+                parsed_date = datetime.strptime(date_str, fmt).date()
+                break
+            except ValueError:
+                continue
+        if not parsed_date:
+            parsed_date = datetime.min.date()
+        sorted_date_items.append((parsed_date, date_str, count))
+
+    sorted_date_items.sort(key=lambda x: x[0])
+    bookings_by_date = [{"date": item[1], "count": item[2]} for item in sorted_date_items]
+
+    # -----------------------------
+    # INDIAN EVENT FORECAST CALENDAR (PREDICTIVE AI)
+    # -----------------------------
+    # MM-DD map of Indian holidays and events
+    indian_events = [
+        {"id": "republic_day", "name": "Republic Day", "month": 1, "day": 26, "category": "Freedom Fighters / Regional", "description": "National parade & school acts. High demand for Gandhi, Nehru, Bhagat Singh, Subhas Chandra Bose, and army/police uniforms."},
+        {"id": "independence_day", "name": "Independence Day", "month": 8, "day": 15, "category": "Freedom Fighters / National Heroes", "description": "Independence Day assemblies. Highest demand for historic freedom fighter attire (Rani Laxmibai, Bhagat Singh, Gandhi, Nehru)."},
+        {"id": "gandhi_jayanti", "name": "Gandhi Jayanti", "month": 10, "day": 2, "category": "Freedom Fighters / Khadi Attire", "description": "Birth anniversary of Mahatma Gandhi. High demand for dhotis, bald wigs, spectacles, and Nehru caps."},
+        {"id": "teachers_day", "name": "Teachers' Day", "month": 9, "day": 5, "category": "Professional / Formal Costumes", "description": "Teachers' Day plays and roleplays. Demand for formal blazers, sarees, doctor, lawyer, and corporate uniforms."},
+        {"id": "childrens_day", "name": "Children's Day", "month": 11, "day": 14, "category": "Cartoon Characters / Animals / Nehru", "description": "Children's Day events. High demand for cartoon characters (Doraemon, Mickey Mouse), animal onesies, and Chacha Nehru jackets."},
+        {"id": "christmas", "name": "Christmas Conciliates", "month": 12, "day": 25, "category": "Christmas / Angels / Santa Claus", "description": "School Christmas concerts. High demand for Santa Claus outfits, Elf costumes, Angel wings, and Shepherd robes."},
+        {"id": "janmashtami", "name": "Krishna Janmashtami (typical Aug/Sep)", "month": 8, "day": 24, "category": "Mythological (Krishna/Radha)", "description": "Krishna tableaus and dahi handi. Peak demand for Bal Krishna crown, flute, peacock feather, and Radha lehengas."},
+        {"id": "navaratri", "name": "Navaratri Festival (typical Oct)", "month": 10, "day": 12, "category": "Chaniya Choli / Kediyu", "description": "9 days of Garba. Huge demand for heavily-embroidered Chaniya Cholis, Kediyus, turbans, and oxidized ornaments."}
+    ]
+
+    import datetime as dt
+    today_dt = datetime.now()
+
+    forecast_calendar = []
+    for ev in indian_events:
+        year = today_dt.year
+        ev_date = dt.datetime(year, ev["month"], ev["day"])
+        # If passed in current year, target next year
+        if ev_date.date() < today_dt.date():
+            ev_date = dt.datetime(year + 1, ev["month"], ev["day"])
+            
+        countdown = (ev_date.date() - today_dt.date()).days
+        
+        # Calculate historical bookings spike count and gather details in a ±3 days window around this event
+        matching_bookings = []
+        event_categories = Counter()
+        event_costumes = Counter()
+        for b in all_bookings:
+            sd = safe_parse_date(b.get("start_date"))
+            if sd:
+                try:
+                    ev_date_by_year = dt.date(sd.year, ev["month"], ev["day"])
+                except ValueError:
+                    ev_date_by_year = dt.date(sd.year, ev["month"], ev["day"] - 1)
+                
+                diff = (sd - ev_date_by_year).days
+                if -3 <= diff <= 3:
+                    costume = b.get("costume", "Unknown").strip().title()
+                    cat = costume_to_category.get(costume, "General").strip().title()
+                    
+                    event_categories[cat] += 1
+                    event_costumes[costume] += 1
+                    
+                    matching_bookings.append({
+                        "name": b.get("name", "Unknown"),
+                        "mobile": b.get("mobile", ""),
+                        "costume": costume,
+                        "date": sd.strftime("%d-%m-%Y"),
+                        "price": b.get("price", 0),
+                        "season": b.get("season", "Historical")
+                    })
+                    
+        matching_bookings.sort(key=lambda x: x["date"], reverse=True)
+
+        # Dynamic recommendations based on actual historical bookings during the ±3 days event window
+        top_cats = [c for c, count in event_categories.most_common(2)]
+        top_dresses = [f"{d} ({count})" for d, count in event_costumes.most_common(5)]
+        
+        dynamic_category = ", ".join(top_cats) if top_cats else "General"
+        dynamic_desc = f"Top rented costumes: {', '.join(top_dresses)}" if top_dresses else "No historical records for this date window."
+        
+        # Calculate dynamic stock availability and deficit for the categories associated with this event
+        total_available_stock = 0
+        for cat in top_cats:
+            total_available_stock += category_stock.get(cat, 0)
+        
+        deficit = max(0, len(matching_bookings) - total_available_stock)
+        
+        forecast_calendar.append({
+            "id": ev["id"],
+            "name": ev["name"],
+            "date": ev_date.strftime("%d-%m-%Y"),
+            "countdown": countdown,
+            "category": dynamic_category,
+            "description": dynamic_desc,
+            "spike_count": len(matching_bookings),
+            "bookings": matching_bookings,  # Send all records to show everything!
+            "total_stock": total_available_stock,
+            "deficit": deficit,
+            "status": "Critical Deficit" if deficit > 5 else "Moderate Shortage" if deficit > 0 else "Stock Adequate"
+        })
+        
+    # Sort events by proximity (countdown ascending)
+    forecast_calendar.sort(key=lambda x: x["countdown"])
+
+    # -----------------------------
+    # STRATEGIC INSIGHTS / BEST PERFORMERS
+    # -----------------------------
+    highest_rev_costume = top_costumes_by_revenue[0]["name"] if top_costumes_by_revenue else "None"
+    highest_rev_val = top_costumes_by_revenue[0]["revenue"] if top_costumes_by_revenue else 0
+    highest_rev_school = top_schools_by_revenue[0]["name"] if top_schools_by_revenue else "None"
+    highest_rev_school_val = top_schools_by_revenue[0]["revenue"] if top_schools_by_revenue else 0
+
+    strategic_insights = {
+        "best_category_by_bookings": f"{best_category_by_bookings} ({best_category_bookings_count} rentals)",
+        "best_category_by_revenue": f"{best_category_by_revenue} (₹{best_category_revenue_val})",
+        "best_product_by_bookings": f"{best_product_by_bookings} ({best_product_bookings_count} rentals)",
+        "best_product_by_revenue": f"{highest_rev_costume} (₹{highest_rev_val})",
+        "overall_avg_duration": f"{overall_avg_duration} days",
+        "anchor_school": f"{highest_rev_school} (₹{highest_rev_school_val})"
+    }
+
+    category_revenue_list = sorted(
+        [{"name": k, "revenue": v, "bookings": category_bookings.get(k, 0)} for k, v in category_revenue.items()],
+        key=lambda x: x["revenue"],
+        reverse=True
+    )
+
+    # CURRENT SELECTED CYCLE INFO
     selected_cycle = get_selected_cycle()
+    all_cycles = get_all_cycles()
 
     return render_template(
         'fancy/fancy_dashboard.html',
@@ -514,10 +804,24 @@ def fancy_dashboard():
         returned_count=returned_count,
         taken_count=taken_count,
         not_returned=not_returned,
+        awaiting_pickup=awaiting_pickup,
+        avg_revenue=avg_revenue,
         top_costumes=top_costumes,
         top_school=top_school,
         top_20_customers=top_20_customers,
-        selected_cycle=selected_cycle
+        selected_cycle=selected_cycle,
+        all_cycles=all_cycles,
+        bookings_by_date=bookings_by_date,
+        top_schools_by_revenue=top_schools_by_revenue,
+        top_costumes_by_revenue=top_costumes_by_revenue,
+        total_stock=total_stock,
+        avg_durations_by_category=avg_durations_by_category,
+        strategic_insights=strategic_insights,
+        day_of_week_data=day_of_week_data,
+        active_customers=active_customers,
+        monthly_revenue_data=monthly_revenue_data,
+        forecast_calendar=forecast_calendar,
+        category_revenue_list=category_revenue_list
     )
 
 from io import BytesIO
@@ -563,7 +867,7 @@ def download_dashboard_excel():
     costume_counter = Counter()
 
     for b in current_bookings:
-        costume = b.get('costume')
+        costume = b.get('details')
 
         if costume:
             costume_counter[costume] += 1
