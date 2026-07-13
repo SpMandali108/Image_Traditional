@@ -131,6 +131,16 @@ def fancy_sub(sub):
         if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))
     ]
 
+    # Load unique descriptions
+    desc_path = os.path.join(current_app.root_path, 'static', 'fancy_descriptions.json')
+    descriptions = {}
+    if os.path.exists(desc_path):
+        try:
+            with open(desc_path, 'r', encoding='utf-8') as df:
+                descriptions = json.load(df)
+        except Exception:
+            pass
+
     # Build list of (filename, clean_display_name) tuples
     images = []
     for f in sorted(raw_images):
@@ -141,7 +151,12 @@ def fancy_sub(sub):
         clean = re.sub(r'[^a-zA-Z ]', '', clean)
         # Collapse multiple spaces and strip
         clean = re.sub(r'\s+', ' ', clean).strip().title()
-        images.append({'file': f, 'name': clean})
+        
+        # Match using subcategory/filename
+        key = f"{sub}/{f}"
+        desc = descriptions.get(key, f"A premium quality stage-wear costume representing {clean}, designed with comfortable fabrics and vibrant colors to make your child shine on stage.")
+        
+        images.append({'file': f, 'name': clean, 'desc': desc})
 
     return render_template(
         'general/fancy_gallery.html',

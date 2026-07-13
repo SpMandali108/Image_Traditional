@@ -428,7 +428,7 @@ Browse our {{ sub }} Fancy Dress collection.
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(201, 168, 76, 0.15);
     border-radius: 24px;
     width: 92%;
-    max-width: 840px;
+    max-width: 960px;
     padding: 28px;
     position: relative;
     display: flex;
@@ -466,11 +466,11 @@ Browse our {{ sub }} Fancy Dress collection.
 
   .lightbox-layout {
     display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: 1.25fr 0.75fr;
     gap: 30px;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 600px) {
     .lightbox-layout {
       grid-template-columns: 1fr;
       gap: 15px;
@@ -483,7 +483,7 @@ Browse our {{ sub }} Fancy Dress collection.
       width: 95%;
     }
     .lightbox-image-stage {
-      height: 240px;
+      height: 340px;
     }
     .lightbox-sidebar h2 {
       font-size: 1.4rem;
@@ -507,12 +507,22 @@ Browse our {{ sub }} Fancy Dress collection.
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(0, 0, 0, 0.3);
-    height: 380px;
+    height: 520px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     cursor: zoom-in;
+  }
+
+  @media (max-width: 1024px) {
+    .lightbox-container {
+      max-width: 95%;
+      padding: 20px;
+    }
+    .lightbox-image-stage {
+      height: 480px; /* Keep it nice and large on tablets */
+    }
   }
 
   .lightbox-image-stage img {
@@ -660,6 +670,107 @@ Browse our {{ sub }} Fancy Dress collection.
     color: var(--text-mid);
     font-family: monospace;
   }
+
+  /* ── Dynamic Fact Card & Mobile Toggles ── */
+  .fact-card {
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .fact-card.freedom-theme {
+    background: linear-gradient(135deg, rgba(255, 153, 51, 0.1) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(19, 136, 8, 0.1) 100%);
+    border-color: rgba(201, 168, 76, 0.35);
+    box-shadow: 0 4px 15px rgba(201, 168, 76, 0.1);
+  }
+
+  .fact-card.freedom-theme::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #FF9933, #FFFFFF, #138808);
+  }
+
+  .fact-card.normal-theme {
+    background: rgba(201, 168, 76, 0.06);
+    border-color: rgba(201, 168, 76, 0.18);
+  }
+
+  .fact-card-title {
+    font-family: var(--font-display);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .freedom-theme .fact-card-title {
+    color: #E4C068;
+  }
+
+  .normal-theme .fact-card-title {
+    color: var(--gold-lt);
+  }
+
+  .fact-card-text {
+    font-size: 0.84rem;
+    line-height: 1.55;
+    color: #e2e8f0;
+  }
+
+  /* Mobile Fact Toggle Button */
+  .fact-toggle-btn {
+    display: none; /* hidden on desktop */
+  }
+
+  @media (max-width: 600px) {
+    .sidebar-desc {
+      display: none !important; /* Hide generic paragraph on mobile */
+    }
+    
+    .fact-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: rgba(201, 168, 76, 0.1);
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      color: var(--gold-lt);
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+
+    .fact-toggle-btn:hover {
+      background: rgba(201, 168, 76, 0.18);
+      color: white;
+    }
+
+    .fact-card-wrapper-mobile {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease-out;
+    }
+
+    .fact-card-wrapper-mobile.open {
+      max-height: 350px; /* expands smoothly */
+      overflow-y: auto;
+    }
+  }
 </style>
 
 <!-- ── Page Header ─────────────────────────────────────── -->
@@ -743,13 +854,25 @@ Browse our {{ sub }} Fancy Dress collection.
             <div class="lightbox-sidebar">
                 <span class="sidebar-category">Fancy Dress Collection</span>
                 <h2 id="lightboxTitle">Costume Name</h2>
-                <div class="badge-row">
-                    <span class="sidebar-badge code-badge" id="sidebarCode">Code</span>
-                    <span class="sidebar-badge status-badge">Unique Piece</span>
+                <p class="sidebar-desc" id="sidebarDesc">An exquisite piece from our Fancy Dress collection, perfect for parties, competitions, and school events.</p>
+                
+                <!-- Toggle Button for Mobile Fact card (expanded by default on desktop) -->
+                <button class="fact-toggle-btn" id="factToggleBtn" onclick="toggleMobileFact()">
+                    <i class="fa-solid fa-circle-info"></i> View Costume Details & Fact
+                </button>
+                
+                <!-- Fact card wrapper (toggles max-height on mobile, always visible on desktop) -->
+                <div class="fact-card-wrapper-mobile" id="factCardWrapper">
+                    <div class="fact-card" id="dynamicFactCard">
+                        <div class="fact-card-title" id="dynamicFactTitle">
+                            <i class="fa-solid fa-lightbulb"></i> Costume Fact
+                        </div>
+                        <div class="fact-card-text" id="dynamicFactText">
+                            Fun fact details...
+                        </div>
+                    </div>
                 </div>
-                
-                <p class="sidebar-desc" id="sidebarDesc">An exquisite piece from our Fancy Dress collection, perfect for parties, competitions, and school events. Meticulously designed for a striking appearance and comfortable fit.</p>
-                
+
                 <div class="inquiry-box">
                     <p style="font-size: 0.8rem; color: #94a3b8; margin: 0 0 10px 0; font-weight: 600;">💬 DIRECT BOOKING INQUIRY</p>
                     <a id="whatsappInquiryBtn" href="" target="_blank" class="action-btn-whatsapp">
@@ -790,15 +913,37 @@ Browse our {{ sub }} Fancy Dress collection.
         lightbox.classList.remove("active");
     }
 
+
+    function toggleMobileFact() {
+        const wrapper = document.getElementById("factCardWrapper");
+        const btn = document.getElementById("factToggleBtn");
+        const sub = "{{ sub }}";
+        const isFreedom = sub.toLowerCase().includes("freedom");
+        
+        if (wrapper.classList.contains("open")) {
+            wrapper.classList.remove("open");
+            btn.innerHTML = `<i class="fa-solid fa-circle-info"></i> View Costume Details & ${isFreedom ? 'Contribution' : 'Fact'}`;
+        } else {
+            wrapper.classList.add("open");
+            btn.innerHTML = `<i class="fa-solid fa-circle-chevron-up"></i> Hide Costume Details & ${isFreedom ? 'Contribution' : 'Fact'}`;
+        }
+    }
+
     function updateLightboxDetails() {
         const activeProduct = productsList[currentActiveIndex];
         if (!activeProduct) return;
 
         const img = document.getElementById("lightboxImg");
         const title = document.getElementById("lightboxTitle");
-        const codeText = document.getElementById("sidebarCode");
         const indicator = document.getElementById("lightboxIndicator");
         const waBtn = document.getElementById("whatsappInquiryBtn");
+
+        // Dynamic Fact Card elements
+        const factCard = document.getElementById("dynamicFactCard");
+        const factTitle = document.getElementById("dynamicFactTitle");
+        const factText = document.getElementById("dynamicFactText");
+        const factWrapper = document.getElementById("factCardWrapper");
+        const toggleBtn = document.getElementById("factToggleBtn");
 
         // Extract code/name from filename
         const filename = activeProduct.file;
@@ -811,11 +956,32 @@ Browse our {{ sub }} Fancy Dress collection.
         };
 
         title.innerText = activeProduct.name;
-        codeText.innerText = code;
+        
         indicator.innerText = `${currentActiveIndex + 1} / ${productsList.length}`;
         
+        // Dynamic fact population
+        const category = "{{ sub }}";
+        const factContent = activeProduct.desc;
+        const isFreedom = category.toLowerCase().includes("freedom");
+        
+        if (isFreedom) {
+            factCard.className = "fact-card freedom-theme";
+            factTitle.innerHTML = `<i class="fa-solid fa-flag"></i> Freedom Contribution`;
+            toggleBtn.innerHTML = `<i class="fa-solid fa-circle-info"></i> View Costume Details & Contribution`;
+        } else {
+            factCard.className = "fact-card normal-theme";
+            factTitle.innerHTML = `<i class="fa-solid fa-lightbulb"></i> Character Fact`;
+            toggleBtn.innerHTML = `<i class="fa-solid fa-circle-info"></i> View Costume Details & Fact`;
+        }
+        factText.innerText = factContent;
+        
+        // Reset collapse state on mobile
+        if (factWrapper) {
+            factWrapper.classList.remove("open");
+        }
+
         if (waBtn) {
-            const message = encodeURIComponent(`Hi! I am interested in renting the Fancy Dress costume from category "{{ sub }}" with design/code: ${code}. Is it available?`);
+            const message = encodeURIComponent(`Hi! I am interested in renting the Fancy Dress costume "${activeProduct.name}" (Design Code: ${code}) from category "${category}". Is it available?`);
             waBtn.href = `https://wa.me/919428610384?text=${message}`;
         }
     }

@@ -698,17 +698,17 @@
     .it-hero-stat + .it-hero-stat::before { display: none; }
 
     .it-grid {
-      grid-template-columns: 1fr;
-      gap: 14px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
     }
 
     .it-card {
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding: 28px 20px 20px;
-      gap: 6px;
-      border-radius: 16px;
+      padding: 16px 10px 14px;
+      gap: 4px;
+      border-radius: 12px;
     }
 
     .it-card::after {
@@ -726,11 +726,16 @@
     }
 
     .it-card-icon-ring {
-      width: 84px;
-      height: 84px;
-      margin-bottom: 6px;
+      width: 68px;
+      height: 68px;
+      margin-bottom: 4px;
+      border-width: 1.5px;
+      box-shadow: 
+        0 0 0 3px rgba(201,168,76,0.08),
+        0 0 12px rgba(201,168,76,0.20),
+        inset 0 0 6px rgba(201,168,76,0.06);
     }
-    .it-card-icon-ring img { width: 48px; height: 48px; }
+    .it-card-icon-ring img { width: 38px; height: 38px; }
     .it-card:hover .it-card-icon-ring { transform: none; }
 
     .it-card-body {
@@ -738,11 +743,11 @@
       flex-direction: column;
       align-items: center;
       width: 100%;
-      gap: 4px;
+      gap: 2px;
     }
 
     .it-card-title {
-      font-size: 1.1rem;
+      font-size: 0.84rem;
       font-weight: 700;
       color: var(--gold-lt);
       width: 100%;
@@ -750,30 +755,12 @@
     }
 
     .it-card-desc {
-      display: block;
-      font-size: 13px;
-      color: var(--text-mid);
-      line-height: 1.5;
-      margin-bottom: 4px;
+      display: none;
     }
 
     .it-card-cta {
-      display: flex;
-      justify-content: center;
-      width: 100%;
-      margin-top: 10px;
-      padding: 14px 20px;
-      background: linear-gradient(135deg, var(--gold-lt), var(--gold), var(--gold-dim));
-      color: var(--navy);
-      border-radius: 10px;
-      font-size: 13.5px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-      text-transform: none;
-      box-shadow: 0 4px 16px rgba(201,168,76,0.3);
-      border: none;
+      display: none; /* Hide button on mobile as card is fully clickable link */
     }
-    .it-card-cta i { display: none; }
   }
 </style>
 
@@ -813,7 +800,13 @@
   </div>
 </section>
 
-
+<!-- ── Search ─────────────────────────────────────────── -->
+<div class="it-search-wrap">
+  <div class="it-search-box">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" id="it-search" onkeyup="filterCards(this.value)" placeholder="Search categories (e.g. Superhero, Freedom Fighter)...">
+  </div>
+</div>
 
 <!-- ── Filter Tabs ────────────────────────────────────── -->
 <div class="it-filters">
@@ -868,7 +861,7 @@
 
     </a>
     {% else %}
-    <div class="it-empty" style="display:flex">
+    <div class="it-empty" id="it-empty" style="display:none">
       <i class="fa-solid fa-box-open"></i>
       <p>No collections found. Please check back soon!</p>
     </div>
