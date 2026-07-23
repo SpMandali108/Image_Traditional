@@ -1216,7 +1216,7 @@
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 
 <!-- QR Code Modal -->
-<div class="modal fade" id="qrCodeModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="qrCodeModal" tabindex="-1">
   <div class="modal-dialog modal-sm modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -1234,7 +1234,7 @@
 </div>
 
 <!-- Availability Checker Modal -->
-<div class="modal fade" id="quickAvailabilityModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="quickAvailabilityModal" tabindex="-1">
   <div class="modal-dialog modal-md modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -1264,7 +1264,7 @@
 </div>
 
 <!-- Edit / New Booking Modal -->
-<div class="modal fade" id="editCustomerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+<div class="modal fade" id="editCustomerModal" tabindex="-1" data-bs-backdrop="static">
   <div class="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-sm-down">
     <div class="modal-content">
       <div class="modal-header">
@@ -1343,7 +1343,7 @@
 </div>
 
 <!-- Reassign Modal -->
-<div class="modal fade" id="reassignModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="reassignModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -1391,7 +1391,7 @@
 </div>
 
 <!-- Delete Booking Row Modal -->
-<div class="modal fade" id="deleteBookingRowModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="deleteBookingRowModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content" style="border-top: 4px solid var(--accent-danger);">
       <div class="modal-header">
@@ -1506,6 +1506,14 @@
     editModalObj     = new bootstrap.Modal(document.getElementById('editCustomerModal'));
     reassignModalObj = new bootstrap.Modal(document.getElementById('reassignModal'));
     deleteModalObj   = new bootstrap.Modal(document.getElementById('deleteBookingRowModal'));
+
+    document.querySelectorAll('.modal').forEach(modalEl => {
+      modalEl.addEventListener('hide.bs.modal', function () {
+        if (this.contains(document.activeElement)) {
+          document.activeElement.blur();
+        }
+      });
+    });
 
     const offcanvasEl = document.getElementById('customerOffcanvas');
     if (offcanvasEl) {
@@ -1766,6 +1774,7 @@
     const dateVal = block.querySelector('.modal-date-picker').value;
     const inp = row.querySelector('.booking-row-product');
     const code = inp.value.trim().toUpperCase();
+    const cleanCode = code.replace(/[^A-Z0-9]/g, '');
     const status = document.getElementById(`avail-status-${rowId}`);
     if (!dateVal || !code) {
       status.className = 'avail-indicator';
@@ -1775,7 +1784,10 @@
     }
     const others = block.querySelectorAll(`.booking-row-item:not(#${rowId})`);
     let isDup = false;
-    others.forEach(o => { if (o.querySelector('.booking-row-product')?.value.trim().toUpperCase() === code) isDup = true; });
+    others.forEach(o => {
+      const val = o.querySelector('.booking-row-product')?.value.trim().toUpperCase() || '';
+      if (cleanCode && val.replace(/[^A-Z0-9]/g, '') === cleanCode) isDup = true;
+    });
     if (isDup) {
       status.className = 'avail-indicator booked';
       status.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Duplicate on this date';
@@ -1793,7 +1805,8 @@
       fetch(url).then(r => r.json()).then(res => {
         let dup2 = false;
         block.querySelectorAll(`.booking-row-item:not(#${rowId})`).forEach(o => {
-          if (o.querySelector('.booking-row-product')?.value.trim().toUpperCase() === code) dup2 = true;
+          const val = o.querySelector('.booking-row-product')?.value.trim().toUpperCase() || '';
+          if (cleanCode && val.replace(/[^A-Z0-9]/g, '') === cleanCode) dup2 = true;
         });
         if (dup2) return;
         if (res.available) {
@@ -2250,5 +2263,6 @@
         document.querySelectorAll('.multi-select-button').forEach(b => b.classList.remove('active'));
       }
     });
+  })();
 </script>
 {% endblock %}

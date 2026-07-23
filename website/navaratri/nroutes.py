@@ -1495,7 +1495,7 @@ def download_customer():
             self.rect(0, 0, 210, 42, 'F')
             
             # Shop Logo
-            logo_path = os.path.join(os.path.dirname(__file__), "static", "Home_Img/favicon.png")
+            logo_path = os.path.join(current_app.root_path, "static", "Home_Img", "favicon.png")
             if os.path.exists(logo_path):
                 self.image(logo_path, 15, 10, 22)
             

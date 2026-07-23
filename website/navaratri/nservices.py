@@ -4,13 +4,41 @@ from website.navaratri.ncycle import get_selected_collection
 collection = LocalProxy(lambda: get_selected_collection())
 
 
+from datetime import datetime
 import re
+
+def normalize_product_code(code):
+    """Normalize product code by stripping hyphens, spaces, and converting to uppercase."""
+    if not code:
+        return ""
+    return re.sub(r'[^A-Z0-9]', '', str(code).strip().upper())
+
+def parse_date_tuple(date_input):
+    """Extract (year, month, day) tuple from various date string formats."""
+    if not date_input:
+        return None
+    s = str(date_input).strip()
+    for fmt in ("%d-%m-%y", "%d-%m-%Y", "%Y-%m-%d", "%d/%m/%y", "%d/%m/%Y", "%Y/%m/%d"):
+        try:
+            dt = datetime.strptime(s, fmt)
+            return (dt.year, dt.month, dt.day)
+        except ValueError:
+            pass
+    m = re.match(r'^(\d{1,4})[\-/](\d{1,2})[\-/](\d{1,4})$', s)
+    if m:
+        p1, p2, p3 = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        if p1 > 1000:
+            return (p1, p2, p3)
+        else:
+            yr = p3 if p3 > 100 else (2000 + p3 if p3 < 70 else 1900 + p3)
+            return (yr, p2, p1)
+    return None
 
 # ------------------ CONFLICT CHECK ------------------
 def check_booking_conflict(date, products, exclude_mobile=None):
     conflicts = []
+    target_date_tuple = parse_date_tuple(date)
 
-    # Support both 2-digit year ("24-10-25") and 4-digit year ("24-10-2025") key formats
     date_candidates = [date]
     try:
         parts = date.split('-')
@@ -32,7 +60,8 @@ def check_booking_conflict(date, products, exclude_mobile=None):
 
     for prod in products:
         prod_clean = str(prod).strip().upper()
-        if not prod_clean:
+        prod_norm = normalize_product_code(prod)
+        if not prod_norm:
             continue
 
         found_conflict = None
@@ -46,32 +75,31 @@ def check_booking_conflict(date, products, exclude_mobile=None):
                 continue
 
             for d_key, p_list in cust_bookings.items():
-                if d_key in valid_dates or str(d_key).strip() in valid_dates:
-                    if isinstance(p_list, list):
-                        for p in p_list:
-                            if str(p).strip().upper() == prod_clean:
-                                found_conflict = {
-                                    "product": prod_clean,
-                                    "date": date,
-                                    "customer_name": doc.get("Name", "Unknown"),
-                                    "customer_mobile": cust_mobile
-                                }
-                                break
-                    elif isinstance(p_list, str) and p_list.strip().upper() == prod_clean:
-                        found_conflict = {
-                            "product": prod_clean,
-                            "date": date,
-                            "customer_name": doc.get("Name", "Unknown"),
-                            "customer_mobile": cust_mobile
-                        }
-                        break
-                if found_conflict:
-                    break
-            if found_conflict:
-                break
+                d_key_str = str(d_key).strip()
+                date_matches = (d_key_str in valid_dates)
+                if not date_matches and target_date_tuple:
+                    k_tuple = parse_date_tuple(d_key_str)
+                    if k_tuple and k_tuple == target_date_tuple:
+                        date_matches = True
 
-        if found_conflict:
-            conflicts.append(found_conflict)
+                if date_matches:
+                    p_items = p_list if isinstance(p_list, list) else [p_list]
+                    for p in p_items:
+                        p_str = str(p).strip().upper()
+                        p_norm = normalize_product_code(p)
+                        if p_str == prod_clean or (prod_norm and prod_norm == p_norm):
+                            found_conflict = {
+                                "product": prod_clean or p_str,
+                                "date": date,
+                                "customer_name": doc.get("Name", "Unknown"),
+                                "customer_mobile": cust_mobile
+                            }
+                            break
+                    if found_conflict:
+                        break
+            if found_conflict:
+                conflicts.append(found_conflict)
+                break
 
     return len(conflicts) > 0, conflicts
 
