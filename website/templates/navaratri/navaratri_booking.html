@@ -1175,30 +1175,7 @@
 
       <!-- ── DASHBOARD VIEW (No Customer Selected) ─────────────────── -->
 
-      <!-- Cycle Stat Strip (KPIs) -->
-      <div class="stat-strip">
-        <div class="stat-chip">
-          <div class="stat-chip-icon"><i class="bi bi-people-fill"></i></div>
-          <div>
-            <div class="stat-chip-label">Customers</div>
-            <div class="stat-chip-value" id="statsCountCustomers">{{ stats.total_customers }}</div>
-          </div>
-        </div>
-        <div class="stat-chip is-success">
-          <div class="stat-chip-icon"><i class="bi bi-box-seam"></i></div>
-          <div>
-            <div class="stat-chip-label">Rented Costumes</div>
-            <div class="stat-chip-value">{{ stats.total_items }}</div>
-          </div>
-        </div>
-        <div class="stat-chip is-danger">
-          <div class="stat-chip-icon"><i class="bi bi-exclamation-circle"></i></div>
-          <div>
-            <div class="stat-chip-label">Total Receivables</div>
-            <div class="stat-chip-value">₹{{ stats.total_due }}</div>
-          </div>
-        </div>
-      </div>
+
 
       <!-- Availability Checker -->
       <div class="it-card">
@@ -2437,7 +2414,10 @@
     }
 
     function search() {
-      const q = (document.getElementById('customerSearchInput')?.value || '').toLowerCase().trim();
+      const qDesk = document.getElementById('customerSearchInput')?.value || '';
+      const qMob  = document.getElementById('mobileCustomerSearchInput')?.value || '';
+      const q = (qDesk || qMob || '').toLowerCase().trim();
+
       sessionStorage.setItem('it_search', q);
       sessionStorage.setItem('it_groups', JSON.stringify(selGroups));
       sessionStorage.setItem('it_refs',   JSON.stringify(selRefs));
@@ -2480,7 +2460,9 @@
 
     function updateClear() {
       const btn = document.getElementById('clearFiltersBtn');
-      const q   = document.getElementById('customerSearchInput')?.value || '';
+      const qDesk = document.getElementById('customerSearchInput')?.value || '';
+      const qMob  = document.getElementById('mobileCustomerSearchInput')?.value || '';
+      const q = qDesk || qMob;
       if (btn) btn.disabled = !(q || selGroups.length || selRefs.length);
     }
 
@@ -2500,7 +2482,10 @@
     });
 
     document.getElementById('clearFiltersBtn')?.addEventListener('click', () => {
-      document.getElementById('customerSearchInput').value = '';
+      const desk = document.getElementById('customerSearchInput');
+      const mob  = document.getElementById('mobileCustomerSearchInput');
+      if (desk) desk.value = '';
+      if (mob)  mob.value  = '';
       document.querySelectorAll('.group-checkbox, .reference-checkbox').forEach(c => c.checked = false);
       selGroups = []; selRefs = [];
       updateSummary('groupSummary', [], 'Group', 'Groups');
@@ -2511,12 +2496,28 @@
       search(); updateClear();
     });
 
-    document.getElementById('customerSearchInput')?.addEventListener('input', () => { search(); updateClear(); });
+    const deskInput = document.getElementById('customerSearchInput');
+    const mobInput  = document.getElementById('mobileCustomerSearchInput');
+
+    if (deskInput) {
+      deskInput.addEventListener('input', () => {
+        if (mobInput) mobInput.value = deskInput.value;
+        search(); updateClear();
+      });
+    }
+    if (mobInput) {
+      mobInput.addEventListener('input', () => {
+        if (deskInput) deskInput.value = mobInput.value;
+        search(); updateClear();
+      });
+    }
 
     // Restore search state
     const sq = sessionStorage.getItem('it_search');
-    if (sq !== null && document.getElementById('customerSearchInput'))
-      document.getElementById('customerSearchInput').value = sq;
+    if (sq !== null) {
+      if (deskInput) deskInput.value = sq;
+      if (mobInput)  mobInput.value  = sq;
+    }
     try {
       selGroups = JSON.parse(sessionStorage.getItem('it_groups') || '[]');
       selGroups.forEach(g => {
