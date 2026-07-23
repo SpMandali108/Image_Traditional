@@ -1,0 +1,2199 @@
+{% extends 'general/base.html' %}
+
+{% block title %}Booking Management | Image Traditional{% endblock %}
+
+{% block robots %}
+  <meta name="robots" content="noindex, nofollow">
+{% endblock %}  
+
+{% block logo_link %}
+<a href="/navaratri_admin" class="logo">
+    <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Image Traditional Logo">
+    <span class="logo-text">Image Traditional</span>
+</a>
+{% endblock %}
+
+{% block head %}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─── DESIGN SYSTEM & PALETTE ───────────────────────────────────── */
+    :root {
+      --bg-dark:       #060c17;
+      --bg-card:       rgba(14, 25, 44, 0.85);
+      --bg-card-hover: rgba(22, 38, 64, 0.95);
+      --bg-input:      #0a1424;
+      --border-color:  rgba(255, 255, 255, 0.08);
+      --border-gold:   rgba(201, 162, 39, 0.35);
+      
+      --gold-primary:   #c9a227;
+      --gold-light:     #f3d068;
+      --gold-glow:      rgba(201, 162, 39, 0.2);
+      
+      --text-main:     #e2e8f0;
+      --text-muted:    #64748b;
+      --text-dark:     #94a3b8;
+      
+      --accent-danger: #ef4444;
+      --accent-success:#10b981;
+      --accent-warning:#f59e0b;
+      --accent-info:   #3b82f6;
+
+      --r-lg: 20px;
+      --r-md: 14px;
+      --r-sm: 10px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      background: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(201, 162, 39, 0.07), transparent 35%),
+        radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.06), transparent 35%),
+        radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.03), transparent 50%);
+    }
+
+    .main-content { padding-top: 0 !important; overflow-x: hidden; }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(201, 162, 39, 0.3); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold-primary); }
+
+    /* ─── HERO HEADER ───────────────────────────────────────────────── */
+    .topline {
+      background: linear-gradient(180deg, rgba(14, 25, 44, 0.95) 0%, var(--bg-dark) 100%);
+      border-bottom: 1px solid var(--border-color);
+      padding: 22px 24px 0;
+      position: relative;
+      backdrop-filter: blur(12px);
+    }
+    .topline.has-customer {
+      padding-bottom: 20px;
+    }
+    .topline::after {
+      content: '';
+      position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-primary) 50%, transparent);
+      opacity: 0.6;
+    }
+    .topline-inner { max-width: 1400px; margin: 0 auto; }
+    .topline-row1 {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap; padding-bottom: 18px;
+    }
+    .topline.has-customer .topline-row1 {
+      padding-bottom: 0;
+    }
+    .topline-heading { display: flex; align-items: center; gap: 14px; }
+    .topline-badge {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: linear-gradient(145deg, rgba(201, 162, 39, 0.25), rgba(201, 162, 39, 0.05));
+      border: 1px solid var(--border-gold);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold-light); font-size: 1.3rem; flex-shrink: 0;
+      box-shadow: 0 0 20px var(--gold-glow);
+    }
+    .topline-eyebrow {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.16em; color: var(--gold-primary); margin-bottom: 2px;
+    }
+    .topline-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.65rem; font-weight: 700; color: #ffffff;
+      margin: 0; line-height: 1.1; letter-spacing: -0.01em;
+    }
+    .topline-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    /* Stat Chips (KPIs) */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      padding-bottom: 18px;
+      width: 100%;
+    }
+    .stat-chip {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      padding: 10px 20px 10px 12px;
+      width: 100%;
+      backdrop-filter: blur(10px);
+      transition: all 0.2s ease;
+    }
+    .stat-chip:hover { border-color: var(--border-gold); transform: translateY(-1px); }
+    .stat-chip-icon {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem; flex-shrink: 0;
+      background: rgba(201, 162, 39, 0.15); color: var(--gold-light);
+    }
+    .stat-chip.is-danger .stat-chip-icon { background: rgba(239, 68, 68, 0.15); color: var(--accent-danger); }
+    .stat-chip.is-success .stat-chip-icon { background: rgba(16, 185, 129, 0.15); color: var(--accent-success); }
+    .stat-chip-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+    .stat-chip-value { font-size: 1.05rem; font-weight: 800; color: #ffffff; line-height: 1.1; white-space: nowrap; }
+    .stat-chip.is-danger .stat-chip-value { color: var(--accent-danger); }
+    .stat-chip.is-success .stat-chip-value { color: var(--accent-success); }
+
+    /* ─── ACTIVE BOOKINGS OVERVIEW GRID ──────────────────────────────── */
+    .roster-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      padding: 20px 22px 26px;
+    }
+    .booking-row {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--r-md);
+      padding: 16px 18px;
+      transition: all 0.2s ease;
+      display: flex; flex-direction: column; gap: 12px;
+      cursor: pointer;
+      height: 100%;
+    }
+    .booking-row:hover { border-color: var(--gold-primary); background: var(--bg-card-hover); transform: translateY(-3px); }
+    .br-top { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .avatar-circle {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+      color: #060c17; font-weight: 800; font-size: 0.8rem;
+      border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .br-id { min-width: 0; flex: 1 1 auto; }
+    .br-name { font-weight: 800; color: #ffffff; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .br-mobile { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; }
+    .br-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .br-foot {
+      margin-top: auto;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; padding-top: 12px; border-top: 1px dashed var(--border-color); flex-wrap: wrap;
+    }
+
+    /* ─── MAIN LAYOUT ───────────────────────────────────────────────── */
+    .bm-layout {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 24px 60px;
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      width: 100%;
+    }
+    .bm-main { flex: 1 1 0%; min-width: 0; }
+    .bm-sidebar {
+      flex: 0 0 290px;
+      max-width: 290px;
+      min-width: 0;
+      --bs-offcanvas-width: 320px;
+      --bs-offcanvas-bg: #091322;
+      --bs-offcanvas-color: var(--text-main);
+      --bs-offcanvas-border-color: var(--border-color);
+    }
+    @media (min-width: 992px) {
+      .bm-sidebar { position: sticky; top: 20px; }
+    }
+
+    /* ─── SIDEBAR ROSTER ────────────────────────────────────────────── */
+    .roster-panel {
+      background: var(--bg-card);
+      border-radius: var(--r-lg);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(16px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 120px);
+    }
+    .roster-head {
+      padding: 16px 18px 8px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .roster-head-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+    }
+    .roster-head-title i { color: var(--gold-primary); }
+
+    .ledger-filters { padding: 8px 14px 12px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+
+    .ledger-search { position: relative; }
+    .ledger-search i {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: var(--gold-primary); font-size: 0.8rem; pointer-events: none;
+    }
+    .ledger-search input {
+      width: 100%;
+      padding: 9px 12px 9px 34px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: #ffffff;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .ledger-search input::placeholder { color: var(--text-muted); }
+    .ledger-search input:focus { border-color: var(--gold-primary); box-shadow: 0 0 0 3px var(--gold-glow); }
+
+    .multi-select-container { position: relative; }
+    .multi-select-button {
+      background: var(--bg-input); border: 1px solid var(--border-color);
+      color: var(--text-dark); padding: 0 14px; border-radius: 999px;
+      cursor: pointer; width: 100%; text-align: left;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.75rem; height: 34px; transition: all 0.2s ease;
+    }
+    .multi-select-button:hover, .multi-select-button.active { border-color: var(--gold-primary); box-shadow: 0 0 0 3px var(--gold-glow); }
+    .multi-select-arrow { transition: transform 0.2s ease; color: var(--gold-primary); font-size: 0.65rem; }
+    .multi-select-button.active .multi-select-arrow { transform: rotate(180deg); }
+    .multi-select-dropdown {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: #0d1a2d; border: 1px solid var(--border-gold);
+      border-radius: var(--r-md); box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      max-height: 200px; overflow-y: auto; z-index: 1050;
+      opacity: 0; visibility: hidden; transform: translateY(-6px);
+      transition: all 0.2s ease; padding: 6px;
+    }
+    .multi-select-dropdown.active { opacity: 1; visibility: visible; transform: translateY(0); }
+    .multi-select-option {
+      padding: 7px 10px; cursor: pointer; border-radius: 8px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.75rem; color: var(--text-main); transition: background 0.15s;
+    }
+    .multi-select-option:hover { background: rgba(201, 162, 39, 0.12); }
+    .multi-select-option input[type="checkbox"] { accent-color: var(--gold-primary); width: 14px; height: 14px; cursor: pointer; }
+    .multi-select-option label { cursor: pointer; margin: 0; }
+
+    #clearFiltersBtn {
+      background: transparent; color: var(--accent-danger);
+      border: 1px dashed rgba(239, 68, 68, 0.35); height: 32px;
+      font-size: 0.72rem; font-weight: 600; border-radius: 999px;
+      padding: 0 12px; cursor: pointer; transition: all 0.2s ease; width: 100%;
+    }
+    #clearFiltersBtn:hover:not(:disabled) { background: rgba(239, 68, 68, 0.1); border-style: solid; }
+    #clearFiltersBtn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .ledger-list { overflow-y: auto; flex: 1; padding: 4px 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+    .ledger-entry {
+      border-radius: var(--r-md);
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      padding: 11px 13px;
+      cursor: pointer;
+      display: flex; align-items: flex-start; gap: 12px;
+      text-decoration: none; color: inherit;
+      transition: all 0.2s ease;
+    }
+    .ledger-entry:hover { border-color: var(--border-gold); transform: translateX(3px); background: rgba(201, 162, 39, 0.05); }
+    .ledger-entry.active { border-color: var(--gold-primary); background: rgba(201, 162, 39, 0.12); box-shadow: 0 0 15px var(--gold-glow); }
+    .ledger-entry-avatar {
+      width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px;
+      background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 800; color: #060c17;
+      box-shadow: 0 4px 10px rgba(201, 162, 39, 0.3);
+    }
+    .ledger-entry-body { flex: 1; min-width: 0; }
+    .le-name { font-weight: 700; color: #ffffff; font-size: 0.85rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .le-meta { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); gap: 6px; }
+    .le-due { color: var(--accent-danger); font-weight: 700; }
+    .le-paid { color: var(--accent-success); font-weight: 700; }
+    .le-tags { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+    .le-tag {
+      font-size: 0.62rem; background: rgba(255, 255, 255, 0.05); color: var(--text-dark);
+      border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 20px;
+    }
+
+    /* ─── CARD SYSTEM ───────────────────────────────────────────────── */
+    .it-card {
+      background: var(--bg-card);
+      border-radius: var(--r-lg);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(16px);
+      overflow: hidden;
+      margin-bottom: 22px;
+      box-shadow: 0 16px 40px -20px rgba(0,0,0,0.7);
+    }
+    .it-card-header {
+      padding: 16px 22px;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px; flex-wrap: wrap;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .it-card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.75rem; font-weight: 700; color: var(--gold-primary);
+      text-transform: uppercase; letter-spacing: 0.14em;
+      display: flex; align-items: center; gap: 10px; margin: 0;
+    }
+    .it-card-title i {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: rgba(201, 162, 39, 0.15); display: inline-flex;
+      align-items: center; justify-content: center; font-size: 0.88rem;
+    }
+    .it-card-body { padding: 22px; }
+    .it-card-body-flush { padding: 0; }
+
+    /* ─── DOSSIER HEADER ────────────────────────────────────────────── */
+    .profile-header-card {
+      background: linear-gradient(135deg, rgba(14, 25, 44, 0.9), rgba(22, 38, 64, 0.85));
+      border-radius: var(--r-lg);
+      border: 1px solid var(--border-gold);
+      backdrop-filter: blur(20px);
+      overflow: hidden;
+      margin-bottom: 22px;
+      position: relative;
+      box-shadow: 0 20px 45px -15px rgba(0,0,0,0.8);
+    }
+    .profile-header-card::before {
+      content: '';
+      position: absolute; top: -50px; right: -50px; width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(201, 162, 39, 0.18), transparent 70%);
+      pointer-events: none;
+    }
+    .phc-top {
+      display: flex; align-items: center; gap: 20px;
+      padding: 24px 26px; flex-wrap: wrap; position: relative;
+    }
+    .phc-avatar {
+      width: 64px; height: 64px; border-radius: 18px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+      color: #060c17;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 1.35rem;
+      box-shadow: 0 10px 25px -5px rgba(201, 162, 39, 0.5);
+    }
+    .phc-id { flex: 1 1 auto; min-width: 160px; }
+    .phc-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; font-weight: 700;
+      color: #ffffff; margin: 0; line-height: 1.2;
+    }
+    .phc-mobile {
+      font-size: 0.82rem; color: var(--gold-light);
+      font-family: monospace; margin-top: 6px;
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(6, 12, 23, 0.6); padding: 4px 12px; border-radius: 999px;
+      border: 1px solid var(--border-color);
+    }
+    .phc-balance {
+      padding: 12px 22px; border-radius: var(--r-md); text-align: center; flex-shrink: 0;
+      margin-left: auto; backdrop-filter: blur(10px);
+    }
+    .phc-balance-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.9; }
+    .phc-balance-value { font-size: 1.25rem; font-weight: 800; white-space: nowrap; margin-top: 2px; }
+    .phc-balance.due  { background: rgba(239, 68, 68, 0.12);  border: 1px solid rgba(239, 68, 68, 0.3);  color: var(--accent-danger); }
+    .phc-balance.paid { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--accent-success); }
+
+    .phc-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      padding: 0 26px 24px;
+      position: relative;
+    }
+    .phc-meta-item {
+      background: rgba(6, 12, 23, 0.45);
+      border: 1px solid var(--border-color);
+      border-radius: var(--r-sm);
+      padding: 10px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .pil-label {
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--gold-primary); margin-bottom: 4px;
+    }
+    .pil-value { font-weight: 600; color: var(--text-main); font-size: 0.85rem; word-break: break-word; }
+
+    /* ─── RESERVED ITEMS TIMELINE ────────────────────────────────────── */
+    #bookingTable { position: relative; padding: 20px 22px; }
+    #bookingTable::before {
+      content: '';
+      position: absolute; top: 20px; bottom: 30px; left: 41px;
+      width: 2px; background: rgba(255, 255, 255, 0.08);
+    }
+    .item-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 28px minmax(95px, auto) 1fr auto auto;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--r-md);
+      margin-bottom: 10px;
+      transition: all 0.2s ease;
+    }
+    .item-row:hover { border-color: var(--border-gold); background: var(--bg-card-hover); }
+    .item-row::before {
+      content: '';
+      width: 11px; height: 11px; border-radius: 50%;
+      background: var(--gold-primary); box-shadow: 0 0 10px var(--gold-primary);
+      justify-self: center; z-index: 1;
+    }
+    .ir-date {
+      font-weight: 700; color: var(--gold-light); font-size: 0.78rem;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap;
+    }
+    .ir-product { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .ir-thumb {
+      width: 42px; height: 42px; object-fit: cover;
+      border-radius: 10px; background: #000; flex-shrink: 0;
+      border: 1px solid var(--border-color);
+    }
+    .ir-thumb:hover { transform: scale(1.12); }
+    .ir-code { font-size: 0.8rem; padding: 4px 10px; white-space: nowrap; font-family: monospace; }
+    .ir-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    @media (max-width: 767.98px) {
+      .item-row {
+        grid-template-columns: 30px 1fr;
+        grid-template-rows: auto auto auto;
+        row-gap: 8px;
+      }
+      #bookingTable::before { left: 28px; }
+      .ir-date { grid-column: 2; grid-row: 1; }
+      .ir-product { grid-column: 2; grid-row: 2; }
+      .ir-status { grid-column: 2; grid-row: 3; }
+      .ir-actions { grid-column: 2; grid-row: 4; justify-self: start; }
+    }
+
+    /* ─── FINANCIAL SUMMARY & PAYMENT ───────────────────────────────── */
+    .pay-summary {
+      background: rgba(6, 12, 23, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: var(--r-md);
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+    .pay-block-title {
+      font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em;
+      font-weight: 700; color: var(--gold-primary); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .pay-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px dashed var(--border-color);
+      font-size: 0.85rem; color: var(--text-dark); flex-wrap: wrap; gap: 6px;
+    }
+    .pay-row:last-child { border-bottom: none; }
+    .pay-row.remaining-due {
+      background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25);
+      padding: 12px 16px; border-radius: var(--r-sm); margin-top: 8px;
+    }
+    .pay-row.payment-complete {
+      background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 12px 16px; border-radius: var(--r-sm); margin-top: 8px;
+    }
+    .progress-track { background: var(--bg-input); height: 8px; border-radius: 999px; overflow: hidden; margin-top: 16px; border: 1px solid var(--border-color); }
+    .progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--gold-primary), var(--gold-light)); transition: width 0.5s ease; }
+    
+    .collect-payment-form {
+      background: rgba(201, 162, 39, 0.05);
+      border: 1.5px dashed var(--border-gold);
+      border-radius: var(--r-md); padding: 16px;
+    }
+
+    /* ─── BUTTON STYLES ─────────────────────────────────────────────── */
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-light) 100%);
+      color: #060c17; font-weight: 700; font-size: 0.82rem; border: none;
+      border-radius: 999px; padding: 10px 22px; transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(201, 162, 39, 0.3);
+    }
+    .btn-gold:hover { box-shadow: 0 8px 25px rgba(201, 162, 39, 0.5); transform: translateY(-1px); color: #060c17; }
+    
+    .btn-ghost-gold {
+      background: transparent; color: var(--gold-light);
+      border: 1px solid var(--border-gold); font-weight: 600;
+      font-size: 0.82rem; border-radius: 999px; padding: 9px 20px; transition: all 0.2s ease;
+    }
+    .btn-ghost-gold:hover { background: var(--gold-glow); color: #ffffff; border-color: var(--gold-light); }
+    
+    .btn-ghost-light {
+      background: transparent; color: var(--text-dark); border: 1px solid var(--border-color);
+      font-weight: 600; font-size: 0.82rem; border-radius: 999px; padding: 9px 20px; transition: all 0.2s ease;
+    }
+    .btn-ghost-light:hover { background: rgba(255, 255, 255, 0.08); color: #ffffff; }
+
+    .btn-ghost-danger {
+      background: transparent; color: var(--accent-danger);
+      border: 1px solid rgba(239, 68, 68, 0.35); font-weight: 600;
+      font-size: 0.82rem; border-radius: 999px; padding: 8px 18px; transition: all 0.2s ease;
+    }
+    .btn-ghost-danger:hover { background: rgba(239, 68, 68, 0.12); color: #ff8080; }
+
+    .btn-ghost-success {
+      background: transparent; color: var(--accent-success);
+      border: 1px solid rgba(16, 185, 129, 0.35); font-weight: 600;
+      font-size: 0.82rem; border-radius: 999px; padding: 9px 20px; transition: all 0.2s ease;
+    }
+    .btn-ghost-success:hover { background: rgba(16, 185, 129, 0.12); color: #4ade80; }
+
+    .btn-solid-success {
+      background: var(--accent-success); color: #ffffff; border: none;
+      font-weight: 700; font-size: 0.82rem; border-radius: 999px; padding: 9px 22px;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+    .btn-solid-success:hover { background: #059669; color: #ffffff; }
+
+    .btn-solid-danger {
+      background: var(--accent-danger); color: #ffffff; border: none;
+      font-weight: 700; font-size: 0.82rem; border-radius: 999px; padding: 9px 22px;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
+    .btn-solid-danger:hover { background: #dc2626; color: #ffffff; }
+
+    /* ─── FORM CONTROLS ─────────────────────────────────────────────── */
+    .form-control, .form-select {
+      background: var(--bg-input); border: 1px solid var(--border-color);
+      color: #ffffff; border-radius: var(--r-sm); font-size: 0.84rem;
+      padding: 9px 14px; transition: all 0.2s ease;
+    }
+    .form-control::placeholder { color: var(--text-muted); }
+    .form-control:focus, .form-select:focus {
+      background: var(--bg-input); border-color: var(--gold-primary);
+      color: #ffffff; box-shadow: 0 0 0 3px var(--gold-glow); outline: none;
+    }
+    .form-label { color: var(--text-muted); font-size: 0.76rem; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 6px; }
+    .input-group-text { background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border-color); color: var(--gold-primary); font-weight: 700; }
+    
+    .input-check-valid   { border-color: var(--accent-success) !important; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important; }
+    .input-check-invalid { border-color: var(--accent-danger)  !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15)  !important; color: #ff9090 !important; }
+
+    /* ─── BADGES ─────────────────────────────────────────────────────── */
+    .badge-gold {
+      background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+      color: #060c17; font-weight: 800; font-size: 0.68rem;
+      padding: 4px 12px; border-radius: 999px; letter-spacing: 0.03em;
+    }
+    .badge-navy {
+      background: rgba(6, 12, 23, 0.6); color: var(--text-dark);
+      border: 1px solid var(--border-color); font-size: 0.7rem;
+      padding: 4px 12px; border-radius: 999px;
+    }
+    .badge-status {
+      padding: 5px 12px; border-radius: 999px; font-size: 0.72rem; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+    }
+    .badge-status.inside   { background: rgba(16, 185, 129, 0.12); color: var(--accent-success); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-status.outside  { background: rgba(59, 130, 246, 0.12); color: var(--accent-info);    border: 1px solid rgba(59, 130, 246, 0.3); }
+    .badge-status.ambiguity{ background: rgba(245, 158, 11, 0.12); color: var(--accent-warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    .avail-indicator {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.7rem; font-weight: 700; padding: 4px 10px;
+      border-radius: 999px; border: 1px solid transparent;
+    }
+    .avail-indicator.checking  { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border-color: var(--border-color); }
+    .avail-indicator.available { background: rgba(16, 185, 129, 0.12); color: var(--accent-success); border-color: rgba(16, 185, 129, 0.3); }
+    .avail-indicator.booked    { background: rgba(239, 68, 68, 0.12);  color: var(--accent-danger);  border-color: rgba(239, 68, 68, 0.3); }
+
+    /* ─── ACTIVE BOOKINGS OVERVIEW GRID ──────────────────────────────── */
+    .roster-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+      padding: 16px 22px 24px;
+    }
+    .booking-row {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--r-md);
+      padding: 16px 18px;
+      transition: all 0.2s ease;
+      display: flex; flex-direction: column; gap: 12px;
+      cursor: pointer;
+    }
+    .booking-row:hover { border-color: var(--gold-primary); background: var(--bg-card-hover); transform: translateY(-3px); }
+    .br-top { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .avatar-circle {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+      color: #060c17; font-weight: 800; font-size: 0.8rem;
+      border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .br-id { min-width: 0; flex: 1 1 auto; }
+    .br-name { font-weight: 800; color: #ffffff; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .br-mobile { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; }
+    .br-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .br-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; padding-top: 12px; border-top: 1px dashed var(--border-color); flex-wrap: wrap;
+    }
+    .br-amount { font-size: 0.78rem; color: var(--text-muted); }
+    .br-amount b { color: #ffffff; }
+
+    /* ─── MODAL ──────────────────────────────────────────────────────── */
+    .modal-content {
+      background: #091322;
+      border: 1px solid var(--border-gold);
+      border-radius: var(--r-lg);
+      color: var(--text-main);
+      overflow: hidden;
+      box-shadow: 0 35px 70px -20px rgba(0,0,0,0.9);
+    }
+    .modal-header {
+      background: linear-gradient(90deg, #0e192c, #162640);
+      border-bottom: 1px solid var(--border-color);
+      padding: 20px 24px;
+    }
+    .modal-title { color: var(--gold-light); font-weight: 700; font-size: 1rem; font-family: 'Outfit', sans-serif; }
+    .modal-body { padding: 24px; }
+    .modal-footer { background: var(--bg-dark); border-top: 1px solid var(--border-color); padding: 16px 24px; }
+    .modal-section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em;
+      font-weight: 700; color: var(--gold-primary); border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 8px; margin-bottom: 16px;
+    }
+    .modal-date-block {
+      background: var(--bg-input); border: 1px solid var(--border-color);
+      border-radius: var(--r-md);
+      padding: 14px 16px; margin-bottom: 14px; transition: border-color 0.2s;
+    }
+    .product-dropzone {
+      min-height: 48px; background: rgba(6, 12, 23, 0.4);
+      border: 1.5px dashed var(--border-color); border-radius: var(--r-sm);
+      padding: 8px; margin-bottom: 10px; transition: all 0.2s ease;
+    }
+    .product-dropzone.drag-over {
+      background: rgba(201, 162, 39, 0.08); border-color: var(--gold-primary); border-style: solid;
+    }
+    .booking-row-item {
+      background: rgba(22, 38, 64, 0.8); border: 1px solid var(--border-color);
+      border-radius: 999px; padding: 6px 14px; margin-bottom: 6px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      cursor: grab; transition: all 0.2s ease;
+    }
+    .booking-row-item:hover { border-color: var(--gold-primary); }
+    .booking-row-item:active { cursor: grabbing; }
+    .booking-row-item.dragging { opacity: 0.3; border: 2px dashed var(--gold-primary) !important; }
+    .modal-product-thumbnail {
+      width: 32px; height: 32px; object-fit: cover;
+      border-radius: 8px; background: #000; transition: transform 0.15s; flex-shrink: 0;
+    }
+    .drag-handle { color: var(--text-muted); padding: 0 4px; font-size: 1.1rem; }
+
+    /* ─── TOAST ──────────────────────────────────────────────────────── */
+    #toast-container {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 10px;
+      max-width: calc(100vw - 48px);
+    }
+    .toast-message {
+      min-width: 300px; max-width: 380px;
+      background: #0e192c; border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent-success); border-radius: var(--r-sm);
+      padding: 14px 18px; display: flex; justify-content: space-between;
+      align-items: center; box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+      transform: translateX(30px); opacity: 0;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .toast-message.show { transform: translateX(0); opacity: 1; }
+    .toast-message.error { border-left-color: var(--accent-danger); }
+    .toast-message.info  { border-left-color: var(--accent-info); }
+    .toast-content { display: flex; align-items: center; gap: 10px; }
+    .toast-text { font-weight: 600; color: #ffffff; font-size: 0.85rem; }
+    .toast-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0; }
+    .toast-close:hover { color: #ffffff; }
+
+    /* ─── RESPONSIVE RULES ──────────────────────────────────────────── */
+    @media (max-width: 991.98px) {
+      .bm-layout { flex-direction: column; padding: 16px 16px 50px; gap: 16px; }
+      .topline { padding: 20px 16px 0; }
+      .topline-title { font-size: 1.35rem; }
+    }
+    @media (max-width: 768px) {
+      .phc-top { padding: 18px; gap: 14px; }
+      .phc-avatar { width: 50px; height: 50px; font-size: 1.1rem; border-radius: 14px; }
+      .phc-name { font-size: 1.25rem; }
+      .phc-balance { width: 100%; margin-left: 0; text-align: left; display: flex; align-items: center; justify-content: space-between; }
+      .stat-chip-value { font-size: 0.95rem; }
+      .roster-grid { grid-template-columns: 1fr; padding: 12px 14px 18px; }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- TOPLINE — HERO HEADER                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+{% if not customer %}
+  {% set stats = namespace(total_customers=bookings|length, total_items=0, total_due=0) %}
+  {% for cust in bookings %}
+    {% set stats.total_due = stats.total_due + cust.remaining %}
+    {% if cust.bookings %}
+      {% for d, items in cust.bookings.items() %}
+        {% set stats.total_items = stats.total_items + items|length %}
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+<div class="topline {% if customer %}has-customer{% endif %}">
+  <div class="topline-inner">
+
+    <div class="topline-row1">
+      <div class="topline-heading">
+        <div class="topline-badge"><i class="bi bi-journal-bookmark-fill"></i></div>
+        <div>
+          <div class="topline-eyebrow">Navaratri Cycle · Image Traditional</div>
+          <h1 class="topline-title">Booking Management</h1>
+        </div>
+      </div>
+
+      <div class="topline-actions">
+        <button class="btn btn-ghost-light btn-sm d-lg-none" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#customerOffcanvas" aria-controls="customerOffcanvas">
+          <i class="bi bi-people-fill me-1"></i> Customers
+          <span class="badge-gold ms-1">{{ bookings|length }}</span>
+        </button>
+        <button class="btn btn-ghost-gold btn-sm" onclick="openWidgetAvailabilityModal()">
+          <i class="bi bi-calendar-check-fill me-1"></i> Live Availability
+        </button>
+        <button class="btn btn-gold btn-sm" onclick="openNewCustomerModal()">
+          <i class="bi bi-person-plus-fill me-1"></i> New Booking
+        </button>
+      </div>
+    </div>
+
+    {% if not customer %}
+    <div class="stat-strip">
+      <div class="stat-chip">
+        <div class="stat-chip-icon"><i class="bi bi-people-fill"></i></div>
+        <div>
+          <div class="stat-chip-label">Customers</div>
+          <div class="stat-chip-value" id="statsCountCustomers">{{ stats.total_customers }}</div>
+        </div>
+      </div>
+      <div class="stat-chip is-success">
+        <div class="stat-chip-icon"><i class="bi bi-box-seam"></i></div>
+        <div>
+          <div class="stat-chip-label">Rented Costumes</div>
+          <div class="stat-chip-value">{{ stats.total_items }}</div>
+        </div>
+      </div>
+      <div class="stat-chip is-danger">
+        <div class="stat-chip-icon"><i class="bi bi-exclamation-circle"></i></div>
+        <div>
+          <div class="stat-chip-label">Total Receivables</div>
+          <div class="stat-chip-value">₹{{ stats.total_due }}</div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- MAIN LAYOUT                                                        -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="bm-layout">
+
+  <!-- ── SIDEBAR — ROSTER ──────────────────────────────────────────── -->
+  <div class="offcanvas offcanvas-start offcanvas-lg bm-sidebar" tabindex="-1" id="customerOffcanvas" aria-labelledby="customerOffcanvasLabel">
+
+    <div class="offcanvas-header d-lg-none border-bottom border-secondary">
+      <h5 class="roster-head-title m-0" id="customerOffcanvasLabel">
+        <i class="bi bi-person-lines-fill"></i> Customer Register
+      </h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body p-0">
+      <div class="roster-panel">
+
+        <div class="roster-head d-none d-lg-flex">
+          <div class="roster-head-title">
+            <i class="bi bi-person-lines-fill"></i> Customer Register
+          </div>
+          <span class="badge-gold" id="customerCountBadge">{{ bookings|length }}</span>
+        </div>
+
+        <div class="ledger-filters">
+          <div class="ledger-search">
+            <i class="bi bi-search"></i>
+            <input type="text" id="customerSearchInput" placeholder="Name, mobile, group…">
+          </div>
+
+          <div class="multi-select-container">
+            <div class="multi-select-button" id="groupFilterButton">
+              <span class="multi-select-summary" id="groupSummary">All Groups</span>
+              <i class="bi bi-chevron-down multi-select-arrow"></i>
+            </div>
+            <div class="multi-select-dropdown" id="groupDropdown">
+              {% set groups = [] %}
+              {% for b in bookings %}
+                {% set grp = b.get("group", "N/A") %}
+                {% if grp and grp not in groups %}{% set _ = groups.append(grp) %}{% endif %}
+              {% endfor %}
+              {% for grp in groups|sort %}
+              <div class="multi-select-option">
+                <input type="checkbox" id="sidebar-group-chk-{{ loop.index }}" value="{{ grp }}" class="group-checkbox">
+                <label for="sidebar-group-chk-{{ loop.index }}">{{ grp }}</label>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="multi-select-container">
+            <div class="multi-select-button" id="referenceFilterButton">
+              <span class="multi-select-summary" id="referenceSummary">All References</span>
+              <i class="bi bi-chevron-down multi-select-arrow"></i>
+            </div>
+            <div class="multi-select-dropdown" id="referenceDropdown">
+              {% set references = [] %}
+              {% for b in bookings %}
+                {% set ref = b.get("reference", "") %}
+                {% if ref and ref not in references %}{% set _ = references.append(ref) %}{% endif %}
+              {% endfor %}
+              {% for ref in references|sort %}
+              <div class="multi-select-option">
+                <input type="checkbox" id="sidebar-ref-chk-{{ loop.index }}" value="{{ ref }}" class="reference-checkbox">
+                <label for="sidebar-ref-chk-{{ loop.index }}">{{ ref }}</label>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <button id="clearFiltersBtn" disabled>
+            <i class="bi bi-x-circle me-1"></i> Clear Filters
+          </button>
+        </div>
+
+        <!-- Customer list -->
+        <div class="ledger-list" id="customerListContainer">
+          {% for cust in bookings|sort(attribute='Name') %}
+            <a href="{{ url_for('navaratri.navaratri_booking', customer_id=cust._id|string) }}"
+               class="ledger-entry {% if customer and customer._id|string == cust._id|string %}active{% endif %}"
+               data-name="{{ cust.Name|lower }}"
+               data-mobile="{{ cust.mobile }}"
+               data-group="{{ cust.group|lower if cust.group else '' }}"
+               data-reference="{{ cust.reference|lower if cust.reference else '' }}">
+              <div class="ledger-entry-avatar">{{ cust.Name[:2].upper() }}</div>
+              <div class="ledger-entry-body">
+                <span class="le-name">{{ cust.Name }}</span>
+                <div class="le-meta">
+                  <span><i class="bi bi-phone me-1"></i>{{ cust.mobile }}</span>
+                  {% if cust.remaining > 0 %}
+                    <span class="le-due">₹{{ cust.remaining }}</span>
+                  {% else %}
+                    <span class="le-paid"><i class="bi bi-check-circle-fill me-1"></i>Paid</span>
+                  {% endif %}
+                </div>
+                {% if cust.group or cust.reference %}
+                  <div class="le-tags">
+                    {% if cust.group %}<span class="le-tag"><i class="bi bi-people-fill me-1"></i>{{ cust.group }}</span>{% endif %}
+                    {% if cust.reference %}<span class="le-tag">{{ cust.reference }}</span>{% endif %}
+                  </div>
+                {% endif %}
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAIN CONTENT ─────────────────────────────────────────────── -->
+  <div class="bm-main">
+
+    {% if customer %}
+
+      <!-- ── DOSSIER HEADER ───────────────────────────────────────── -->
+      <div class="profile-header-card">
+        <div class="phc-top">
+          <div class="phc-avatar">{{ customer.Name[:2].upper() }}</div>
+          <div class="phc-id">
+            <h2 class="phc-name" id="disp-name">{{ customer.Name }}</h2>
+            <div class="phc-mobile"><i class="bi bi-phone-fill"></i> {{ customer.mobile }}</div>
+          </div>
+          <div class="phc-balance {% if customer.remaining > 0 %}due{% else %}paid{% endif %}">
+            <div class="phc-balance-label">{% if customer.remaining > 0 %}Balance Due{% else %}Status{% endif %}</div>
+            <div class="phc-balance-value">
+              {% if customer.remaining > 0 %}₹{{ customer.remaining }}{% else %}<i class="bi bi-patch-check-fill"></i> Paid{% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="phc-meta-grid">
+          <div class="phc-meta-item">
+            <div class="pil-label">Group / Org</div>
+            <div class="pil-value" id="disp-group">{{ customer.group or '—' }}</div>
+          </div>
+          <div class="phc-meta-item">
+            <div class="pil-label">Reference Person</div>
+            <div class="pil-value" id="disp-reference">{{ customer.reference or '—' }}</div>
+          </div>
+          <div class="phc-meta-item">
+            <div class="pil-label">Address</div>
+            <div class="pil-value" id="disp-address">{{ customer.address or 'Not provided' }}</div>
+          </div>
+          <div class="phc-meta-item">
+            <div class="pil-label">Security Deposit</div>
+            <div class="pil-value" id="disp-deposit">{{ customer.deposit or '—' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PROFILE CONTENT GRID ────────────────────────────────── -->
+      <div class="row g-3">
+
+        <!-- Left: Financials + Actions -->
+        <div class="col-xl-5 col-lg-12">
+          <div class="it-card">
+            <div class="it-card-header">
+              <h3 class="it-card-title"><i class="bi bi-credit-card-2-back-fill"></i> Financial Overview</h3>
+              <span class="badge-navy">
+                {% set pct = (customer.given_price / customer.total_price * 100) if customer.total_price > 0 else 0 %}
+                {{ "%.0f"|format(pct) }}% collected
+              </span>
+            </div>
+            <div class="it-card-body">
+
+              <div class="pay-summary">
+                <div class="pay-block-title"><i class="bi bi-receipt me-1"></i> Invoice Breakdown</div>
+                <div class="pay-row">
+                  <span>Total Invoice</span>
+                  <span class="fw-bold" style="color:var(--gold-light);" id="disp-total">₹{{ customer.total_price }}</span>
+                </div>
+                <div class="pay-row">
+                  <span>Amount Received</span>
+                  <span class="fw-bold" style="color:var(--accent-success)" id="disp-given">₹{{ customer.given_price }}</span>
+                </div>
+
+                {% if customer.remaining > 0 %}
+                  <div class="pay-row remaining-due">
+                    <span class="fw-bold" style="color:var(--accent-danger)">Balance Due</span>
+                    <span class="fw-bold" style="color:var(--accent-danger)" id="disp-remaining">₹{{ customer.remaining }}</span>
+                  </div>
+                {% else %}
+                  <div class="pay-row payment-complete">
+                    <span class="fw-bold" style="color:var(--accent-success)"><i class="bi bi-patch-check-fill me-1"></i>Paid in Full</span>
+                    <span class="fw-bold" style="color:var(--accent-success)">₹0</span>
+                  </div>
+                {% endif %}
+
+                <div class="progress-track">
+                  <div class="progress-fill" id="disp-progress-fill" style="width:{{ pct }}%"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-2" style="font-size:0.72rem; color:var(--text-muted);">
+                  <span>Collection Status</span>
+                  <span id="disp-percentage">{{ "%.1f"|format(pct) }}%</span>
+                </div>
+              </div>
+
+              {% if customer.remaining > 0 %}
+                <div class="collect-payment-form mb-3">
+                  <div class="form-label mb-2 fw-bold text-light"><i class="bi bi-cash-stack me-1"></i> Collect Payment</div>
+                  <form id="addPaymentForm" class="d-flex gap-2 m-0 flex-wrap" onsubmit="submitAddPayment(event, '{{ customer._id|string }}')">
+                    <div class="input-group input-group-sm flex-grow-1" style="min-width:140px;">
+                      <span class="input-group-text">₹</span>
+                      <input type="number" id="paymentAmountInput" name="amount" class="form-control"
+                             placeholder="Amount" max="{{ customer.remaining }}" min="1" required>
+                    </div>
+                    <button type="submit" class="btn btn-solid-success btn-sm fw-bold text-nowrap" id="paymentSubmitBtn">
+                      <i class="bi bi-plus-circle me-1"></i>Add
+                    </button>
+                  </form>
+                </div>
+              {% endif %}
+
+              <!-- Action buttons -->
+              <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-gold flex-fill" onclick="openEditModal()">
+                  <i class="bi bi-pencil-square me-1"></i> Edit Booking
+                </button>
+                <form method="POST" action="{{ url_for('navaratri.download_customer') }}" class="m-0 flex-fill">
+                  <input type="hidden" name="mobile" value="{{ customer.mobile }}">
+                  <button type="submit" class="btn btn-ghost-success w-100 fw-bold">
+                    <i class="bi bi-file-earmark-pdf-fill me-1"></i> Bill PDF
+                  </button>
+                </form>
+              </div>
+              <button class="btn btn-ghost-light w-100 mt-2" onclick="openQrModal('{{ customer.mobile }}')">
+                <i class="bi bi-qr-code me-1"></i> View QR Code
+              </button>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Reserved Items Timeline -->
+        <div class="col-xl-7 col-lg-12">
+          <div class="it-card">
+            <div class="it-card-header">
+              <h3 class="it-card-title"><i class="bi bi-calendar-check-fill"></i> Reserved Items Timeline</h3>
+              <span class="badge-gold" id="disp-booking-count">
+                {% set total_prods = namespace(val=0) %}
+                {% for date, items in customer.bookings.items() %}
+                  {% set total_prods.val = total_prods.val + items|length %}
+                {% endfor %}
+                {{ total_prods.val }} Item(s)
+              </span>
+            </div>
+            <div class="it-card-body-flush">
+
+              <div id="bookingTable">
+                {% if customer.bookings %}
+                  {% for date, items in customer.bookings.items() %}
+                    {% for item in items %}
+                      <div class="item-row" data-date="{{ date }}" data-product="{{ item }}">
+                        <div class="ir-date"><i class="bi bi-calendar3 me-1"></i>{{ date }}</div>
+                        <div class="ir-product">
+                          {% if item and item|upper|first == 'K' %}
+                            <img src="/static/Kediya/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png';this.style.opacity=0.4;" class="ir-thumb">
+                          {% else %}
+                            <img src="/static/Choli/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png';this.style.opacity=0.4;" class="ir-thumb">
+                          {% endif %}
+                          <a href="{{ url_for('navaratri.code_detail', code=item) }}"
+                             class="badge-navy text-decoration-none font-monospace fw-bold ir-code">
+                            {{ item }}
+                          </a>
+                        </div>
+                        <div class="ir-status">
+                          <span class="badge-status inside" data-product-status="{{ item }}">
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Loading…
+                          </span>
+                        </div>
+                        <div class="ir-actions">
+                          <button type="button" class="btn btn-ghost-light btn-sm" title="Reassign"
+                                  onclick="quickReassign('{{ date }}', '{{ item }}')">
+                            <i class="bi bi-arrow-left-right me-1"></i>Reassign
+                          </button>
+                          <button type="button" class="btn btn-ghost-danger btn-sm" title="Delete"
+                                  onclick="quickDeleteBookingRow('{{ date }}', '{{ item }}')">
+                            <i class="bi bi-trash3-fill me-1"></i>Delete
+                          </button>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  {% endfor %}
+                {% else %}
+                  <div class="text-center py-5 text-muted">
+                    <i class="bi bi-box-seam display-4 d-block mb-3" style="color: var(--border-color)"></i>
+                    No reserved products for this customer.
+                  </div>
+                {% endif %}
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    {% else %}
+
+      <!-- ── DASHBOARD VIEW (No Customer Selected) ─────────────────── -->
+
+      <!-- Availability Checker -->
+      <div class="it-card">
+        <div class="it-card-header">
+          <h3 class="it-card-title"><i class="bi bi-search-heart-fill"></i> Live Costume Availability Checker</h3>
+        </div>
+        <div class="it-card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-5 col-sm-6">
+              <label class="form-label">Target Date</label>
+              <input type="date" id="widgetCheckDate" class="form-control">
+            </div>
+            <div class="col-md-5 col-sm-6">
+              <label class="form-label">Costume Code</label>
+              <input type="text" id="widgetCheckCode" placeholder="e.g. K-120 or C-45"
+                     class="form-control text-uppercase">
+            </div>
+            <div class="col-md-2 col-12">
+              <label class="form-label d-none d-md-block" style="visibility:hidden;">Check</label>
+              <button type="button" class="btn btn-gold w-100" onclick="performWidgetAvailabilityCheck()">
+                <i class="bi bi-search me-1"></i> Check
+              </button>
+            </div>
+          </div>
+          <div id="widgetCheckResult" class="mt-3 d-none p-3 rounded" style="font-weight:600; font-size:0.88rem;"></div>
+        </div>
+      </div>
+
+      <!-- Active Bookings Grid -->
+      <div class="it-card mb-0">
+        <div class="it-card-header">
+          <h3 class="it-card-title"><i class="bi bi-grid-fill"></i> Active Cycle Bookings</h3>
+          <span class="badge-gold" id="visibleBookingsCount">{{ bookings|length }}</span>
+        </div>
+        <div class="it-card-body-flush">
+          <div style="max-height:600px; overflow-y:auto;">
+            {% if bookings %}
+              <div class="roster-grid">
+                {% for cust in bookings|sort(attribute='Name') %}
+                  <div class="booking-row"
+                       data-group="{{ cust.group or '' }}"
+                       data-reference="{{ cust.reference or '' }}"
+                       onclick="window.location.href='{{ url_for('navaratri.navaratri_booking', customer_id=cust._id|string) }}'">
+                    <div class="br-top">
+                      <div class="avatar-circle">{{ cust.Name[:2].upper() }}</div>
+                      <div class="br-id">
+                        <div class="br-name">{{ cust.Name }}</div>
+                        <div class="br-mobile"><i class="bi bi-phone me-1"></i>{{ cust.mobile }}</div>
+                      </div>
+                    </div>
+                    {% if cust.group or cust.reference %}
+                      <div class="br-tags">
+                        {% if cust.group %}<span class="badge-navy"><i class="bi bi-people-fill me-1"></i>{{ cust.group }}</span>{% endif %}
+                        {% if cust.reference %}<span class="badge-navy"><i class="bi bi-link-45deg me-1"></i>{{ cust.reference }}</span>{% endif %}
+                      </div>
+                    {% endif %}
+                    <div class="br-foot">
+                      {% set total_prods = namespace(val=0) %}
+                      {% if cust.bookings %}
+                        {% for d, items in cust.bookings.items() %}{% set total_prods.val = total_prods.val + items|length %}{% endfor %}
+                      {% endif %}
+                      <span class="badge-gold"><i class="bi bi-box-seam me-1"></i>{{ total_prods.val }}</span>
+                      <span class="br-amount"><b>₹{{ cust.given_price }}</b> / ₹{{ cust.total_price }}</span>
+                      {% if cust.remaining > 0 %}
+                        <span class="avail-indicator booked"><i class="bi bi-exclamation-circle-fill"></i> ₹{{ cust.remaining }}</span>
+                      {% else %}
+                        <span class="avail-indicator available"><i class="bi bi-check-circle-fill"></i> Paid</span>
+                      {% endif %}
+                      <a href="{{ url_for('navaratri.navaratri_booking', customer_id=cust._id|string) }}"
+                         class="btn btn-ghost-gold btn-sm fw-bold px-3 ms-auto" onclick="event.stopPropagation();">
+                        <i class="bi bi-eye-fill me-1"></i> View
+                      </a>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-center py-5 text-muted">
+                <i class="bi bi-inbox display-3 d-block mb-3" style="color:var(--border-color)"></i>
+                No bookings in the current cycle.
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- MODALS                                                             -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+
+<!-- QR Code Modal -->
+<div class="modal fade" id="qrCodeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-qr-code me-2"></i>Customer QR Code</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center p-4">
+        <img id="modalQrCodeImg" src="" alt="QR Code"
+             class="img-fluid rounded p-2 mb-3"
+             style="max-height:220px;width:220px;height:220px;border:1px solid var(--border-gold);background:#fff;">
+        <p style="font-size:0.78rem;color:var(--text-muted);" class="m-0">Scan to view digital bill invoice.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Availability Checker Modal -->
+<div class="modal fade" id="quickAvailabilityModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-calendar-check-fill me-2"></i>Live Availability Checker</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label">Date</label>
+            <input type="date" id="modalCheckDate" class="form-control">
+          </div>
+          <div class="col-md-5">
+            <label class="form-label">Costume Code</label>
+            <input type="text" id="modalCheckCode" placeholder="e.g. K-120" class="form-control text-uppercase">
+          </div>
+          <div class="col-md-2">
+            <button type="button" class="btn btn-gold w-100" onclick="performModalAvailabilityCheck()">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </div>
+        <div id="modalCheckResult" class="mt-3 d-none p-3 rounded" style="font-weight:600;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit / New Booking Modal -->
+<div class="modal fade" id="editCustomerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-sm-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editCustomerModalLabel"><i class="bi bi-pencil-square me-2"></i>Edit Booking</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4" style="position:relative;">
+
+        <div id="modalLoadingOverlay" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(6,12,23,0.85);z-index:10;border-radius:20px;">
+          <div class="text-center">
+            <div class="spinner-border" style="color:var(--gold-primary);width:3.5rem;height:3.5rem;" role="status"></div>
+            <p class="mt-3 fw-bold" style="color:var(--gold-light);">Saving booking data…</p>
+          </div>
+        </div>
+
+        <form id="editCustomerForm">
+          <input type="hidden" id="modal-customer-id" value="">
+          <div class="modal-section-title"><i class="bi bi-person-fill me-1"></i> Customer Profile</div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label">Full Name *</label>
+              <input type="text" id="modal-name" required placeholder="Customer full name" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Mobile Number (10 digits) *</label>
+              <input type="tel" id="modal-mobile" required placeholder="10-digit mobile" class="form-control" maxlength="10" pattern="[0-9]{10}">
+              <div id="modal-mobile-error" class="mt-1 d-none" style="font-size:0.75rem;color:var(--accent-danger);">Please enter exactly 10 numeric digits.</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Address</label>
+              <textarea id="modal-address" rows="2" placeholder="Customer complete address…" class="form-control"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Group / Organization</label>
+              <input type="text" id="modal-group" placeholder="e.g. Royal Garba Club" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Reference Person</label>
+              <input type="text" id="modal-reference" placeholder="e.g. Ramesh Bhai" class="form-control">
+            </div>
+          </div>
+
+          <div class="modal-section-title"><i class="bi bi-wallet2 me-1"></i> Financial Information</div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <label class="form-label">Total Invoice Amount (₹) *</label>
+              <input type="number" id="modal-total-price" min="0" required class="form-control" value="0">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Amount Paid (₹) *</label>
+              <input type="number" id="modal-given-price" min="0" required class="form-control" value="0">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Security Deposit</label>
+              <input type="text" id="modal-deposit" placeholder="e.g. Cash ₹2000 or Aadhar" class="form-control">
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div class="modal-section-title mb-0"><i class="bi bi-calendar-plus-fill me-1"></i> Booking Dates & Costume Allocations</div>
+            <button type="button" class="btn btn-ghost-gold btn-sm fw-bold" onclick="addModalDateBlock()">
+              <i class="bi bi-plus-circle-fill me-1"></i> Add Date Block
+            </button>
+          </div>
+          <div id="modalBookingRowsContainer"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost-light fw-bold" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-gold fw-bold px-4" id="saveCustomerModalBtn" onclick="saveCustomerProfile()">
+          Save Booking Changes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reassign Modal -->
+<div class="modal fade" id="reassignModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-arrow-left-right me-2"></i>Reassign Costume Allocation</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form id="reassignForm">
+          <input type="hidden" id="reassign-cust-id">
+          <div class="p-3 mb-3 rounded" style="background:rgba(59, 130, 246, 0.1); border:1px solid rgba(59, 130, 246, 0.25); font-size:0.8rem; color:#93c5fd;">
+            <i class="bi bi-info-circle me-1"></i> Live costume availability is verified prior to confirming allocation move.
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Original Product Code</label>
+            <input type="text" id="reassign-old-product" class="form-control" readonly style="background:var(--bg-dark); font-weight:700; color:var(--gold-light);">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Original Date</label>
+            <input type="text" id="reassign-old-date" class="form-control" readonly style="background:var(--bg-dark); font-weight:700;">
+          </div>
+          <hr style="border-color:var(--border-color);">
+          <div class="mb-3">
+            <label class="form-label">New Booking Date *</label>
+            <input type="date" id="reassign-new-date" class="form-control" required onchange="checkReassignAvailability()">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">New Costume Code *</label>
+            <input type="text" id="reassign-new-product" class="form-control text-uppercase" required
+                   placeholder="Type product code" list="product-suggestions" oninput="checkReassignAvailability()">
+            <div id="reassign-avail-status" class="avail-indicator mt-2"></div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Invoice Adjustment Difference (₹)</label>
+            <input type="number" id="reassign-price-diff" class="form-control" value="0" placeholder="e.g. 100 or -50">
+            <small style="color:var(--text-muted);font-size:0.73rem;">Positive value adds to total bill, negative deducts.</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost-light fw-bold" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-gold fw-bold" id="confirmReassignBtn" onclick="confirmReassign()">Confirm Reassignment</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Booking Row Modal -->
+<div class="modal fade" id="deleteBookingRowModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-top: 4px solid var(--accent-danger);">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color:var(--accent-danger);">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>Delete Booking Row
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4 text-center">
+        <i class="bi bi-trash-fill mb-3 d-block display-4" style="color:var(--accent-danger);"></i>
+        <h5 class="fw-bold mb-2">Confirm Allocation Removal</h5>
+        <p style="color:var(--text-muted);font-size:0.85rem;" class="mb-4">
+          The selected costume reservation will be permanently removed. The customer profile record remains intact.
+        </p>
+        <div class="pay-summary mb-4 text-start">
+          <div class="mb-1" style="font-size:0.85rem;"><strong style="color:var(--gold-primary);">Costume:</strong> <span id="del-prod-code" class="font-monospace fw-bold" style="color:#ffffff;"></span></div>
+          <div style="font-size:0.85rem;"><strong style="color:var(--gold-primary);">Date:</strong> <span id="del-prod-date" style="color:#ffffff;"></span></div>
+        </div>
+        <div class="text-start">
+          <label class="form-label">Reduce Total Invoice By (₹)</label>
+          <input type="number" id="delete-price-diff" class="form-control" value="0" min="0">
+          <small style="color:var(--text-muted);font-size:0.73rem;">Optional: deduct cost from customer's total invoice.</small>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-ghost-light fw-bold" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-solid-danger fw-bold px-4" id="confirmDeleteRowBtn" onclick="confirmDeleteBookingRow()">
+          Confirm Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<datalist id="product-suggestions"></datalist>
+<div id="toast-container"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // ── GLOBALS ──────────────────────────────────────────────────────
+  let availableProducts = [];
+  let customerData = {% if customer %}{
+    id: "{{ customer._id|string }}",
+    name: "{{ customer.Name }}",
+    mobile: "{{ customer.mobile }}",
+    address: "{{ customer.address or '' }}",
+    deposit: "{{ customer.deposit or '' }}",
+    group: "{{ customer.group or '' }}",
+    reference: "{{ customer.reference or '' }}",
+    total_price: {{ customer.total_price|default(0) }},
+    given_price: {{ customer.given_price|default(0) }},
+    bookings: [
+      {% for date, items in customer.bookings.items() %}
+        {% for item in items %}
+          { date: "{{ date }}", product: "{{ item }}" },
+        {% endfor %}
+      {% endfor %}
+    ]
+  }{% else %}null{% endif %};
+
+  let editModalObj, reassignModalObj, deleteModalObj;
+  let checkAvailabilityTimers = {};
+
+  document.addEventListener("DOMContentLoaded", function () {
+    editModalObj     = new bootstrap.Modal(document.getElementById('editCustomerModal'));
+    reassignModalObj = new bootstrap.Modal(document.getElementById('reassignModal'));
+    deleteModalObj   = new bootstrap.Modal(document.getElementById('deleteBookingRowModal'));
+
+    const offcanvasEl = document.getElementById('customerOffcanvas');
+    if (offcanvasEl) {
+      offcanvasEl.addEventListener('click', function (e) {
+        if (e.target.closest('.ledger-entry') && window.innerWidth < 992) {
+          const inst = bootstrap.Offcanvas.getInstance(offcanvasEl);
+          if (inst) inst.hide();
+        }
+      });
+    }
+
+    fetchProductSuggestions();
+    if (customerData) updateInventoryStatusBadges();
+
+    const container = document.getElementById('modalBookingRowsContainer');
+    let scrollInterval = null;
+
+    function startAutoScroll(el, dir) {
+      if (scrollInterval) return;
+      scrollInterval = setInterval(() => { el.scrollTop += dir * 8; }, 15);
+    }
+    function stopAutoScroll() {
+      if (scrollInterval) { clearInterval(scrollInterval); scrollInterval = null; }
+    }
+
+    container.addEventListener('dragstart', function (e) {
+      const t = e.target;
+      if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'BUTTON' || t.closest('button')) { e.preventDefault(); return; }
+      const row = t.closest('.booking-row-item');
+      if (row) {
+        row.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', row.id);
+        window.currentlyDraggingRowId = row.id;
+        const src = row.closest('.modal-date-block');
+        window.currentlyDraggingSourceBlockId = src ? src.id : null;
+      }
+    });
+
+    container.addEventListener('dragend', function (e) {
+      stopAutoScroll();
+      const row = e.target.closest('.booking-row-item');
+      if (row) {
+        row.classList.remove('dragging');
+        triggerAvailabilityCheck(row.id);
+        if (window.currentlyDraggingSourceBlockId)
+          checkAllProductsInModalDateBlock(window.currentlyDraggingSourceBlockId);
+      }
+      container.querySelectorAll('.product-dropzone').forEach(d => d.classList.remove('drag-over'));
+    });
+
+    container.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      const dz = e.target.closest('.product-dropzone');
+      if (!dz) return;
+      container.querySelectorAll('.product-dropzone').forEach(d => d.classList.toggle('drag-over', d === dz));
+      const dragging = container.querySelector('.dragging');
+      if (!dragging) return;
+      const siblings = [...dz.querySelectorAll('.booking-row-item:not(.dragging)')];
+      const next = siblings.find(s => {
+        const b = s.getBoundingClientRect();
+        if (e.clientY < b.top) return true;
+        if (e.clientY >= b.top && e.clientY <= b.bottom) return e.clientX < b.left + b.width / 2;
+        return false;
+      });
+      next ? dz.insertBefore(dragging, next) : dz.appendChild(dragging);
+      const mb = document.querySelector('#editCustomerModal .modal-body');
+      if (mb) {
+        const r = mb.getBoundingClientRect(), ry = e.clientY - r.top;
+        if (ry < 50) startAutoScroll(mb, -1);
+        else if (r.height - ry < 50) startAutoScroll(mb, 1);
+        else stopAutoScroll();
+      }
+    });
+
+    container.addEventListener('dragleave', function (e) {
+      const dz = e.target.closest('.product-dropzone');
+      if (dz) dz.classList.remove('drag-over');
+    });
+
+    container.addEventListener('drop', function (e) {
+      e.preventDefault();
+      stopAutoScroll();
+      const dz = e.target.closest('.product-dropzone');
+      if (!dz) return;
+      dz.classList.remove('drag-over');
+      if (window.currentlyDraggingRowId) triggerAvailabilityCheck(window.currentlyDraggingRowId);
+    });
+  });
+
+  // ── PRODUCT SUGGESTIONS ──────────────────────────────────────────
+  function fetchProductSuggestions() {
+    fetch('/api/suggest-products').then(r => r.json()).then(data => {
+      availableProducts = data;
+      document.getElementById('product-suggestions').innerHTML =
+        data.map(c => `<option value="${c}">`).join('');
+    }).catch(e => console.error(e));
+  }
+
+  function getProductImagePath(code) {
+    if (!code) return '/static/Home_Img/favicon.png';
+    const u = code.trim().toUpperCase();
+    if (u.startsWith('C')) return `/static/CholiJpg/${u}.jpg`;
+    if (u.startsWith('K')) return `/static/KediyaJpg/${u}.jpg`;
+    if (u.startsWith('G')) return `/static/GroupJpg/${u}.jpg`;
+    return '/static/Home_Img/favicon.png';
+  }
+
+  // ── STATUS BADGES ────────────────────────────────────────────────
+  function updateInventoryStatusBadges() {
+    fetch('/get_statuses').then(r => r.json()).then(statuses => {
+      document.querySelectorAll("[data-product-status]").forEach(el => {
+        const code = el.getAttribute("data-product-status").toUpperCase();
+        const s = statuses[code] || 'inside';
+        el.className = `badge-status ${s}`;
+        el.innerHTML = s === 'inside' ? `<i class="bi bi-house-check-fill"></i> In Storage`
+          : s === 'outside' ? `<i class="bi bi-box-arrow-up"></i> Rented Out`
+          : `<i class="bi bi-exclamation-triangle-fill"></i> Ambiguity`;
+      });
+    }).catch(() => {
+      document.querySelectorAll("[data-product-status]").forEach(el => {
+        el.className = 'badge-status inside';
+        el.innerHTML = `<i class="bi bi-house-check-fill"></i> In Storage`;
+      });
+    });
+  }
+
+  // ── TOAST NOTIFICATIONS ──────────────────────────────────────────
+  function showToast(message, type = 'success') {
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast-message ${type} show`;
+    t.innerHTML = `
+      <div class="toast-content">
+        <span style="font-size:1.1rem">${type==='success'?'✅':type==='error'?'❌':'ℹ️'}</span>
+        <span class="toast-text">${message}</span>
+      </div>
+      <button class="toast-close" onclick="this.parentElement.classList.remove('show');setTimeout(()=>this.parentElement.remove(),300);">&times;</button>`;
+    c.appendChild(t);
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 5000);
+  }
+
+  // ── MODAL DATE BLOCKS ────────────────────────────────────────────
+  function addModalDateBlock(date = "", addDefaultProduct = true) {
+    const container = document.getElementById('modalBookingRowsContainer');
+    const blockId = 'block-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+    let parsedDate = typeof date === 'string' ? date : '';
+    if (parsedDate && parsedDate.includes('-') && parsedDate.split('-')[0].length === 2) {
+      const p = parsedDate.split('-');
+      parsedDate = `20${p[2]}-${p[1]}-${p[0]}`;
+    }
+    const div = document.createElement('div');
+    div.className = 'modal-date-block';
+    div.id = blockId;
+    div.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center mb-2 pb-2 flex-wrap gap-2" style="border-bottom:1px dashed var(--border-color);">
+        <div class="d-flex align-items-center gap-2">
+          <span style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold-primary);">
+            <i class="bi bi-calendar-event me-1"></i>Date
+          </span>
+          <input type="date" class="form-control form-control-sm modal-date-picker" value="${parsedDate}"
+                 required style="max-width:150px;" onchange="checkAllProductsInModalDateBlock('${blockId}')">
+        </div>
+        <button type="button" class="btn btn-ghost-danger btn-sm" onclick="removeModalDateBlock('${blockId}')">
+          <i class="bi bi-trash-fill"></i>
+        </button>
+      </div>
+      <div class="product-dropzone" id="dropzone-${blockId}"></div>
+      <button type="button" class="btn btn-ghost-gold btn-sm" onclick="addModalProductRow('${blockId}','',false)">
+        <i class="bi bi-plus-circle me-1"></i> Add Product
+      </button>`;
+    container.appendChild(div);
+    if (addDefaultProduct) {
+      addModalProductRow(blockId, '', false);
+    }
+    return blockId;
+  }
+
+  function removeModalDateBlock(id) {
+    const b = document.getElementById(id);
+    if (b) b.remove();
+  }
+
+  function addModalProductRow(blockId, product = "", isOriginal = false) {
+    const dz = document.getElementById(`dropzone-${blockId}`);
+    const rowId = 'row-item-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+    const div = document.createElement('div');
+    div.className = 'booking-row-item';
+    div.id = rowId;
+    div.setAttribute('draggable', 'true');
+    div.setAttribute('data-original', isOriginal);
+    div.setAttribute('data-orig-prod', product);
+    div.innerHTML = `
+      <div class="drag-handle" title="Drag to move between dates">
+        <i class="bi bi-grip-vertical"></i>
+      </div>
+      <img class="modal-product-thumbnail"
+           src="${getProductImagePath(product)}"
+           onerror="this.src='/static/Home_Img/favicon.png';this.style.opacity=0.4;">
+      <div class="flex-grow-1" style="min-width:120px;">
+        <div class="input-group input-group-sm">
+          <input type="text" class="form-control text-uppercase booking-row-product"
+                 value="${product}" required placeholder="Costume Code"
+                 list="product-suggestions"
+                 ${isOriginal ? 'readonly' : ''}
+                 oninput="onModalProductInput('${blockId}','${rowId}',this)">
+          ${isOriginal ? `<button type="button" class="btn btn-ghost-gold btn-sm" style="font-size:0.7rem;" onclick="enableProductReplace('${rowId}')">Replace</button>` : ''}
+        </div>
+        <div class="avail-indicator mt-1" id="avail-status-${rowId}">
+          ${isOriginal ? '<i class="bi bi-check-circle-fill"></i> Confirmed' : '<span style="color:var(--text-muted);font-size:0.68rem;">Enter date & code</span>'}
+        </div>
+      </div>
+      <div>
+        <button type="button" class="btn btn-ghost-danger btn-sm" onclick="removeModalProductRow('${rowId}')">
+          <i class="bi bi-x-circle-fill"></i>
+        </button>
+      </div>`;
+    dz.appendChild(div);
+    if (product) triggerAvailabilityCheck(rowId);
+  }
+
+  function removeModalProductRow(rowId) {
+    const r = document.getElementById(rowId);
+    if (r) r.remove();
+  }
+
+  function onModalProductInput(blockId, rowId, el) {
+    const code = el.value.trim().toUpperCase();
+    const row = document.getElementById(rowId);
+    const img = row.querySelector('.modal-product-thumbnail');
+    img.style.opacity = '1';
+    img.src = getProductImagePath(code);
+    triggerAvailabilityCheck(rowId);
+  }
+
+  function checkAllProductsInModalDateBlock(blockId) {
+    document.querySelectorAll(`#dropzone-${blockId} .booking-row-item`).forEach(r => triggerAvailabilityCheck(r.id));
+  }
+
+  function enableProductReplace(rowId) {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+    const inp = row.querySelector('.booking-row-product');
+    inp.removeAttribute('readonly');
+    inp.value = "";
+    inp.focus();
+    row.setAttribute('data-original', 'false');
+    const s = document.getElementById(`avail-status-${rowId}`);
+    s.className = 'avail-indicator';
+    s.innerHTML = '<span style="color:var(--text-muted);">Enter new product code</span>';
+  }
+
+  function triggerAvailabilityCheck(rowId, skipSiblings = false) {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+    const block = row.closest('.modal-date-block');
+    if (!block) return;
+    const dateVal = block.querySelector('.modal-date-picker').value;
+    const inp = row.querySelector('.booking-row-product');
+    const code = inp.value.trim().toUpperCase();
+    const status = document.getElementById(`avail-status-${rowId}`);
+    if (!dateVal || !code) {
+      status.className = 'avail-indicator';
+      status.innerHTML = '<span style="color:var(--text-muted);">Specify date & code</span>';
+      inp.classList.remove('input-check-valid', 'input-check-invalid');
+      return;
+    }
+    const others = block.querySelectorAll(`.booking-row-item:not(#${rowId})`);
+    let isDup = false;
+    others.forEach(o => { if (o.querySelector('.booking-row-product')?.value.trim().toUpperCase() === code) isDup = true; });
+    if (isDup) {
+      status.className = 'avail-indicator booked';
+      status.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Duplicate on this date';
+      inp.classList.add('input-check-invalid'); inp.classList.remove('input-check-valid');
+      if (!skipSiblings) others.forEach(o => triggerAvailabilityCheck(o.id, true));
+      return;
+    }
+    status.className = 'avail-indicator checking';
+    status.innerHTML = '<div class="spinner-border spinner-border-sm me-1" role="status"></div> Checking…';
+    if (checkAvailabilityTimers[rowId]) clearTimeout(checkAvailabilityTimers[rowId]);
+    checkAvailabilityTimers[rowId] = setTimeout(() => {
+      const mobile = document.getElementById('modal-mobile').value.trim();
+      let url = `/api/check-product?product_code=${encodeURIComponent(code)}&date=${encodeURIComponent(dateVal)}`;
+      if (mobile) url += `&exclude_mobile=${encodeURIComponent(mobile)}`;
+      fetch(url).then(r => r.json()).then(res => {
+        let dup2 = false;
+        block.querySelectorAll(`.booking-row-item:not(#${rowId})`).forEach(o => {
+          if (o.querySelector('.booking-row-product')?.value.trim().toUpperCase() === code) dup2 = true;
+        });
+        if (dup2) return;
+        if (res.available) {
+          status.className = 'avail-indicator available';
+          status.innerHTML = '<i class="bi bi-check-circle-fill"></i> Available';
+          inp.classList.add('input-check-valid'); inp.classList.remove('input-check-invalid');
+        } else {
+          status.className = 'avail-indicator booked';
+          status.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Booked by ${res.customer||'Other'}`;
+          inp.classList.add('input-check-invalid'); inp.classList.remove('input-check-valid');
+        }
+        if (!skipSiblings) others.forEach(o => triggerAvailabilityCheck(o.id, true));
+      }).catch(() => {
+        status.className = 'avail-indicator';
+        status.innerHTML = '<span style="color:var(--text-muted);">Error checking</span>';
+      });
+    }, 400);
+  }
+
+  // ── MODAL OPENERS ────────────────────────────────────────────────
+  function openQrModal(mobile) {
+    document.getElementById('modalQrCodeImg').src = `/generate-qr/${mobile}?t=${Date.now()}`;
+    new bootstrap.Modal(document.getElementById('qrCodeModal')).show();
+  }
+
+  function openWidgetAvailabilityModal() {
+    document.getElementById('modalCheckResult').classList.add('d-none');
+    document.getElementById('modalCheckDate').value = '';
+    document.getElementById('modalCheckCode').value = '';
+    new bootstrap.Modal(document.getElementById('quickAvailabilityModal')).show();
+  }
+
+  function openEditModal() {
+    if (!customerData) return;
+    document.getElementById('editCustomerModalLabel').innerHTML = `<i class="bi bi-pencil-square me-2"></i>Edit Booking: ${customerData.name}`;
+    document.getElementById('modal-customer-id').value  = customerData.id;
+    document.getElementById('modal-name').value         = customerData.name;
+    document.getElementById('modal-mobile').value       = customerData.mobile;
+    document.getElementById('modal-address').value      = customerData.address;
+    document.getElementById('modal-group').value        = customerData.group;
+    document.getElementById('modal-reference').value    = customerData.reference;
+    document.getElementById('modal-deposit').value      = customerData.deposit;
+    document.getElementById('modal-total-price').value  = customerData.total_price;
+    document.getElementById('modal-given-price').value  = customerData.given_price;
+    const c = document.getElementById('modalBookingRowsContainer');
+    c.innerHTML = '';
+    const groups = {};
+    customerData.bookings.forEach(b => { if (!groups[b.date]) groups[b.date] = []; groups[b.date].push(b.product); });
+    Object.keys(groups).forEach(d => {
+      const bid = addModalDateBlock(d, false);
+      groups[d].forEach(p => addModalProductRow(bid, p, true));
+    });
+    editModalObj.show();
+  }
+
+  function openNewCustomerModal() {
+    document.getElementById('editCustomerModalLabel').innerHTML = `<i class="bi bi-person-plus-fill me-2"></i>New Customer Booking`;
+    ['modal-customer-id','modal-name','modal-mobile','modal-address','modal-group','modal-reference','modal-deposit'].forEach(id => {
+      document.getElementById(id).value = id === 'modal-customer-id' ? 'new' : '';
+    });
+    document.getElementById('modal-total-price').value = 0;
+    document.getElementById('modal-given-price').value = 0;
+    const c = document.getElementById('modalBookingRowsContainer');
+    c.innerHTML = '';
+    addModalDateBlock('', true);
+    editModalObj.show();
+  }
+
+  // ── SAVE PROFILE ─────────────────────────────────────────────────
+  function saveCustomerProfile() {
+    const id          = document.getElementById('modal-customer-id').value;
+    const name        = document.getElementById('modal-name').value.trim();
+    const mobile      = document.getElementById('modal-mobile').value.trim();
+    const address     = document.getElementById('modal-address').value.trim();
+    const group       = document.getElementById('modal-group').value.trim();
+    const reference   = document.getElementById('modal-reference').value.trim();
+    const deposit     = document.getElementById('modal-deposit').value.trim();
+    const total_price = parseInt(document.getElementById('modal-total-price').value) || 0;
+    const given_price = parseInt(document.getElementById('modal-given-price').value) || 0;
+    const errEl       = document.getElementById('modal-mobile-error');
+    if (!name || !mobile) { showToast("Name and mobile are required.", "error"); return; }
+    if (mobile.length !== 10 || isNaN(mobile)) { errEl.classList.remove('d-none'); showToast("Mobile must be 10 digits.", "error"); return; }
+    errEl.classList.add('d-none');
+    if (given_price > total_price) { showToast("Paid amount cannot exceed total invoice.", "error"); return; }
+    const bookingRows = [];
+    let conflict = false, empty = false;
+    document.querySelectorAll('.modal-date-block').forEach(block => {
+      const dateVal = block.querySelector('.modal-date-picker').value;
+      if (!dateVal) { empty = true; return; }
+      block.querySelectorAll('.booking-row-item').forEach(row => {
+        const inp  = row.querySelector('.booking-row-product');
+        const code = inp.value.trim().toUpperCase();
+        if (!code) { empty = true; return; }
+        if (inp.classList.contains('input-check-invalid')) conflict = true;
+        bookingRows.push({ date: dateVal, products: [code] });
+      });
+    });
+    if (empty)    { showToast("Fill all dates and costume codes, or remove empty slots.", "error"); return; }
+    if (conflict) { showToast("Resolve all costume conflicts before saving.", "error"); return; }
+    document.getElementById('modalLoadingOverlay').classList.remove('d-none');
+    const btn = document.getElementById('saveCustomerModalBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving…';
+    fetch('/navaratri_booking/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customer_id:id, name, mobile, address, group, reference, deposit, total_price, given_price, bookings: bookingRows })
+    }).then(r => r.json()).then(data => {
+      if (data.success) {
+        showToast(data.message, "success");
+        editModalObj.hide();
+        setTimeout(() => window.location.href = `/navaratri_booking/${data.customer_id}`, 800);
+      } else {
+        document.getElementById('modalLoadingOverlay').classList.add('d-none');
+        btn.disabled = false; btn.innerHTML = 'Save Booking Changes';
+        showToast(data.message || "Failed to save booking.", "error");
+      }
+    }).catch(() => {
+      document.getElementById('modalLoadingOverlay').classList.add('d-none');
+      btn.disabled = false; btn.innerHTML = 'Save Booking Changes';
+      showToast("Connection error while saving.", "error");
+    });
+  }
+
+  // ── ADD PAYMENT ──────────────────────────────────────────────────
+  function submitAddPayment(event, customerId) {
+    event.preventDefault();
+    const inp = document.getElementById('paymentAmountInput');
+    const btn = document.getElementById('paymentSubmitBtn');
+    const amount = parseInt(inp.value);
+    if (isNaN(amount) || amount <= 0) { showToast("Enter a valid payment amount.", "error"); return; }
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>';
+    fetch('/navaratri_booking/add-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customer_id: customerId, amount })
+    }).then(r => r.json()).then(data => {
+      if (data.success) { showToast(data.message, "success"); setTimeout(() => location.reload(), 800); }
+      else { btn.disabled = false; btn.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Add'; showToast(data.message || "Failed.", "error"); }
+    }).catch(() => {
+      btn.disabled = false; btn.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Add';
+      showToast("Network error.", "error");
+    });
+  }
+
+  // ── AVAILABILITY CHECKS ──────────────────────────────────────────
+  function performModalAvailabilityCheck() {
+    const date = document.getElementById('modalCheckDate').value.trim();
+    const code = document.getElementById('modalCheckCode').value.trim().toUpperCase();
+    const res  = document.getElementById('modalCheckResult');
+    if (!date || !code) { showToast("Select a date and enter a costume code.", "error"); return; }
+    res.className = 'mt-3 p-3 rounded d-block';
+    res.style.cssText = 'background:rgba(255,255,255,0.06);color:var(--text-muted);border:1px solid var(--border-color);';
+    res.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Checking costume status…';
+    fetch(`/api/check-product?product_code=${encodeURIComponent(code)}&date=${encodeURIComponent(date)}`)
+      .then(r => r.json()).then(data => {
+        if (data.available) {
+          res.style.cssText = 'background:rgba(16,185,129,0.12);color:var(--accent-success);border:1px solid rgba(16,185,129,0.3);';
+          res.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> Costume '${code}' is AVAILABLE on ${date}.`;
+        } else {
+          res.style.cssText = 'background:rgba(239,68,68,0.12);color:var(--accent-danger);border:1px solid rgba(239,68,68,0.3);';
+          res.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> Costume '${code}' is BOOKED on ${date} by ${data.customer||'another customer'}.`;
+        }
+      }).catch(() => {
+        res.style.cssText = 'background:rgba(245,158,11,0.12);color:var(--accent-warning);border:1px solid rgba(245,158,11,0.3);';
+        res.innerHTML = `<i class="bi bi-exclamation-circle-fill me-1"></i> Connection error.`;
+      });
+  }
+
+  function performWidgetAvailabilityCheck() {
+    const date = document.getElementById('widgetCheckDate').value.trim();
+    const code = document.getElementById('widgetCheckCode').value.trim().toUpperCase();
+    const res  = document.getElementById('widgetCheckResult');
+    if (!date || !code) { showToast("Select a date and enter a costume code.", "error"); return; }
+    res.className = 'mt-3 p-3 rounded d-block';
+    res.style.cssText = 'background:rgba(255,255,255,0.06);color:var(--text-muted);border:1px solid var(--border-color);';
+    res.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Checking costume status…';
+    fetch(`/api/check-product?product_code=${encodeURIComponent(code)}&date=${encodeURIComponent(date)}`)
+      .then(r => r.json()).then(data => {
+        if (data.available) {
+          res.style.cssText = 'background:rgba(16,185,129,0.12);color:var(--accent-success);border:1px solid rgba(16,185,129,0.3);';
+          res.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> Costume '${code}' is AVAILABLE on ${date}.`;
+        } else {
+          res.style.cssText = 'background:rgba(239,68,68,0.12);color:var(--accent-danger);border:1px solid rgba(239,68,68,0.3);';
+          res.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> Costume '${code}' is BOOKED on ${date} by ${data.customer||'another customer'}.`;
+        }
+      }).catch(() => {
+        res.style.cssText = 'background:rgba(245,158,11,0.12);color:var(--accent-warning);border:1px solid rgba(245,158,11,0.3);';
+        res.innerHTML = `<i class="bi bi-exclamation-circle-fill me-1"></i> Connection error.`;
+      });
+  }
+
+  // ── REASSIGN ALLOCATION ──────────────────────────────────────────
+  function quickReassign(date, product) {
+    if (!customerData) return;
+    document.getElementById('reassign-cust-id').value    = customerData.id;
+    document.getElementById('reassign-old-product').value = product;
+    document.getElementById('reassign-old-date').value   = date;
+    document.getElementById('reassign-new-product').value = product;
+    let parsed = date;
+    if (date.includes('-') && date.split('-')[0].length === 2) {
+      const p = date.split('-'); parsed = `20${p[2]}-${p[1]}-${p[0]}`;
+    }
+    document.getElementById('reassign-new-date').value = parsed;
+    document.getElementById('reassign-price-diff').value = 0;
+    const s = document.getElementById('reassign-avail-status');
+    s.className = 'avail-indicator available';
+    s.innerHTML = '<i class="bi bi-check-circle-fill"></i> Currently Booked';
+    reassignModalObj.show();
+  }
+
+  let reassignTimer = null;
+  function checkReassignAvailability() {
+    const oldProd  = document.getElementById('reassign-old-product').value.trim().toUpperCase();
+    const oldDate  = document.getElementById('reassign-old-date').value.trim();
+    const newProd  = document.getElementById('reassign-new-product').value.trim().toUpperCase();
+    const newDate  = document.getElementById('reassign-new-date').value;
+    const status   = document.getElementById('reassign-avail-status');
+    const confirmB = document.getElementById('confirmReassignBtn');
+    const mobile   = customerData ? customerData.mobile : '';
+    let newFmt = newDate;
+    if (newDate && newDate.includes('-')) {
+      const p = newDate.split('-'); newFmt = `${p[2]}-${p[1]}-${p[0].slice(-2)}`;
+    }
+    if (oldProd === newProd && oldDate === newFmt) {
+      status.className = 'avail-indicator available';
+      status.innerHTML = '<i class="bi bi-check-circle-fill"></i> Unchanged';
+      confirmB.disabled = false; return;
+    }
+    if (!newProd || !newDate) {
+      status.className = 'avail-indicator'; status.innerHTML = '<span style="color:var(--text-muted);">Enter product code and date</span>';
+      confirmB.disabled = true; return;
+    }
+    status.className = 'avail-indicator checking';
+    status.innerHTML = '<div class="spinner-border spinner-border-sm me-1"></div> Checking…';
+    if (reassignTimer) clearTimeout(reassignTimer);
+    reassignTimer = setTimeout(() => {
+      let url = `/api/check-product?product_code=${encodeURIComponent(newProd)}&date=${encodeURIComponent(newDate)}`;
+      if (mobile) url += `&exclude_mobile=${encodeURIComponent(mobile)}`;
+      fetch(url).then(r => r.json()).then(res => {
+        if (res.available) {
+          status.className = 'avail-indicator available'; status.innerHTML = '<i class="bi bi-check-circle-fill"></i> Available';
+          confirmB.disabled = false;
+        } else {
+          status.className = 'avail-indicator booked';
+          status.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Booked by ${res.customer||'Unknown'}`;
+          confirmB.disabled = true;
+        }
+      }).catch(() => {
+        status.className = 'avail-indicator'; status.innerHTML = '<span style="color:var(--text-muted);">Error</span>';
+        confirmB.disabled = true;
+      });
+    }, 450);
+  }
+
+  function confirmReassign() {
+    const btn = document.getElementById('confirmReassignBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing…';
+    fetch('/navaratri_booking/reassign', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer_id: document.getElementById('reassign-cust-id').value,
+        old_date:    document.getElementById('reassign-old-date').value,
+        old_product: document.getElementById('reassign-old-product').value,
+        new_date:    document.getElementById('reassign-new-date').value,
+        new_product: document.getElementById('reassign-new-product').value.trim().toUpperCase(),
+        price_diff:  document.getElementById('reassign-price-diff').value
+      })
+    }).then(r => r.json()).then(data => {
+      if (data.success) { showToast(data.message, "success"); reassignModalObj.hide(); setTimeout(() => location.reload(), 800); }
+      else { btn.disabled = false; btn.innerHTML = 'Confirm Reassignment'; showToast(data.message||"Failed.", "error"); }
+    }).catch(() => { btn.disabled = false; btn.innerHTML = 'Confirm Reassignment'; showToast("Network error.", "error"); });
+  }
+
+  // ── DELETE ALLOCATION ROW ────────────────────────────────────────
+  let deleteRowTarget = null;
+  function quickDeleteBookingRow(date, product) {
+    if (!customerData) return;
+    deleteRowTarget = { date, product };
+    document.getElementById('del-prod-code').innerText = product;
+    document.getElementById('del-prod-date').innerText = date;
+    document.getElementById('delete-price-diff').value = 0;
+    deleteModalObj.show();
+  }
+
+  function confirmDeleteBookingRow() {
+    if (!deleteRowTarget || !customerData) return;
+    const btn = document.getElementById('confirmDeleteRowBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Deleting…';
+    fetch('/navaratri_booking/delete-booking', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer_id: customerData.id,
+        date:        deleteRowTarget.date,
+        product:     deleteRowTarget.product,
+        price_diff:  document.getElementById('delete-price-diff').value
+      })
+    }).then(r => r.json()).then(data => {
+      if (data.success) { showToast(data.message, "success"); deleteModalObj.hide(); setTimeout(() => location.reload(), 800); }
+      else { btn.disabled = false; btn.innerHTML = 'Confirm Delete'; showToast(data.message||"Failed.", "error"); }
+    }).catch(() => { btn.disabled = false; btn.innerHTML = 'Confirm Delete'; showToast("Network error.", "error"); });
+  }
+
+  // ── MOBILE AUTOCOMPLETE ──────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    const mobileEl = document.getElementById('modal-mobile');
+    if (!mobileEl) return;
+    mobileEl.addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '').slice(0, 10);
+      if (this.value.length === 10) {
+        const cid = document.getElementById('modal-customer-id').value;
+        if (!cid || cid === 'new') {
+          fetch(`/get-navaratri-customer?mobile=${this.value}`).then(r => r.json()).then(data => {
+            if (data.exists && data.data) {
+              ['name','address','group','reference'].forEach(f => {
+                const el = document.getElementById(`modal-${f}`);
+                if (el) el.value = data.data[f] || '';
+              });
+              showToast(data.in_cycle ? "👤 Customer record found — details pre-filled." : "👤 Returning customer — details pre-filled.", "success");
+            }
+          }).catch(e => console.error(e));
+        }
+      }
+    });
+  });
+
+  // ── FILTER & SEARCH ──────────────────────────────────────────────
+  (function () {
+    let selGroups = [], selRefs = [];
+
+    function toggle(btnId, ddId) {
+      const btn = document.getElementById(btnId), dd = document.getElementById(ddId);
+      if (!btn || !dd) return;
+      const open = dd.classList.contains('active');
+      document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('active'));
+      document.querySelectorAll('.multi-select-button').forEach(b => b.classList.remove('active'));
+      if (!open) { dd.classList.add('active'); btn.classList.add('active'); }
+    }
+
+    const gBtn = document.getElementById('groupFilterButton');
+    if (gBtn) gBtn.addEventListener('click', e => { e.stopPropagation(); toggle('groupFilterButton','groupDropdown'); });
+    const rBtn = document.getElementById('referenceFilterButton');
+    if (rBtn) rBtn.addEventListener('click', e => { e.stopPropagation(); toggle('referenceFilterButton','referenceDropdown'); });
+
+    function updateSummary(id, arr, singular, plural) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = arr.length === 0 ? `All ${plural}` : arr.length === 1 ? arr[0] : `${arr.length} ${plural}`;
+    }
+
+    function search() {
+      const q = (document.getElementById('customerSearchInput')?.value || '').toLowerCase().trim();
+      sessionStorage.setItem('it_search', q);
+      sessionStorage.setItem('it_groups', JSON.stringify(selGroups));
+      sessionStorage.setItem('it_refs',   JSON.stringify(selRefs));
+
+      let vis = 0;
+      document.querySelectorAll('.ledger-entry').forEach(item => {
+        const nm  = (item.dataset.name      || '').toLowerCase();
+        const mob = (item.dataset.mobile    || '').toLowerCase();
+        const grp = (item.dataset.group     || '').toLowerCase();
+        const ref = (item.dataset.reference || '').toLowerCase();
+        const ok  = (q === '' || nm.includes(q) || mob.includes(q) || grp.includes(q) || ref.includes(q))
+                 && (selGroups.length === 0 || selGroups.map(g=>g.toLowerCase()).includes(grp))
+                 && (selRefs.length   === 0 || selRefs.map(r=>r.toLowerCase()).includes(ref));
+        item.style.setProperty('display', ok ? '' : 'none', 'important');
+        if (ok) vis++;
+      });
+      const badge = document.getElementById('customerCountBadge');
+      if (badge) {
+        const total = document.querySelectorAll('.ledger-entry').length;
+        badge.textContent = (q || selGroups.length || selRefs.length) ? `${vis} / ${total}` : total;
+      }
+
+      let visB = 0;
+      document.querySelectorAll('.booking-row').forEach(row => {
+        const txt = row.textContent.toLowerCase();
+        const grp = (row.dataset.group     || '').toLowerCase();
+        const ref = (row.dataset.reference || '').toLowerCase();
+        const ok  = (q === '' || txt.includes(q))
+                 && (selGroups.length === 0 || selGroups.map(g=>g.toLowerCase()).includes(grp))
+                 && (selRefs.length   === 0 || selRefs.map(r=>r.toLowerCase()).includes(ref));
+        row.style.setProperty('display', ok ? '' : 'none', 'important');
+        if (ok) visB++;
+      });
+      const vb = document.getElementById('visibleBookingsCount');
+      if (vb) {
+        const total = document.querySelectorAll('.booking-row').length;
+        vb.textContent = (q || selGroups.length || selRefs.length) ? `${visB} / ${total}` : total;
+      }
+    }
+
+    function updateClear() {
+      const btn = document.getElementById('clearFiltersBtn');
+      const q   = document.getElementById('customerSearchInput')?.value || '';
+      if (btn) btn.disabled = !(q || selGroups.length || selRefs.length);
+    }
+
+    document.querySelectorAll('.group-checkbox').forEach(c => {
+      c.addEventListener('change', function () {
+        selGroups = this.checked ? [...selGroups, this.value] : selGroups.filter(x => x !== this.value);
+        updateSummary('groupSummary', selGroups, 'Group', 'Groups');
+        search(); updateClear();
+      });
+    });
+    document.querySelectorAll('.reference-checkbox').forEach(c => {
+      c.addEventListener('change', function () {
+        selRefs = this.checked ? [...selRefs, this.value] : selRefs.filter(x => x !== this.value);
+        updateSummary('referenceSummary', selRefs, 'Reference', 'References');
+        search(); updateClear();
+      });
+    });
+
+    document.getElementById('clearFiltersBtn')?.addEventListener('click', () => {
+      document.getElementById('customerSearchInput').value = '';
+      document.querySelectorAll('.group-checkbox, .reference-checkbox').forEach(c => c.checked = false);
+      selGroups = []; selRefs = [];
+      updateSummary('groupSummary', [], 'Group', 'Groups');
+      updateSummary('referenceSummary', [], 'Reference', 'References');
+      sessionStorage.removeItem('it_search');
+      sessionStorage.removeItem('it_groups');
+      sessionStorage.removeItem('it_refs');
+      search(); updateClear();
+    });
+
+    document.getElementById('customerSearchInput')?.addEventListener('input', () => { search(); updateClear(); });
+
+    // Restore search state
+    const sq = sessionStorage.getItem('it_search');
+    if (sq !== null && document.getElementById('customerSearchInput'))
+      document.getElementById('customerSearchInput').value = sq;
+    try {
+      selGroups = JSON.parse(sessionStorage.getItem('it_groups') || '[]');
+      selGroups.forEach(g => {
+        const c = [...document.querySelectorAll('.group-checkbox')].find(x => x.value === g);
+        if (c) c.checked = true;
+      });
+      updateSummary('groupSummary', selGroups, 'Group', 'Groups');
+    } catch(e) {}
+    try {
+      selRefs = JSON.parse(sessionStorage.getItem('it_refs') || '[]');
+      selRefs.forEach(r => {
+        const c = [...document.querySelectorAll('.reference-checkbox')].find(x => x.value === r);
+        if (c) c.checked = true;
+      });
+      updateSummary('referenceSummary', selRefs, 'Reference', 'References');
+    } catch(e) {}
+    search(); updateClear();
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.multi-select-container')) {
+        document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('active'));
+        document.querySelectorAll('.multi-select-button').forEach(b => b.classList.remove('active'));
+      }
+    });
+  })();
+</script>
+{% endblock %}

@@ -173,7 +173,7 @@ def book():
 def listing():
     if not session.get('logged_in'):
         return redirect(url_for('navaratri.login'))
-    return redirect(url_for('navaratri.profile'))
+    return redirect(url_for('navaratri.navaratri_booking'))
 
 @navaratri.route('/calendar', methods=['GET', 'POST'])
 def calendar():
@@ -530,9 +530,9 @@ def delete():
 
     return render_template("navaratri/delete.html")
 
-@navaratri.route('/profile', methods=['GET', 'POST'])
-@navaratri.route('/profile/<customer_id>', methods=['GET'])
-def profile(customer_id=None):
+@navaratri.route('/navaratri_booking', methods=['GET', 'POST'])
+@navaratri.route('/navaratri_booking/<customer_id>', methods=['GET'])
+def navaratri_booking(customer_id=None):
     if not session.get('logged_in'):
         return redirect(url_for('navaratri.login'))
     customer = None
@@ -564,7 +564,18 @@ def profile(customer_id=None):
     for b in bookings:
         b['remaining'] = b.get('total_price', 0) - b.get('given_price', 0)
 
-    return render_template("navaratri/profile.html", customer=customer, error=error, bookings=bookings)
+    return render_template("navaratri/navaratri_booking.html", customer=customer, error=error, bookings=bookings)
+
+# Redirect legacy /profile URLs to /navaratri_booking
+@navaratri.route('/profile', methods=['GET', 'POST'])
+@navaratri.route('/profile/<customer_id>', methods=['GET'])
+def profile(customer_id=None):
+    mobile = request.args.get('mobile') or (request.form.get('mobile') if request.method == 'POST' else None)
+    if customer_id:
+        return redirect(url_for('navaratri.navaratri_booking', customer_id=customer_id))
+    elif mobile:
+        return redirect(url_for('navaratri.navaratri_booking', mobile=mobile))
+    return redirect(url_for('navaratri.navaratri_booking'))
 
 # ------------------ API: Live Availability Check ------------------
 @navaratri.route('/api/check-product', methods=['GET'])
@@ -611,6 +622,7 @@ def api_suggest_products():
         return jsonify({"error": str(e)}), 500
 
 # ------------------ API: Unified Save/Update Profile ------------------
+@navaratri.route('/navaratri_booking/update', methods=['POST'])
 @navaratri.route('/profile/update', methods=['POST'])
 def profile_update():
     if not session.get('logged_in'):
@@ -797,6 +809,7 @@ def profile_update():
     return jsonify({"success": True, "message": message, "customer_id": ret_id})
 
 # ------------------ API: Add Payment to Customer ------------------
+@navaratri.route('/navaratri_booking/add-payment', methods=['POST'])
 @navaratri.route('/profile/add-payment', methods=['POST'])
 def profile_add_payment():
     if not session.get('logged_in'):
@@ -849,6 +862,7 @@ def profile_add_payment():
         return jsonify({"success": False, "message": f"Error updating payment: {str(e)}"}), 500
 
 # ------------------ API: Product Reassignment ------------------
+@navaratri.route('/navaratri_booking/reassign', methods=['POST'])
 @navaratri.route('/profile/reassign', methods=['POST'])
 def profile_reassign():
     if not session.get('logged_in'):
@@ -919,6 +933,7 @@ def profile_reassign():
     return jsonify({"success": True, "message": "✅ Product reassigned successfully!"})
 
 # ------------------ API: Add Single Booking Row ------------------
+@navaratri.route('/navaratri_booking/add-booking', methods=['POST'])
 @navaratri.route('/profile/add-booking', methods=['POST'])
 def profile_add_booking():
     if not session.get('logged_in'):
@@ -974,6 +989,7 @@ def profile_add_booking():
     return jsonify({"success": True, "message": "✅ Booking added successfully!"})
 
 # ------------------ API: Delete Single Booking Row ------------------
+@navaratri.route('/navaratri_booking/delete-booking', methods=['POST'])
 @navaratri.route('/profile/delete-booking', methods=['POST'])
 def profile_delete_booking():
     if not session.get('logged_in'):
@@ -2017,7 +2033,7 @@ def payment_success():
 
     if not customer:
         flash("⚠️ Customer not found.", "error")
-        return redirect(url_for('navaratri.profile'))
+        return redirect(url_for('navaratri.navaratri_booking'))
 
     return render_template("navaratri/payment_success.html", customer=customer)
 

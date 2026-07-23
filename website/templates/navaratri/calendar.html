@@ -755,7 +755,7 @@ body {
                         <!-- Booking Cards -->
                         <div class="sidebar-scroll">
                             {% for b in bookings %}
-                            <div class="booking-card" onclick="window.location.href='{{ url_for('navaratri.profile', customer_id=b.id) }}'">
+                            <div class="booking-card" onclick="window.location.href='{{ url_for('navaratri.navaratri_booking', customer_id=b.id) }}'">
 
                                 <!-- Top: Name + Badge -->
                                 <div class="bc-top">
@@ -813,7 +813,7 @@ body {
                                                 {% if p.yesterday %}
                                                     <i class="fa-solid fa-circle-exclamation" style="color:var(--danger);font-size:0.65rem;flex-shrink:0;"></i>
                                                     <span class="h-label">Yest:</span>
-                                                    <a href="{{ url_for('navaratri.profile', customer_id=p.yesterday.id) }}" class="h-name-link" onclick="event.stopPropagation();">{{ p.yesterday.name }}</a>
+                                                    <a href="{{ url_for('navaratri.navaratri_booking', customer_id=p.yesterday.id) }}" class="h-name-link" onclick="event.stopPropagation();">{{ p.yesterday.name }}</a>
                                                     <a href="tel:{{ p.yesterday.mobile }}" class="h-phone-link" onclick="event.stopPropagation();">({{ p.yesterday.mobile }})</a>
                                                 {% else %}
                                                     <i class="fa-solid fa-circle-check" style="color:var(--success);font-size:0.65rem;flex-shrink:0;"></i>
@@ -825,7 +825,7 @@ body {
                                                 {% if p.tomorrow %}
                                                     <i class="fa-solid fa-arrow-right" style="color:var(--info);font-size:0.65rem;flex-shrink:0;"></i>
                                                     <span class="h-label">Tmrw:</span>
-                                                    <a href="{{ url_for('navaratri.profile', customer_id=p.tomorrow.id) }}" class="h-name-link" onclick="event.stopPropagation();">{{ p.tomorrow.name }}</a>
+                                                    <a href="{{ url_for('navaratri.navaratri_booking', customer_id=p.tomorrow.id) }}" class="h-name-link" onclick="event.stopPropagation();">{{ p.tomorrow.name }}</a>
                                                 {% else %}
                                                     <i class="fa-solid fa-circle-check" style="color:var(--success);font-size:0.65rem;flex-shrink:0;"></i>
                                                     <span class="h-free">Free tomorrow</span>

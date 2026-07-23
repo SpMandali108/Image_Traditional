@@ -1072,7 +1072,7 @@
             </thead>
             <tbody>
               {% for c in top_customers %}
-              <tr onclick="window.location.href='/profile?mobile={{ c.mobile }}'">
+              <tr onclick="window.location.href='/navaratri_booking?mobile={{ c.mobile }}'">
                 <td class="search-cell-total-ledger">
                   <div style="font-weight: 700;">{{ c.name }}</div>
                   <div style="font-size: 0.75rem; color: var(--text-muted);">📞 {{ c.mobile }}</div>
@@ -1113,7 +1113,7 @@
             </thead>
             <tbody>
               {% for c in top_debtors[:12] %}
-              <tr onclick="window.location.href='/profile?mobile={{ c.mobile }}'">
+              <tr onclick="window.location.href='/navaratri_booking?mobile={{ c.mobile }}'">
                 <td>
                   <div style="font-weight: 700;">{{ c.name }}</div>
                   <div style="font-size: 0.75rem; color: var(--text-muted);">📞 {{ c.mobile }}</div>

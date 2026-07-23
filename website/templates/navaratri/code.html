@@ -267,7 +267,7 @@
                         <div class="row g-3">
                             {% for booking in day.bookings %}
                                 <div class="col-12">
-                                    <a href="{{ url_for('navaratri.profile', customer_id=booking.user.id) }}" class="text-decoration-none">
+                                    <a href="{{ url_for('navaratri.navaratri_booking', customer_id=booking.user.id) }}" class="text-decoration-none">
                                         <div class="booking-card">
                                             <div class="row booking-grid">
                                                 <div class="col-md-6">

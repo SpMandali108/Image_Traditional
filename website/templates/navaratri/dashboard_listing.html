@@ -594,7 +594,7 @@
                         <tr class="table-row booking-row" 
                             data-group="{{ booking.get('group', 'N/A') }}"
                             data-reference="{{ booking.get('reference', 'N/A') }}"
-                            onclick="window.location.href='{{ url_for('navaratri.profile', mobile=booking.get('mobile', '')) }}'">
+                            onclick="window.location.href='{{ url_for('navaratri.navaratri_booking', mobile=booking.get('mobile', '')) }}'">
                             
                             <!-- Customer Info -->
                             <td class="table-cell">
@@ -685,7 +685,7 @@
             <div class="booking-card booking-card-mobile" 
                  data-group="{{ booking.get('group', 'N/A') }}"
                  data-reference="{{ booking.get('reference', 'N/A') }}"
-                 onclick="window.location.href='{{ url_for('navaratri.profile', mobile=booking.get('mobile', '')) }}'">
+                 onclick="window.location.href='{{ url_for('navaratri.navaratri_booking', mobile=booking.get('mobile', '')) }}'">
                 
                 <!-- Header -->
                 <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem;">
