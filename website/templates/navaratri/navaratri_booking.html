@@ -659,7 +659,7 @@
     .br-amount { font-size: 0.78rem; color: var(--text-muted); }
     .br-amount b { color: #ffffff; }
 
-    /* ─── MODAL ──────────────────────────────────────────────────────── */
+    /* ─── MODAL STYLING & TABLET RESPONSIVENESS FIX ────────────────────────── */
     .modal-content {
       background: #091322;
       border: 1px solid var(--border-gold);
@@ -667,15 +667,36 @@
       color: var(--text-main);
       overflow: hidden;
       box-shadow: 0 35px 70px -20px rgba(0,0,0,0.9);
+      display: flex;
+      flex-direction: column;
     }
     .modal-header {
       background: linear-gradient(90deg, #0e192c, #162640);
       border-bottom: 1px solid var(--border-color);
-      padding: 20px 24px;
+      padding: 16px 24px;
+      flex-shrink: 0;
     }
-    .modal-title { color: var(--gold-light); font-weight: 700; font-size: 1rem; font-family: 'Outfit', sans-serif; }
-    .modal-body { padding: 24px; }
-    .modal-footer { background: var(--bg-dark); border-top: 1px solid var(--border-color); padding: 16px 24px; }
+    .modal-title { color: var(--gold-light); font-weight: 700; font-size: 1.05rem; font-family: 'Outfit', sans-serif; }
+    .modal-body {
+      padding: 20px 24px;
+      flex: 1 1 auto;
+      overflow-y: auto;
+      min-height: 0;
+    }
+    .modal-footer {
+      background: #060c17;
+      border-top: 1px solid var(--border-color);
+      padding: 14px 24px;
+      flex-shrink: 0;
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+      box-shadow: 0 -4px 14px rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+    }
     .modal-section-title {
       font-family: 'Outfit', sans-serif;
       font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em;
@@ -690,25 +711,80 @@
     .product-dropzone {
       min-height: 48px; background: rgba(6, 12, 23, 0.4);
       border: 1.5px dashed var(--border-color); border-radius: var(--r-sm);
-      padding: 8px; margin-bottom: 10px; transition: all 0.2s ease;
+      padding: 8px; margin-bottom: 10px; transition: border-color 0.15s;
     }
     .product-dropzone.drag-over {
       background: rgba(201, 162, 39, 0.08); border-color: var(--gold-primary); border-style: solid;
     }
     .booking-row-item {
-      background: rgba(22, 38, 64, 0.8); border: 1px solid var(--border-color);
-      border-radius: 999px; padding: 6px 14px; margin-bottom: 6px;
-      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-      cursor: grab; transition: all 0.2s ease;
+      background: #142238; border: 1px solid var(--border-color);
+      border-radius: 12px; padding: 8px 12px; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      cursor: grab; transition: border-color 0.15s, opacity 0.15s; width: 100%;
     }
     .booking-row-item:hover { border-color: var(--gold-primary); }
     .booking-row-item:active { cursor: grabbing; }
     .booking-row-item.dragging { opacity: 0.3; border: 2px dashed var(--gold-primary) !important; }
     .modal-product-thumbnail {
-      width: 32px; height: 32px; object-fit: cover;
-      border-radius: 8px; background: #000; transition: transform 0.15s; flex-shrink: 0;
+      width: 34px; height: 34px; object-fit: cover;
+      border-radius: 8px; background: #000; flex-shrink: 0;
     }
-    .drag-handle { color: var(--text-muted); padding: 0 4px; font-size: 1.1rem; }
+    .drag-handle { color: var(--text-muted); padding: 0 4px; font-size: 1.1rem; flex-shrink: 0; }
+
+    /* ─── STICKY ALLOCATION HEADER & RESPONSIVE TABLET DIALOG ─────── */
+    .sticky-allocation-header {
+      position: sticky;
+      top: -20px;
+      z-index: 8;
+      background: #091322;
+      padding: 10px 0;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    #editCustomerModal .modal-dialog {
+      transform: translateZ(0);
+      will-change: transform;
+    }
+    #editCustomerModal .modal-body {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+    .modal-date-block {
+      contain: layout style;
+    }
+    @media (min-width: 768px) {
+      #editCustomerModal .modal-dialog {
+        max-width: min(920px, 94vw) !important;
+        width: min(920px, 94vw) !important;
+        height: 88vh !important;
+        max-height: 88vh !important;
+        margin: 6vh auto !important;
+      }
+      #editCustomerModal .modal-content {
+        height: 100% !important;
+        max-height: 88vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        border-radius: 16px;
+        border: 1px solid var(--border-gold);
+        box-shadow: 0 10px 35px rgba(0,0,0,0.7);
+      }
+    }
+    @media (max-width: 767.98px) {
+      #editCustomerModal .modal-dialog {
+        max-width: 100vw !important;
+        margin: 0 !important;
+        height: 100vh !important;
+      }
+      #editCustomerModal .modal-content {
+        height: 100vh !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+      }
+    }
 
     /* ─── TOAST ──────────────────────────────────────────────────────── */
     #toast-container {
@@ -1023,6 +1099,11 @@
               <button class="btn btn-ghost-light w-100 mt-2" onclick="openQrModal('{{ customer.mobile }}')">
                 <i class="bi bi-qr-code me-1"></i> View QR Code
               </button>
+
+              <a href="https://wa.me/91{{ customer.mobile }}?text={{ ('*Image Traditional - Booking Invoice*\n\nDear *' ~ customer.Name ~ '*,\nThank you for your booking at Image Traditional!\n\n💰 *Total Bill:* ₹' ~ customer.total_price ~ '\n✅ *Paid Amount:* ₹' ~ customer.given_price ~ '\n📌 *Balance Due:* ₹' ~ (customer.total_price - customer.given_price) ~ '\n\n📄 *View & Download Digital Bill:* ' ~ url_for('navaratri.download_bill_page', id=customer._id|string, _external=True) ~ '\n\nStore Address: Nr. Laxminarayan Bus-stand, Maninagar(E), Ahmedabad')|urlencode }}"
+                 target="_blank" class="btn btn-ghost-success w-100 mt-2 fw-bold" style="border-color:rgba(34,197,94,0.4); color:#4ade80;">
+                <i class="bi bi-whatsapp me-1"></i> Send Text Bill Link via WhatsApp
+              </a>
               <button type="button" class="btn btn-ghost-danger w-100 mt-2 fw-bold" onclick="openDeleteCustomerModal()">
                 <i class="bi bi-person-x-fill me-1"></i> Delete Entire Customer
               </button>
@@ -1263,7 +1344,7 @@
 
 <!-- Edit / New Booking Modal -->
 <div class="modal fade" id="editCustomerModal" tabindex="-1" data-bs-backdrop="static">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-sm-down">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-fullscreen-md-down">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="editCustomerModalLabel"><i class="bi bi-pencil-square me-2"></i>Edit Booking</h5>
@@ -1321,13 +1402,18 @@
             </div>
           </div>
 
-          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <div class="sticky-allocation-header d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div class="modal-section-title mb-0"><i class="bi bi-calendar-plus-fill me-1"></i> Booking Dates & Costume Allocations</div>
-            <button type="button" class="btn btn-ghost-gold btn-sm fw-bold" onclick="addModalDateBlock()">
+            <button type="button" class="btn btn-gold btn-sm fw-bold" onclick="addModalDateBlock()">
               <i class="bi bi-plus-circle-fill me-1"></i> Add Date Block
             </button>
           </div>
           <div id="modalBookingRowsContainer"></div>
+          <div class="text-center mt-3 pt-3 border-top border-secondary">
+            <button type="button" class="btn btn-ghost-gold btn-sm fw-bold px-4 py-2" onclick="addModalDateBlock()">
+              <i class="bi bi-plus-circle-fill me-1"></i> Add Another Date Block
+            </button>
+          </div>
         </form>
       </div>
       <div class="modal-footer">
@@ -1454,6 +1540,71 @@
   </div>
 </div>
 
+<!-- New Booking Success & Share Bill Modal -->
+<div class="modal fade" id="bookingSuccessModal" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-top: 4px solid var(--accent-success);">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color:var(--accent-success);">
+          <i class="bi bi-check-circle-fill me-2"></i>Booking Confirmed & Digital Bill Ready!
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="reloadBookingPage()"></button>
+      </div>
+      <div class="modal-body p-4 text-center">
+        <div class="mb-3">
+          <span class="badge bg-success px-3 py-2 fs-6 rounded-pill" style="background:#10b981 !important;">
+            <i class="bi bi-shield-check me-1"></i> New Booking Registered
+          </span>
+        </div>
+
+        <h4 class="fw-bold mb-1" id="succ-cust-name" style="color:var(--gold-light);"></h4>
+        <p style="color:var(--text-muted);font-size:0.88rem;" class="mb-3">
+          Mobile: <strong id="succ-cust-mobile" style="color:#ffffff;"></strong>
+        </p>
+
+        <!-- QR Code Container -->
+        <div class="p-3 mb-3 rounded d-inline-block shadow-sm" style="background:#ffffff; border:2px solid var(--border-gold);">
+          <img id="succ-qr-code-img" src="" alt="Download Bill QR Code" style="width:190px;height:190px;" class="img-fluid">
+          <div style="font-size:0.75rem;color:#1e293b;font-weight:700;" class="mt-2">Scan QR to View / Download Bill</div>
+        </div>
+
+        <!-- Bill Financial Summary Box -->
+        <div class="p-3 mb-3 rounded text-start" style="background:rgba(15,23,42,0.85); border:1px solid var(--border-color);">
+          <div class="d-flex justify-content-between mb-1" style="font-size:0.85rem;">
+            <span style="color:var(--text-muted);">Total Invoice:</span>
+            <strong style="color:#ffffff;" id="succ-total-price">₹0</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-1" style="font-size:0.85rem;">
+            <span style="color:var(--text-muted);">Amount Paid:</span>
+            <strong style="color:var(--accent-success);" id="succ-given-price">₹0</strong>
+          </div>
+          <div class="d-flex justify-content-between border-top border-secondary pt-1 mt-1" style="font-size:0.9rem;">
+            <strong style="color:var(--gold-primary);">Balance Remaining:</strong>
+            <strong style="color:var(--gold-light);" id="succ-remaining-price">₹0</strong>
+          </div>
+        </div>
+
+        <!-- Action Buttons: WhatsApp & Direct Download -->
+        <div class="d-flex flex-column gap-2 mt-3">
+
+          <a id="succ-whatsapp-link" href="#" target="_blank" class="btn btn-ghost-success fw-bold py-2" style="font-size:0.9rem;">
+            <i class="bi bi-whatsapp me-2 fs-5 align-middle"></i> Send Text Bill Link via WhatsApp
+          </a>
+
+          <a id="succ-download-link" href="#" target="_blank" class="btn btn-ghost-gold fw-bold py-2" style="font-size:0.9rem;">
+            <i class="bi bi-file-earmark-pdf-fill me-2"></i> Open / Download PDF Bill
+          </a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-gold w-100 fw-bold" onclick="reloadBookingPage()">
+          <i class="bi bi-arrow-right-circle me-1"></i> Continue to Customer Profile
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Mobile Customer Register Offcanvas Drawer (<992px) -->
 <div class="offcanvas offcanvas-start d-lg-none bm-sidebar" tabindex="-1" id="customerOffcanvas" aria-labelledby="customerOffcanvasLabel" style="--bs-offcanvas-bg:#091322;--bs-offcanvas-color:var(--text-main);--bs-offcanvas-border-color:var(--border-color);--bs-offcanvas-width:320px;">
   <div class="offcanvas-header border-bottom border-secondary">
@@ -1527,14 +1678,16 @@
     ]
   }{% else %}null{% endif %};
 
-  let editModalObj, reassignModalObj, deleteModalObj, deleteCustomerModalObj;
+  let editModalObj, reassignModalObj, deleteModalObj, deleteCustomerModalObj, bookingSuccessModalObj;
   let checkAvailabilityTimers = {};
+  let nextRedirectCustomerId = null;
 
   document.addEventListener("DOMContentLoaded", function () {
     editModalObj           = new bootstrap.Modal(document.getElementById('editCustomerModal'));
     reassignModalObj       = new bootstrap.Modal(document.getElementById('reassignModal'));
     deleteModalObj         = new bootstrap.Modal(document.getElementById('deleteBookingRowModal'));
     deleteCustomerModalObj = new bootstrap.Modal(document.getElementById('deleteCustomerModal'));
+    bookingSuccessModalObj = new bootstrap.Modal(document.getElementById('bookingSuccessModal'));
 
     document.querySelectorAll('.modal').forEach(modalEl => {
       modalEl.addEventListener('hide.bs.modal', function () {
@@ -1736,7 +1889,7 @@
     div.setAttribute('data-original', isOriginal);
     div.setAttribute('data-orig-prod', product);
     div.innerHTML = `
-      <div class="drag-handle" title="Drag to move between dates">
+      <div class="drag-handle" title="Drag to move between dates" style="flex-shrink:0;">
         <i class="bi bi-grip-vertical"></i>
       </div>
       <img class="modal-product-thumbnail"
@@ -1755,9 +1908,9 @@
           ${isOriginal ? '<i class="bi bi-check-circle-fill"></i> Confirmed' : '<span style="color:var(--text-muted);font-size:0.68rem;">Enter date & code</span>'}
         </div>
       </div>
-      <div>
-        <button type="button" class="btn btn-ghost-danger btn-sm" onclick="removeModalProductRow('${rowId}')">
-          <i class="bi bi-x-circle-fill"></i>
+      <div style="flex-shrink:0;">
+        <button type="button" class="btn btn-ghost-danger btn-sm px-2" title="Remove Row" onclick="removeModalProductRow('${rowId}')">
+          <i class="bi bi-x-circle-fill fs-6"></i>
         </button>
       </div>`;
     dz.appendChild(div);
@@ -1946,8 +2099,12 @@
     }).then(r => r.json()).then(data => {
       if (data.success) {
         showToast(data.message, "success");
-        editModalObj.hide();
-        setTimeout(() => window.location.href = `/navaratri_booking/${data.customer_id}`, 800);
+        if (data.is_new) {
+          openBookingSuccessModal(data);
+        } else {
+          editModalObj.hide();
+          setTimeout(() => window.location.href = `/navaratri_booking/${data.customer_id}`, 800);
+        }
       } else {
         document.getElementById('modalLoadingOverlay').classList.add('d-none');
         btn.disabled = false; btn.innerHTML = 'Save Booking Changes';
@@ -1958,6 +2115,46 @@
       btn.disabled = false; btn.innerHTML = 'Save Booking Changes';
       showToast("Connection error while saving.", "error");
     });
+  }
+
+  // ── BOOKING SUCCESS & BILL SHARE MODAL ───────────────────────────
+  function openBookingSuccessModal(data) {
+    document.getElementById('modalLoadingOverlay').classList.add('d-none');
+    const saveBtn = document.getElementById('saveCustomerModalBtn');
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = 'Save Booking Changes'; }
+    editModalObj.hide();
+    nextRedirectCustomerId = data.customer_id;
+
+    document.getElementById('succ-cust-name').innerText = data.name;
+    document.getElementById('succ-cust-mobile').innerText = data.mobile;
+    document.getElementById('succ-qr-code-img').src = `/generate-qr/${data.mobile}?t=${Date.now()}`;
+    document.getElementById('succ-total-price').innerText = `₹${data.total_price}`;
+    document.getElementById('succ-given-price').innerText = `₹${data.given_price}`;
+    document.getElementById('succ-remaining-price').innerText = `₹${data.remaining}`;
+
+    const text = encodeURIComponent(
+      `*Image Traditional - Navaratri Booking Confirmation*\n\n` +
+      `Dear *${data.name}*,\n` +
+      `Thank you for your booking at Image Traditional!\n\n` +
+      `💰 *Total Bill:* ₹${data.total_price}\n` +
+      `✅ *Paid Amount:* ₹${data.given_price}\n` +
+      `📌 *Balance Due:* ₹${data.remaining}\n\n` +
+      `📄 *View & Download Digital Bill:* ${data.qr_url}\n\n` +
+      `Store Address: Nr. Laxminarayan Bus-stand, Maninagar(E), Ahmedabad\n` +
+      `Contact: +91 9428610384`
+    );
+    document.getElementById('succ-whatsapp-link').href = `https://wa.me/91${data.mobile}?text=${text}`;
+    document.getElementById('succ-download-link').href = data.qr_url;
+
+    bookingSuccessModalObj.show();
+  }
+
+  function reloadBookingPage() {
+    if (nextRedirectCustomerId) {
+      window.location.href = `/navaratri_booking/${nextRedirectCustomerId}`;
+    } else {
+      window.location.href = '/navaratri_booking';
+    }
   }
 
   // ── ADD PAYMENT ──────────────────────────────────────────────────

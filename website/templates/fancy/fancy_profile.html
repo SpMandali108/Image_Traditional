@@ -414,6 +414,14 @@
                 </div>
             </div>
 
+            <!-- WhatsApp Actions -->
+            <div style="margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                <a href="https://wa.me/91{{ customer.mobile }}?text={{ ('*Image Traditional - Customer Profile*\n\nDear *' ~ customer.name ~ '*,\nThank you for your business with Image Traditional!\nTotal Spent: ₹' ~ total_spent) | urlencode }}"
+                   target="_blank" class="back-link" style="border-color:rgba(37,211,102,0.5); color:#25D366; text-transform:none; font-size:0.85rem; padding:0.65rem 1.25rem;">
+                    💬 Send Text Bill Link via WhatsApp
+                </a>
+            </div>
+
         </div>
     </div>
 
@@ -659,6 +667,7 @@ location.reload();
 });
 
 }
+
 
 </script>
 

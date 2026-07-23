@@ -809,7 +809,19 @@ def profile_update():
     except Exception:
         pass
         
-    return jsonify({"success": True, "message": message, "customer_id": ret_id})
+    is_new = (customer_id == 'new' or not customer_id or not existing_cust)
+    return jsonify({
+        "success": True,
+        "message": message,
+        "customer_id": ret_id,
+        "mobile": mobile,
+        "name": name,
+        "total_price": total_price,
+        "given_price": given_price,
+        "remaining": max(0, total_price - given_price),
+        "qr_url": qr_url,
+        "is_new": is_new
+    })
 
 # ------------------ API: Add Payment to Customer ------------------
 @navaratri.route('/navaratri_booking/add-payment', methods=['POST'])
@@ -1525,10 +1537,19 @@ def dashboard_summary():
         )
     
     
-@navaratri.route('/download-customer', methods=['POST'])
+@navaratri.route('/download-customer', methods=['GET', 'POST'])
 def download_customer():
-    cust_id = request.form.get('id')
-    mobile = request.form.get('mobile')
+    cust_id = request.form.get('id') or request.args.get('id')
+    mobile = request.form.get('mobile') or request.args.get('mobile')
+    if not cust_id and not mobile and request.is_json:
+        data = request.get_json(silent=True) or {}
+        cust_id = data.get('id')
+        mobile = data.get('mobile')
+        
+    if mobile:
+        mobile = str(mobile).strip()
+    if cust_id:
+        cust_id = str(cust_id).strip()
     
     customer = None
     if cust_id:
@@ -2050,13 +2071,40 @@ def download_bill_page():
         except Exception:
             pass
             
-    # Fallback to search by mobile if ID lookup is not possible
-    if not customer:
-        mobile = request.args.get("mobile", "") or request.form.get("mobile", "")
-        if mobile:
-            customer = collection.find_one({"mobile": mobile})
-            
     return render_template("navaratri/download_bill.html", id=cust_id, mobile=mobile, customer=customer)
+
+
+@navaratri.route("/api/send-whatsapp-auto", methods=["POST"])
+def send_whatsapp_auto_route():
+    data = request.get_json(silent=True) or {}
+    cust_id = data.get("id") or request.form.get("id")
+    mobile = data.get("mobile") or request.form.get("mobile")
+
+    customer = None
+    if cust_id:
+        try:
+            customer = collection.find_one({"_id": ObjectId(cust_id)})
+        except Exception:
+            pass
+    if not customer and mobile:
+        customer = collection.find_one({"mobile": mobile})
+
+    if not customer:
+        return jsonify({"success": False, "message": "Customer not found"}), 404
+
+    target_mobile = customer.get("mobile")
+    customer_name = customer.get("Name", "Customer")
+    
+    # Build public external PDF invoice download link
+    pdf_url = url_for('navaratri.download_customer', id=str(customer["_id"]), _external=True)
+
+    from website.general.utils import send_whatsapp_pdf_cloud_api
+    ok, response_data = send_whatsapp_pdf_cloud_api(target_mobile, pdf_url, customer_name)
+
+    if ok:
+        return jsonify({"success": True, "message": f"PDF invoice sent automatically to WhatsApp (+91 {target_mobile})!"})
+    else:
+        return jsonify({"success": False, "message": f"Meta WhatsApp API: {response_data}"}), 400
 
 @navaratri.route("/generate-qr/<mobile>")
 def generate_qr(mobile):

@@ -67,7 +67,13 @@
     </div>
     {% endif %}
 
-    <button type="submit" name="save">Save Changes</button>
+    <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:1rem; align-items:center;">
+      <button type="submit" name="save">Save Changes</button>
+      <a href="https://wa.me/91{{ customer.mobile }}?text={{ ('*Image Traditional - Booking Invoice*\n\nDear *' ~ customer.Name ~ '*,\nThank you for your booking at Image Traditional!\n\n💰 *Total Bill:* ₹' ~ customer.total_price ~ '\n✅ *Paid Amount:* ₹' ~ customer.given_price ~ '\n📌 *Balance Due:* ₹' ~ (customer.total_price - customer.given_price) ~ '\n\n📄 *View & Download Digital Bill:* ' ~ url_for('navaratri.download_bill_page', id=customer._id|string, _external=True)) | urlencode }}"
+         target="_blank" style="padding:0.75rem 1.5rem; background:transparent; color:#25D366; border:1px solid #25D366; border-radius:6px; font-weight:bold; text-decoration:none; display:inline-block;">
+        💬 Send Text Bill Link via WhatsApp
+      </a>
+    </div>
   </form>
   {% else %}
   <p>Customer not found.</p>
@@ -97,6 +103,8 @@ document.querySelectorAll('.booking-item-input').forEach(input => {
     .catch(err => { console.error(err); elem.style.backgroundColor = ''; });
   });
 });
+
+
 </script>
 
 <style>

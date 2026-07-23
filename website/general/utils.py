@@ -175,3 +175,99 @@ def generate_qr_code(url):
     buf.seek(0)
 
     return send_file(buf, mimetype="image/png")
+
+
+# =========================
+# 💬 META WHATSAPP CLOUD API INTEGRATION
+# =========================
+
+import requests
+
+def send_whatsapp_pdf_cloud_api(mobile_number, pdf_url, customer_name, filename=None):
+    """
+    Sends a PDF document directly to a customer's WhatsApp inbox via Meta Cloud API.
+    Requires WHATSAPP_TOKEN and WHATSAPP_PHONE_ID environment variables.
+    """
+    token = os.environ.get("WHATSAPP_TOKEN")
+    phone_id = os.environ.get("WHATSAPP_PHONE_ID")
+
+    if not token or not phone_id:
+        print("[WhatsApp API] Missing WHATSAPP_TOKEN or WHATSAPP_PHONE_ID in .env")
+        return False, "WhatsApp API credentials not configured."
+
+    # Ensure clean 10-digit mobile number with country code 91
+    clean_mobile = str(mobile_number).strip().replace("+", "").replace(" ", "").replace("-", "")
+    if len(clean_mobile) == 10:
+        clean_mobile = "91" + clean_mobile
+
+    url = f"https://graph.facebook.com/v18.0/{phone_id}/messages"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    doc_filename = filename or f"{customer_name.strip().replace(' ', '_')}_Rental_Invoice.pdf"
+
+    payload = {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": clean_mobile,
+        "type": "document",
+        "document": {
+            "link": pdf_url,
+            "filename": doc_filename,
+            "caption": f"Hello {customer_name}, here is your rental invoice PDF from Image Traditional!"
+        }
+    }
+
+    try:
+        res = requests.post(url, json=payload, headers=headers, timeout=10)
+        res_data = res.json()
+
+        if res.status_code in (200, 201):
+            return True, res_data
+        else:
+            err_msg = res_data.get("error", {}).get("message", res.text)
+            print(f"[WhatsApp API Error]: {err_msg}")
+            return False, err_msg
+    except Exception as e:
+        print(f"[WhatsApp API Exception]: {str(e)}")
+        return False, str(e)
+
+
+def send_whatsapp_text_cloud_api(mobile_number, message_text):
+    """
+    Sends a text message directly to a customer's WhatsApp inbox via Meta Cloud API.
+    """
+    token = os.environ.get("WHATSAPP_TOKEN")
+    phone_id = os.environ.get("WHATSAPP_PHONE_ID")
+
+    if not token or not phone_id:
+        return False, "WhatsApp API credentials not configured."
+
+    clean_mobile = str(mobile_number).strip().replace("+", "").replace(" ", "").replace("-", "")
+    if len(clean_mobile) == 10:
+        clean_mobile = "91" + clean_mobile
+
+    url = f"https://graph.facebook.com/v18.0/{phone_id}/messages"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": clean_mobile,
+        "type": "text",
+        "text": {
+            "preview_url": True,
+            "body": message_text
+        }
+    }
+
+    try:
+        res = requests.post(url, json=payload, headers=headers, timeout=10)
+        return res.status_code in (200, 201), res.json()
+    except Exception as e:
+        return False, str(e)
