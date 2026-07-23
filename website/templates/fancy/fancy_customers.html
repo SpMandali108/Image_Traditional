@@ -1275,10 +1275,12 @@
 var fancyMapData = {{ map_localities|tojson|safe if map_localities else '[]' }};
 var fancyMap;
 
+var fancyMarkers = [];
+
 document.addEventListener("DOMContentLoaded", function() {
     var mapElem = document.getElementById('fancy-customer-map');
     if (mapElem && fancyMapData && fancyMapData.length > 0) {
-        fancyMap = L.map('fancy-customer-map', { zoomControl: true }).setView([22.9976, 72.6009], 12);
+        fancyMap = L.map('fancy-customer-map', { zoomControl: true }).setView([22.9976, 72.6009], 11);
 
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap &copy; CARTO',
@@ -1287,11 +1289,11 @@ document.addEventListener("DOMContentLoaded", function() {
         }).addTo(fancyMap);
 
         fancyMapData.forEach(function(item) {
-            var radiusSize = Math.max(180, item.count * 35);
+            var radiusSize = Math.max(200, item.count * 35);
             var circle = L.circle([item.lat, item.lng], {
                 color: '#d4af37',
                 fillColor: '#d4af37',
-                fillOpacity: 0.45,
+                fillOpacity: 0.5,
                 radius: radiusSize
             }).addTo(fancyMap);
 
@@ -1307,7 +1309,13 @@ document.addEventListener("DOMContentLoaded", function() {
             circle.on('click', function() {
                 filterFancyArea(item.area, item.lat, item.lng);
             });
+
+            fancyMarkers.push(circle);
         });
+
+        if (fancyMarkers.length > 0) {
+            fancyMap.fitBounds(L.featureGroup(fancyMarkers).getBounds().pad(0.12));
+        }
     }
 });
 
@@ -1336,7 +1344,9 @@ function clearFancyMapFilter() {
         filterTable('');
     }
 
-    if (fancyMap) fancyMap.flyTo([22.9976, 72.6009], 12);
+    if (fancyMap && fancyMarkers.length > 0) {
+        fancyMap.fitBounds(L.featureGroup(fancyMarkers).getBounds().pad(0.12));
+    }
 }
 </script>
 {% endblock %}

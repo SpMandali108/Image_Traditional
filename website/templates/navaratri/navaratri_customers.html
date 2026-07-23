@@ -581,8 +581,8 @@ var map;
 var markers = {};
 
 document.addEventListener("DOMContentLoaded", function() {
-    // Initialize Leaflet Map centered on Ahmedabad
-    map = L.map('customer-map', { zoomControl: true }).setView([23.0041, 72.6400], 12);
+    // Initialize Leaflet Map
+    map = L.map('customer-map', { zoomControl: true }).setView([23.0041, 72.6400], 11);
 
     // CartoDB Dark Matter tile layer
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -591,14 +591,16 @@ document.addEventListener("DOMContentLoaded", function() {
         maxZoom: 19
     }).addTo(map);
 
+    var circleList = [];
+
     // Add glowing circles for each locality
     if (mapData && mapData.length > 0) {
         mapData.forEach(function(item) {
-            var radiusSize = Math.max(180, item.count * 45);
+            var radiusSize = Math.max(220, item.count * 45);
             var circle = L.circle([item.lat, item.lng], {
                 color: '#d4af37',
                 fillColor: '#d4af37',
-                fillOpacity: 0.45,
+                fillOpacity: 0.5,
                 radius: radiusSize
             }).addTo(map);
 
@@ -615,8 +617,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 filterByArea(item.area, item.lat, item.lng);
             });
 
+            circleList.push(circle);
             markers[item.area] = { circle: circle, lat: item.lat, lng: item.lng };
         });
+
+        if (circleList.length > 0) {
+            var group = L.featureGroup(circleList);
+            map.fitBounds(group.getBounds().pad(0.12));
+        }
     }
 });
 
@@ -646,7 +654,6 @@ function filterByArea(areaName, lat, lng) {
         }
     });
 
-    // Scroll smoothly to table
     document.getElementById('custTable').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -657,7 +664,15 @@ function clearMapFilter() {
     var rows = document.querySelectorAll('.cust-row');
     rows.forEach(function(row) { row.style.display = ''; });
 
-    if (map) map.flyTo([23.0041, 72.6400], 12);
+    if (map && mapData && mapData.length > 0) {
+        var circleList = [];
+        for (var key in markers) {
+            circleList.push(markers[key].circle);
+        }
+        if (circleList.length > 0) {
+            map.fitBounds(L.featureGroup(circleList).getBounds().pad(0.12));
+        }
+    }
 }
 </script>
 {% endblock %}
