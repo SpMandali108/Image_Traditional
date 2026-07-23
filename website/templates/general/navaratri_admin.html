@@ -412,38 +412,40 @@
             </div>
 
             <!-- Actions -->
-            <div class="cycle-bottom">
+            <div class="cycle-bottom" style="display:flex; flex-direction:column; gap:1rem; margin-top:1rem;">
                 {% if active_cycle %}
-                <form method="GET" action="/navaratri_cycles/end">
-                    <button type="submit" class="btn btn-danger">End Active Cycle</button>
+                <form method="POST" action="/navaratri_cycles/end" style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+                    <input type="hidden" name="cycle_id" value="{{ active_cycle._id }}">
+                    <input type="password" name="password" placeholder="Admin Password" class="f-input" required style="max-width:180px;">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to end active cycle \'{{ active_cycle.name }}\'?')">
+                        🛑 End Active Cycle
+                    </button>
                 </form>
                 {% endif %}
-                {% if selected_cycle.status == "closed" and not selected_cycle.edit_override %}
-                <form method="POST"
-      action="/navaratri_cycles/unlock/{{ selected_cycle._id }}"
-      style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
 
-    <input type="text"
-           name="id"
-           placeholder="Admin ID"
-           class="f-input"
-           required
-           style="max-width:140px;">
+                {% if selected_cycle and selected_cycle.status == "closed" %}
+                <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+                    <!-- Reactivate Cycle with Authentication -->
+                    <form method="POST" action="/navaratri_cycles/reactivate" style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+                        <input type="hidden" name="cycle_id" value="{{ selected_cycle._id }}">
+                        <input type="password" name="password" placeholder="Admin Password" class="f-input" required style="max-width:180px;">
+                        <button type="submit" class="btn btn-gold" style="background:#10b981; color:white; border:none;">
+                            🔄 Reactivate Cycle
+                        </button>
+                    </form>
 
-    <input type="password"
-           name="password"
-           placeholder="Password"
-           class="f-input"
-           required
-           style="max-width:180px;">
-
-    <button type="submit" class="btn btn-ghost">
-        🔓 Unlock Cycle
-    </button>
-
-</form>
+                    <!-- Unlock Cycle for Temporary Override -->
+                    {% if not selected_cycle.edit_override %}
+                    <form method="POST" action="/navaratri_cycles/unlock/{{ selected_cycle._id }}" style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+                        <input type="text" name="id" placeholder="Admin ID" class="f-input" required style="max-width:130px;">
+                        <input type="password" name="password" placeholder="Password" class="f-input" required style="max-width:150px;">
+                        <button type="submit" class="btn btn-ghost">🔓 Unlock Cycle</button>
+                    </form>
+                    {% endif %}
+                </div>
                 {% endif %}
-                {% if selected_cycle.edit_override %}
+
+                {% if selected_cycle and selected_cycle.edit_override %}
                 <a href="/navaratri_cycles/lock/{{ selected_cycle._id }}" class="btn btn-ghost">🔒 Lock Again</a>
                 {% endif %}
             </div>

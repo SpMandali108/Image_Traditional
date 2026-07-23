@@ -114,6 +114,34 @@ def end_cycle(cycle_id=None):
     return True
 
 
+def reactivate_cycle(cycle_id):
+    """
+    Reactivates a closed cycle IF AND ONLY IF no other cycle is currently active.
+    Returns (success: bool, message: str)
+    """
+    active_cycle = get_active_cycle()
+    target_cycle = get_cycle_by_id(cycle_id)
+
+    if not target_cycle:
+        return False, "Cycle not found."
+
+    if target_cycle.get("status") == "active":
+        return False, "This cycle is already active."
+
+    if active_cycle and str(active_cycle.get("_id")) != str(target_cycle.get("_id")):
+        return False, f"Cannot reactivate: Cycle '{active_cycle.get('name')}' is currently active. Please end the active cycle first."
+
+    navaratri_cycles.update_one(
+        {"_id": target_cycle["_id"]},
+        {
+            "$set": {"status": "active"},
+            "$unset": {"end_date": "", "closed_at": ""}
+        }
+    )
+    return True, f"Cycle '{target_cycle.get('name')}' successfully reactivated!"
+
+
+
 def get_all_cycles():
     """
     Returns all cycles

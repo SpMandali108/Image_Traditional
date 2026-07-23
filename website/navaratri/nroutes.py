@@ -19,6 +19,7 @@ from website.navaratri.ncycle import (
     set_selected_cycle,
     create_cycle,
     end_cycle,
+    reactivate_cycle,
     get_selected_collection,
     is_selected_cycle_locked,
     navaratri_cycles
@@ -2567,74 +2568,73 @@ def create_navaratri_cycle_route():
     return redirect("/navaratri_admin")
 
 
-@navaratri.route("/navaratri_cycles/end/<cycle_id>")
-def end_navaratri_cycle_route(cycle_id):
-    if not session.get('logged_in'):
-        return redirect(url_for('auth.login'))
-
-    end_cycle(cycle_id)
-
-    return redirect("/navaratri_admin")
-
-
-@navaratri.route("/navaratri_cycles/select/<cycle_id>")
+@navaratri.route("/navaratri_cycles/select/<cycle_id>", methods=["GET", "POST"])
 def select_navaratri_cycle_id(cycle_id):
     if not session.get('logged_in'):
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('navaratri.login'))
 
     set_selected_cycle(cycle_id)
-
     return redirect("/navaratri_admin")
 
 
-@navaratri.route(
-    "/navaratri_cycles/select",
-    methods=["POST"]
-)
+@navaratri.route("/navaratri_cycles/select", methods=["GET", "POST"])
 def select_navaratri_cycle():
     if not session.get('logged_in'):
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('navaratri.login'))
 
-    cycle_id = request.form.get("cycle_id")
-
-    set_selected_cycle(cycle_id)
-
-    return redirect("/navaratri_admin")
-
-
-@navaratri.route("/navaratri_cycles/start", methods=["POST"])
-def start_cycle():
-    if not session.get('logged_in'):
-        return redirect(url_for('auth.login'))
-
-    active = get_active_cycle()
-
-    if active:
-        return "End current cycle first"
-
-    name = request.form.get("name")
-    collection_name = request.form.get("collection_name")
-
-    create_cycle(
-        name,
-        collection_name
-    )
+    cycle_id = request.form.get("cycle_id") or request.args.get("cycle_id")
+    if cycle_id:
+        set_selected_cycle(cycle_id)
 
     return redirect("/navaratri_admin")
 
 
-@navaratri.route("/navaratri_cycles/end")
-def end_current_cycle():
+@navaratri.route("/navaratri_cycles/end", methods=["POST"])
+@navaratri.route("/navaratri_cycles/end/<cycle_id>", methods=["GET", "POST"])
+def end_navaratri_cycle_route(cycle_id=None):
     if not session.get('logged_in'):
         return redirect(url_for('auth.login'))
 
-    cycle = get_active_cycle()
+    if request.method == "POST":
+        target_id = request.form.get("cycle_id") or cycle_id
+        password = request.form.get("password")
 
-    if cycle:
-        end_cycle(
-            str(cycle["_id"])
-        )
+        if password != ADMIN_PASS:
+            flash("❌ Authentication failed: Invalid Admin Password!", "error")
+            return redirect("/navaratri_admin")
 
+        if end_cycle(target_id):
+            flash("✅ Active cycle ended successfully.", "success")
+        else:
+            flash("❌ Could not end cycle.", "error")
+        return redirect("/navaratri_admin")
+
+    flash("⚠️ Password confirmation required to end a cycle.", "error")
+    return redirect("/navaratri_admin")
+
+
+@navaratri.route("/navaratri_cycles/reactivate", methods=["POST"])
+@navaratri.route("/navaratri_cycles/reactivate/<cycle_id>", methods=["GET", "POST"])
+def reactivate_navaratri_cycle_route(cycle_id=None):
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    if request.method == "POST":
+        target_id = request.form.get("cycle_id") or cycle_id
+        password = request.form.get("password")
+
+        if password != ADMIN_PASS:
+            flash("❌ Authentication failed: Invalid Admin Password!", "error")
+            return redirect("/navaratri_admin")
+
+        success, msg = reactivate_cycle(target_id)
+        if success:
+            flash(msg, "success")
+        else:
+            flash(f"❌ {msg}", "error")
+        return redirect("/navaratri_admin")
+
+    flash("⚠️ Password confirmation required to reactivate a cycle.", "error")
     return redirect("/navaratri_admin")
 
 

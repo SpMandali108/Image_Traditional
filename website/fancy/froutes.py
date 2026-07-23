@@ -21,6 +21,7 @@ from website.fancy.fcycle import (
     set_selected_cycle,
     create_cycle,
     end_cycle,
+    reactivate_cycle,
     get_active_collection,
     get_selected_collection
 )
@@ -1241,81 +1242,74 @@ def create_fancy_cycle_route():
         url_for("fancy.fancy_cycles_page")
     )
 
-@fancy.route("/fancy_cycles/end/<cycle_id>")
-def end_fancy_cycle_route(cycle_id):
 
-    if not session.get('logged_in'):
-        return redirect(url_for('auth.login'))
-
-    end_cycle(cycle_id)
-
-    return redirect(
-        url_for("fancy.fancy_cycles_page")
-    )
-@fancy.route("/fancy_cycles/select/<cycle_id>")
+@fancy.route("/fancy_cycles/select/<cycle_id>", methods=["GET", "POST"])
 def select_fancy_cycle_id(cycle_id):
-
     if not session.get('logged_in'):
         return redirect(url_for('auth.login'))
 
     set_selected_cycle(cycle_id)
+    return redirect("/fancy_admin")
 
-    return redirect(
-        url_for("fancy.fancy_dashboard")
-    )
 
-@fancy.route(
-    "/fancy_cycles/select",
-    methods=["POST"]
-)
+@fancy.route("/fancy_cycles/select", methods=["GET", "POST"])
 def select_fancy_cycle():
-
     if not session.get('logged_in'):
         return redirect(url_for('auth.login'))
 
-    cycle_id = request.form.get("cycle_id")
-
-    set_selected_cycle(cycle_id)
+    cycle_id = request.form.get("cycle_id") or request.args.get("cycle_id")
+    if cycle_id:
+        set_selected_cycle(cycle_id)
 
     return redirect("/fancy_admin")
 
-@fancy.route("/fancy_cycles/start", methods=["POST"])
-def start_cycle():
-
+@fancy.route("/fancy_cycles/end", methods=["POST"])
+@fancy.route("/fancy_cycles/end/<cycle_id>", methods=["GET", "POST"])
+def end_fancy_cycle_route(cycle_id=None):
     if not session.get('logged_in'):
         return redirect(url_for('auth.login'))
 
-    active = get_active_cycle()
+    if request.method == "POST":
+        target_id = request.form.get("cycle_id") or cycle_id
+        password = request.form.get("password")
 
-    if active:
-        return "End current cycle first"
+        if password != ADMIN_PASS:
+            flash("❌ Authentication failed: Invalid Admin Password!", "error")
+            return redirect(url_for("fancy.fancy_cycles_page"))
 
-    name = request.form.get("name")
-    collection_name = request.form.get("collection_name")
+        if end_cycle(target_id):
+            flash("✅ Active Fancy cycle ended successfully.", "success")
+        else:
+            flash("❌ Could not end cycle.", "error")
+        return redirect(url_for("fancy.fancy_cycles_page"))
 
-    
+    flash("⚠️ Password confirmation required to end a cycle.", "error")
+    return redirect(url_for("fancy.fancy_cycles_page"))
 
-    create_cycle(
-        name,
-        collection_name
-    )
 
-    return redirect("/fancy_admin")
-
-@fancy.route("/fancy_cycles/end")
-def end_current_cycle():
-
+@fancy.route("/fancy_cycles/reactivate", methods=["POST"])
+@fancy.route("/fancy_cycles/reactivate/<cycle_id>", methods=["GET", "POST"])
+def reactivate_fancy_cycle_route(cycle_id=None):
     if not session.get('logged_in'):
         return redirect(url_for('auth.login'))
 
-    cycle = get_active_cycle()
+    if request.method == "POST":
+        target_id = request.form.get("cycle_id") or cycle_id
+        password = request.form.get("password")
 
-    if cycle:
-        end_cycle(
-            str(cycle["_id"])
-        )
+        if password != ADMIN_PASS:
+            flash("❌ Authentication failed: Invalid Admin Password!", "error")
+            return redirect(url_for("fancy.fancy_cycles_page"))
 
-    return redirect("/fancy_admin")
+        success, msg = reactivate_cycle(target_id)
+        if success:
+            flash(msg, "success")
+        else:
+            flash(f"❌ {msg}", "error")
+        return redirect(url_for("fancy.fancy_cycles_page"))
+
+    flash("⚠️ Password confirmation required to reactivate a cycle.", "error")
+    return redirect(url_for("fancy.fancy_cycles_page"))
 
 
 @fancy.route("/fancy_cycles/unlock/<cycle_id>", methods=["POST"])
