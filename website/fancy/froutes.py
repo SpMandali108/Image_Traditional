@@ -1449,3 +1449,108 @@ def delete_fancy_customer(customer_id):
     return redirect(
         url_for("fancy.fancy_customers")
     )
+
+
+# ------------------ FANCY ACTION LOGS ------------------
+def log_fancy_action(name, mobile, action, details):
+    selected_cycle = get_selected_cycle()
+    if not selected_cycle:
+        return
+
+    collection_name = selected_cycle.get("collection_name")
+    if not collection_name:
+        return
+
+    logs_col = db[f"{collection_name}_logs"]
+    now = datetime.now()
+
+    log_entry = {
+        "name": name or "",
+        "mobile": mobile or "",
+        "action": action,
+        "details": details,
+        "date_stamp": now.strftime("%Y-%m-%d"),
+        "time_stamp": now.strftime("%H:%M:%S"),
+        "timestamp": now
+    }
+
+    try:
+        logs_col.insert_one(log_entry)
+    except Exception:
+        pass
+
+
+@fancy.route("/fancy_logs")
+def fancy_logs():
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    selected_cycle = get_selected_cycle()
+    logs = []
+    if selected_cycle:
+        collection_name = selected_cycle.get("collection_name")
+        if collection_name:
+            logs_col = db[f"{collection_name}_logs"]
+            logs = list(logs_col.find().sort("timestamp", -1))
+
+    return render_template(
+        "fancy/fancy_logs.html",
+        logs=logs,
+        selected_cycle=selected_cycle
+    )
+
+
+@fancy.route("/fancy_logs/api")
+def fancy_logs_api():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    selected_cycle = get_selected_cycle()
+    logs_data = []
+    if selected_cycle:
+        collection_name = selected_cycle.get("collection_name")
+        if collection_name:
+            logs_col = db[f"{collection_name}_logs"]
+            raw_logs = list(logs_col.find().sort("timestamp", -1))
+            for log in raw_logs:
+                logs_data.append({
+                    "id": str(log.get("_id", "")),
+                    "name": log.get("name", "") or "—",
+                    "mobile": log.get("mobile", "") or "—",
+                    "action": log.get("action", ""),
+                    "details": log.get("details", ""),
+                    "date_stamp": log.get("date_stamp", ""),
+                    "time_stamp": log.get("time_stamp", "")
+                })
+
+    return jsonify({"success": True, "logs": logs_data, "cycle_name": selected_cycle.get("name") if selected_cycle else ""})
+
+
+@fancy.route("/fancy_logs/clear", methods=["POST"])
+def clear_fancy_logs():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    data = request.json or request.form
+    password = data.get("password", "").strip()
+
+    if password != ADMIN_PASS:
+        return jsonify({"success": False, "message": "❌ Authentication failed: Invalid Admin Password!"}), 400
+
+    selected_cycle = get_selected_cycle()
+    if not selected_cycle:
+        return jsonify({"success": False, "message": "No Fancy cycle selected."}), 400
+
+    collection_name = selected_cycle.get("collection_name")
+    if not collection_name:
+        return jsonify({"success": False, "message": "Invalid cycle collection."}), 400
+
+    logs_col = db[f"{collection_name}_logs"]
+    logs_col.delete_many({})
+
+    try:
+        log_fancy_action("Admin", "", "clear_logs", f"Cleared all action logs for Fancy cycle '{selected_cycle.get('name')}'.")
+    except Exception:
+        pass
+
+    return jsonify({"success": True, "message": "✅ All Fancy action logs cleared successfully!"})

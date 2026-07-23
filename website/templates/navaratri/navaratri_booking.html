@@ -1105,7 +1105,7 @@
                 <i class="bi bi-whatsapp me-1"></i> Send Text Bill Link via WhatsApp
               </a>
               <button type="button" class="btn btn-ghost-danger w-100 mt-2 fw-bold" onclick="openDeleteCustomerModal()">
-                <i class="bi bi-person-x-fill me-1"></i> Delete Entire Customer
+                <i class="bi bi-person-x-fill me-1"></i> Remove Booking from Cycle
               </button>
 
             </div>
@@ -1244,10 +1244,6 @@
                       {% else %}
                         <span class="avail-indicator available"><i class="bi bi-check-circle-fill"></i> Paid</span>
                       {% endif %}
-                      <a href="{{ url_for('navaratri.navaratri_booking', customer_id=cust._id|string) }}"
-                         class="btn btn-ghost-gold btn-sm fw-bold px-3 ms-auto" onclick="event.stopPropagation();">
-                        <i class="bi bi-eye-fill me-1"></i> View
-                      </a>
                     </div>
                   </div>
                 {% endfor %}
@@ -1487,19 +1483,19 @@
   </div>
 </div>
 
-<!-- Delete Entire Customer Modal (Password Protected) -->
+<!-- Delete Cycle Booking Modal (Password Protected) -->
 <div class="modal fade" id="deleteCustomerModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content" style="border-top: 4px solid var(--accent-danger);">
       <div class="modal-header">
         <h5 class="modal-title" style="color:var(--accent-danger);">
-          <i class="bi bi-person-x-fill me-2"></i>Delete Entire Customer Record
+          <i class="bi bi-person-x-fill me-2"></i>Remove Booking Record from Cycle
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4">
         <div class="p-3 mb-3 rounded" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; font-size:0.88rem;">
-          <i class="bi bi-exclamation-triangle-fill me-1"></i> <strong>Warning:</strong> You are about to permanently delete <strong><span id="del-cust-name-text"></span></strong> (<span id="del-cust-mobile-text"></span>) and all associated costume bookings from the database.
+          <i class="bi bi-exclamation-triangle-fill me-1"></i> <strong>Note:</strong> You are about to remove active costume bookings for <strong><span id="del-cust-name-text"></span></strong> (<span id="del-cust-mobile-text"></span>) from the current cycle. The customer profile will remain saved in the universal Customer Database.
         </div>
         <div class="mb-3">
           <label class="form-label fw-bold" style="color:var(--gold-light);">Enter Admin Security Password *</label>
@@ -1510,7 +1506,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-ghost-light fw-bold" data-bs-dismiss="modal">Cancel</button>
         <button type="button" class="btn btn-solid-danger fw-bold px-4" id="confirmDeleteCustomerBtn" onclick="confirmDeleteCustomer()">
-          <i class="bi bi-trash3-fill me-1"></i> Permanently Delete Customer
+          <i class="bi bi-trash3-fill me-1"></i> Remove Booking from Cycle
         </button>
       </div>
     </div>

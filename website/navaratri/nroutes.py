@@ -1096,24 +1096,17 @@ def profile_delete_customer():
     cust_name = customer.get("Name", "Unknown")
     cust_mobile = customer.get("mobile", "")
 
-    # 1. Delete document from active cycle collection
+    # 1. Delete document from active cycle collection ONLY (removes booking from current cycle)
     collection.delete_one({"_id": customer["_id"]})
 
-    # 2. Delete document from Navaratri_Customers collection
+    # Note: Customer record in Navaratri_Customers is PRESERVED intact.
+
     try:
-        from website.general.db import ncustomers
-        if cust_mobile:
-            ncustomers.delete_one({"mobile": cust_mobile})
-        ncustomers.delete_one({"_id": customer["_id"]})
+        log_action(cust_name, cust_mobile, "delete_customer", f"Removed cycle booking for '{cust_name}' ({cust_mobile}). Universal customer profile preserved.")
     except Exception:
         pass
 
-    try:
-        log_action(cust_name, cust_mobile, "delete_customer", f"Permanently deleted entire customer record for '{cust_name}' ({cust_mobile}).")
-    except Exception:
-        pass
-
-    return jsonify({"success": True, "message": f"✅ Customer '{cust_name}' deleted permanently!"})
+    return jsonify({"success": True, "message": f"✅ Booking record for '{cust_name}' removed from current cycle!"})
 
 @navaratri.route('/check', methods=['GET', 'POST'])
 def check():
@@ -2147,23 +2140,7 @@ def payment_success():
 
     return render_template("navaratri/payment_success.html", customer=customer)
 
-@navaratri.route("/inventory")
-def inventory():
-    if not session.get('logged_in'):
-        return redirect(url_for('navaratri.login'))
 
-   
-    products = []
-
-    # Generate C1 - C150
-    for i in range(1, 151):
-        products.append({"code": f"C{i}"})
-
-    # Generate K1 - K173
-    for i in range(1, 174):
-        products.append({"code": f"K{i}"})
-
-    return render_template("navaratri/inventory.html", products=products)
 
 
 
@@ -2293,13 +2270,7 @@ def code_detail(code):
         image_url=image_url,
         bookings_by_date=bookings_by_date
     )
-@navaratri.route("/product")
-def product():
-    if not session.get('logged_in'):
-        return redirect(url_for('navaratri.login'))
-    # Capitalize first letter for URLs
-    codes = [f"C{i}" for i in range(1, 151)] + [f"K{i}" for i in range(1, 174)]
-    return render_template("navaratri/product.html", codes=codes)
+
 
 @navaratri.route("/dashboard_listing",methods=['GET', 'POST'])
 def dashboard_listing():
@@ -2816,4 +2787,60 @@ def navaratri_logs():
         "navaratri/navaratri_logs.html",
         logs=logs,
         selected_cycle=selected_cycle
-    )
+    )
+
+
+@navaratri.route("/navaratri_logs/api")
+def navaratri_logs_api():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    selected_cycle = get_selected_cycle()
+    logs_data = []
+    if selected_cycle:
+        collection_name = selected_cycle.get("collection_name")
+        if collection_name:
+            logs_col = db[f"{collection_name}_logs"]
+            raw_logs = list(logs_col.find().sort("timestamp", -1))
+            for log in raw_logs:
+                logs_data.append({
+                    "id": str(log.get("_id", "")),
+                    "name": log.get("name", "") or "—",
+                    "mobile": log.get("mobile", "") or "—",
+                    "action": log.get("action", ""),
+                    "details": log.get("details", ""),
+                    "date_stamp": log.get("date_stamp", ""),
+                    "time_stamp": log.get("time_stamp", "")
+                })
+
+    return jsonify({"success": True, "logs": logs_data, "cycle_name": selected_cycle.get("name") if selected_cycle else ""})
+
+
+@navaratri.route("/navaratri_logs/clear", methods=["POST"])
+def clear_navaratri_logs():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    data = request.json or request.form
+    password = data.get("password", "").strip()
+
+    if password != ADMIN_PASS:
+        return jsonify({"success": False, "message": "❌ Authentication failed: Invalid Admin Password!"}), 400
+
+    selected_cycle = get_selected_cycle()
+    if not selected_cycle:
+        return jsonify({"success": False, "message": "No cycle selected."}), 400
+
+    collection_name = selected_cycle.get("collection_name")
+    if not collection_name:
+        return jsonify({"success": False, "message": "Invalid cycle collection."}), 400
+
+    logs_col = db[f"{collection_name}_logs"]
+    logs_col.delete_many({})
+
+    try:
+        log_action("Admin", "", "clear_logs", f"Cleared all action logs for cycle '{selected_cycle.get('name')}'.")
+    except Exception:
+        pass
+
+    return jsonify({"success": True, "message": "✅ All action logs cleared successfully!"})
