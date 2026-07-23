@@ -1023,6 +1023,9 @@
               <button class="btn btn-ghost-light w-100 mt-2" onclick="openQrModal('{{ customer.mobile }}')">
                 <i class="bi bi-qr-code me-1"></i> View QR Code
               </button>
+              <button type="button" class="btn btn-ghost-danger w-100 mt-2 fw-bold" onclick="openDeleteCustomerModal()">
+                <i class="bi bi-person-x-fill me-1"></i> Delete Entire Customer
+              </button>
 
             </div>
           </div>
@@ -1059,11 +1062,6 @@
                              class="badge-navy text-decoration-none font-monospace fw-bold ir-code">
                             {{ item }}
                           </a>
-                        </div>
-                        <div class="ir-status">
-                          <span class="badge-status inside" data-product-status="{{ item }}">
-                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Loading…
-                          </span>
                         </div>
                         <div class="ir-actions">
                           <button type="button" class="btn btn-ghost-light btn-sm" title="Reassign"
@@ -1426,6 +1424,36 @@
   </div>
 </div>
 
+<!-- Delete Entire Customer Modal (Password Protected) -->
+<div class="modal fade" id="deleteCustomerModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-top: 4px solid var(--accent-danger);">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color:var(--accent-danger);">
+          <i class="bi bi-person-x-fill me-2"></i>Delete Entire Customer Record
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="p-3 mb-3 rounded" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; font-size:0.88rem;">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i> <strong>Warning:</strong> You are about to permanently delete <strong><span id="del-cust-name-text"></span></strong> (<span id="del-cust-mobile-text"></span>) and all associated costume bookings from the database.
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold" style="color:var(--gold-light);">Enter Admin Security Password *</label>
+          <input type="password" id="delete-cust-password" class="form-control" placeholder="Admin password required" required>
+          <div id="delete-cust-password-err" class="mt-2 d-none p-2 rounded" style="background:rgba(239,68,68,0.15); color:var(--accent-danger); font-size:0.82rem; font-weight:600;"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost-light fw-bold" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-solid-danger fw-bold px-4" id="confirmDeleteCustomerBtn" onclick="confirmDeleteCustomer()">
+          <i class="bi bi-trash3-fill me-1"></i> Permanently Delete Customer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Mobile Customer Register Offcanvas Drawer (<992px) -->
 <div class="offcanvas offcanvas-start d-lg-none bm-sidebar" tabindex="-1" id="customerOffcanvas" aria-labelledby="customerOffcanvasLabel" style="--bs-offcanvas-bg:#091322;--bs-offcanvas-color:var(--text-main);--bs-offcanvas-border-color:var(--border-color);--bs-offcanvas-width:320px;">
   <div class="offcanvas-header border-bottom border-secondary">
@@ -1499,13 +1527,14 @@
     ]
   }{% else %}null{% endif %};
 
-  let editModalObj, reassignModalObj, deleteModalObj;
+  let editModalObj, reassignModalObj, deleteModalObj, deleteCustomerModalObj;
   let checkAvailabilityTimers = {};
 
   document.addEventListener("DOMContentLoaded", function () {
-    editModalObj     = new bootstrap.Modal(document.getElementById('editCustomerModal'));
-    reassignModalObj = new bootstrap.Modal(document.getElementById('reassignModal'));
-    deleteModalObj   = new bootstrap.Modal(document.getElementById('deleteBookingRowModal'));
+    editModalObj           = new bootstrap.Modal(document.getElementById('editCustomerModal'));
+    reassignModalObj       = new bootstrap.Modal(document.getElementById('reassignModal'));
+    deleteModalObj         = new bootstrap.Modal(document.getElementById('deleteBookingRowModal'));
+    deleteCustomerModalObj = new bootstrap.Modal(document.getElementById('deleteCustomerModal'));
 
     document.querySelectorAll('.modal').forEach(modalEl => {
       modalEl.addEventListener('hide.bs.modal', function () {
@@ -2109,6 +2138,58 @@
       if (data.success) { showToast(data.message, "success"); deleteModalObj.hide(); setTimeout(() => location.reload(), 800); }
       else { btn.disabled = false; btn.innerHTML = 'Confirm Delete'; showToast(data.message||"Failed.", "error"); }
     }).catch(() => { btn.disabled = false; btn.innerHTML = 'Confirm Delete'; showToast("Network error.", "error"); });
+  }
+
+  // ── DELETE ENTIRE CUSTOMER (PASSWORD PROTECTED) ──────────────────
+  function openDeleteCustomerModal() {
+    if (!customerData) return;
+    document.getElementById('del-cust-name-text').innerText = customerData.name;
+    document.getElementById('del-cust-mobile-text').innerText = customerData.mobile;
+    document.getElementById('delete-cust-password').value = '';
+    const err = document.getElementById('delete-cust-password-err');
+    err.classList.add('d-none'); err.innerText = '';
+    deleteCustomerModalObj.show();
+  }
+
+  function confirmDeleteCustomer() {
+    if (!customerData) return;
+    const password = document.getElementById('delete-cust-password').value.trim();
+    const err = document.getElementById('delete-cust-password-err');
+    if (!password) {
+      err.classList.remove('d-none');
+      err.innerText = "❌ Please enter the admin password.";
+      return;
+    }
+    err.classList.add('d-none');
+    const btn = document.getElementById('confirmDeleteCustomerBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Deleting…';
+
+    fetch('/navaratri_booking/delete-customer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer_id: customerData.id,
+        mobile: customerData.mobile,
+        password: password
+      })
+    }).then(r => r.json()).then(data => {
+      if (data.success) {
+        showToast(data.message, "success");
+        deleteCustomerModalObj.hide();
+        setTimeout(() => window.location.href = '/navaratri_booking', 800);
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-trash3-fill me-1"></i> Permanently Delete Customer';
+        err.classList.remove('d-none');
+        err.innerText = `❌ ${data.message || "Deletion failed."}`;
+      }
+    }).catch(() => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-trash3-fill me-1"></i> Permanently Delete Customer';
+      err.classList.remove('d-none');
+      err.innerText = "❌ Connection error.";
+    });
   }
 
   // ── MOBILE AUTOCOMPLETE ──────────────────────────────────────────

@@ -1044,6 +1044,64 @@ def profile_delete_booking():
 
     return jsonify({"success": True, "message": "✅ Booking row deleted successfully!"})
 
+# ------------------ API: Delete Entire Customer (Password Protected) ------------------
+@navaratri.route('/navaratri_booking/delete-customer', methods=['POST'])
+@navaratri.route('/profile/delete-customer', methods=['POST'])
+def profile_delete_customer():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+    if is_selected_cycle_locked():
+        return jsonify({"success": False, "message": "❌ Selected cycle is locked."}), 403
+
+    data = request.json or request.form
+    customer_id = data.get('customer_id')
+    mobile = data.get('mobile', '').strip()
+    entered_pass = data.get('password', '').strip()
+
+    if not entered_pass:
+        return jsonify({"success": False, "message": "Admin password is required."}), 400
+
+    if entered_pass != ADMIN_PASS:
+        return jsonify({"success": False, "message": "Incorrect admin password."}), 400
+
+    if not customer_id and not mobile:
+        return jsonify({"success": False, "message": "Customer ID or mobile is required."}), 400
+
+    customer = None
+    if customer_id and customer_id != 'new':
+        try:
+            customer = collection.find_one({"_id": ObjectId(customer_id)})
+        except Exception:
+            pass
+
+    if not customer and mobile:
+        customer = collection.find_one({"mobile": mobile})
+
+    if not customer:
+        return jsonify({"success": False, "message": "Customer not found."}), 404
+
+    cust_name = customer.get("Name", "Unknown")
+    cust_mobile = customer.get("mobile", "")
+
+    # 1. Delete document from active cycle collection
+    collection.delete_one({"_id": customer["_id"]})
+
+    # 2. Delete document from Navaratri_Customers collection
+    try:
+        from website.general.db import ncustomers
+        if cust_mobile:
+            ncustomers.delete_one({"mobile": cust_mobile})
+        ncustomers.delete_one({"_id": customer["_id"]})
+    except Exception:
+        pass
+
+    try:
+        log_action(cust_name, cust_mobile, "delete_customer", f"Permanently deleted entire customer record for '{cust_name}' ({cust_mobile}).")
+    except Exception:
+        pass
+
+    return jsonify({"success": True, "message": f"✅ Customer '{cust_name}' deleted permanently!"})
+
 @navaratri.route('/check', methods=['GET', 'POST'])
 def check():
     if not session.get('logged_in'):
