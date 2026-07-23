@@ -1358,6 +1358,14 @@ def lock_cycle(cycle_id):
     flash("🔒 Cycle locked successfully!", "success")
     return redirect("/fancy_admin")
 
+KNOWN_LOCALITIES_FANCY = [
+    "Maninagar", "Khokhra", "Isanpur", "Amraiwadi", "Ghodasar", "Vastral",
+    "Vatva", "Odhav", "Hatkeshwar", "CTM", "Nikol", "Ramol", "Narol",
+    "Bapunagar", "Saraspur", "Asarwa", "Shahibaug", "Satellite", "Vastrapur",
+    "Bodakdev", "Navrangpura", "Sabarmati", "Chandkheda", "Ghatlodia"
+]
+
+
 @fancy.route("/fancy-customers")
 def fancy_customers():
 
@@ -1378,14 +1386,44 @@ def fancy_customers():
             ]
         }
 
-    customers = list(
-        fcustomers.find(query)
-        .sort("updated_at", -1)
-    )
+    all_customers = list(fcustomers.find().sort("updated_at", -1))
+
+    # Area Strength Analytics
+    area_counts = {}
+    total_with_addr = 0
+
+    for c in all_customers:
+        addr = (c.get("address") or "").strip()
+        if not addr:
+            continue
+        total_with_addr += 1
+        found = False
+        addr_lower = addr.lower()
+        for loc in KNOWN_LOCALITIES_FANCY:
+            if loc.lower() in addr_lower:
+                area_counts[loc] = area_counts.get(loc, 0) + 1
+                found = True
+                break
+        if not found:
+            area_counts["Other Localities"] = area_counts.get("Other Localities", 0) + 1
+
+    sorted_areas = sorted(area_counts.items(), key=lambda x: x[1], reverse=True)
+    top_areas = []
+    for loc, count in sorted_areas[:5]:
+        pct = round((count / max(total_with_addr, 1)) * 100, 1)
+        top_areas.append({"area": loc, "count": count, "percentage": pct})
+
+    if search:
+        customers = list(fcustomers.find(query).sort("updated_at", -1))
+    else:
+        customers = all_customers
 
     return render_template(
         "fancy/fancy_customers.html",
         customers=customers,
+        total_count=len(all_customers),
+        total_with_addr=total_with_addr,
+        top_areas=top_areas,
         search=search
     )
 

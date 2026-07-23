@@ -1,100 +1,6 @@
 {% extends "general/base.html" %}
 
-{% block title %}Navaratri Customers Directory | Image Traditional{% endblock %}
-
-{% block robots %}
-<meta name="robots" content="noindex, nofollow" />
-{% endblock %}
-
-{% block head %}
-<!-- Bootstrap 5 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
-
-<style>
-  body {
-    background-color: #f3f4f6;
-  }
-  .customers-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px 20px 40px 20px;
-  }
-  .header-card {
-    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-    color: white;
-    border-radius: 16px;
-    padding: 24px 30px;
-    margin-bottom: 25px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  }
-  .header-card h1 {
-    font-size: 1.85rem;
-    font-weight: 700;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .header-card p {
-    margin: 5px 0 0 0;
-    opacity: 0.8;
-    font-size: 0.95rem;
-  }
-  .premium-card {
-    background: white;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-    margin-bottom: 24px;
-  }
-  .search-wrapper {
-    position: relative;
-  }
-  .search-wrapper i {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #9ca3af;
-  }
-  .search-field {
-    width: 100%;
-    height: 48px;
-    padding-left: 45px;
-    padding-right: 20px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: all 0.2s;
-  }
-  .search-field:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-  }
-  .avatar-circle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #e0e7ff;
-    color: #4f46e5;
-    font-weight: 700;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1.5px solid #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  .table-responsive {
-    max-height: 600px;
-    overflow-y: auto;
-  }
-</style>
-{% endblock %}
+{% block title %}Navaratri Customer Directory & Area Analytics | Image Traditional{% endblock %}
 
 {% block logo_link %}
 <a href="/navaratri_admin" class="logo">
@@ -103,81 +9,504 @@
 </a>
 {% endblock %}
 
+{% block robots %}
+<meta name="robots" content="noindex, nofollow" />
+{% endblock %}
+
 {% block content %}
-<div class="customers-container animate__animated animate__fadeIn">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
 
-  <!-- Header Section -->
-  <div class="header-card d-flex justify-content-between align-items-center flex-wrap gap-3">
-    <div>
-      <h1><i class="bi bi-people-fill text-warning"></i> Customer Database (All-Time)</h1>
-      <p>Directory of all registered customers across all Navaratri cycles.</p>
-    </div>
-    <div>
-      <span class="badge bg-light text-dark fs-6 py-2 px-3 fw-bold border shadow-sm">
-        Total Registered: <span class="text-primary">{{ customers|length }}</span>
-      </span>
-    </div>
-  </div>
+:root {
+    --navy:     #0a1628;
+    --surface:  #0f1e32;
+    --card:     #111f33;
+    --card-h:   #152540;
+    --gold:     #d4af37;
+    --gold-lt:  #e8c84a;
+    --gold-dk:  #a88c2c;
+    --gold-bg:  rgba(212,175,55,.08);
+    --gold-bd:  rgba(212,175,55,.22);
+    --gold-bd-h:rgba(212,175,55,.5);
+    --white:    #f0f4f8;
+    --text:     #b8c5d4;
+    --muted:    #5e7490;
+    --border:   rgba(255,255,255,.07);
 
-  <!-- Search Card -->
-  <div class="premium-card p-3 mb-4">
-    <form method="GET" action="{{ url_for('navaratri.navaratri_customers_list') }}" class="m-0">
-      <div class="search-wrapper">
-        <i class="bi bi-search"></i>
-        <input type="text" name="search" class="search-field" placeholder="Search customer directory by name, mobile, address..." value="{{ search }}">
-      </div>
-    </form>
-  </div>
+    --r4: 4px; --r8: 8px; --r12: 12px;
+    --t: .18s ease;
+}
 
-  <!-- Customers List Card -->
-  <div class="premium-card">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-light sticky-top">
-          <tr>
-            <th class="ps-4" style="width: 250px;">Customer Info</th>
-            <th style="width: 150px;">Mobile</th>
-            <th>Address</th>
-            <th style="width: 180px;">Last Active</th>
-            <th class="text-center pe-4" style="width: 160px;">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if customers %}
-            {% for cust in customers %}
-              <tr>
-                <td class="ps-4">
-                  <div class="d-flex align-items-center gap-3">
-                    <div class="avatar-circle">{{ cust.name[:2].upper() if cust.name else 'CU' }}</div>
-                    <div>
-                      <div class="fw-bold text-dark">{{ cust.name or 'Unnamed Customer' }}</div>
+.adm {
+    min-height: calc(100vh - 80px);
+    background: var(--navy);
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+}
+
+/* ── TOPBAR ── */
+.adm-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--gold-bd);
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.adm-brand {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+}
+
+.adm-brand-icon {
+    width: 32px; height: 32px;
+    background: var(--gold-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r8);
+    display: grid; place-items: center;
+    font-size: 1rem;
+}
+
+.adm-brand h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: .2px;
+    margin: 0;
+}
+
+.adm-brand h1 span { color: var(--gold); }
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .35rem .9rem;
+    background: transparent;
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r4);
+    color: var(--gold);
+    font-size: .78rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: var(--t);
+    cursor: pointer;
+}
+.back-btn:hover { background: var(--gold-bg); border-color: var(--gold-bd-h); color: var(--gold-lt); }
+
+/* ── BODY ── */
+.adm-body { padding: 1.75rem 2rem 3rem; }
+
+/* ── METRICS ROW ── */
+.metrics-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.metric-card {
+    background: var(--card);
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r12);
+    padding: 1.1rem 1.3rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 4px; height: 100%;
+    background: var(--gold);
+}
+
+.metric-label {
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.metric-val {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-top: .25rem;
+}
+
+/* ── AREA STRENGTH WIDGET ── */
+.area-widget {
+    background: var(--card);
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r12);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.area-widget-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.area-widget-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--white);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.area-widget-header h3 i { color: var(--gold); }
+
+.area-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+.area-item {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--r8);
+    padding: .85rem 1rem;
+}
+
+.area-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: .4rem;
+    font-size: .85rem;
+}
+
+.area-name {
+    font-weight: 600;
+    color: var(--white);
+}
+
+.area-badge {
+    background: var(--gold-bg);
+    color: var(--gold-lt);
+    border: 1px solid var(--gold-bd);
+    padding: .15rem .5rem;
+    border-radius: var(--r4);
+    font-size: .75rem;
+    font-weight: 700;
+}
+
+.progress-bar-bg {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #d4af37 0%, #10b981 100%);
+    border-radius: 4px;
+}
+
+/* ── SEARCH CARD ── */
+.search-card {
+    background: var(--card);
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r12);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-wrapper i {
+    position: absolute;
+    left: 1rem;
+    color: var(--gold);
+    font-size: 1rem;
+}
+
+.search-field {
+    width: 100%;
+    height: 44px;
+    padding-left: 2.6rem;
+    padding-right: 1rem;
+    background: rgba(10, 22, 40, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--r8);
+    color: var(--white);
+    font-size: .85rem;
+    outline: none;
+    transition: var(--t);
+}
+
+.search-field:focus {
+    border-color: var(--gold-bd-h);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+/* ── TABLE CARD ── */
+.table-card {
+    background: var(--card);
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r12);
+    overflow: hidden;
+}
+
+.table-responsive {
+    max-height: 620px;
+    overflow-y: auto;
+}
+
+.cust-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .85rem;
+    text-align: left;
+}
+
+.cust-table th {
+    background: var(--surface);
+    color: var(--white);
+    font-weight: 600;
+    padding: .9rem 1.2rem;
+    border-bottom: 1px solid var(--gold-bd);
+    white-space: nowrap;
+}
+
+.cust-table td {
+    padding: .9rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+}
+
+.cust-table tr:hover td {
+    background: var(--card-h);
+}
+
+.cust-table tr:last-child td {
+    border-bottom: none;
+}
+
+.avatar-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--gold-bg);
+    border: 1px solid var(--gold-bd);
+    color: var(--gold-lt);
+    font-weight: 700;
+    font-size: .85rem;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.cust-name {
+    font-weight: 600;
+    color: var(--white);
+}
+
+.cust-mobile {
+    font-family: monospace;
+    color: var(--muted);
+    font-size: .82rem;
+}
+
+.cust-address {
+    color: var(--text);
+    font-size: .82rem;
+    max-width: 250px;
+    word-break: break-word;
+}
+
+.btn-action-gold {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .35rem .85rem;
+    background: var(--gold-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: var(--r4);
+    color: var(--gold);
+    font-size: .78rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--t);
+}
+
+.btn-action-gold:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: var(--gold-bd-h);
+    color: var(--gold-lt);
+}
+
+.no-cust {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--muted);
+}
+
+.no-cust i {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: .5rem;
+    color: var(--gold-bd);
+}
+
+@media (max-width: 768px) {
+    .adm-nav { padding: 0 1rem; }
+    .adm-body { padding: 1.25rem 1rem 2rem; }
+    .metrics-row { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+
+<div class="adm animate__animated animate__fadeIn">
+
+    <!-- NAV -->
+    <nav class="adm-nav">
+        <div class="adm-brand">
+            <div class="adm-brand-icon">👥</div>
+            <h1>Navaratri Universal Customer Directory</h1>
+        </div>
+        <div class="top-actions">
+            <a href="/navaratri_admin" class="back-btn">← Back to Navaratri Admin</a>
+        </div>
+    </nav>
+
+    <div class="adm-body">
+
+        <!-- METRICS ROW -->
+        <div class="metrics-row">
+            <div class="metric-card">
+                <span class="metric-label">All-Time Customers</span>
+                <span class="metric-val">{{ total_count }}</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Active Cycle Bookers</span>
+                <span class="metric-val" style="color:#10b981;">{{ active_bookers_count }}</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Addresses Captured</span>
+                <span class="metric-val" style="color:var(--gold-lt);">{{ total_with_addr }}</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Top Stronghold Area</span>
+                <span class="metric-val" style="font-size:1.15rem; color:#3b82f6; text-transform:uppercase;">
+                    {{ top_areas[0].area if top_areas else 'N/A' }}
+                </span>
+            </div>
+        </div>
+
+        <!-- LOCALITY STRENGTH ANALYTICS WIDGET -->
+        {% if top_areas %}
+        <div class="area-widget">
+            <div class="area-widget-header">
+                <h3><i class="bi bi-geo-alt-fill"></i> Geographic Customer Concentration (Top Strongholds)</h3>
+                <span class="text-muted" style="font-size:0.8rem;">Based on {{ total_with_addr }} recorded customer addresses</span>
+            </div>
+            <div class="area-grid">
+                {% for area_item in top_areas %}
+                    <div class="area-item">
+                        <div class="area-info">
+                            <span class="area-name">📍 {{ area_item.area }}</span>
+                            <span class="area-badge">{{ area_item.count }} customers ({{ area_item.percentage }}%)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: {{ area_item.percentage }}%;"></div>
+                        </div>
                     </div>
-                  </div>
-                </td>
-                <td class="font-monospace text-secondary">{{ cust.mobile }}</td>
-                <td class="text-muted text-sm">{{ cust.address or '-' }}</td>
-                <td class="text-muted text-sm font-monospace">
-                  {{ cust.updated_at.strftime('%d-%m-%Y %H:%M') if cust.updated_at else 'N/A' }}
-                </td>
-                <td class="text-center pe-4">
-                  <a href="{{ url_for('navaratri.navaratri_booking', mobile=cust.mobile) }}" class="btn btn-sm btn-outline-primary fw-bold px-3">
-                    <i class="bi bi-arrow-up-right-circle me-1"></i> View Bookings
-                  </a>
-                </td>
-              </tr>
-            {% endfor %}
-          {% else %}
-            <tr>
-              <td colspan="5" class="text-center py-5 text-secondary">
-                <i class="bi bi-people mb-2" style="font-size: 2.5rem; display: block; opacity: 0.5;"></i>
-                No customer records found.
-              </td>
-            </tr>
-          {% endif %}
-        </tbody>
-      </table>
-    </div>
-  </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
 
+        <!-- SEARCH CARD -->
+        <div class="search-card">
+            <form method="GET" action="{{ url_for('navaratri.navaratri_customers_list') }}" class="m-0">
+                <div class="search-wrapper">
+                    <i class="bi bi-search"></i>
+                    <input type="text" name="search" class="search-field" placeholder="Search customer directory by name, mobile, address..." value="{{ search }}">
+                </div>
+            </form>
+        </div>
+
+        <!-- TABLE CARD -->
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="cust-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 250px;">Customer Info</th>
+                            <th style="width: 150px;">Mobile</th>
+                            <th>Address</th>
+                            <th style="width: 180px;">Last Active</th>
+                            <th style="width: 160px; text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if customers %}
+                            {% for cust in customers %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="avatar-circle">{{ cust.name[:2].upper() if cust.name else 'CU' }}</div>
+                                            <div>
+                                                <div class="cust-name">{{ cust.name or 'Unnamed Customer' }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="cust-mobile">{{ cust.mobile }}</td>
+                                    <td class="cust-address">{{ cust.address or '-' }}</td>
+                                    <td class="cust-mobile">
+                                        {{ cust.updated_at.strftime('%d-%m-%Y %H:%M') if cust.updated_at else 'N/A' }}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <a href="{{ url_for('navaratri.navaratri_booking', mobile=cust.mobile) }}" class="btn-action-gold">
+                                            <i class="bi bi-arrow-up-right-circle"></i> View Bookings
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="no-cust">
+                                    <i class="bi bi-people"></i>
+                                    No customer records found matching your query.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
 </div>
 {% endblock %}

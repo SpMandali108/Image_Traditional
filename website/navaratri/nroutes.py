@@ -2719,6 +2719,14 @@ def get_navaratri_customer():
 
 
 # ------------------ Page: Navaratri Customers Directory ------------------
+KNOWN_LOCALITIES = [
+    "Vastral", "Maninagar", "Khokhra", "Isanpur", "Amraiwadi", "Ghodasar",
+    "Vatva", "Odhav", "Hatkeshwar", "CTM", "Nikol", "Ramol", "Narol",
+    "Bapunagar", "Saraspur", "Asarwa", "Shahibaug", "Satellite", "Vastrapur",
+    "Bodakdev", "Navrangpura", "Sabarmati", "Chandkheda", "Ghatlodia"
+]
+
+
 @navaratri.route("/navaratri-customers")
 def navaratri_customers_list():
     if not session.get('logged_in'):
@@ -2735,37 +2743,53 @@ def navaratri_customers_list():
             ]
         }
 
-    # Self-healing migration: Seed from active bookings if empty
-    if ncustomers.count_documents({}) == 0:
-        try:
-            for b in collection.find():
-                m = b.get("mobile")
-                if m:
-                    ncustomers.update_one(
-                        {"mobile": m},
-                        {
-                            "$set": {
-                                "name": b.get("Name"),
-                                "mobile": m,
-                                "address": b.get("address", ""),
-                                "group": b.get("group", ""),
-                                "reference": b.get("reference", ""),
-                                "updated_at": datetime.now()
-                            }
-                        },
-                        upsert=True
-                    )
-        except Exception as e:
-            current_app.logger.error(f"Migration error: {e}")
+    all_customers = list(ncustomers.find().sort("updated_at", -1))
 
-    customers = list(
-        ncustomers.find(query)
-        .sort("updated_at", -1)
-    )
+    # Area Strength Analytics
+    area_counts = {}
+    total_with_addr = 0
+
+    for c in all_customers:
+        addr = (c.get("address") or "").strip()
+        if not addr:
+            continue
+        total_with_addr += 1
+        found = False
+        addr_lower = addr.lower()
+        for loc in KNOWN_LOCALITIES:
+            if loc.lower() in addr_lower:
+                area_counts[loc] = area_counts.get(loc, 0) + 1
+                found = True
+                break
+        if not found:
+            area_counts["Other Localities"] = area_counts.get("Other Localities", 0) + 1
+
+    sorted_areas = sorted(area_counts.items(), key=lambda x: x[1], reverse=True)
+    top_areas = []
+    for loc, count in sorted_areas[:5]:
+        pct = round((count / max(total_with_addr, 1)) * 100, 1)
+        top_areas.append({"area": loc, "count": count, "percentage": pct})
+
+    # Active Bookings Mobile List
+    active_mobiles = set()
+    if collection is not None:
+        try:
+            active_mobiles = set(collection.distinct("mobile"))
+        except Exception:
+            pass
+
+    if search:
+        customers = list(ncustomers.find(query).sort("updated_at", -1))
+    else:
+        customers = all_customers
 
     return render_template(
         "navaratri/navaratri_customers.html",
         customers=customers,
+        total_count=len(all_customers),
+        active_bookers_count=len(active_mobiles),
+        total_with_addr=total_with_addr,
+        top_areas=top_areas,
         search=search
     )
 

@@ -730,8 +730,8 @@
       </div>
       <div class="col-6 col-md-3">
         <div class="stat-card">
-          <div class="stat-icon" style="color:#6ee7b7"><i class="fas fa-phone-alt"></i></div>
-          <div><div class="stat-label">Unique Mobiles</div><div class="stat-value">{{ uniq_mobiles.list|length }}</div></div>
+          <div class="stat-icon" style="color:#6ee7b7"><i class="fas fa-map-marker-alt"></i></div>
+          <div><div class="stat-label">Top Area</div><div class="stat-value" style="font-size:1.05rem;">{{ top_areas[0].area if top_areas else 'N/A' }}</div></div>
         </div>
       </div>
       <div class="col-6 col-md-3">
@@ -741,6 +741,31 @@
         </div>
       </div>
     </div>
+
+    {# ── Locality Strength Widget ── #}
+    {% if top_areas %}
+    <div class="stat-card p-3 mb-4 d-block">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h6 class="m-0 fw-bold text-white"><i class="fas fa-map-marker-alt text-warning me-2"></i>Geographic Customer Concentration (Top Strongholds)</h6>
+        <span class="text-muted" style="font-size:0.78rem;">Based on {{ total_with_addr }} recorded customer addresses</span>
+      </div>
+      <div class="row g-2">
+        {% for area_item in top_areas %}
+          <div class="col-12 col-md-4">
+            <div class="p-2 rounded" style="background:var(--bg); border:1px solid var(--border);">
+              <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:0.83rem;">
+                <span class="fw-semibold text-white">📍 {{ area_item.area }}</span>
+                <span class="badge bg-dark text-warning border border-secondary">{{ area_item.count }} ({{ area_item.percentage }}%)</span>
+              </div>
+              <div class="progress" style="height: 5px; background: rgba(255,255,255,0.08);">
+                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ area_item.percentage }}%;"></div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
 
     {# ── Search ── #}
     <div class="sticky-controls mb-4">
