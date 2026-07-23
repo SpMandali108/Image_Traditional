@@ -454,7 +454,16 @@
             <div class="adm-brand-icon">🗺️</div>
             <h1>Navaratri Customer Geographic Intelligence</h1>
         </div>
-        <div class="top-actions">
+        <div class="top-actions" style="display: flex; gap: 1rem; align-items: center;">
+            {% if unmapped_count and unmapped_count > 0 %}
+            <a href="/address_manager" class="back-btn" style="background: rgba(239, 68, 68, 0.18); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5;">
+                ⚠️ Address Resolver ({{ unmapped_count }} Unmapped)
+            </a>
+            {% else %}
+            <a href="/address_manager" class="back-btn">
+                📍 Address Resolver
+            </a>
+            {% endif %}
             <a href="/navaratri_admin" class="back-btn">← Back to Navaratri Admin</a>
         </div>
     </nav>
@@ -537,7 +546,7 @@
                     <tbody>
                         {% if customers %}
                             {% for cust in customers %}
-                                <tr class="cust-row" data-address="{{ (cust.address or '')|lower }}">
+                                <tr class="cust-row" data-address="{{ (cust.address or '')|lower }} {{ (cust.locality or '')|lower }}" data-locality="{{ (cust.locality or '')|lower }}">
                                     <td>
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="avatar-circle">{{ cust.name[:2].upper() if cust.name else 'CU' }}</div>
@@ -547,7 +556,12 @@
                                         </div>
                                     </td>
                                     <td class="cust-mobile">{{ cust.mobile }}</td>
-                                    <td class="cust-address">{{ cust.address or '-' }}</td>
+                                    <td class="cust-address">
+                                        {{ cust.address or '-' }}
+                                        {% if cust.locality %}
+                                        <div style="font-size:.78rem; color:var(--gold-lt); margin-top:2px;">📍 {{ cust.locality }}</div>
+                                        {% endif %}
+                                    </td>
                                     <td class="cust-mobile">
                                         {{ cust.updated_at.strftime('%d-%m-%Y %H:%M') if cust.updated_at else 'N/A' }}
                                     </td>
@@ -645,7 +659,7 @@ function filterByArea(areaName, lat, lng) {
     var visibleCount = 0;
 
     rows.forEach(function(row) {
-        var addr = row.getAttribute('data-address') || '';
+        var addr = (row.getAttribute('data-address') || '') + ' ' + (row.getAttribute('data-locality') || '');
         if (addr.includes(areaLower)) {
             row.style.display = '';
             visibleCount++;

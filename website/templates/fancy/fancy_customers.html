@@ -704,6 +704,15 @@
       <p class="page-subtitle">Browse records, school costume associations, and payment histories.</p>
     </div>
     <div class="d-flex align-items-center gap-2 flex-shrink-0 mt-1">
+      {% if unmapped_count and unmapped_count > 0 %}
+      <a href="/address_manager" class="pill-count" style="background: rgba(239, 68, 68, 0.18); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5; text-decoration: none;">
+        ⚠️ Address Resolver ({{ unmapped_count }})
+      </a>
+      {% else %}
+      <a href="/address_manager" class="pill-count" style="text-decoration: none;">
+        📍 Address Resolver
+      </a>
+      {% endif %}
       <span class="pill-count"><span>{{ total_count }}</span> Records</span>
       {% if search %}<span class="pill-filter"><i class="fas fa-filter"></i> Filter Active</span>{% endif %}
       <button id="density-toggle" onclick="toggleDensity()" class="btn-density" title="Toggle compact view">
@@ -832,7 +841,8 @@
                   data-name="{{ customer.name|e }}"
                   data-mobile="{{ customer.mobile|e }}"
                   data-school="{{ customer.school|e }}"
-                  data-address="{{ customer.address|e }}"
+                  data-address="{{ customer.address|e }} {{ customer.locality|e }}"
+                  data-locality="{{ customer.locality|e }}"
                   onclick="window.location='{{ url_for('fancy.fancy_profile', mobile=customer.mobile or '') }}';">
                 <td style="color:var(--muted);font-size:0.78rem">{{ loop.index }}</td>
                 <td>
@@ -854,10 +864,11 @@
                   </div>
                 </td>
                 <td style="color:var(--muted)">{{ customer.school or '-' }}</td>
-                <td style="max-width:260px">
-                  <div class="truncate-2" style="color:var(--muted);font-size:0.83rem" title="{{ customer.address }}">
-                    {{ customer.address or '-' }}
-                  </div>
+                <td>
+                  <div class="cust-addr-text" title="{{ customer.address }}">{{ customer.address or '-' }}</div>
+                  {% if customer.locality %}
+                  <div style="font-size:.76rem; color:var(--gold-light); margin-top:2px;">📍 {{ customer.locality }}</div>
+                  {% endif %}
                 </td>
                 <td style="color:var(--muted);font-size:0.8rem">
                   {% if customer.updated_at %}{{ customer.updated_at.strftime('%d %b %Y') }}{% else %}—{% endif %}

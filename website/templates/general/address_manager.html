@@ -1,0 +1,744 @@
+{% extends 'general/base.html' %}
+{% block title %}Address Resolver & Geocoding Manager | Image Traditional{% endblock %}
+
+{% block logo_link %}
+<a href="/admin" class="logo">
+    <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Logo" class="nav-logo-img" style="width: 28px; height: 28px; border-radius: 50%;">
+    <span>IMAGE TRADITIONAL</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<style>
+:root {
+    --navy: #0a1628;
+    --navy-light: #0f1e32;
+    --surface: #15243b;
+    --gold: #d4af37;
+    --gold-lt: #e8c84a;
+    --gold-dim: rgba(212, 175, 55, 0.15);
+    --gold-bd: rgba(212, 175, 55, 0.35);
+    --gold-ring: rgba(212, 175, 55, 0.6);
+    --text: #c8d6e5;
+    --muted: #7f8c8d;
+    --white: #ffffff;
+    --card-bg: rgba(15, 30, 50, 0.75);
+    --border: rgba(212, 175, 55, 0.2);
+    --card-h: rgba(212, 175, 55, 0.08);
+    --emerald: #10b981;
+}
+
+body {
+    background-color: var(--navy) !important;
+    color: var(--text) !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+
+.resolver-container {
+    max-width: 1300px;
+    margin: 2rem auto;
+    padding: 0 1.5rem 3rem 1.5rem;
+}
+
+.resolver-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.8rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-back-portal {
+    color: var(--gold-lt);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: .9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-bd);
+    padding: .5rem 1rem;
+    border-radius: 8px;
+    transition: all .2s;
+}
+
+.btn-back-portal:hover {
+    background: var(--gold);
+    color: var(--navy);
+}
+
+.page-heading {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--white);
+    margin: 0;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #fff 40%, var(--gold-lt));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.resolver-stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.kpi-card {
+    background: var(--card-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-bd);
+    display: grid;
+    place-items: center;
+    font-size: 1.4rem;
+}
+
+.kpi-val {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--gold-lt);
+    line-height: 1;
+}
+
+.kpi-lbl {
+    font-size: .8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-top: .3rem;
+}
+
+.filter-controls {
+    background: var(--surface);
+    border: 1px solid var(--gold-bd);
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+}
+
+.tab-group {
+    display: flex;
+    gap: .6rem;
+}
+
+.tab-btn {
+    background: var(--navy-light);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: .6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: .88rem;
+    cursor: pointer;
+    transition: all .2s;
+}
+
+.tab-btn.active, .tab-btn:hover {
+    background: var(--gold);
+    color: var(--navy);
+    border-color: var(--gold);
+}
+
+.search-box-input {
+    background: var(--navy);
+    border: 1px solid var(--gold-bd);
+    color: var(--white);
+    padding: .65rem 1rem;
+    border-radius: 8px;
+    font-size: .9rem;
+    width: 320px;
+    outline: none;
+}
+
+.search-box-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-dim);
+}
+
+.resolver-table-card {
+    background: var(--card-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: 14px;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+}
+
+.cust-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cust-table th {
+    background: rgba(15, 30, 50, 0.95);
+    color: var(--gold-lt);
+    font-size: .85rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-weight: 700;
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--gold-bd);
+    text-align: left;
+}
+
+.cust-table td {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+}
+
+.cust-table tr:hover td {
+    background: var(--card-h);
+}
+
+.cust-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-bd);
+    color: var(--gold-lt);
+    font-weight: 700;
+    font-size: .9rem;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.sys-badge {
+    padding: .3rem .75rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: .78rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.sys-badge.navaratri {
+    background: rgba(212, 175, 55, 0.2);
+    border: 1px solid var(--gold-bd);
+    color: var(--gold-lt);
+}
+
+.sys-badge.fancy {
+    background: rgba(16, 185, 129, 0.18);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #34d399;
+}
+
+.select-locality {
+    background: var(--navy);
+    border: 1px solid var(--gold-bd);
+    color: var(--white);
+    padding: .5rem .8rem;
+    border-radius: 6px;
+    font-size: .85rem;
+    outline: none;
+    width: 100%;
+}
+
+.input-custom-addr {
+    background: var(--navy);
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: .5rem .8rem;
+    border-radius: 6px;
+    font-size: .85rem;
+    width: 100%;
+    outline: none;
+}
+
+.btn-save-geocode {
+    background: linear-gradient(135deg, var(--gold), #b89228);
+    color: var(--navy);
+    border: none;
+    padding: .55rem 1.1rem;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: .85rem;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+}
+
+.btn-save-geocode:hover {
+    box-shadow: 0 0 12px var(--gold-ring);
+    transform: translateY(-1px);
+}
+
+.empty-state {
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+}
+</style>
+
+<div class="resolver-container">
+    <div class="resolver-topbar">
+        <div class="topbar-left">
+            <a href="/admin" class="btn-back-portal">← Back to Admin Portal</a>
+            <h1 class="page-heading">Unified Address Resolver</h1>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <a href="/navaratri-customers" class="btn-back-portal">🪔 Navaratri Customers</a>
+            <a href="/fancy-customers" class="btn-back-portal">🎭 Fancy Customers</a>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="resolver-stats-bar">
+        <div class="kpi-card">
+            <div class="kpi-icon">📍</div>
+            <div>
+                <div class="kpi-val" id="total-unmapped-val">{{ unmapped_customers|length }}</div>
+                <div class="kpi-lbl">Total Unmapped Queue</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">🪔</div>
+            <div>
+                <div class="kpi-val" id="nav-unmapped-val">{{ navaratri_count }}</div>
+                <div class="kpi-lbl">Navaratri Collection</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">🎭</div>
+            <div>
+                <div class="kpi-val" id="fancy-unmapped-val">{{ fancy_count }}</div>
+                <div class="kpi-lbl">Fancy Dress Rentals</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="filter-controls">
+        <div class="tab-group">
+            <button class="tab-btn active" onclick="filterSystem('all', this)">All Unmapped ({{ unmapped_customers|length }})</button>
+            <button class="tab-btn" onclick="filterSystem('Navaratri', this)">🪔 Navaratri ({{ navaratri_count }})</button>
+            <button class="tab-btn" onclick="filterSystem('Fancy Dress', this)">🎭 Fancy Dress ({{ fancy_count }})</button>
+        </div>
+        <input type="text" id="resolver-search" class="search-box-input" placeholder="🔍 Search name, mobile, address..." onkeyup="searchResolverTable()">
+    </div>
+
+    <!-- TABLE -->
+    <div class="resolver-table-card">
+        {% if unmapped_customers %}
+        <table class="cust-table" id="resolverTable">
+            <thead>
+                <tr>
+                    <th>Customer Name & Mobile</th>
+                    <th>System</th>
+                    <th>Recorded Address</th>
+                    <th>Select Locality Dropdown</th>
+                    <th>✍️ OR Type Any New Address / Locality</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in unmapped_customers %}
+                <tr class="cust-unmapped-row" id="row-{{ c._id_str }}" 
+                    data-system="{{ c.system }}" 
+                    data-name="{{ (c.name or '')|replace('\'', '')|replace('\"', '')|replace('\n', ' ')|replace('\r', ' ') }}" 
+                    data-mobile="{{ c.mobile or '' }}" 
+                    data-address="{{ (c.address or '')|replace('\'', '')|replace('\"', '')|replace('\n', ' ')|replace('\r', ' ') }}"
+                    data-school="{{ c.school or '' }}"
+                    data-group="{{ c.group or '' }}"
+                    data-reference="{{ c.reference or '' }}">
+                    <td>
+                        <div style="display: flex; align-items: center; gap: .8rem;">
+                            <div class="cust-avatar" style="cursor:pointer;" onclick="openCustomerProfile('{{ c._id_str }}')">{{ (c.name or 'C')[0]|upper }}</div>
+                            <div>
+                                <div style="font-weight: 700; color: var(--white); font-size: .95rem;">
+                                    <a href="javascript:void(0)" onclick="openCustomerProfile('{{ c._id_str }}')" style="color: var(--white); text-decoration: none;" onmouseover="this.style.color='var(--gold-lt)'" onmouseout="this.style.color='var(--white)'">
+                                        {{ c.name or 'Unnamed Customer' }}
+                                    </a>
+                                </div>
+                                <div style="font-family: monospace; color: var(--muted); font-size: .83rem; display: flex; align-items: center; gap: .5rem; margin-top: .2rem;">
+                                    <span>📱 {{ c.mobile or 'N/A' }}</span>
+                                    <button onclick="openCustomerProfile('{{ c._id_str }}')" style="background: var(--gold-bg); border: 1px solid var(--gold-bd); color: var(--gold-lt); border-radius: 4px; padding: 1px 6px; font-size: .72rem; cursor: pointer; font-weight: 600;">
+                                        👁️ Profile
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if c.system == 'Navaratri' %}
+                        <span class="sys-badge navaratri">🪔 Navaratri</span>
+                        {% else %}
+                        <span class="sys-badge fancy">🎭 Fancy Dress</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="color: var(--gold-lt); font-size: .85rem; max-width: 200px; word-break: break-word;">
+                            {{ c.address or '⚠️ Blank / Unspecified' }}
+                        </div>
+                    </td>
+                    <td>
+                        <select class="select-locality" id="select-{{ c._id_str }}" onchange="handleLocalitySelect(this, '{{ c._id_str }}')">
+                            <option value="">-- Choose Locality / City --</option>
+                            <option value="__ADD_NEW__" style="font-weight: 700; color: var(--gold-lt); background: var(--navy-light);">➕ Add New Custom Locality...</option>
+                            {% for loc in known_localities %}
+                            <option value="{{ loc }}">{{ loc }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="input-custom-addr" id="input-{{ c._id_str }}" placeholder="✍️ Type any city/locality (e.g. Modasa, Patan, Deesa...)" value="{{ c.address if c.address and c.address != '-' else '' }}">
+                    </td>
+                    <td>
+                        <button class="btn-save-geocode" onclick="resolveAddress('{{ c._id_str }}', '{{ c.system }}', this)">
+                            💾 Save & Plot on Map
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🎉</div>
+            <h3 style="color: var(--gold-lt); margin-bottom: .5rem;">All Customer Addresses Mapped!</h3>
+            <p style="color: var(--text);">Every single registered customer across Navaratri and Fancy Dress has a verified geocoded address!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- CUSTOMER PROFILE & ANALYSIS MODAL -->
+<div id="custProfileModal" style="display:none; position:fixed; inset:0; background:rgba(10,22,40,0.85); backdrop-filter:blur(10px); z-index:9999; align-items:center; justify-content:center; padding: 1rem;">
+    <div style="background:var(--surface); border:1px solid var(--gold-bd); border-radius:16px; width:520px; max-width:95%; padding:2rem; box-shadow:0 25px 60px rgba(0,0,0,0.85); color:var(--text);">
+        
+        <!-- Modal Top Header -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+            <div style="display:flex; align-items:center; gap:1rem;">
+                <div id="prof-avatar" class="cust-avatar" style="width:52px; height:52px; font-size:1.4rem;">C</div>
+                <div>
+                    <h3 id="prof-name" style="color:var(--white); margin:0; font-size:1.35rem; font-weight:700;">Customer Name</h3>
+                    <div style="display:flex; align-items:center; gap:.5rem; margin-top:.3rem;">
+                        <span id="prof-system-badge" class="sys-badge navaratri">🪔 Navaratri</span>
+                        <span id="prof-mobile-lbl" style="font-family:monospace; color:var(--gold-lt); font-size:.88rem; font-weight:600;">📱 0000000000</span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeCustomerProfile()" style="background:none; border:none; color:var(--muted); font-size:1.8rem; cursor:pointer; line-height:1;">&times;</button>
+        </div>
+
+        <!-- Contact Action Shortcuts -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem; margin-bottom:1.5rem;">
+            <a id="prof-wa-btn" href="#" target="_blank" class="tab-btn" style="text-align:center; background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.4); color:#6ee7b7; text-decoration:none; font-weight:600; padding:.6rem;">
+                💬 WhatsApp Chat
+            </a>
+            <a id="prof-call-btn" href="#" class="tab-btn" style="text-align:center; background:rgba(59,130,246,0.15); border-color:rgba(59,130,246,0.4); color:#93c5fd; text-decoration:none; font-weight:600; padding:.6rem;">
+                📞 Call Direct
+            </a>
+        </div>
+
+        <!-- Analysis Data Cards -->
+        <div style="display:flex; flex-direction:column; gap:.9rem; margin-bottom:1.8rem;">
+            
+            <!-- Address Card -->
+            <div style="background:var(--card); border:1px solid var(--border); border-radius:10px; padding:.9rem 1.1rem;">
+                <div style="font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:700; margin-bottom:.3rem;">📍 Recorded Address & Location</div>
+                <div id="prof-address" style="color:var(--gold-lt); font-size:.92rem; line-height:1.4;">Unspecified</div>
+            </div>
+
+            <!-- School / Group / Reference Card -->
+            <div id="prof-extra-box" style="background:var(--card); border:1px solid var(--border); border-radius:10px; padding:.9rem 1.1rem;">
+                <div id="prof-extra-title" style="font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:700; margin-bottom:.3rem;">🏫 Associated Details</div>
+                <div id="prof-extra-val" style="color:var(--white); font-size:.9rem;">None specified</div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Action Bar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:1.2rem;">
+            <button onclick="closeCustomerProfile()" class="tab-btn">Close</button>
+            <a id="prof-directory-link" href="#" class="btn-save-geocode" style="text-decoration:none; font-size:.85rem;">
+                🔗 View in Customer Directory →
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+var activeLocalitySelectElem = null;
+
+function openCustomerProfile(custId) {
+    var row = document.getElementById('row-' + custId);
+    if (!row) return;
+
+    var name = row.getAttribute('data-name') || 'Customer Profile';
+    // Title Case Name
+    var titleName = name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    var mobile = row.getAttribute('data-mobile') || 'N/A';
+    var system = row.getAttribute('data-system') || 'Navaratri';
+    var address = row.getAttribute('data-address') || 'Unspecified';
+
+    var school = row.getAttribute('data-school') || '';
+    var group = row.getAttribute('data-group') || '';
+    var reference = row.getAttribute('data-reference') || '';
+
+    // Populate modal fields
+    document.getElementById('prof-avatar').innerText = (titleName[0] || 'C').toUpperCase();
+    document.getElementById('prof-name').innerText = titleName;
+    document.getElementById('prof-mobile-lbl').innerText = '📱 ' + mobile;
+    
+    var badgeElem = document.getElementById('prof-system-badge');
+    if (system === 'Navaratri') {
+        badgeElem.className = 'sys-badge navaratri';
+        badgeElem.innerText = '🪔 Navaratri Collection';
+        document.getElementById('prof-directory-link').href = '/navaratri-customers?search=' + encodeURIComponent(mobile || titleName);
+    } else {
+        badgeElem.className = 'sys-badge fancy';
+        badgeElem.innerText = '🎭 Fancy Dress Rentals';
+        document.getElementById('prof-directory-link').href = '/fancy-customers?search=' + encodeURIComponent(mobile || titleName);
+    }
+
+    var cleanMobile = mobile.replace(/\D/g, '');
+    if (cleanMobile.length === 10) cleanMobile = '91' + cleanMobile;
+    document.getElementById('prof-wa-btn').href = cleanMobile ? ('https://wa.me/' + cleanMobile) : '#';
+    document.getElementById('prof-call-btn').href = mobile ? ('tel:' + mobile) : '#';
+
+    document.getElementById('prof-address').innerText = address || '⚠️ Unspecified / Blank Address';
+
+    var extraTitle = document.getElementById('prof-extra-title');
+    var extraVal = document.getElementById('prof-extra-val');
+    if (system === 'Fancy Dress' && school) {
+        extraTitle.innerText = '🏫 School / Costume Association';
+        extraVal.innerText = school;
+        document.getElementById('prof-extra-box').style.display = 'block';
+    } else if (system === 'Navaratri' && (group || reference)) {
+        extraTitle.innerText = '👥 Group & Reference Info';
+        extraVal.innerText = (group ? ('Group: ' + group) : '') + (reference ? (' | Reference: ' + reference) : '');
+        document.getElementById('prof-extra-box').style.display = 'block';
+    } else {
+        document.getElementById('prof-extra-box').style.display = 'none';
+    }
+
+    document.getElementById('custProfileModal').style.display = 'flex';
+}
+
+function closeCustomerProfile() {
+    document.getElementById('custProfileModal').style.display = 'none';
+}
+
+function handleLocalitySelect(selectElem, custId) {
+    var chosenVal = selectElem.value;
+    if (chosenVal === '__ADD_NEW__') {
+        activeLocalitySelectElem = selectElem;
+        openLocalityModal();
+        selectElem.value = '';
+    } else if (chosenVal) {
+        var inputElem = document.getElementById('input-' + custId);
+        if (inputElem) {
+            var curVal = inputElem.value.trim();
+            if (!curVal || curVal === '-') {
+                inputElem.value = chosenVal;
+            } else if (!curVal.toLowerCase().includes(chosenVal.toLowerCase())) {
+                inputElem.value = curVal + ', ' + chosenVal;
+            }
+        }
+    }
+}
+
+function openLocalityModal() {
+    document.getElementById('addLocalityModal').style.display = 'flex';
+}
+
+function closeLocalityModal() {
+    document.getElementById('addLocalityModal').style.display = 'none';
+    if (activeLocalitySelectElem && activeLocalitySelectElem.value === '__ADD_NEW__') {
+        activeLocalitySelectElem.value = '';
+    }
+}
+
+function saveCustomLocality() {
+    var name = document.getElementById('new-loc-name').value.trim();
+    var lat = document.getElementById('new-loc-lat').value.trim();
+    var lng = document.getElementById('new-loc-lng').value.trim();
+
+    if (!name || !lat || !lng) {
+        alert('Please fill in Locality Name, Latitude, and Longitude.');
+        return;
+    }
+
+    fetch('/api/add_custom_locality', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, lat: lat, lng: lng })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            closeLocalityModal();
+
+            var selects = document.querySelectorAll('.select-locality');
+            selects.forEach(s => {
+                var opt = document.createElement('option');
+                opt.value = name;
+                opt.innerText = name;
+
+                if (s.children.length >= 2) {
+                    s.insertBefore(opt, s.children[2]);
+                } else {
+                    s.appendChild(opt);
+                }
+            });
+
+            if (activeLocalitySelectElem) {
+                activeLocalitySelectElem.value = name;
+                var cid = activeLocalitySelectElem.id.replace('select-', '');
+                handleLocalitySelect(activeLocalitySelectElem, cid);
+                activeLocalitySelectElem = null;
+            }
+
+            document.getElementById('new-loc-name').value = '';
+            document.getElementById('new-loc-lat').value = '';
+            document.getElementById('new-loc-lng').value = '';
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(err => {
+        alert('Failed to add locality: ' + err);
+    });
+}
+
+function filterSystem(sysName, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    var rows = document.querySelectorAll('.cust-unmapped-row');
+    rows.forEach(r => {
+        if (sysName === 'all' || r.getAttribute('data-system') === sysName) {
+            r.style.display = '';
+        } else {
+            r.style.display = 'none';
+        }
+    });
+}
+
+function searchResolverTable() {
+    var q = document.getElementById('resolver-search').value.toLowerCase().trim();
+    var rows = document.querySelectorAll('.cust-unmapped-row');
+    rows.forEach(r => {
+        var name = r.getAttribute('data-name');
+        var mobile = r.getAttribute('data-mobile');
+        var addr = r.getAttribute('data-address');
+        if (!q || name.includes(q) || mobile.includes(q) || addr.includes(q)) {
+            r.style.display = '';
+        } else {
+            r.style.display = 'none';
+        }
+    });
+}
+
+function resolveAddress(custId, system, btnElem) {
+    var row = document.getElementById('row-' + custId);
+    var inputElem = document.getElementById('input-' + custId);
+    var selectElem = document.getElementById('select-' + custId);
+
+    var chosenLocality = (selectElem && selectElem.value !== '__ADD_NEW__') ? selectElem.value.trim() : '';
+    var customAddr = inputElem ? inputElem.value.trim() : '';
+
+    if (!customAddr && !chosenLocality) {
+        alert('⚠️ Please select a locality from the dropdown or type an address before saving.');
+        return;
+    }
+
+    if (btnElem) {
+        btnElem.disabled = true;
+        btnElem.innerText = '⏳ Saving...';
+    }
+
+    fetch('/api/update_customer_address', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            cust_id: custId,
+            system: system,
+            locality: chosenLocality,
+            new_address: customAddr
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            if (row) {
+                row.style.background = 'rgba(16, 185, 129, 0.35)';
+                row.style.transition = 'all 0.4s ease';
+                setTimeout(() => {
+                    row.remove();
+                    updateCounts();
+                }, 400);
+            }
+        } else {
+            alert('Error: ' + data.message);
+            if (btnElem) {
+                btnElem.disabled = false;
+                btnElem.innerText = '💾 Save & Plot on Map';
+            }
+        }
+    })
+    .catch(err => {
+        alert('Failed to update address: ' + err);
+        if (btnElem) {
+            btnElem.disabled = false;
+            btnElem.innerText = '💾 Save & Plot on Map';
+        }
+    });
+}
+
+function updateCounts() {
+    var rows = document.querySelectorAll('.cust-unmapped-row');
+    var navCount = 0;
+    var fancyCount = 0;
+    rows.forEach(r => {
+        if (r.getAttribute('data-system') === 'Navaratri') navCount++;
+        else fancyCount++;
+    });
+
+    var totalVal = document.getElementById('total-unmapped-val');
+    var navVal = document.getElementById('nav-unmapped-val');
+    var fancyVal = document.getElementById('fancy-unmapped-val');
+
+    if (totalVal) totalVal.innerText = navCount + fancyCount;
+    if (navVal) navVal.innerText = navCount;
+    if (fancyVal) fancyVal.innerText = fancyCount;
+}
+</script>
+{% endblock %}

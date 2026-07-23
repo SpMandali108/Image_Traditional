@@ -1359,18 +1359,73 @@ def lock_cycle(cycle_id):
     return redirect("/fancy_admin")
 
 KNOWN_LOCALITIES_FANCY = [
-    "New Maninagar", "New Vatva", "Shahwadi", "Motipura", "Bhadwat Nagar", "Jashoda Nagar",
-    "Sureliya", "Khodiyar Nagar", "Rajendra Park", "Saheed Circle", "Aman Nagar",
-    "Maninagar", "Khokhra", "Isanpur", "Amraiwadi", "Ghodasar", "Vastral",
+    "Lambha", "Dehgam", "Patan", "Palanpur", "Unjha", "Visnagar", "Mehsana", "Kalol", "Chhatral", "Kadi", "Himmatnagar", "Gandhinagar",
+    "Nadiad", "Anand", "Bakrol", "Vadtal", "Vadodara", "Surat", "Rajkot", "Kheda", "Sanand", "Dholka", "Bavla",
+    "Aslali", "Bareja", "Changodar", "Moraiya",
+    "Nava Vadaj", "Vadaj", "Jay Hind", "Arbuda Nagar", "Haridarshan", "Hathijan", "Vivekanand Nagar",
+    "Saijpur Bogha", "Saijpur", "Jivraj Park", "South Bopal", "Bopal", "Ghatlodiya", "Gordhanwadi", "Maniyasa", "Laxminarayan",
+    "Jashodanagar", "Jashoda Nagar", "Bhadwat Nagar", "Prahlad Nagar", "Prahladnagar", "Prerna Tirth", "Satelite",
+    "New Maninagar", "New Vatva", "Shahwadi", "Motipura", "Sureliya", "Khodiyar Nagar", "Rajendra Park", "Saheed Circle", "Aman Nagar",
+    "Vastral", "Maninagar", "Khokhra", "Isanpur", "Amraiwadi", "Ghodasar",
     "Vatva", "Odhav", "Hatkeshwar", "CTM", "Nikol", "Ramol", "Narol",
     "Bapunagar", "Saraspur", "Asarwa", "Shahibaug", "Naroda", "Rakhial",
     "Sarangpur", "Kalupur", "Astodia", "Raipur", "Lal Darwaja", "Geeta Mandir",
     "Shahpur", "Dani Limda", "Navrangpura", "Satellite", "Vastrapur", "Bodakdev",
     "Thaltej", "Sola", "Gota", "Ghatlodia", "Naranpura", "Paldi", "Vasna",
-    "Ranip", "Sabarmati", "Chandkheda", "Gandhinagar", "Sanand", "Aslali", "Bareja", "Changodar"
+    "Ranip", "Sabarmati", "Chandkheda"
 ]
 
 AREA_COORDINATES_FANCY = {
+    "Lambha": [22.9238, 72.5843],
+    "Dehgam": [23.1670, 72.8120],
+    "Patan": [23.8493, 72.1266],
+    "Palanpur": [24.1724, 72.4346],
+    "Unjha": [23.8043, 72.3942],
+    "Visnagar": [23.6961, 72.5484],
+    "Mehsana": [23.5880, 72.3693],
+    "Kalol": [23.2393, 72.4962],
+    "Chhatral": [23.2800, 72.4500],
+    "Kadi": [23.3000, 72.3300],
+    "Himmatnagar": [23.5979, 72.9698],
+    "Gandhinagar": [23.2156, 72.6369],
+    "Nadiad": [22.6916, 72.8634],
+    "Anand": [22.5645, 72.9289],
+    "Bakrol": [22.5480, 72.9350],
+    "Vadtal": [22.5920, 72.8880],
+    "Vadodara": [22.3072, 73.1812],
+    "Surat": [21.1702, 72.8311],
+    "Rajkot": [22.3039, 70.8022],
+    "Kheda": [22.7500, 72.6800],
+    "Sanand": [22.9910, 72.3810],
+    "Dholka": [22.7200, 72.4700],
+    "Bavla": [22.8300, 72.3600],
+    "Aslali": [22.9210, 72.6010],
+    "Bareja": [22.8850, 72.6050],
+    "Changodar": [22.9230, 72.4410],
+    "Moraiya": [22.9150, 72.4350],
+    "Nava Vadaj": [23.0640, 72.5690],
+    "Vadaj": [23.0640, 72.5690],
+    "Jay Hind": [22.9920, 72.5980],
+    "Arbuda Nagar": [23.0250, 72.6630],
+    "Haridarshan": [23.0450, 72.6680],
+    "Hathijan": [22.9280, 72.6390],
+    "Vivekanand Nagar": [22.9280, 72.6390],
+    "Saijpur Bogha": [23.0640, 72.6280],
+    "Saijpur": [23.0640, 72.6280],
+    "Jivraj Park": [23.0010, 72.5410],
+    "South Bopal": [23.0300, 72.4640],
+    "Bopal": [23.0300, 72.4640],
+    "Ghatlodiya": [23.0682, 72.5358],
+    "Gordhanwadi": [22.9980, 72.5920],
+    "Maniyasa": [22.9976, 72.6009],
+    "Laxminarayan": [22.9554, 72.6240],
+    "Jashodanagar": [22.9850, 72.6250],
+    "Jashoda Nagar": [22.9850, 72.6250],
+    "Bhadwat Nagar": [22.9910, 72.6080],
+    "Prahlad Nagar": [23.0125, 72.5118],
+    "Prahladnagar": [23.0125, 72.5118],
+    "Prerna Tirth": [23.0300, 72.5176],
+    "Satelite": [23.0300, 72.5176],
     "Vastral": [23.0041, 72.6617],
     "Maninagar": [22.9976, 72.6009],
     "New Maninagar": [22.9850, 72.6150],
@@ -1388,8 +1443,6 @@ AREA_COORDINATES_FANCY = {
     "Narol": [22.9634, 72.5891],
     "Shahwadi": [22.9570, 72.5780],
     "Motipura": [22.9610, 72.5820],
-    "Bhadwat Nagar": [22.9910, 72.6080],
-    "Jashoda Nagar": [22.9850, 72.6250],
     "Sureliya": [23.0010, 72.6510],
     "Khodiyar Nagar": [23.0390, 72.6350],
     "Rajendra Park": [23.0210, 72.6610],
@@ -1422,12 +1475,7 @@ AREA_COORDINATES_FANCY = {
     "Vasna": [22.9980, 72.5520],
     "Ranip": [23.0800, 72.5710],
     "Sabarmati": [23.0845, 72.5802],
-    "Chandkheda": [23.1114, 72.5835],
-    "Gandhinagar": [23.2156, 72.6369],
-    "Sanand": [22.9910, 72.3810],
-    "Aslali": [22.9210, 72.6010],
-    "Bareja": [22.8850, 72.6050],
-    "Changodar": [22.9230, 72.4410]
+    "Chandkheda": [23.1114, 72.5835]
 }
 
 
@@ -1453,24 +1501,50 @@ def fancy_customers():
 
     all_customers = list(fcustomers.find().sort("updated_at", -1))
 
-    # Area Strength Analytics
+    # Dynamic Custom Localities Merge
+    from website.general.db import custom_localities
+    active_localities = list(KNOWN_LOCALITIES_FANCY)
+    active_coords = dict(AREA_COORDINATES_FANCY)
+    try:
+        for cloc in custom_localities.find():
+            cname = cloc.get("name")
+            clat = cloc.get("lat")
+            clng = cloc.get("lng")
+            if cname and clat is not None and clng is not None:
+                if cname not in active_localities:
+                    active_localities.insert(0, cname)
+                active_coords[cname] = [float(clat), float(clng)]
+    except Exception:
+        pass
+
+    # Area Strength Analytics & Verified Locality Mapping
     area_counts = {}
     total_with_addr = 0
+    unmapped_count = 0
 
     for c in all_customers:
-        addr = (c.get("address") or "").strip()
-        if not addr:
-            continue
-        total_with_addr += 1
+        loc_val = (c.get("locality") or "").strip()
+        addr_val = (c.get("address") or "").strip()
         found = False
-        addr_lower = addr.lower()
-        for loc in KNOWN_LOCALITIES_FANCY:
-            if loc.lower() in addr_lower:
-                area_counts[loc] = area_counts.get(loc, 0) + 1
-                found = True
-                break
+
+        if loc_val:
+            for loc in active_localities:
+                if loc.lower() == loc_val.lower() or loc.lower() in loc_val.lower():
+                    area_counts[loc] = area_counts.get(loc, 0) + 1
+                    total_with_addr += 1
+                    found = True
+                    break
+
+        if not found and addr_val and addr_val != "-":
+            addr_lower = addr_val.lower()
+            for loc in active_localities:
+                if loc.lower() in addr_lower:
+                    area_counts[loc] = area_counts.get(loc, 0) + 1
+                    total_with_addr += 1
+                    found = True
+                    break
         if not found:
-            area_counts["Other Localities"] = area_counts.get("Other Localities", 0) + 1
+            unmapped_count += 1
 
     sorted_areas = sorted(area_counts.items(), key=lambda x: x[1], reverse=True)
     top_areas = []
@@ -1481,10 +1555,10 @@ def fancy_customers():
         item = {"area": loc, "count": count, "percentage": pct}
         if len(top_areas) < 5:
             top_areas.append(item)
-        if loc in AREA_COORDINATES_FANCY:
+        if loc in active_coords:
             item_map = dict(item)
-            item_map["lat"] = AREA_COORDINATES_FANCY[loc][0]
-            item_map["lng"] = AREA_COORDINATES_FANCY[loc][1]
+            item_map["lat"] = active_coords[loc][0]
+            item_map["lng"] = active_coords[loc][1]
             map_localities.append(item_map)
 
     if search:
@@ -1497,8 +1571,10 @@ def fancy_customers():
         customers=customers,
         total_count=len(all_customers),
         total_with_addr=total_with_addr,
+        unmapped_count=unmapped_count,
         top_areas=top_areas,
         map_localities=map_localities,
+        area_map_data=map_localities,
         search=search
     )
 

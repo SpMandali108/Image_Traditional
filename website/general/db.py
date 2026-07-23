@@ -19,6 +19,7 @@ products = db["Storage"]
 fcustomers = db["Fancy_Customers"]
 finventory = db["Fancy_Inventory"]
 ncustomers = db["Navaratri_Customers"]
+custom_localities = db["Custom_Localities"]
 
 import secrets
 ADMIN_ID = os.environ.get("ADMIN_ID")
