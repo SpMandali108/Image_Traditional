@@ -5,6 +5,8 @@
 {% block head %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 {% endblock %}
 
 {% block logo_link %}
@@ -742,30 +744,41 @@
       </div>
     </div>
 
-    {# ── Locality Strength Widget ── #}
-    {% if top_areas %}
+    {# ── Interactive Customer Map Widget ── #}
+    {% if map_localities %}
     <div class="stat-card p-3 mb-4 d-block">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h6 class="m-0 fw-bold text-white"><i class="fas fa-map-marker-alt text-warning me-2"></i>Geographic Customer Concentration (Top Strongholds)</h6>
-        <span class="text-muted" style="font-size:0.78rem;">Based on {{ total_with_addr }} recorded customer addresses</span>
+      <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <h6 class="m-0 fw-bold text-white"><i class="fas fa-map-marked-alt text-warning me-2"></i>Ahmedabad Customer Concentration Map</h6>
+        <span class="text-muted" style="font-size:0.78rem;">Click any locality circle or sidebar badge to filter table below</span>
       </div>
-      <div class="row g-2">
-        {% for area_item in top_areas %}
-          <div class="col-12 col-md-4">
-            <div class="p-2 rounded" style="background:var(--bg); border:1px solid var(--border);">
-              <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:0.83rem;">
-                <span class="fw-semibold text-white">📍 {{ area_item.area }}</span>
-                <span class="badge bg-dark text-warning border border-secondary">{{ area_item.count }} ({{ area_item.percentage }}%)</span>
+      <div class="row g-3">
+        <div class="col-12 col-lg-8">
+          <div id="fancy-customer-map" style="height: 380px; width: 100%; border-radius: 10px; border: 1px solid var(--border); background: #0a1628;"></div>
+        </div>
+        <div class="col-12 col-lg-4">
+          <div style="max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+            {% for area_item in map_localities %}
+              <div class="p-2 rounded" style="background:var(--bg); border:1px solid var(--border); cursor:pointer;" onclick="filterFancyArea('{{ area_item.area }}', {{ area_item.lat }}, {{ area_item.lng }})">
+                <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:0.85rem;">
+                  <span class="fw-semibold text-white">📍 {{ area_item.area }}</span>
+                  <span class="badge bg-dark text-warning border border-secondary">{{ area_item.count }} customers</span>
+                </div>
+                <div style="font-size:0.75rem; color:var(--muted);">
+                  {{ area_item.percentage }}% of mapped customer base
+                </div>
               </div>
-              <div class="progress" style="height: 5px; background: rgba(255,255,255,0.08);">
-                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ area_item.percentage }}%;"></div>
-              </div>
-            </div>
+            {% endfor %}
           </div>
-        {% endfor %}
+        </div>
       </div>
     </div>
     {% endif %}
+
+    {# ── Map Filter Status Banner ── #}
+    <div id="active-fancy-map-filter-banner" class="alert alert-warning d-flex align-items-center justify-content-between mb-3 py-2 px-3" style="display:none !important; background:var(--gold-dim); border-color:var(--gold-ring); color:var(--gold);">
+      <span><i class="fas fa-filter me-2"></i> Filtering directory by locality: <strong id="fancy-filter-locality-name"></strong></span>
+      <button class="btn btn-sm btn-outline-warning text-gold border-warning py-1 px-2" onclick="clearFancyMapFilter()">Clear Map Filter</button>
+    </div>
 
     {# ── Search ── #}
     <div class="sticky-controls mb-4">
@@ -1257,5 +1270,73 @@
     // Apply any pre-filled server-side value on load
     if (searchInput.value) filterTable(searchInput.value);
   }
+
+// Fancy Map Leaflet Initialization
+var fancyMapData = {{ map_localities|tojson|safe if map_localities else '[]' }};
+var fancyMap;
+
+document.addEventListener("DOMContentLoaded", function() {
+    var mapElem = document.getElementById('fancy-customer-map');
+    if (mapElem && fancyMapData && fancyMapData.length > 0) {
+        fancyMap = L.map('fancy-customer-map', { zoomControl: true }).setView([22.9976, 72.6009], 12);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(fancyMap);
+
+        fancyMapData.forEach(function(item) {
+            var radiusSize = Math.max(180, item.count * 35);
+            var circle = L.circle([item.lat, item.lng], {
+                color: '#d4af37',
+                fillColor: '#d4af37',
+                fillOpacity: 0.45,
+                radius: radiusSize
+            }).addTo(fancyMap);
+
+            var popupContent = `
+                <div style="font-family:sans-serif; padding:4px;">
+                    <h4 style="margin:0 0 6px 0; color:#e8c84a; font-size:1rem; font-weight:700;">📍 ${item.area}</h4>
+                    <p style="margin:0 0 4px 0; font-size:0.85rem; color:#f0f4f8;"><strong>${item.count} Registered Customers</strong></p>
+                    <p style="margin:0; font-size:0.78rem; color:#b8c5d4;">Share: ${item.percentage}% of mapped base</p>
+                </div>
+            `;
+            circle.bindPopup(popupContent);
+
+            circle.on('click', function() {
+                filterFancyArea(item.area, item.lat, item.lng);
+            });
+        });
+    }
+});
+
+function filterFancyArea(areaName, lat, lng) {
+    if (fancyMap && lat && lng) {
+        fancyMap.flyTo([lat, lng], 14, { animate: true, duration: 1.2 });
+    }
+
+    var banner = document.getElementById('active-fancy-map-filter-banner');
+    var localityLabel = document.getElementById('fancy-filter-locality-name');
+    if (banner && localityLabel) {
+        localityLabel.innerText = areaName;
+        banner.setAttribute('style', 'display:flex !important; background:var(--gold-dim); border-color:var(--gold-ring); color:var(--gold);');
+    }
+
+    if (typeof filterTable === 'function') {
+        filterTable(areaName);
+    }
+}
+
+function clearFancyMapFilter() {
+    var banner = document.getElementById('active-fancy-map-filter-banner');
+    if (banner) banner.setAttribute('style', 'display:none !important;');
+
+    if (typeof filterTable === 'function') {
+        filterTable('');
+    }
+
+    if (fancyMap) fancyMap.flyTo([22.9976, 72.6009], 12);
+}
 </script>
 {% endblock %}

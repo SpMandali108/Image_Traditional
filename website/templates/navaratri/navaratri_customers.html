@@ -1,6 +1,6 @@
 {% extends "general/base.html" %}
 
-{% block title %}Navaratri Customer Directory & Area Analytics | Image Traditional{% endblock %}
+{% block title %}Navaratri Customer Directory & Geographic Intelligence | Image Traditional{% endblock %}
 
 {% block logo_link %}
 <a href="/navaratri_admin" class="logo">
@@ -14,6 +14,10 @@
 {% endblock %}
 
 {% block content %}
+<!-- Leaflet.js CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
 
@@ -150,8 +154,8 @@
     margin-top: .25rem;
 }
 
-/* ── AREA STRENGTH WIDGET ── */
-.area-widget {
+/* ── MAP CONTAINER ── */
+.map-card {
     background: var(--card);
     border: 1px solid var(--gold-bd);
     border-radius: var(--r12);
@@ -159,16 +163,18 @@
     margin-bottom: 1.5rem;
 }
 
-.area-widget-header {
+.map-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: .5rem;
 }
 
-.area-widget-header h3 {
+.map-header h3 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: var(--white);
     margin: 0;
@@ -177,59 +183,71 @@
     gap: .5rem;
 }
 
-.area-widget-header h3 i { color: var(--gold); }
+.map-header h3 i { color: var(--gold); }
 
-.area-grid {
+.map-layout {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1rem;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.25rem;
 }
 
-.area-item {
+#customer-map {
+    height: 420px;
+    width: 100%;
+    border-radius: var(--r8);
+    border: 1px solid var(--gold-bd);
+    background: #0a1628;
+    z-index: 1;
+}
+
+.map-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.locality-item {
     background: var(--surface);
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: var(--r8);
     padding: .85rem 1rem;
+    cursor: pointer;
+    transition: var(--t);
 }
 
-.area-info {
+.locality-item:hover, .locality-item.active {
+    border-color: var(--gold-bd-h);
+    background: var(--card-h);
+}
+
+.locality-name {
+    font-weight: 600;
+    color: var(--white);
+    font-size: .88rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: .4rem;
-    font-size: .85rem;
 }
 
-.area-name {
-    font-weight: 600;
-    color: var(--white);
+.locality-meta {
+    font-size: .75rem;
+    color: var(--muted);
+    margin-top: .25rem;
 }
 
-.area-badge {
+.badge-count {
     background: var(--gold-bg);
     color: var(--gold-lt);
     border: 1px solid var(--gold-bd);
-    padding: .15rem .5rem;
+    padding: .15rem .55rem;
     border-radius: var(--r4);
     font-size: .75rem;
     font-weight: 700;
 }
 
-.progress-bar-bg {
-    width: 100%;
-    height: 6px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #d4af37 0%, #10b981 100%);
-    border-radius: 4px;
-}
-
-/* ── SEARCH CARD ── */
+/* ── SEARCH & FILTER BANNER ── */
 .search-card {
     background: var(--card);
     border: 1px solid var(--gold-bd);
@@ -237,6 +255,32 @@
     padding: 1rem 1.25rem;
     margin-bottom: 1.5rem;
 }
+
+.filter-banner {
+    background: var(--gold-bg);
+    border: 1px solid var(--gold-bd);
+    color: var(--gold-lt);
+    padding: .65rem 1rem;
+    border-radius: var(--r8);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: .85rem;
+    font-weight: 600;
+}
+
+.btn-clear-map-filter {
+    background: transparent;
+    border: 1px solid var(--gold-bd);
+    color: var(--gold);
+    border-radius: var(--r4);
+    padding: .25rem .65rem;
+    font-size: .75rem;
+    cursor: pointer;
+    transition: var(--t);
+}
+.btn-clear-map-filter:hover { background: var(--gold); color: var(--navy); }
 
 .search-wrapper {
     position: relative;
@@ -380,6 +424,21 @@
     color: var(--gold-bd);
 }
 
+/* ── LEAFLET CUSTOM POPUP ── */
+.leaflet-popup-content-wrapper {
+    background: #0f1e32 !important;
+    color: #f0f4f8 !important;
+    border: 1px solid rgba(212, 175, 55, 0.4) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+}
+.leaflet-popup-tip { background: #0f1e32 !important; }
+
+@media (max-width: 992px) {
+    .map-layout { grid-template-columns: 1fr; }
+    #customer-map { height: 320px; }
+}
+
 @media (max-width: 768px) {
     .adm-nav { padding: 0 1rem; }
     .adm-body { padding: 1.25rem 1rem 2rem; }
@@ -392,8 +451,8 @@
     <!-- NAV -->
     <nav class="adm-nav">
         <div class="adm-brand">
-            <div class="adm-brand-icon">👥</div>
-            <h1>Navaratri Universal Customer Directory</h1>
+            <div class="adm-brand-icon">🗺️</div>
+            <h1>Navaratri Customer Geographic Intelligence</h1>
         </div>
         <div class="top-actions">
             <a href="/navaratri_admin" class="back-btn">← Back to Navaratri Admin</a>
@@ -413,46 +472,51 @@
                 <span class="metric-val" style="color:#10b981;">{{ active_bookers_count }}</span>
             </div>
             <div class="metric-card">
-                <span class="metric-label">Addresses Captured</span>
+                <span class="metric-label">Addresses Mapped</span>
                 <span class="metric-val" style="color:var(--gold-lt);">{{ total_with_addr }}</span>
             </div>
             <div class="metric-card">
-                <span class="metric-label">Top Stronghold Area</span>
+                <span class="metric-label">Primary Customer Hub</span>
                 <span class="metric-val" style="font-size:1.15rem; color:#3b82f6; text-transform:uppercase;">
                     {{ top_areas[0].area if top_areas else 'N/A' }}
                 </span>
             </div>
         </div>
 
-        <!-- LOCALITY STRENGTH ANALYTICS WIDGET -->
-        {% if top_areas %}
-        <div class="area-widget">
-            <div class="area-widget-header">
-                <h3><i class="bi bi-geo-alt-fill"></i> Geographic Customer Concentration (Top Strongholds)</h3>
-                <span class="text-muted" style="font-size:0.8rem;">Based on {{ total_with_addr }} recorded customer addresses</span>
+        <!-- INTERACTIVE LEAFLET DARK MAP CARD -->
+        <div class="map-card">
+            <div class="map-header">
+                <h3><i class="bi bi-map-fill"></i> Ahmedabad Customer Concentration Map</h3>
+                <span class="text-muted" style="font-size:0.8rem;">Click any locality circle or sidebar area to filter table below</span>
             </div>
-            <div class="area-grid">
-                {% for area_item in top_areas %}
-                    <div class="area-item">
-                        <div class="area-info">
-                            <span class="area-name">📍 {{ area_item.area }}</span>
-                            <span class="area-badge">{{ area_item.count }} customers ({{ area_item.percentage }}%)</span>
+            <div class="map-layout">
+                <div id="customer-map"></div>
+                <div class="map-sidebar">
+                    {% for area_item in map_localities %}
+                        <div class="locality-item" onclick="filterByArea('{{ area_item.area }}', {{ area_item.lat }}, {{ area_item.lng }})">
+                            <div class="locality-name">
+                                <span>📍 {{ area_item.area }}</span>
+                                <span class="badge-count">{{ area_item.count }}</span>
+                            </div>
+                            <div class="locality-meta">
+                                {{ area_item.percentage }}% of mapped customer base
+                            </div>
                         </div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width: {{ area_item.percentage }}%;"></div>
-                        </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
             </div>
         </div>
-        {% endif %}
 
-        <!-- SEARCH CARD -->
+        <!-- SEARCH & MAP FILTER BANNER -->
         <div class="search-card">
-            <form method="GET" action="{{ url_for('navaratri.navaratri_customers_list') }}" class="m-0">
+            <div id="active-map-filter-banner" class="filter-banner" style="display:none;">
+                <span><i class="bi bi-funnel-fill me-2"></i> Filtering directory by locality: <strong id="filter-locality-name"></strong></span>
+                <button class="btn-clear-map-filter" onclick="clearMapFilter()">Clear Map Filter</button>
+            </div>
+            <form method="GET" action="{{ url_for('navaratri.navaratri_customers_list') }}" class="m-0" id="searchForm">
                 <div class="search-wrapper">
                     <i class="bi bi-search"></i>
-                    <input type="text" name="search" class="search-field" placeholder="Search customer directory by name, mobile, address..." value="{{ search }}">
+                    <input type="text" id="searchInput" name="search" class="search-field" placeholder="Search customer directory by name, mobile, address..." value="{{ search }}">
                 </div>
             </form>
         </div>
@@ -460,7 +524,7 @@
         <!-- TABLE CARD -->
         <div class="table-card">
             <div class="table-responsive">
-                <table class="cust-table">
+                <table class="cust-table" id="custTable">
                     <thead>
                         <tr>
                             <th style="width: 250px;">Customer Info</th>
@@ -473,7 +537,7 @@
                     <tbody>
                         {% if customers %}
                             {% for cust in customers %}
-                                <tr>
+                                <tr class="cust-row" data-address="{{ (cust.address or '')|lower }}">
                                     <td>
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="avatar-circle">{{ cust.name[:2].upper() if cust.name else 'CU' }}</div>
@@ -509,4 +573,91 @@
 
     </div>
 </div>
+
+<!-- LEAFLET MAP SCRIPT & FILTER LOGIC -->
+<script>
+var mapData = {{ map_localities|tojson|safe }};
+var map;
+var markers = {};
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Initialize Leaflet Map centered on Ahmedabad
+    map = L.map('customer-map', { zoomControl: true }).setView([23.0041, 72.6400], 12);
+
+    // CartoDB Dark Matter tile layer
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(map);
+
+    // Add glowing circles for each locality
+    if (mapData && mapData.length > 0) {
+        mapData.forEach(function(item) {
+            var radiusSize = Math.max(180, item.count * 45);
+            var circle = L.circle([item.lat, item.lng], {
+                color: '#d4af37',
+                fillColor: '#d4af37',
+                fillOpacity: 0.45,
+                radius: radiusSize
+            }).addTo(map);
+
+            var popupContent = `
+                <div style="font-family:'Inter',sans-serif; padding:4px;">
+                    <h4 style="margin:0 0 6px 0; color:#e8c84a; font-size:1rem; font-weight:700;">📍 ${item.area}</h4>
+                    <p style="margin:0 0 4px 0; font-size:0.85rem; color:#f0f4f8;"><strong>${item.count} Registered Customers</strong></p>
+                    <p style="margin:0; font-size:0.78rem; color:#b8c5d4;">Share: ${item.percentage}% of mapped base</p>
+                </div>
+            `;
+            circle.bindPopup(popupContent);
+
+            circle.on('click', function() {
+                filterByArea(item.area, item.lat, item.lng);
+            });
+
+            markers[item.area] = { circle: circle, lat: item.lat, lng: item.lng };
+        });
+    }
+});
+
+function filterByArea(areaName, lat, lng) {
+    if (map && lat && lng) {
+        map.flyTo([lat, lng], 14, { animate: true, duration: 1.2 });
+    }
+
+    var banner = document.getElementById('active-map-filter-banner');
+    var localityLabel = document.getElementById('filter-locality-name');
+    if (banner && localityLabel) {
+        localityLabel.innerText = areaName;
+        banner.style.display = 'flex';
+    }
+
+    var areaLower = areaName.toLowerCase();
+    var rows = document.querySelectorAll('.cust-row');
+    var visibleCount = 0;
+
+    rows.forEach(function(row) {
+        var addr = row.getAttribute('data-address') || '';
+        if (addr.includes(areaLower)) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    // Scroll smoothly to table
+    document.getElementById('custTable').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function clearMapFilter() {
+    var banner = document.getElementById('active-map-filter-banner');
+    if (banner) banner.style.display = 'none';
+
+    var rows = document.querySelectorAll('.cust-row');
+    rows.forEach(function(row) { row.style.display = ''; });
+
+    if (map) map.flyTo([23.0041, 72.6400], 12);
+}
+</script>
 {% endblock %}

@@ -2726,6 +2726,33 @@ KNOWN_LOCALITIES = [
     "Bodakdev", "Navrangpura", "Sabarmati", "Chandkheda", "Ghatlodia"
 ]
 
+AREA_COORDINATES = {
+    "Vastral": [23.0041, 72.6617],
+    "Maninagar": [22.9976, 72.6009],
+    "Khokhra": [22.9983, 72.6167],
+    "Isanpur": [22.9731, 72.5976],
+    "Amraiwadi": [23.0039, 72.6288],
+    "Ghodasar": [22.9815, 72.6094],
+    "Vatva": [22.9554, 72.6240],
+    "Odhav": [23.0232, 72.6698],
+    "Hatkeshwar": [23.0012, 72.6225],
+    "CTM": [22.9908, 72.6321],
+    "Nikol": [23.0483, 72.6717],
+    "Ramol": [22.9840, 72.6582],
+    "Narol": [22.9634, 72.5891],
+    "Bapunagar": [23.0371, 72.6231],
+    "Saraspur": [23.0298, 72.6080],
+    "Asarwa": [23.0494, 72.6033],
+    "Shahibaug": [23.0560, 72.5925],
+    "Satellite": [23.0300, 72.5176],
+    "Vastrapur": [23.0350, 72.5293],
+    "Bodakdev": [23.0410, 72.5115],
+    "Navrangpura": [23.0366, 72.5611],
+    "Sabarmati": [23.0845, 72.5802],
+    "Chandkheda": [23.1114, 72.5835],
+    "Ghatlodia": [23.0682, 72.5358]
+}
+
 
 @navaratri.route("/navaratri-customers")
 def navaratri_customers_list():
@@ -2766,9 +2793,18 @@ def navaratri_customers_list():
 
     sorted_areas = sorted(area_counts.items(), key=lambda x: x[1], reverse=True)
     top_areas = []
-    for loc, count in sorted_areas[:5]:
+    map_localities = []
+
+    for loc, count in sorted_areas:
         pct = round((count / max(total_with_addr, 1)) * 100, 1)
-        top_areas.append({"area": loc, "count": count, "percentage": pct})
+        item = {"area": loc, "count": count, "percentage": pct}
+        if len(top_areas) < 5:
+            top_areas.append(item)
+        if loc in AREA_COORDINATES:
+            item_map = dict(item)
+            item_map["lat"] = AREA_COORDINATES[loc][0]
+            item_map["lng"] = AREA_COORDINATES[loc][1]
+            map_localities.append(item_map)
 
     # Active Bookings Mobile List
     active_mobiles = set()
@@ -2790,6 +2826,7 @@ def navaratri_customers_list():
         active_bookers_count=len(active_mobiles),
         total_with_addr=total_with_addr,
         top_areas=top_areas,
+        map_localities=map_localities,
         search=search
     )
 
