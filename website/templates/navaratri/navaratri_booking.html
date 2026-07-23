@@ -60,7 +60,12 @@
         radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.03), transparent 50%);
     }
 
-    .main-content { padding-top: 0 !important; overflow-x: hidden; }
+    .main-content {
+      padding: 0 !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      overflow-x: hidden;
+    }
 
     /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -114,27 +119,27 @@
     }
     .topline-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
-    /* Stat Chips (KPIs) */
+    /* Stat Chips (KPIs) Grid Alignment */
     .stat-strip {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
-      padding-bottom: 18px;
+      margin-bottom: 22px;
       width: 100%;
     }
     .stat-chip {
       display: flex; align-items: center; gap: 12px;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 999px;
-      padding: 10px 20px 10px 12px;
+      border-radius: var(--r-md);
+      padding: 12px 18px;
       width: 100%;
       backdrop-filter: blur(10px);
       transition: all 0.2s ease;
     }
-    .stat-chip:hover { border-color: var(--border-gold); transform: translateY(-1px); }
+    .stat-chip:hover { border-color: var(--border-gold); transform: translateY(-2px); }
     .stat-chip-icon {
-      width: 34px; height: 34px; border-radius: 50%;
+      width: 36px; height: 36px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 0.95rem; flex-shrink: 0;
       background: rgba(201, 162, 39, 0.15); color: var(--gold-light);
@@ -182,19 +187,22 @@
     }
 
     /* ─── MAIN LAYOUT ───────────────────────────────────────────────── */
+    /* CSS Grid instead of flex: a single 1fr column below 992px (so the
+       sidebar, which becomes a fixed off-canvas drawer at that width,
+       never reserves phantom space next to the main column), and an
+       explicit two-column track at 992px+ where the sidebar is static. */
     .bm-layout {
       max-width: 1400px;
       margin: 0 auto;
       padding: 24px 24px 60px;
-      display: flex;
-      align-items: flex-start;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      align-items: start;
       gap: 24px;
       width: 100%;
     }
-    .bm-main { flex: 1 1 0%; min-width: 0; }
+    .bm-main { min-width: 0; }
     .bm-sidebar {
-      flex: 0 0 290px;
-      max-width: 290px;
       min-width: 0;
       --bs-offcanvas-width: 320px;
       --bs-offcanvas-bg: #091322;
@@ -202,19 +210,28 @@
       --bs-offcanvas-border-color: var(--border-color);
     }
     @media (min-width: 992px) {
-      .bm-sidebar { position: sticky; top: 20px; }
+      .bm-layout { grid-template-columns: 290px minmax(0, 1fr); }
+      .bm-sidebar { position: sticky; top: 20px; align-self: start; }
     }
 
     /* ─── SIDEBAR ROSTER ────────────────────────────────────────────── */
     .roster-panel {
-      background: var(--bg-card);
+      background: linear-gradient(180deg, rgba(20, 34, 58, 0.92), rgba(14, 25, 44, 0.92));
       border-radius: var(--r-lg);
-      border: 1px solid var(--border-color);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(16px);
       overflow: hidden;
       display: flex;
       flex-direction: column;
       max-height: calc(100vh - 120px);
+      box-shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.85);
+      position: relative;
+    }
+    .roster-panel::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold-primary) 50%, transparent);
+      opacity: 0.7;
     }
     .roster-head {
       padding: 16px 18px 8px;
@@ -718,7 +735,7 @@
 
     /* ─── RESPONSIVE RULES ──────────────────────────────────────────── */
     @media (max-width: 991.98px) {
-      .bm-layout { flex-direction: column; padding: 16px 16px 50px; gap: 16px; }
+      .bm-layout { padding: 16px 16px 50px; gap: 16px; }
       .topline { padding: 20px 16px 0; }
       .topline-title { font-size: 1.35rem; }
     }
@@ -729,6 +746,14 @@
       .phc-balance { width: 100%; margin-left: 0; text-align: left; display: flex; align-items: center; justify-content: space-between; }
       .stat-chip-value { font-size: 0.95rem; }
       .roster-grid { grid-template-columns: 1fr; padding: 12px 14px 18px; }
+    }
+    @media (max-width: 575.98px) {
+      .topline-row1 { gap: 10px; }
+      .topline-actions { width: 100%; }
+      .topline-actions .btn { flex: 1 1 auto; justify-content: center; }
+      .stat-strip { grid-template-columns: 1fr; }
+      .it-card-body { padding: 16px; }
+      .phc-meta-grid { grid-template-columns: 1fr 1fr; padding: 0 16px 18px; }
     }
   </style>
 {% endblock %}
@@ -777,32 +802,6 @@
       </div>
     </div>
 
-    {% if not customer %}
-    <div class="stat-strip">
-      <div class="stat-chip">
-        <div class="stat-chip-icon"><i class="bi bi-people-fill"></i></div>
-        <div>
-          <div class="stat-chip-label">Customers</div>
-          <div class="stat-chip-value" id="statsCountCustomers">{{ stats.total_customers }}</div>
-        </div>
-      </div>
-      <div class="stat-chip is-success">
-        <div class="stat-chip-icon"><i class="bi bi-box-seam"></i></div>
-        <div>
-          <div class="stat-chip-label">Rented Costumes</div>
-          <div class="stat-chip-value">{{ stats.total_items }}</div>
-        </div>
-      </div>
-      <div class="stat-chip is-danger">
-        <div class="stat-chip-icon"><i class="bi bi-exclamation-circle"></i></div>
-        <div>
-          <div class="stat-chip-label">Total Receivables</div>
-          <div class="stat-chip-value">₹{{ stats.total_due }}</div>
-        </div>
-      </div>
-    </div>
-    {% endif %}
-
   </div>
 </div>
 
@@ -811,25 +810,16 @@
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <div class="bm-layout">
 
-  <!-- ── SIDEBAR — ROSTER ──────────────────────────────────────────── -->
-  <div class="offcanvas offcanvas-start offcanvas-lg bm-sidebar" tabindex="-1" id="customerOffcanvas" aria-labelledby="customerOffcanvasLabel">
+  <!-- ── SIDEBAR — ROSTER (DESKTOP) ────────────────────────────────── -->
+  <div class="bm-sidebar d-none d-lg-block">
+    <div class="roster-panel">
 
-    <div class="offcanvas-header d-lg-none border-bottom border-secondary">
-      <h5 class="roster-head-title m-0" id="customerOffcanvasLabel">
-        <i class="bi bi-person-lines-fill"></i> Customer Register
-      </h5>
-      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-
-    <div class="offcanvas-body p-0">
-      <div class="roster-panel">
-
-        <div class="roster-head d-none d-lg-flex">
-          <div class="roster-head-title">
-            <i class="bi bi-person-lines-fill"></i> Customer Register
-          </div>
-          <span class="badge-gold" id="customerCountBadge">{{ bookings|length }}</span>
+      <div class="roster-head d-flex">
+        <div class="roster-head-title">
+          <i class="bi bi-person-lines-fill"></i> Customer Register
         </div>
+        <span class="badge-gold" id="customerCountBadge">{{ bookings|length }}</span>
+      </div>
 
         <div class="ledger-filters">
           <div class="ledger-search">
@@ -912,10 +902,8 @@
             </a>
           {% endfor %}
         </div>
-
       </div>
     </div>
-  </div>
 
   <!-- ── MAIN CONTENT ─────────────────────────────────────────────── -->
   <div class="bm-main">
@@ -1107,6 +1095,31 @@
     {% else %}
 
       <!-- ── DASHBOARD VIEW (No Customer Selected) ─────────────────── -->
+
+      <!-- Cycle Stat Strip (KPIs) -->
+      <div class="stat-strip">
+        <div class="stat-chip">
+          <div class="stat-chip-icon"><i class="bi bi-people-fill"></i></div>
+          <div>
+            <div class="stat-chip-label">Customers</div>
+            <div class="stat-chip-value" id="statsCountCustomers">{{ stats.total_customers }}</div>
+          </div>
+        </div>
+        <div class="stat-chip is-success">
+          <div class="stat-chip-icon"><i class="bi bi-box-seam"></i></div>
+          <div>
+            <div class="stat-chip-label">Rented Costumes</div>
+            <div class="stat-chip-value">{{ stats.total_items }}</div>
+          </div>
+        </div>
+        <div class="stat-chip is-danger">
+          <div class="stat-chip-icon"><i class="bi bi-exclamation-circle"></i></div>
+          <div>
+            <div class="stat-chip-label">Total Receivables</div>
+            <div class="stat-chip-value">₹{{ stats.total_due }}</div>
+          </div>
+        </div>
+      </div>
 
       <!-- Availability Checker -->
       <div class="it-card">
@@ -1408,6 +1421,49 @@
         <button type="button" class="btn btn-solid-danger fw-bold px-4" id="confirmDeleteRowBtn" onclick="confirmDeleteBookingRow()">
           Confirm Delete
         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Customer Register Offcanvas Drawer (<992px) -->
+<div class="offcanvas offcanvas-start d-lg-none bm-sidebar" tabindex="-1" id="customerOffcanvas" aria-labelledby="customerOffcanvasLabel" style="--bs-offcanvas-bg:#091322;--bs-offcanvas-color:var(--text-main);--bs-offcanvas-border-color:var(--border-color);--bs-offcanvas-width:320px;">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <h5 class="roster-head-title m-0" id="customerOffcanvasLabel">
+      <i class="bi bi-person-lines-fill"></i> Customer Register
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body p-0">
+    <div class="roster-panel">
+      <div class="ledger-filters">
+        <div class="ledger-search">
+          <i class="bi bi-search"></i>
+          <input type="text" id="mobileCustomerSearchInput" class="customer-search-input" placeholder="Name, mobile, group…">
+        </div>
+      </div>
+      <div class="ledger-list">
+        {% for cust in bookings|sort(attribute='Name') %}
+          <a href="{{ url_for('navaratri.navaratri_booking', customer_id=cust._id|string) }}"
+             class="ledger-entry {% if customer and customer._id|string == cust._id|string %}active{% endif %}"
+             data-name="{{ cust.Name|lower }}"
+             data-mobile="{{ cust.mobile }}"
+             data-group="{{ cust.group|lower if cust.group else '' }}"
+             data-reference="{{ cust.reference|lower if cust.reference else '' }}">
+            <div class="ledger-entry-avatar">{{ cust.Name[:2].upper() }}</div>
+            <div class="ledger-entry-body">
+              <span class="le-name">{{ cust.Name }}</span>
+              <div class="le-meta">
+                <span><i class="bi bi-phone me-1"></i>{{ cust.mobile }}</span>
+                {% if cust.remaining > 0 %}
+                  <span class="le-due">₹{{ cust.remaining }}</span>
+                {% else %}
+                  <span class="le-paid"><i class="bi bi-check-circle-fill me-1"></i>Paid</span>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+        {% endfor %}
       </div>
     </div>
   </div>
@@ -2194,6 +2250,5 @@
         document.querySelectorAll('.multi-select-button').forEach(b => b.classList.remove('active'));
       }
     });
-  })();
 </script>
 {% endblock %}

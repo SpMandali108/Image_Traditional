@@ -590,11 +590,14 @@ def api_check_product():
     if not product_code or not date_input:
         return jsonify({"available": False, "error": "Product code and date are required"}), 400
         
-    try:
-        date_obj = datetime.strptime(date_input, "%Y-%m-%d")
-        date_str = date_obj.strftime("%d-%m-%y")
-    except ValueError:
-        date_str = date_input
+    date_str = date_input
+    for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d-%m-%y"):
+        try:
+            date_obj = datetime.strptime(date_input, fmt)
+            date_str = date_obj.strftime("%d-%m-%y")
+            break
+        except ValueError:
+            pass
         
     has_conflict, conflicts = check_booking_conflict(date_str, [product_code], exclude_mobile=exclude_mobile or None)
     if has_conflict:
