@@ -1518,32 +1518,20 @@ def fancy_customers():
         pass
 
     # Area Strength Analytics & Verified Locality Mapping
+    from website.general.utils import resolve_customer_locality
+
     area_counts = {}
     total_with_addr = 0
     unmapped_count = 0
 
     for c in all_customers:
-        loc_val = (c.get("locality") or "").strip()
-        addr_val = (c.get("address") or "").strip()
-        found = False
-
-        if loc_val:
-            for loc in active_localities:
-                if loc.lower() == loc_val.lower() or loc.lower() in loc_val.lower():
-                    area_counts[loc] = area_counts.get(loc, 0) + 1
-                    total_with_addr += 1
-                    found = True
-                    break
-
-        if not found and addr_val and addr_val != "-":
-            addr_lower = addr_val.lower()
-            for loc in active_localities:
-                if loc.lower() in addr_lower:
-                    area_counts[loc] = area_counts.get(loc, 0) + 1
-                    total_with_addr += 1
-                    found = True
-                    break
-        if not found:
+        matched_loc = resolve_customer_locality(c, active_localities)
+        if matched_loc:
+            c["mapped_locality"] = matched_loc
+            area_counts[matched_loc] = area_counts.get(matched_loc, 0) + 1
+            total_with_addr += 1
+        else:
+            c["mapped_locality"] = ""
             unmapped_count += 1
 
     sorted_areas = sorted(area_counts.items(), key=lambda x: x[1], reverse=True)
@@ -1561,8 +1549,12 @@ def fancy_customers():
             item_map["lng"] = active_coords[loc][1]
             map_localities.append(item_map)
 
+    id_to_loc = {str(c["_id"]): c.get("mapped_locality", "") for c in all_customers}
+
     if search:
         customers = list(fcustomers.find(query).sort("updated_at", -1))
+        for c in customers:
+            c["mapped_locality"] = id_to_loc.get(str(c["_id"]), "")
     else:
         customers = all_customers
 

@@ -841,8 +841,8 @@
                   data-name="{{ customer.name|e }}"
                   data-mobile="{{ customer.mobile|e }}"
                   data-school="{{ customer.school|e }}"
-                  data-address="{{ customer.address|e }} {{ customer.locality|e }}"
-                  data-locality="{{ customer.locality|e }}"
+                  data-address="{{ customer.address|e }}"
+                  data-locality="{{ (customer.mapped_locality or customer.locality or '')|e }}"
                   onclick="window.location='{{ url_for('fancy.fancy_profile', mobile=customer.mobile or '') }}';">
                 <td style="color:var(--muted);font-size:0.78rem">{{ loop.index }}</td>
                 <td>
@@ -868,6 +868,8 @@
                   <div class="cust-addr-text" title="{{ customer.address }}">{{ customer.address or '-' }}</div>
                   {% if customer.locality %}
                   <div style="font-size:.76rem; color:var(--gold-light); margin-top:2px;">📍 {{ customer.locality }}</div>
+                  {% elif customer.mapped_locality %}
+                  <div style="font-size:.76rem; color:var(--gold-light); margin-top:2px;">📍 {{ customer.mapped_locality }}</div>
                   {% endif %}
                 </td>
                 <td style="color:var(--muted);font-size:0.8rem">
@@ -918,6 +920,7 @@
              data-mobile="{{ customer.mobile|e }}"
              data-school="{{ customer.school|e }}"
              data-address="{{ customer.address|e }}"
+             data-locality="{{ (customer.mapped_locality or customer.locality or '')|e }}"
              onclick="window.location='{{ url_for('fancy.fancy_profile', mobile=customer.mobile or '') }}';">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center gap-3">
@@ -1228,20 +1231,36 @@
     .map(c => ({ el: c, txt: c.textContent.toLowerCase() }));
 
   let raf = null;
+  let currentFancyMapLocality = '';
 
   function filterTable(raw) {
-    const q = raw.trim().toLowerCase();
+    applyFancyCombinedFilter();
+  }
+
+  function applyFancyCombinedFilter() {
+    const q = (searchInput ? searchInput.value : '').trim().toLowerCase();
+    const mapLoc = currentFancyMapLocality;
     let dc = 0, mc = 0;
 
     for (let i = 0; i < dRows.length; i++) {
-      const show = !q || dRows[i].txt.includes(q);
-      dRows[i].el.style.display = show ? '' : 'none';
+      const el = dRows[i].el;
+      const textMatch = !q || dRows[i].txt.includes(q);
+      const rowLoc = (el.getAttribute('data-locality') || '').trim().toLowerCase();
+      const locMatch = !mapLoc || (rowLoc === mapLoc);
+      const show = textMatch && locMatch;
+
+      el.style.display = show ? '' : 'none';
       if (show) dc++;
     }
 
     for (let i = 0; i < mCards.length; i++) {
-      const show = !q || mCards[i].txt.includes(q);
-      mCards[i].el.style.display = show ? '' : 'none';
+      const el = mCards[i].el;
+      const textMatch = !q || mCards[i].txt.includes(q);
+      const cardLoc = (el.getAttribute('data-locality') || '').trim().toLowerCase();
+      const locMatch = !mapLoc || (cardLoc === mapLoc);
+      const show = textMatch && locMatch;
+
+      el.style.display = show ? '' : 'none';
       if (show) mc++;
     }
 
@@ -1249,14 +1268,16 @@
     if (mobileNoRes)  mobileNoRes.style.display  = (mCards.length && mc === 0) ? '' : 'none';
 
     // Meta line
-    if (!q) {
+    if (!q && !mapLoc) {
       liveMeta.style.display = 'none';
     } else {
       liveMeta.style.display = 'flex';
+      let metaContent = `Showing <strong>${dc}</strong> result${dc !== 1 ? 's' : ''}`;
+      if (q) metaContent += ` for "<span style="color:var(--gold)">${escHtml(q)}</span>"`;
+      if (mapLoc) metaContent += ` in locality "<span style="color:var(--gold)">${escHtml(currentFancyMapLocality)}</span>"`;
+
       liveMeta.innerHTML = `
-        <span>Showing <strong>${dc}</strong> result${dc !== 1 ? 's' : ''} for
-          "<span style="color:var(--gold)">${escHtml(q)}</span>"
-        </span>
+        <span>${metaContent}</span>
         <button onclick="clearSearch()" class="btn-clear">
           <i class="fas fa-times me-1"></i>Clear
         </button>`;
@@ -1264,7 +1285,12 @@
   }
 
   function clearSearch() {
-    if (searchInput) { searchInput.value = ''; filterTable(''); searchInput.focus(); }
+    if (searchInput) { searchInput.value = ''; }
+    currentFancyMapLocality = '';
+    var banner = document.getElementById('active-fancy-map-filter-banner');
+    if (banner) banner.setAttribute('style', 'display:none !important;');
+    applyFancyCombinedFilter();
+    if (searchInput) searchInput.focus();
   }
 
   function escHtml(s) {
@@ -1275,11 +1301,11 @@
     // requestAnimationFrame: input renders first, filter runs next frame
     searchInput.addEventListener('input', e => {
       if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => filterTable(e.target.value));
+      raf = requestAnimationFrame(() => applyFancyCombinedFilter());
     });
 
     // Apply any pre-filled server-side value on load
-    if (searchInput.value) filterTable(searchInput.value);
+    if (searchInput.value) applyFancyCombinedFilter();
   }
 
 // Fancy Map Leaflet Initialization
@@ -1342,18 +1368,16 @@ function filterFancyArea(areaName, lat, lng) {
         banner.setAttribute('style', 'display:flex !important; background:var(--gold-dim); border-color:var(--gold-ring); color:var(--gold);');
     }
 
-    if (typeof filterTable === 'function') {
-        filterTable(areaName);
-    }
+    currentFancyMapLocality = (areaName || '').trim().toLowerCase();
+    applyFancyCombinedFilter();
 }
 
 function clearFancyMapFilter() {
     var banner = document.getElementById('active-fancy-map-filter-banner');
     if (banner) banner.setAttribute('style', 'display:none !important;');
 
-    if (typeof filterTable === 'function') {
-        filterTable('');
-    }
+    currentFancyMapLocality = '';
+    applyFancyCombinedFilter();
 
     if (fancyMap && fancyMarkers.length > 0) {
         fancyMap.fitBounds(L.featureGroup(fancyMarkers).getBounds().pad(0.12));

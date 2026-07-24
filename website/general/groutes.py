@@ -183,6 +183,8 @@ def address_manager():
     except Exception:
         pass
 
+    from website.general.utils import resolve_customer_locality
+
     n_custs = list(ncustomers.find().sort("updated_at", -1))
     f_custs = list(fcustomers.find().sort("updated_at", -1))
 
@@ -190,14 +192,8 @@ def address_manager():
     for c in n_custs:
         raw_addr = (c.get("address") or "").replace('\r', ' ').replace('\n', ' ').strip()
         c['address'] = raw_addr
-        found = False
-        if raw_addr and raw_addr != "-":
-            al = raw_addr.lower()
-            for loc in merged_localities:
-                if loc.lower() in al:
-                    found = True
-                    break
-        if not found:
+        matched_loc = resolve_customer_locality(c, merged_localities)
+        if not matched_loc:
             c['_id_str'] = str(c['_id'])
             c['system'] = 'Navaratri'
             unmapped_navaratri.append(c)
@@ -206,14 +202,8 @@ def address_manager():
     for c in f_custs:
         raw_addr = (c.get("address") or "").replace('\r', ' ').replace('\n', ' ').strip()
         c['address'] = raw_addr
-        found = False
-        if raw_addr and raw_addr != "-":
-            al = raw_addr.lower()
-            for loc in merged_localities:
-                if loc.lower() in al:
-                    found = True
-                    break
-        if not found:
+        matched_loc = resolve_customer_locality(c, merged_localities)
+        if not matched_loc:
             c['_id_str'] = str(c['_id'])
             c['system'] = 'Fancy Dress'
             unmapped_fancy.append(c)
@@ -290,7 +280,19 @@ def update_customer_address():
             return jsonify({"status": "error", "message": "Customer record not found"}), 444
 
         existing_addr = (doc.get("address") or "").strip()
-        existing_orig = doc.get("original_address") or existing_addr
+
+        # Automatic Title Case formatting helper
+        def to_title_case(text):
+            if not text:
+                return ""
+            words = text.split()
+            title_words = []
+            for w in words:
+                if w.upper() in ("CTM", "SG", "S.G.", "C.G.", "C.G", "S.G"):
+                    title_words.append(w.upper())
+                else:
+                    title_words.append(w.capitalize())
+            return " ".join(title_words)
 
         # Determine real street address and assigned locality
         final_street_addr = new_address if new_address else existing_addr
@@ -304,9 +306,43 @@ def update_customer_address():
                     final_locality = town.title()
                     break
 
+        if final_locality:
+            final_locality = to_title_case(final_locality)
+
+        # Clean locality suffix from street address so real address stays in 'address' and locality in 'locality'
+        if final_locality and final_street_addr:
+            pattern = re.compile(r'[, \t]*\b' + re.escape(final_locality.strip()) + r'\b\s*$', re.IGNORECASE)
+            cleaned_addr = pattern.sub('', final_street_addr).strip()
+            if cleaned_addr:
+                final_street_addr = cleaned_addr
+
+        if final_street_addr:
+            final_street_addr = to_title_case(final_street_addr)
+
         # Register custom locality in Custom_Localities if needed
         if final_locality:
-            coords = GUJARAT_TOWNS_MATRIX.get(final_locality.lower(), [23.0225, 72.5714])
+            coords = GUJARAT_TOWNS_MATRIX.get(final_locality.lower())
+            if not coords:
+                try:
+                    from website.navaratri.nroutes import AREA_COORDINATES
+                    for k, v in AREA_COORDINATES.items():
+                        if k.lower() == final_locality.lower():
+                            coords = v
+                            break
+                except Exception:
+                    pass
+            if not coords:
+                try:
+                    from website.fancy.froutes import AREA_COORDINATES_FANCY
+                    for k, v in AREA_COORDINATES_FANCY.items():
+                        if k.lower() == final_locality.lower():
+                            coords = v
+                            break
+                except Exception:
+                    pass
+            if not coords:
+                coords = [23.0225, 72.5714]
+
             try:
                 custom_localities.update_one(
                     {"name": final_locality},
@@ -319,7 +355,6 @@ def update_customer_address():
         upd = {
             "locality": final_locality,
             "address": final_street_addr,
-            "original_address": existing_orig,
             "updated_at": datetime.now()
         }
 

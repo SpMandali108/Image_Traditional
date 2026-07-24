@@ -352,6 +352,12 @@ body {
         <input type="text" id="resolver-search" class="search-box-input" placeholder="🔍 Search name, mobile, address..." onkeyup="searchResolverTable()">
     </div>
 
+    <datalist id="localities-datalist">
+        {% for loc in known_localities %}
+        <option value="{{ loc }}">
+        {% endfor %}
+    </datalist>
+
     <!-- TABLE -->
     <div class="resolver-table-card">
         {% if unmapped_customers %}
@@ -361,8 +367,8 @@ body {
                     <th>Customer Name & Mobile</th>
                     <th>System</th>
                     <th>Recorded Address</th>
-                    <th>Select Locality Dropdown</th>
-                    <th>✍️ OR Type Any New Address / Locality</th>
+                    <th style="min-width: 210px;">📍 Select or Type Locality</th>
+                    <th style="min-width: 240px;">🏠 Street Address</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -407,16 +413,20 @@ body {
                         </div>
                     </td>
                     <td>
-                        <select class="select-locality" id="select-{{ c._id_str }}" onchange="handleLocalitySelect(this, '{{ c._id_str }}')">
-                            <option value="">-- Choose Locality / City --</option>
-                            <option value="__ADD_NEW__" style="font-weight: 700; color: var(--gold-lt); background: var(--navy-light);">➕ Add New Custom Locality...</option>
-                            {% for loc in known_localities %}
-                            <option value="{{ loc }}">{{ loc }}</option>
-                            {% endfor %}
-                        </select>
+                        <input type="text" 
+                               class="select-locality-input" 
+                               id="select-{{ c._id_str }}" 
+                               list="localities-datalist" 
+                               placeholder="📍 Select or Type Locality..." 
+                               style="background: var(--navy-light); border: 1px solid var(--gold-bd); color: var(--gold-lt); border-radius: 8px; padding: 6px 12px; font-size: .88rem; width: 100%;">
                     </td>
                     <td>
-                        <input type="text" class="input-custom-addr" id="input-{{ c._id_str }}" placeholder="✍️ Type any city/locality (e.g. Modasa, Patan, Deesa...)" value="{{ c.address if c.address and c.address != '-' else '' }}">
+                        <input type="text" 
+                               class="input-custom-addr" 
+                               id="input-{{ c._id_str }}" 
+                               placeholder="🏠 Street Address (e.g. House No, Building)" 
+                               value="{{ c.address if c.address and c.address != '-' else '' }}"
+                               style="background: var(--navy-light); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px 12px; font-size: .88rem; width: 100%;">
                     </td>
                     <td>
                         <button class="btn-save-geocode" onclick="resolveAddress('{{ c._id_str }}', '{{ c.system }}', this)">
@@ -562,16 +572,6 @@ function handleLocalitySelect(selectElem, custId) {
         activeLocalitySelectElem = selectElem;
         openLocalityModal();
         selectElem.value = '';
-    } else if (chosenVal) {
-        var inputElem = document.getElementById('input-' + custId);
-        if (inputElem) {
-            var curVal = inputElem.value.trim();
-            if (!curVal || curVal === '-') {
-                inputElem.value = chosenVal;
-            } else if (!curVal.toLowerCase().includes(chosenVal.toLowerCase())) {
-                inputElem.value = curVal + ', ' + chosenVal;
-            }
-        }
     }
 }
 
@@ -672,11 +672,11 @@ function resolveAddress(custId, system, btnElem) {
     var inputElem = document.getElementById('input-' + custId);
     var selectElem = document.getElementById('select-' + custId);
 
-    var chosenLocality = (selectElem && selectElem.value !== '__ADD_NEW__') ? selectElem.value.trim() : '';
+    var chosenLocality = selectElem ? selectElem.value.trim() : '';
     var customAddr = inputElem ? inputElem.value.trim() : '';
 
     if (!customAddr && !chosenLocality) {
-        alert('⚠️ Please select a locality from the dropdown or type an address before saving.');
+        alert('⚠️ Please enter or select a locality before saving.');
         return;
     }
 

@@ -1,6 +1,7 @@
 import io
 import os
 import csv
+import re
 from datetime import datetime
 from collections import Counter
 from flask import send_file, Response, current_app
@@ -271,3 +272,62 @@ def send_whatsapp_text_cloud_api(mobile_number, message_text):
         return res.status_code in (200, 201), res.json()
     except Exception as e:
         return False, str(e)
+
+
+# =========================
+# 📍 LOCALITY RESOLUTION
+# =========================
+
+BUILDING_SUFFIX_REGEX = re.compile(
+    r'^\s*(apartment|apartments|flat|flats|society|soc|villa|villas|complex|tower|towers|bhuvan|house|enclave|residency|plaza|arcade|heights|row\s*house|scheme|bungalow|bungalows|apt|apts)\b',
+    re.IGNORECASE
+)
+
+def resolve_customer_locality(customer, active_localities):
+    """
+    Resolves the exact locality of a customer from explicit locality or address text,
+    ensuring building/society names (like 'Anand Apartment', 'Anand Flat', 'Anand Society')
+    do not falsely match locality names ('Anand').
+    """
+    loc_val = (customer.get("locality") or "").strip()
+    addr_val = (customer.get("address") or "").strip()
+
+    # 1. First check explicit locality field
+    if loc_val:
+        loc_val_lower = loc_val.lower()
+        # Exact match first
+        for loc in active_localities:
+            if loc.lower() == loc_val_lower:
+                return loc
+
+        # Word boundary match on explicit locality field (preferring longer locality names)
+        sorted_locs = sorted(active_localities, key=len, reverse=True)
+        for loc in sorted_locs:
+            pattern = r'\b' + re.escape(loc.lower()) + r'\b'
+            m = re.search(pattern, loc_val_lower)
+            if m:
+                remainder = loc_val_lower[m.end():]
+                if BUILDING_SUFFIX_REGEX.match(remainder):
+                    continue
+                return loc
+
+        # Explicit locality is present on customer record - respect it as settled
+        if not BUILDING_SUFFIX_REGEX.match(loc_val_lower):
+            return loc_val
+
+    # 2. Check address field
+    if addr_val and addr_val != "-":
+        addr_lower = addr_val.lower()
+        sorted_locs = sorted(active_localities, key=len, reverse=True)
+
+        for loc in sorted_locs:
+            pattern = r'\b' + re.escape(loc.lower()) + r'\b'
+            m = re.search(pattern, addr_lower)
+            if m:
+                remainder = addr_lower[m.end():]
+                if BUILDING_SUFFIX_REGEX.match(remainder):
+                    # Matched building/society prefix (e.g., "Anand Apartment"), skip it and look for actual locality name
+                    continue
+                return loc
+
+    return None

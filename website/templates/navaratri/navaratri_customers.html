@@ -546,7 +546,7 @@
                     <tbody>
                         {% if customers %}
                             {% for cust in customers %}
-                                <tr class="cust-row" data-address="{{ (cust.address or '')|lower }} {{ (cust.locality or '')|lower }}" data-locality="{{ (cust.locality or '')|lower }}">
+                                <tr class="cust-row" data-address="{{ (cust.address or '')|lower }}" data-locality="{{ (cust.mapped_locality or cust.locality or '')|lower }}">
                                     <td>
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="avatar-circle">{{ cust.name[:2].upper() if cust.name else 'CU' }}</div>
@@ -560,6 +560,8 @@
                                         {{ cust.address or '-' }}
                                         {% if cust.locality %}
                                         <div style="font-size:.78rem; color:var(--gold-lt); margin-top:2px;">📍 {{ cust.locality }}</div>
+                                        {% elif cust.mapped_locality %}
+                                        <div style="font-size:.78rem; color:var(--gold-lt); margin-top:2px;">📍 {{ cust.mapped_locality }}</div>
                                         {% endif %}
                                     </td>
                                     <td class="cust-mobile">
@@ -654,13 +656,13 @@ function filterByArea(areaName, lat, lng) {
         banner.style.display = 'flex';
     }
 
-    var areaLower = areaName.toLowerCase();
+    var areaLower = areaName.trim().toLowerCase();
     var rows = document.querySelectorAll('.cust-row');
     var visibleCount = 0;
 
     rows.forEach(function(row) {
-        var addr = (row.getAttribute('data-address') || '') + ' ' + (row.getAttribute('data-locality') || '');
-        if (addr.includes(areaLower)) {
+        var rowLoc = (row.getAttribute('data-locality') || '').trim().toLowerCase();
+        if (rowLoc === areaLower) {
             row.style.display = '';
             visibleCount++;
         } else {
