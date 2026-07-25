@@ -406,3 +406,386 @@ def add_custom_locality():
         })
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+# ==========================================
+# INTERNAL CATALOG MANAGEMENT WORKSPACE API
+# ==========================================
+
+TAXONOMY_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'taxonomy.json')
+
+def load_json_file(filepath):
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            return []
+    return []
+
+def save_json_file(filepath, data):
+    with open(filepath, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+@general.route("/catalog-workspace")
+@general.route("/catalog_workspace")
+def catalog_workspace():
+    root_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    choli_file = os.path.join(root_dir, 'choli.json')
+    kediya_file = os.path.join(root_dir, 'kediya.json')
+    choli_data = load_json_file(choli_file)
+    kediya_data = load_json_file(kediya_file)
+    taxonomy_data = load_json_file(TAXONOMY_FILE)
+    return render_template("general/catalog_workspace.html", cholis=choli_data, kediyas=kediya_data, taxonomy=taxonomy_data)
+
+@general.route("/api/catalog_workspace/data", methods=["GET"])
+def get_catalog_workspace_data():
+    try:
+        root_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        choli_file = os.path.join(root_dir, 'choli.json')
+        kediya_file = os.path.join(root_dir, 'kediya.json')
+
+        choli_data = load_json_file(choli_file)
+        kediya_data = load_json_file(kediya_file)
+        taxonomy_data = load_json_file(TAXONOMY_FILE)
+
+        choli_tagged = sum(1 for x in choli_data if x.get('tags') and len(x['tags']) > 0)
+        kediya_tagged = sum(1 for x in kediya_data if x.get('tags') and len(x['tags']) > 0)
+
+        stats = {
+            "choli_total": len(choli_data),
+            "choli_tagged": choli_tagged,
+            "kediya_total": len(kediya_data),
+            "kediya_tagged": kediya_tagged,
+            "total_items": len(choli_data) + len(kediya_data),
+            "total_tagged": choli_tagged + kediya_tagged
+        }
+
+        return jsonify({
+            "status": "success",
+            "choli": choli_data,
+            "kediya": kediya_data,
+            "taxonomy": taxonomy_data,
+            "stats": stats
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@general.route("/api/catalog_workspace/save_item", methods=["POST"])
+def save_catalog_item():
+    try:
+        data = request.get_json() or {}
+        category = data.get('category')  # 'choli' or 'kediya'
+        name = data.get('name')
+        tags = data.get('tags', [])
+        notes = data.get('notes', '')
+
+        if not category or not name:
+            return jsonify({"status": "error", "message": "Category and Item Name are required"}), 400
+
+        root_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        filename = os.path.join(root_dir, f"{category}.json")
+        items = load_json_file(filename)
+
+        updated_item = None
+        for item in items:
+            if item.get('name') == name:
+                item['tags'] = tags
+                item['notes'] = notes
+                item['updated_at'] = datetime.now().isoformat()
+                updated_item = item
+                break
+
+        if updated_item is not None:
+            save_json_file(filename, items)
+            
+            # Recalculate stats
+            choli_data = items if category == 'choli' else load_json_file(os.path.join(root_dir, 'choli.json'))
+            kediya_data = items if category == 'kediya' else load_json_file(os.path.join(root_dir, 'kediya.json'))
+            choli_tagged = sum(1 for x in choli_data if x.get('tags') and len(x['tags']) > 0)
+            kediya_tagged = sum(1 for x in kediya_data if x.get('tags') and len(x['tags']) > 0)
+
+            stats = {
+                "choli_total": len(choli_data),
+                "choli_tagged": choli_tagged,
+                "kediya_total": len(kediya_data),
+                "kediya_tagged": kediya_tagged,
+                "total_items": len(choli_data) + len(kediya_data),
+                "total_tagged": choli_tagged + kediya_tagged
+            }
+
+            return jsonify({
+                "status": "success",
+                "message": f"Successfully updated tags for {name}",
+                "item": updated_item,
+                "stats": stats
+            })
+
+        return jsonify({"status": "error", "message": f"Item {name} not found"}), 404
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@general.route("/api/catalog_workspace/bulk_save", methods=["POST"])
+def bulk_save_catalog_items():
+    try:
+        data = request.get_json() or {}
+        category = data.get('category')
+        names = data.get('names', [])
+        add_tags = data.get('add_tags', [])
+        remove_tags = data.get('remove_tags', [])
+
+        if not category or not names:
+            return jsonify({"status": "error", "message": "Category and Item Names array required"}), 400
+
+        root_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        filename = os.path.join(root_dir, f"{category}.json")
+        items = load_json_file(filename)
+
+        updated_count = 0
+        for item in items:
+            if item.get('name') in names:
+                existing_tags = set(item.get('tags', []))
+                for tag in add_tags:
+                    existing_tags.add(tag)
+                for tag in remove_tags:
+                    existing_tags.discard(tag)
+                item['tags'] = list(existing_tags)
+                item['updated_at'] = datetime.now().isoformat()
+                updated_count += 1
+
+        save_json_file(filename, items)
+        return jsonify({
+            "status": "success",
+            "message": f"Bulk updated {updated_count} items in {category}!",
+            "updated_count": updated_count
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@general.route("/api/catalog_workspace/create_tag", methods=["POST"])
+def create_workspace_custom_tag():
+    try:
+        data = request.get_json() or {}
+        group_id = data.get('group_id', 'custom_tags')
+        tag_name = (data.get('tag_name') or '').strip()
+        icon = data.get('icon', '🏷️')
+
+        if not tag_name:
+            return jsonify({"status": "error", "message": "Tag name cannot be empty"}), 400
+
+        taxonomy = load_json_file(TAXONOMY_FILE)
+        if not taxonomy or 'groups' not in taxonomy:
+            taxonomy = {"groups": []}
+
+        tag_id = tag_name.lower().replace(' ', '_')
+
+        target_group = None
+        for grp in taxonomy.get('groups', []):
+            if grp.get('id') == group_id:
+                target_group = grp
+                break
+
+        if not target_group:
+            # Fallback to custom_tags group or create one
+            for grp in taxonomy.get('groups', []):
+                if grp.get('id') == 'custom_tags':
+                    target_group = grp
+                    break
+
+        if not target_group:
+            target_group = {"id": "custom_tags", "title": "➕ Custom Staff Tags", "collapsible": True, "options": []}
+            taxonomy['groups'].append(target_group)
+
+        # Check if already exists
+        existing_options = target_group.get('options', [])
+        for opt in existing_options:
+            if opt.get('label').lower() == tag_name.lower():
+                return jsonify({"status": "warning", "message": f"Tag '{tag_name}' already exists!", "option": opt})
+
+        new_option = {"id": tag_id, "label": tag_name, "icon": icon}
+        existing_options.append(new_option)
+        target_group['options'] = existing_options
+
+        save_json_file(TAXONOMY_FILE, taxonomy)
+        return jsonify({
+            "status": "success",
+            "message": f"Created custom tag '{tag_name}'!",
+            "option": new_option,
+            "taxonomy": taxonomy
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@general.route("/api/catalog_workspace/delete_tag", methods=["POST"])
+def delete_workspace_tag_option():
+    try:
+        data = request.get_json() or {}
+        group_id = data.get('group_id')
+        tag_label = data.get('tag_label')
+
+        if not group_id or not tag_label:
+            return jsonify({"status": "error", "message": "Group ID and Tag Label required"}), 400
+
+        taxonomy = load_json_file(TAXONOMY_FILE)
+        if not taxonomy or 'groups' not in taxonomy:
+            return jsonify({"status": "error", "message": "Taxonomy not found"}), 404
+
+        for grp in taxonomy.get('groups', []):
+            if grp.get('id') == group_id:
+                opts = grp.get('options', [])
+                grp['options'] = [opt for opt in opts if opt.get('label').lower() != tag_label.lower()]
+                break
+
+        save_json_file(TAXONOMY_FILE, taxonomy)
+        return jsonify({
+            "status": "success",
+            "message": f"Deleted tag option '{tag_label}' from catalog taxonomy",
+            "taxonomy": taxonomy
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@general.route("/api/catalog_workspace/delete_preset", methods=["POST"])
+def delete_workspace_preset():
+    try:
+        data = request.get_json() or {}
+        preset_id = data.get('preset_id')
+        label = data.get('label')
+
+        taxonomy = load_json_file(TAXONOMY_FILE)
+        if not taxonomy or 'presets' not in taxonomy:
+            return jsonify({"status": "error", "message": "Presets not found"}), 404
+
+        presets = taxonomy.get('presets', [])
+        taxonomy['presets'] = [p for p in presets if p.get('id') != preset_id and p.get('label') != label]
+
+        save_json_file(TAXONOMY_FILE, taxonomy)
+        return jsonify({
+            "status": "success",
+            "message": f"Deleted preset '{label or preset_id}'",
+            "taxonomy": taxonomy
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@general.route("/api/catalog_workspace/add_category", methods=["POST"])
+def add_workspace_category():
+    try:
+        data = request.get_json() or {}
+        title = (data.get('title') or '').strip()
+        if not title:
+            return jsonify({"status": "error", "message": "Category title required"}), 400
+
+        taxonomy = load_json_file(TAXONOMY_FILE)
+        if not taxonomy or 'groups' not in taxonomy:
+            taxonomy = {"groups": []}
+
+        group_id = 'cat_' + re.sub(r'[^a-zA-Z0-9_]', '', title.lower().replace(' ', '_'))
+        new_group = {
+            "id": group_id,
+            "title": title,
+            "collapsible": True,
+            "options": []
+        }
+
+        taxonomy['groups'].append(new_group)
+        save_json_file(TAXONOMY_FILE, taxonomy)
+        return jsonify({
+            "status": "success",
+            "message": f"Added new category '{title}'",
+            "taxonomy": taxonomy
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@general.route("/api/catalog_workspace/edit_category", methods=["POST"])
+def edit_workspace_category():
+    try:
+        data = request.get_json() or {}
+        group_id = data.get('group_id')
+        new_title = (data.get('new_title') or '').strip()
+
+        if not group_id or not new_title:
+            return jsonify({"status": "error", "message": "Group ID and New Title required"}), 400
+
+        taxonomy = load_json_file(TAXONOMY_FILE)
+        for grp in taxonomy.get('groups', []):
+            if grp.get('id') == group_id:
+                grp['title'] = new_title
+                break
+
+        save_json_file(TAXONOMY_FILE, taxonomy)
+        return jsonify({
+            "status": "success",
+            "message": f"Updated category title to '{new_title}'",
+            "taxonomy": taxonomy
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@general.route("/api/catalog_workspace/delete_category", methods=["POST"])
+def delete_workspace_category():
+    try:
+        data = request.get_json() or {}
+        group_id = data.get('group_id')
+
+        if not group_id:
+            return jsonify({"status": "error", "message": "Group ID required"}), 400
+
+        taxonomy = load_json_file(TAXONOMY_FILE)
+        taxonomy['groups'] = [g for g in taxonomy.get('groups', []) if g.get('id') != group_id]
+
+        save_json_file(TAXONOMY_FILE, taxonomy)
+        return jsonify({
+            "status": "success",
+            "message": f"Deleted category group",
+            "taxonomy": taxonomy
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@general.route("/api/catalog_workspace/edit_tag", methods=["POST"])
+def edit_workspace_tag_option():
+    try:
+        data = request.get_json() or {}
+        group_id = data.get('group_id')
+        old_label = (data.get('old_label') or '').strip()
+        new_label = (data.get('new_label') or '').strip()
+
+        if not group_id or not old_label or not new_label:
+            return jsonify({"status": "error", "message": "Group ID, Old Label, and New Label required"}), 400
+
+        taxonomy = load_json_file(TAXONOMY_FILE)
+        for grp in taxonomy.get('groups', []):
+            if grp.get('id') == group_id:
+                for opt in grp.get('options', []):
+                    if opt.get('label').lower() == old_label.lower():
+                        opt['label'] = new_label
+                        break
+
+        save_json_file(TAXONOMY_FILE, taxonomy)
+
+        # Also update all items in choli.json and kediya.json
+        root_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        for fname in ['choli.json', 'kediya.json']:
+            fpath = os.path.join(root_dir, fname)
+            items = load_json_file(fpath)
+            changed = False
+            for item in items:
+                if 'tags' in item and old_label in item['tags']:
+                    item['tags'] = [new_label if t == old_label else t for t in item['tags']]
+                    changed = True
+            if changed:
+                save_json_file(fpath, items)
+
+        return jsonify({
+            "status": "success",
+            "message": f"Renamed tag from '{old_label}' to '{new_label}' across catalog!",
+            "taxonomy": taxonomy
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+
+

@@ -1,0 +1,148 @@
+{% extends "general/base.html" %}
+
+{% block title %}Catalog Management Workspace | Image Traditional Admin{% endblock %}
+{% block description %}Internal enterprise asset tagging & catalog management workspace for shop inventory.{% endblock %}
+
+{% block head %}
+<!-- Enterprise Workspace CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='CSS/catalog_workspace.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="cw-app-container">
+
+  <!-- Header Bar -->
+  <header class="cw-header">
+    <div class="cw-header-left">
+      <button id="cwSidebarToggle" class="cw-sidebar-toggle-btn" title="Toggle Sidebar (Ctrl+\)">
+        ☰
+      </button>
+      <div class="cw-header-title">
+        <h1>
+          <span>🏷️ Inventory Catalog Studio</span>
+          <span class="cw-badge-enterprise">Enterprise Pro</span>
+        </h1>
+      </div>
+    </div>
+
+    <div class="cw-header-stats">
+      <div class="cw-progress-outer">
+        <div id="cwProgressBar" class="cw-progress-inner"></div>
+      </div>
+      <span id="cwProgressText">0 / 0 Tagged (0%)</span>
+    </div>
+
+    <div class="cw-header-right">
+      <div id="cwStatusIndicator" class="cw-status-indicator saved">
+        <span class="cw-status-dot"></span>
+        <span id="cwStatusText">Saved</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Full-Screen Split Workspace -->
+  <div class="cw-main-workspace">
+
+    <!-- Collapsible Left Sidebar -->
+    <aside id="cwSidebar" class="cw-sidebar">
+      <div class="cw-sidebar-nav">
+        
+        <!-- Category Tabs -->
+        <div class="cw-category-tabs">
+          <button id="cwTabCholi" class="cw-tab-btn active">
+            <span>👗</span> Chaniya Choli
+          </button>
+          <button id="cwTabKediya" class="cw-tab-btn">
+            <span>👔</span> Kediya
+          </button>
+        </div>
+
+        <!-- Search Input -->
+        <div class="cw-search-wrapper">
+          <span class="cw-search-icon">🔍</span>
+          <input type="text" id="cwSearchInput" class="cw-search-input" placeholder="Search product code (e.g. C10, K5)...">
+        </div>
+
+        <!-- Filter Pills -->
+        <div class="cw-filter-pills">
+          <button id="cwFilterAll" class="cw-filter-pill active">All</button>
+          <button id="cwFilterTagged" class="cw-filter-pill">Tagged</button>
+          <button id="cwFilterUntagged" class="cw-filter-pill">Untagged</button>
+        </div>
+      </div>
+
+      <!-- Items List -->
+      <div id="cwItemsList" class="cw-items-scroll">
+        <!-- Rendered dynamically by catalog_workspace.js -->
+      </div>
+    </aside>
+
+    <!-- Main Workspace Stage -->
+    <main class="cw-content-stage">
+
+      <!-- Digital Asset High-Res Viewer -->
+      <section class="cw-viewer-card">
+        <div class="cw-viewer-toolbar">
+          <span id="cwViewerTitle" class="cw-viewer-title">CHANIYA CHOLI — C1</span>
+          <div class="cw-viewer-controls">
+            <button id="cwZoomIn" class="cw-icon-btn" title="Zoom In (+)">➕</button>
+            <button id="cwZoomOut" class="cw-icon-btn" title="Zoom Out (-)">➖</button>
+            <button id="cwZoomReset" class="cw-icon-btn" title="Reset Zoom (Esc)">🔄</button>
+            <button id="cwZoomFit" class="cw-icon-btn" title="Fit to Screen">📐</button>
+            <button id="cwFullscreen" class="cw-icon-btn" title="Fullscreen View">⛶</button>
+          </div>
+        </div>
+
+        <div id="cwImageViewport" class="cw-image-viewport">
+          <img id="cwMainImg" class="cw-main-img" src="" alt="Product View" loading="eager">
+          <div class="cw-zoom-hint">Scroll Wheel / Drag to Zoom & Pan Embroidery 🔍</div>
+        </div>
+      </section>
+
+      <!-- Modular Dynamic Tagging Cards -->
+      <section id="cwCardsGrid" class="cw-cards-grid">
+        <!-- Rendered dynamically from backend taxonomy.json -->
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Sticky Bottom Action Bar -->
+  <footer class="cw-bottom-bar">
+    <div class="cw-bottom-left">
+      <span>Shortcuts:</span>
+      <span class="cw-key-hint">Enter</span> Save & Next
+      <span class="cw-key-hint">J / K</span> Prev / Next
+      <span class="cw-key-hint">Ctrl+S</span> Save
+      <span class="cw-key-hint">Ctrl+Z</span> Undo
+    </div>
+
+    <div class="cw-bottom-right">
+      <button id="cwBtnPrev" class="cw-btn-secondary">◀ Prev (K)</button>
+      <button id="cwBtnNext" class="cw-btn-secondary">Next (J) ▶</button>
+      <button id="cwBtnSaveNext" class="cw-btn-primary">
+        <span>Save & Next</span>
+        <span class="cw-key-hint" style="background:rgba(0,0,0,0.3); color:#fff;">↵</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Container -->
+  <div id="cwToastContainer" class="cw-toast-container"></div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Inline Initial Server Data for Instant Rendering -->
+<script>
+  window.INITIAL_DATA = {
+    choli: {{ cholis|tojson|safe }},
+    kediya: {{ kediyas|tojson|safe }},
+    taxonomy: {{ taxonomy|tojson|safe }}
+  };
+</script>
+
+<!-- Enterprise Workspace Module -->
+<script src="{{ url_for('static', filename='JS/catalog_workspace.js') }}" defer></script>
+{% endblock %}

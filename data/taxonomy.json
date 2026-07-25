@@ -1,0 +1,56 @@
+{
+    "presets": [],
+    "groups": [
+        {
+            "id": "craft_work",
+            "title": "🪞 Craft & Embroidery Work",
+            "collapsible": true,
+            "options": []
+        },
+        {
+            "id": "colors",
+            "title": "🎨 Color Options",
+            "collapsible": true,
+            "options": [
+                {"id": "black", "label": "Black", "color": "#111827"},
+                {"id": "maroon", "label": "Maroon", "color": "#7f1d1d"},
+                {"id": "red", "label": "Red", "color": "#dc2626"},
+                {"id": "royal_blue", "label": "Royal Blue", "color": "#1e3a8a"},
+                {"id": "navy_blue", "label": "Navy Blue", "color": "#172554"},
+                {"id": "mustard", "label": "Mustard Yellow", "color": "#d97706"},
+                {"id": "yellow", "label": "Yellow", "color": "#eab308"},
+                {"id": "emerald", "label": "Emerald Green", "color": "#065f46"},
+                {"id": "green", "label": "Green", "color": "#16a34a"},
+                {"id": "pink", "label": "Fuchsia Pink", "color": "#be185d"},
+                {"id": "orange", "label": "Orange", "color": "#ea580c"},
+                {"id": "purple", "label": "Purple", "color": "#7e22ce"},
+                {"id": "multicolor", "label": "Multicolor", "color": "linear-gradient(135deg, #ef4444, #3b82f6, #eab308)"},
+                {"id": "white", "label": "White / Off-White", "color": "#f9fafb"}
+            ]
+        },
+        {
+            "id": "accessories",
+            "title": "🎒 Included Accessories",
+            "collapsible": true,
+            "options": []
+        },
+        {
+            "id": "sizing",
+            "title": "📏 Size & Fit Specifications",
+            "collapsible": true,
+            "options": []
+        },
+        {
+            "id": "weight_occasion",
+            "title": "💃 Weight & Occasion",
+            "collapsible": true,
+            "options": []
+        },
+        {
+            "id": "custom_tags",
+            "title": "➕ Custom Staff Tags",
+            "collapsible": true,
+            "options": []
+        }
+    ]
+}

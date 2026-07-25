@@ -96,6 +96,11 @@
       {% if session.logged_in %}
       <div class="admin-actions">
 
+        <a href="{{ url_for('general.catalog_workspace') }}" class="admin-btn panel-btn" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #f59e0b;">
+          <span class="icon">🏷️</span>
+          <span class="btn-text">Catalog Workspace</span>
+        </a>
+
         <a href="{{ url_for('auth.admin') }}" class="admin-btn panel-btn">
           <span class="icon">⚙️</span>
           <span class="btn-text">Admin Panel</span>
@@ -105,7 +110,6 @@
           <span class="icon">🚪</span>
           <span class="btn-text">Logout</span>
         </a>
-
       </div>
       {% endif %}
 
