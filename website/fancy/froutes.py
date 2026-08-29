@@ -1634,6 +1634,7 @@ def delete_fancy_customer(customer_id):
 
 # ------------------ FANCY ACTION LOGS ------------------
 def log_fancy_action(name, mobile, action, details):
+    from website.general.utils import get_ist_now
     selected_cycle = get_selected_cycle()
     if not selected_cycle:
         return
@@ -1643,14 +1644,14 @@ def log_fancy_action(name, mobile, action, details):
         return
 
     logs_col = db[f"{collection_name}_logs"]
-    now = datetime.now()
+    now = get_ist_now()
 
     log_entry = {
         "name": name or "",
         "mobile": mobile or "",
         "action": action,
         "details": details,
-        "date_stamp": now.strftime("%Y-%m-%d"),
+        "date_stamp": now.strftime("%d/%m/%Y"),
         "time_stamp": now.strftime("%H:%M:%S"),
         "timestamp": now
     }
@@ -1666,13 +1667,24 @@ def fancy_logs():
     if not session.get('logged_in'):
         return redirect(url_for('auth.login'))
 
+    from website.general.utils import format_log_timestamp
     selected_cycle = get_selected_cycle()
     logs = []
     if selected_cycle:
         collection_name = selected_cycle.get("collection_name")
         if collection_name:
             logs_col = db[f"{collection_name}_logs"]
-            logs = list(logs_col.find().sort("timestamp", -1))
+            raw_logs = list(logs_col.find().sort("timestamp", -1))
+            for log in raw_logs:
+                d_str, t_str, sort_ts = format_log_timestamp(
+                    log.get("timestamp"),
+                    log.get("date_stamp", ""),
+                    log.get("time_stamp", "")
+                )
+                log["date_stamp"] = d_str
+                log["time_stamp"] = t_str
+                log["sort_ts"] = sort_ts
+                logs.append(log)
 
     return render_template(
         "fancy/fancy_logs.html",
@@ -1686,6 +1698,7 @@ def fancy_logs_api():
     if not session.get('logged_in'):
         return jsonify({"success": False, "message": "Unauthorized"}), 401
 
+    from website.general.utils import format_log_timestamp
     selected_cycle = get_selected_cycle()
     logs_data = []
     if selected_cycle:
@@ -1694,17 +1707,24 @@ def fancy_logs_api():
             logs_col = db[f"{collection_name}_logs"]
             raw_logs = list(logs_col.find().sort("timestamp", -1))
             for log in raw_logs:
+                d_str, t_str, sort_ts = format_log_timestamp(
+                    log.get("timestamp"),
+                    log.get("date_stamp", ""),
+                    log.get("time_stamp", "")
+                )
                 logs_data.append({
                     "id": str(log.get("_id", "")),
                     "name": log.get("name", "") or "—",
                     "mobile": log.get("mobile", "") or "—",
                     "action": log.get("action", ""),
                     "details": log.get("details", ""),
-                    "date_stamp": log.get("date_stamp", ""),
-                    "time_stamp": log.get("time_stamp", "")
+                    "date_stamp": d_str,
+                    "time_stamp": t_str,
+                    "sort_ts": sort_ts
                 })
 
     return jsonify({"success": True, "logs": logs_data, "cycle_name": selected_cycle.get("name") if selected_cycle else ""})
+
 
 
 @fancy.route("/fancy_logs/clear", methods=["POST"])

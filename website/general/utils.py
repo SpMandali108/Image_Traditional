@@ -2,11 +2,64 @@ import io
 import os
 import csv
 import re
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from collections import Counter
 from flask import send_file, Response, current_app
 from fpdf import FPDF
 import qrcode
+
+try:
+    from zoneinfo import ZoneInfo
+    IST = ZoneInfo("Asia/Kolkata")
+except Exception:
+    IST = timezone(timedelta(hours=5, minutes=30))
+
+
+# =========================
+# ⏰ TIMEZONE & LOGGING HELPERS
+# =========================
+
+def get_ist_now():
+    """
+    Returns current datetime in Indian Standard Time (IST, UTC+5:30).
+    Guarantees correct local time regardless of whether server runs in UTC or locally.
+    """
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo("Asia/Kolkata"))
+    except Exception:
+        return datetime.now(timezone.utc).astimezone(IST)
+
+
+def format_log_timestamp(ts, date_stamp="", time_stamp=""):
+    """
+    Formats log timestamp to date (dd/mm/yyyy) and 24-hr time (HH:MM:SS) in IST.
+    Returns (date_str, time_str, sort_ts_ms).
+    """
+    if isinstance(ts, datetime):
+        if ts.tzinfo is None:
+            # Stored in UTC (or naive server time), convert to IST
+            ts_ist = ts.replace(tzinfo=timezone.utc).astimezone(IST)
+        else:
+            ts_ist = ts.astimezone(IST)
+        return ts_ist.strftime("%d/%m/%Y"), ts_ist.strftime("%H:%M:%S"), int(ts_ist.timestamp() * 1000)
+
+    # Fallback if ts is not a datetime object
+    d_str = str(date_stamp or "").strip()
+    t_str = str(time_stamp or "").strip()
+
+    # Convert YYYY-MM-DD to DD/MM/YYYY if applicable
+    if "-" in d_str:
+        parts = d_str.split("-")
+        if len(parts) == 3 and len(parts[0]) == 4:
+            d_str = f"{parts[2]}/{parts[1]}/{parts[0]}"
+    elif "/" in d_str:
+        parts = d_str.split("/")
+        if len(parts) == 3 and len(parts[0]) == 4:
+            d_str = f"{parts[2]}/{parts[1]}/{parts[0]}"
+
+    return d_str, t_str, 0
+
 
 
 # =========================

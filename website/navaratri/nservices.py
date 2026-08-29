@@ -119,10 +119,11 @@ def log_action(name, mobile, action, details):
     """
     Log an action for the Navaratri portal.
     Logs are stored in a collection specific to the selected cycle: f"{collection_name}_logs".
+    Uses Indian Standard Time (IST, UTC+5:30) with dd/mm/yyyy and 24-hr time formatting.
     """
-    from datetime import datetime
     from website.general.db import db
     from website.navaratri.ncycle import get_selected_cycle
+    from website.general.utils import get_ist_now
 
     cycle = get_selected_cycle()
     if not cycle:
@@ -150,8 +151,8 @@ def log_action(name, mobile, action, details):
         except Exception:
             pass
 
-    now = datetime.now()
-    date_stamp = now.strftime("%Y-%m-%d")
+    now = get_ist_now()
+    date_stamp = now.strftime("%d/%m/%Y")
     time_stamp = now.strftime("%H:%M:%S")
 
     log_entry = {
@@ -168,4 +169,5 @@ def log_action(name, mobile, action, details):
         logs_col.insert_one(log_entry)
     except Exception:
         pass
+
 
