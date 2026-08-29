@@ -1,10 +1,7 @@
 [
     {
         "name": "C1",
-        "image": "C1.webp",
-        "tags": [],
-        "notes": "",
-        "updated_at": "2026-07-25T20:08:45.514963"
+        "image": "C1.webp"
     },
     {
         "name": "C2",
