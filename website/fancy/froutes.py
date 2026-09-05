@@ -25,6 +25,25 @@ from website.fancy.fcycle import (
     get_active_collection,
     get_selected_collection
 )
+from .fnormalizer import normalize_cycle_bookings, clean_school_name
+from .fanalytics import (
+    compute_dashboard_metrics,
+    get_category_drilldown,
+    get_product_drilldown,
+    get_school_drilldown,
+    get_customer_drilldown,
+    get_month_drilldown,
+    get_day_drilldown,
+    get_date_drilldown,
+    get_cycle_drilldown,
+    safe_parse_date
+)
+from .fai import (
+    generate_dashboard_ai_insights,
+    explain_anomaly_spikes,
+    generate_festival_forecast_insights,
+    generate_drilldown_ai_insights
+)
 
 fancy = Blueprint('fancy', __name__)
 
@@ -385,95 +404,46 @@ def fancy_dashboard():
         return redirect(url_for('auth.login'))
 
     # -----------------------------
-    # CYCLE SELECTOR HANDLE
+    # 1. CYCLE SELECTOR HANDLE
     # -----------------------------
     cycle_id = request.args.get('cycle_id')
     if cycle_id:
         set_selected_cycle(cycle_id)
 
     # -----------------------------
-    # SELECTED CYCLE DATA
+    # 2. SELECTED CYCLE DATA & BOOKINGS
     # -----------------------------
     collection = get_selected_collection()
+    current_bookings = list(collection.find())
 
-    current_bookings = list(
-        collection.find()
-    )
-
-    total_bookings_count = len(
-        current_bookings
-    )
-
-    total_revenue = sum(
-        b.get('price', 0)
-        for b in current_bookings
-    )
-
-    returned_count = sum(
-        1
-        for b in current_bookings
-        if b.get('returned')
-    )
-
-    taken_count = sum(
-        1
-        for b in current_bookings
-        if b.get('taken')
-    )
-
-    not_returned = sum(
-        1
-        for b in current_bookings
-        if b.get('taken')
-        and not b.get('returned')
-    )
-
-    awaiting_pickup = total_bookings_count - returned_count - not_returned
-    avg_revenue = total_revenue / total_bookings_count if total_bookings_count > 0 else 0
+    # All bookings across all cycles (for longitudinal festival back-testing)
+    all_bookings = []
+    for cycle in get_all_cycles():
+        c_col = db[cycle["collection_name"]]
+        c_bookings = list(c_col.find())
+        for b in c_bookings:
+            b["season"] = cycle["name"]
+        all_bookings.extend(c_bookings)
 
     # -----------------------------
-    # MOST RENTED COSTUMES & SCHOOLS
+    # 3. DETERMINISTIC ANALYTICS (Current Cycle)
     # -----------------------------
-    costume_counter = Counter()
-    school_counter = Counter()
-
-    for b in current_bookings:
-        costume = b.get('details')
-        school = b.get('school')
-        if costume:
-            costume_counter[costume.strip().title()] += 1
-        if school:
-            school_counter[school.strip().title()] += 1
-
-    top_costumes = sorted(
-        costume_counter.items(),
-        key=lambda x: x[1],
-        reverse=True
-    )[:20]
-
-    top_school = sorted(
-        school_counter.items(),
-        key=lambda x: x[1],
-        reverse=True
-    )[:20]
+    metrics = compute_dashboard_metrics(current_bookings, all_bookings)
+    primary_kpis = metrics["primary_kpis"]
+    best_performers = metrics["best_performers"]
+    charts = metrics["charts"]
+    spikes = metrics["spikes"]
+    top_schools_table = metrics["top_schools_table"]
+    top_customers_table = metrics["top_customers_table"]
 
     # -----------------------------
-    # INVENTORY CATEGORY MAPPING & SALES LEADERS
+    # 4. INVENTORY STOCK MAPPING
     # -----------------------------
     inventory_products = list(finventory.find())
-    
-    # 1. Map costume names to categories
-    costume_to_category = {}
     category_stock = {}
     total_stock = 0
-
     for p in inventory_products:
-        name = p.get("name", "").strip().title()
         cat = p.get("category", "General").strip().title()
-        if name:
-            costume_to_category[name] = cat
-        
-        # Calculate stock per category
         sizes = p.get("sizes", {})
         qty = 0
         if isinstance(sizes, dict):
@@ -481,235 +451,31 @@ def fancy_dashboard():
         category_stock[cat] = category_stock.get(cat, 0) + qty
         total_stock += qty
 
-    # 2. Group bookings and revenue by category (costume field holds the category name in bookings schema)
-    category_bookings = {}
-    category_revenue = {}
-    for b in current_bookings:
-        cat = b.get("costume", "General").strip().title()
-        price = b.get("price", 0)
-        
-        category_bookings[cat] = category_bookings.get(cat, 0) + 1
-        category_revenue[cat] = category_revenue.get(cat, 0) + price
-
-    # 3. Calculate Best Category and Best Product highlights (excluding catch-alls like Other & General)
-    category_bookings_sorted = sorted(category_bookings.items(), key=lambda x: x[1], reverse=True)
-    category_revenue_sorted = sorted(category_revenue.items(), key=lambda x: x[1], reverse=True)
-
-    filtered_bookings = [item for item in category_bookings_sorted if item[0] not in ["Other", "General"]]
-    filtered_revenue = [item for item in category_revenue_sorted if item[0] not in ["Other", "General"]]
-    
-    best_category_by_bookings = filtered_bookings[0][0] if filtered_bookings else (category_bookings_sorted[0][0] if category_bookings_sorted else "None")
-    best_category_bookings_count = filtered_bookings[0][1] if filtered_bookings else (category_bookings_sorted[0][1] if category_bookings_sorted else 0)
-    
-    best_category_by_revenue = filtered_revenue[0][0] if filtered_revenue else (category_revenue_sorted[0][0] if category_revenue_sorted else "None")
-    best_category_revenue_val = filtered_revenue[0][1] if filtered_revenue else (category_revenue_sorted[0][1] if category_revenue_sorted else 0)
-
-    # Best Products
-    best_product_by_bookings = top_costumes[0][0] if top_costumes else "None"
-    best_product_bookings_count = top_costumes[0][1] if top_costumes else 0
-
-    # 4. Calculate Average Rental Duration (days) per Category
-    def safe_parse_date(d):
-        if not d:
-            return None
-        if isinstance(d, datetime):
-            return d.date()
-        if isinstance(d, str):
-            for fmt in ["%Y-%m-%d", "%d-%m-%Y", "%d-%m-%y"]:
-                try:
-                    return datetime.strptime(d.strip(), fmt).date()
-                except ValueError:
-                    continue
-        return None
-
-    category_durations = {}
-    category_duration_counts = {}
-    total_duration_days = 0
-    duration_bookings_count = 0
-
-    for b in current_bookings:
-        costume = b.get("costume", "").strip().title()
-        cat = costume_to_category.get(costume, "Other")
-        sd = safe_parse_date(b.get("start_date"))
-        ed = safe_parse_date(b.get("end_date"))
-        if sd and ed and ed >= sd:
-            duration = (ed - sd).days + 1
-            category_durations[cat] = category_durations.get(cat, 0) + duration
-            category_duration_counts[cat] = category_duration_counts.get(cat, 0) + 1
-            total_duration_days += duration
-            duration_bookings_count += 1
-
-    avg_durations_by_category = []
-    for cat, total_dur in category_durations.items():
-        cnt = category_duration_counts[cat]
-        avg_dur = round(total_dur / cnt, 1) if cnt > 0 else 0
-        avg_durations_by_category.append({
-            "category": cat,
-            "avg_duration": avg_dur
-        })
-    avg_durations_by_category.sort(key=lambda x: x["avg_duration"], reverse=True)
-    overall_avg_duration = round(total_duration_days / duration_bookings_count, 1) if duration_bookings_count > 0 else 0
-
-    # 5. Day of Week Demand Analysis
-    today = datetime.now().date()
-    day_of_week_counts = {
-        "Monday": 0, "Tuesday": 0, "Wednesday": 0, "Thursday": 0, "Friday": 0, "Saturday": 0, "Sunday": 0
-    }
-    days_list = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    for b in current_bookings:
-        sd = safe_parse_date(b.get("start_date"))
-        if sd:
-            day_name = days_list[sd.weekday()]
-            day_of_week_counts[day_name] += 1
-    day_of_week_data = [{"day": d, "count": day_of_week_counts[d]} for d in days_list]
-
-    # 6. Monthly Revenue Performance Analysis
-    months_list = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    monthly_revenue = {m: 0 for m in months_list}
-    for b in current_bookings:
-        sd = safe_parse_date(b.get("start_date"))
-        if sd:
-            m_name = months_list[sd.month - 1]
-            monthly_revenue[m_name] += b.get("price", 0)
-    monthly_revenue_data = [{"month": m, "revenue": monthly_revenue[m]} for m in months_list]
-
-    # 7. Active Customers count
-    active_customers = len({b.get("mobile") for b in current_bookings if b.get("mobile")})
-
     # -----------------------------
-    # ALL-TIME CUSTOMER DATA & CYCLES
+    # 5. INDIAN FESTIVAL FORECAST CALENDAR
     # -----------------------------
-    all_bookings = []
-    for cycle in get_all_cycles():
-        cycle_collection = db[cycle["collection_name"]]
-        cycle_bookings = list(cycle_collection.find())
-        for b in cycle_bookings:
-            b["season"] = cycle["name"]
-        all_bookings.extend(cycle_bookings)
-
-    customer_totals = {}
-    for b in all_bookings:
-        mobile = b.get('mobile')
-        name = b.get('name', 'Unknown')
-        price = b.get('price', 0)
-
-        if not mobile:
-            continue
-
-        if mobile not in customer_totals:
-            customer_totals[mobile] = {
-                'name': name,
-                'mobile': mobile,
-                'total_amount': 0,
-                'total_bookings': 0
-            }
-        customer_totals[mobile]['total_amount'] += price
-        customer_totals[mobile]['total_bookings'] += 1
-
-    top_20_customers = sorted(
-        customer_totals.values(),
-        key=lambda x: x['total_amount'],
-        reverse=True
-    )[:20]
-
-    # -----------------------------
-    # ADVANCED GRAPH METRICS & REVENUE BREAKDOWNS
-    # -----------------------------
-    school_stats_dict = {}
-    costume_stats_dict = {}
-    for b in current_bookings:
-        school = b.get('school', 'Unknown').strip().title()
-        costume = b.get('details', 'Unknown').strip().title()
-        price = b.get('price', 0)
-        
-        if school:
-            if school not in school_stats_dict:
-                school_stats_dict[school] = {"bookings": 0, "revenue": 0}
-            school_stats_dict[school]["bookings"] += 1
-            school_stats_dict[school]["revenue"] += price
-            
-        if costume:
-            if costume not in costume_stats_dict:
-                costume_stats_dict[costume] = {"bookings": 0, "revenue": 0}
-            costume_stats_dict[costume]["bookings"] += 1
-            costume_stats_dict[costume]["revenue"] += price
-
-    top_schools_by_revenue = sorted(
-        [{"name": k, "bookings": v["bookings"], "revenue": v["revenue"]} for k, v in school_stats_dict.items()],
-        key=lambda x: x["revenue"],
-        reverse=True
-    )[:10]
-
-    top_costumes_by_revenue = sorted(
-        [{"name": k, "bookings": v["bookings"], "revenue": v["revenue"]} for k, v in costume_stats_dict.items()],
-        key=lambda x: x["revenue"],
-        reverse=True
-    )[:10]
-
-    # -----------------------------
-    # BOOKINGS TIMELINE (DATE NORMALIZATION)
-    # -----------------------------
-    bookings_by_date_dict = {}
-    for b in current_bookings:
-        sd = b.get("start_date")
-        date_str = None
-        if isinstance(sd, datetime):
-            date_str = sd.strftime("%d-%m-%Y")
-        elif isinstance(sd, str) and sd.strip():
-            for fmt in ["%Y-%m-%d", "%d-%m-%Y", "%d-%m-%y"]:
-                try:
-                    date_str = datetime.strptime(sd.strip(), fmt).strftime("%d-%m-%Y")
-                    break
-                except ValueError:
-                    continue
-        if date_str:
-            bookings_by_date_dict[date_str] = bookings_by_date_dict.get(date_str, 0) + 1
-
-    sorted_date_items = []
-    for date_str, count in bookings_by_date_dict.items():
-        parsed_date = None
-        for fmt in ["%d-%m-%Y", "%Y-%m-%d"]:
-            try:
-                parsed_date = datetime.strptime(date_str, fmt).date()
-                break
-            except ValueError:
-                continue
-        if not parsed_date:
-            parsed_date = datetime.min.date()
-        sorted_date_items.append((parsed_date, date_str, count))
-
-    sorted_date_items.sort(key=lambda x: x[0])
-    bookings_by_date = [{"date": item[1], "count": item[2]} for item in sorted_date_items]
-
-    # -----------------------------
-    # INDIAN EVENT FORECAST CALENDAR (PREDICTIVE AI)
-    # -----------------------------
-    # MM-DD map of Indian holidays and events
     indian_events = [
         {"id": "republic_day", "name": "Republic Day", "month": 1, "day": 26, "category": "Freedom Fighters / Regional", "description": "National parade & school acts. High demand for Gandhi, Nehru, Bhagat Singh, Subhas Chandra Bose, and army/police uniforms."},
         {"id": "independence_day", "name": "Independence Day", "month": 8, "day": 15, "category": "Freedom Fighters / National Heroes", "description": "Independence Day assemblies. Highest demand for historic freedom fighter attire (Rani Laxmibai, Bhagat Singh, Gandhi, Nehru)."},
         {"id": "gandhi_jayanti", "name": "Gandhi Jayanti", "month": 10, "day": 2, "category": "Freedom Fighters / Khadi Attire", "description": "Birth anniversary of Mahatma Gandhi. High demand for dhotis, bald wigs, spectacles, and Nehru caps."},
         {"id": "teachers_day", "name": "Teachers' Day", "month": 9, "day": 5, "category": "Professional / Formal Costumes", "description": "Teachers' Day plays and roleplays. Demand for formal blazers, sarees, doctor, lawyer, and corporate uniforms."},
         {"id": "childrens_day", "name": "Children's Day", "month": 11, "day": 14, "category": "Cartoon Characters / Animals / Nehru", "description": "Children's Day events. High demand for cartoon characters (Doraemon, Mickey Mouse), animal onesies, and Chacha Nehru jackets."},
-        {"id": "christmas", "name": "Christmas Conciliates", "month": 12, "day": 25, "category": "Christmas / Angels / Santa Claus", "description": "School Christmas concerts. High demand for Santa Claus outfits, Elf costumes, Angel wings, and Shepherd robes."},
-        {"id": "janmashtami", "name": "Krishna Janmashtami (typical Aug/Sep)", "month": 8, "day": 24, "category": "Mythological (Krishna/Radha)", "description": "Krishna tableaus and dahi handi. Peak demand for Bal Krishna crown, flute, peacock feather, and Radha lehengas."},
-        {"id": "navaratri", "name": "Navaratri Festival (typical Oct)", "month": 10, "day": 12, "category": "Chaniya Choli / Kediyu", "description": "9 days of Garba. Huge demand for heavily-embroidered Chaniya Cholis, Kediyus, turbans, and oxidized ornaments."}
+        {"id": "christmas", "name": "Christmas Concerts", "month": 12, "day": 25, "category": "Christmas / Angels / Santa Claus", "description": "School Christmas concerts. High demand for Santa Claus outfits, Elf costumes, Angel wings, and Shepherd robes."},
+        {"id": "janmashtami", "name": "Krishna Janmashtami", "month": 9, "day": 3, "category": "Mythological (Krishna/Radha)", "description": "Krishna tableaus and dahi handi. Peak demand for Bal Krishna crown, flute, peacock feather, and Radha lehengas."},
+        {"id": "navaratri", "name": "Navaratri Festival", "month": 10, "day": 12, "category": "Chaniya Choli / Kediyu", "description": "9 days of Garba. Huge demand for heavily-embroidered Chaniya Cholis, Kediyus, turbans, and oxidized ornaments."}
     ]
 
     import datetime as dt
     today_dt = datetime.now()
-
     forecast_calendar = []
+
     for ev in indian_events:
         year = today_dt.year
         ev_date = dt.datetime(year, ev["month"], ev["day"])
-        # If passed in current year, target next year
         if ev_date.date() < today_dt.date():
             ev_date = dt.datetime(year + 1, ev["month"], ev["day"])
-            
         countdown = (ev_date.date() - today_dt.date()).days
-        
-        # Calculate historical bookings spike count and gather details in a ±3 days window around this event
+
         matching_bookings = []
         event_categories = Counter()
         event_costumes = Counter()
@@ -720,15 +486,13 @@ def fancy_dashboard():
                     ev_date_by_year = dt.date(sd.year, ev["month"], ev["day"])
                 except ValueError:
                     ev_date_by_year = dt.date(sd.year, ev["month"], ev["day"] - 1)
-                
+
                 diff = (sd - ev_date_by_year).days
                 if -3 <= diff <= 3:
-                    costume = b.get("costume", "Unknown").strip().title()
-                    cat = costume_to_category.get(costume, "General").strip().title()
-                    
+                    costume = b.get("details", b.get("costume", "Unknown")).strip().title()
+                    cat = b.get("costume", "General").strip().title()
                     event_categories[cat] += 1
                     event_costumes[costume] += 1
-                    
                     matching_bookings.append({
                         "name": b.get("name", "Unknown"),
                         "mobile": b.get("mobile", ""),
@@ -737,23 +501,15 @@ def fancy_dashboard():
                         "price": b.get("price", 0),
                         "season": b.get("season", "Historical")
                     })
-                    
-        matching_bookings.sort(key=lambda x: x["date"], reverse=True)
 
-        # Dynamic recommendations based on actual historical bookings during the ±3 days event window
-        top_cats = [c for c, count in event_categories.most_common(2)]
+        top_cats = [c for c, _ in event_categories.most_common(2)]
         top_dresses = [f"{d} ({count})" for d, count in event_costumes.most_common(5)]
-        
-        dynamic_category = ", ".join(top_cats) if top_cats else "General"
-        dynamic_desc = f"Top rented costumes: {', '.join(top_dresses)}" if top_dresses else "No historical records for this date window."
-        
-        # Calculate dynamic stock availability and deficit for the categories associated with this event
-        total_available_stock = 0
-        for cat in top_cats:
-            total_available_stock += category_stock.get(cat, 0)
-        
+        dynamic_category = ", ".join(top_cats) if top_cats else ev["category"]
+        dynamic_desc = f"Top historical costumes: {', '.join(top_dresses)}" if top_dresses else ev["description"]
+
+        total_available_stock = sum(category_stock.get(cat, 0) for cat in top_cats) or category_stock.get("Bhagwan", 20)
         deficit = max(0, len(matching_bookings) - total_available_stock)
-        
+
         forecast_calendar.append({
             "id": ev["id"],
             "name": ev["name"],
@@ -762,68 +518,186 @@ def fancy_dashboard():
             "category": dynamic_category,
             "description": dynamic_desc,
             "spike_count": len(matching_bookings),
-            "bookings": matching_bookings,  # Send all records to show everything!
+            "bookings": matching_bookings,
             "total_stock": total_available_stock,
             "deficit": deficit,
-            "status": "Critical Deficit" if deficit > 5 else "Moderate Shortage" if deficit > 0 else "Stock Adequate"
+            "status": "Critical Deficit" if deficit > 10 else "Moderate Shortage" if deficit > 0 else "Stock Adequate"
         })
-        
-    # Sort events by proximity (countdown ascending)
+
     forecast_calendar.sort(key=lambda x: x["countdown"])
 
     # -----------------------------
-    # STRATEGIC INSIGHTS / BEST PERFORMERS
+    # 6. AI ENRICHMENT (Cached & Privacy-Sanitized)
     # -----------------------------
-    highest_rev_costume = top_costumes_by_revenue[0]["name"] if top_costumes_by_revenue else "None"
-    highest_rev_val = top_costumes_by_revenue[0]["revenue"] if top_costumes_by_revenue else 0
-    highest_rev_school = top_schools_by_revenue[0]["name"] if top_schools_by_revenue else "None"
-    highest_rev_school_val = top_schools_by_revenue[0]["revenue"] if top_schools_by_revenue else 0
+    festival_ai_advice = generate_festival_forecast_insights(forecast_calendar)
+    for ev in forecast_calendar:
+        if ev["id"] in festival_ai_advice:
+            ev["ai_advice"] = festival_ai_advice[ev["id"]].get("actionable_advice", "")
+            ev["ai_outlook"] = festival_ai_advice[ev["id"]].get("demand_outlook", "Moderate")
+            ev["ai_characters"] = festival_ai_advice[ev["id"]].get("key_characters", [])
+        else:
+            ev["ai_advice"] = "Monitor historical booking velocity and maintain buffer stock."
+            ev["ai_outlook"] = "Steady"
+            ev["ai_characters"] = []
 
-    strategic_insights = {
-        "best_category_by_bookings": f"{best_category_by_bookings} ({best_category_bookings_count} rentals)",
-        "best_category_by_revenue": f"{best_category_by_revenue} (₹{best_category_revenue_val})",
-        "best_product_by_bookings": f"{best_product_by_bookings} ({best_product_bookings_count} rentals)",
-        "best_product_by_revenue": f"{highest_rev_costume} (₹{highest_rev_val})",
-        "overall_avg_duration": f"{overall_avg_duration} days",
-        "anchor_school": f"{highest_rev_school} (₹{highest_rev_school_val})"
-    }
+    spike_explanations = explain_anomaly_spikes(spikes)
+    spike_map = {sp["date"]: sp for sp in spike_explanations}
+    for s in spikes:
+        if s["date"] in spike_map:
+            s["explanation"] = spike_map[s["date"]].get("explanation", "")
+            s["operational_tip"] = spike_map[s["date"]].get("operational_tip", "")
 
-    category_revenue_list = sorted(
-        [{"name": k, "revenue": v, "bookings": category_bookings.get(k, 0)} for k, v in category_revenue.items()],
-        key=lambda x: x["revenue"],
-        reverse=True
+    ai_insights = generate_dashboard_ai_insights(
+        primary_kpis,
+        best_performers,
+        charts["best_products_by_revenue"],
+        charts["category_revenue_share"],
+        top_schools_table,
+        best_performers["top_customer"]
     )
 
-    # CURRENT SELECTED CYCLE INFO
     selected_cycle = get_selected_cycle()
     all_cycles = get_all_cycles()
 
     return render_template(
         'fancy/fancy_dashboard.html',
-        total_bookings=total_bookings_count,
-        total_revenue=total_revenue,
-        returned_count=returned_count,
-        taken_count=taken_count,
-        not_returned=not_returned,
-        awaiting_pickup=awaiting_pickup,
-        avg_revenue=avg_revenue,
-        top_costumes=top_costumes,
-        top_school=top_school,
-        top_20_customers=top_20_customers,
+        # Strict Primary KPIs (as requested by user)
+        primary_kpis=primary_kpis,
+        total_bookings=primary_kpis["total_bookings"],
+        total_revenue=primary_kpis["total_revenue"],
+        avg_revenue_per_booking=primary_kpis["avg_revenue_per_booking"],
+        unique_customers=primary_kpis["unique_customers"],
+        total_units_rented=primary_kpis["total_units_rented"],
+        # Best Performers
+        best_performers=best_performers,
+        # Charts Datasets
+        charts=charts,
+        best_products_by_revenue=charts["best_products_by_revenue"],
+        category_revenue_share=charts["category_revenue_share"],
+        weekly_pickup_pattern=charts["weekly_pickup_pattern"],
+        monthly_revenue_data=charts["monthly_revenue"],
+        daily_velocity=charts["daily_velocity"],
+        # Spikes & Anomalies
+        spikes=spikes,
+        # Tables
+        top_schools_table=top_schools_table,
+        top_customers_table=top_customers_table,
+        # Forecast Calendar with AI Advisory
+        forecast_calendar=forecast_calendar,
+        # Dashboard-Wide AI Strategic Insights
+        ai_insights=ai_insights,
+        # Cycle info
         selected_cycle=selected_cycle,
         all_cycles=all_cycles,
-        bookings_by_date=bookings_by_date,
-        top_schools_by_revenue=top_schools_by_revenue,
-        top_costumes_by_revenue=top_costumes_by_revenue,
         total_stock=total_stock,
-        avg_durations_by_category=avg_durations_by_category,
-        strategic_insights=strategic_insights,
-        day_of_week_data=day_of_week_data,
-        active_customers=active_customers,
-        monthly_revenue_data=monthly_revenue_data,
-        forecast_calendar=forecast_calendar,
-        category_revenue_list=category_revenue_list
+        advanced_stats=metrics.get("advanced_stats", {})
     )
+
+
+# -------------------------------------------------------------
+# DRILL-DOWN REST API ENDPOINT (Category / Product / School / Customer / Month / Day / Date / Cycle)
+# -------------------------------------------------------------
+import urllib.parse
+
+@fancy.route('/api/fancy/drilldown/<entity_type>', defaults={'entity_id': ''}, strict_slashes=False)
+@fancy.route('/api/fancy/drilldown/<entity_type>/<path:entity_id>', strict_slashes=False)
+def api_fancy_drilldown(entity_type, entity_id):
+    if not session.get('logged_in'):
+        return jsonify({"status": "error", "error": "Unauthorized"}), 401
+
+    try:
+        # Fallback to query param 'id' if entity_id is not in path
+        if not entity_id or not entity_id.strip():
+            entity_id = request.args.get('id', '').strip()
+
+        if entity_id:
+            entity_id = urllib.parse.unquote(entity_id).strip()
+
+        collection = get_selected_collection()
+        bookings = list(collection.find())
+
+        entity_type_clean = entity_type.strip().lower()
+        entity_data = None
+
+        # Provide sensible default if entity_id is still empty
+        if not entity_id:
+            if entity_type_clean == 'cycle':
+                entity_id = 'current'
+            elif entity_type_clean == 'category':
+                items, _ = normalize_cycle_bookings(bookings)
+                cats = [it["canonical_category"] for it in items if it.get("canonical_category")]
+                if cats:
+                    entity_id = Counter(cats).most_common(1)[0][0]
+                else:
+                    return jsonify({"status": "error", "error": "No categories available in the active cycle"}), 404
+            elif entity_type_clean == 'month':
+                # Default to latest month
+                for b in bookings:
+                    d = safe_parse_date(b.get("start_date") or b.get("booking_date"))
+                    if d:
+                        entity_id = f"{d.year}-{d.month:02d}"
+                        break
+                if not entity_id:
+                    entity_id = datetime.now().strftime("%Y-%m")
+            else:
+                return jsonify({"status": "error", "error": f"{entity_type.capitalize()} ID parameter is required"}), 400
+
+        if entity_type_clean == 'category':
+            entity_data = get_category_drilldown(entity_id, bookings)
+        elif entity_type_clean == 'product':
+            entity_data = get_product_drilldown(entity_id, bookings)
+        elif entity_type_clean == 'school':
+            entity_data = get_school_drilldown(entity_id, bookings)
+        elif entity_type_clean == 'customer':
+            all_bookings = []
+            for cycle in get_all_cycles():
+                c_col = db[cycle["collection_name"]]
+                all_bookings.extend(list(c_col.find()))
+            entity_data = get_customer_drilldown(entity_id, bookings, all_bookings)
+        elif entity_type_clean == 'month':
+            entity_data = get_month_drilldown(entity_id, bookings)
+        elif entity_type_clean == 'day':
+            entity_data = get_day_drilldown(entity_id, bookings)
+        elif entity_type_clean == 'date':
+            entity_data = get_date_drilldown(entity_id, bookings)
+        elif entity_type_clean == 'cycle':
+            entity_data = get_cycle_drilldown(bookings)
+        else:
+            return jsonify({"status": "error", "error": f"Invalid entity type '{entity_type}'"}), 400
+
+        if not entity_data:
+            return jsonify({"status": "error", "error": f"{entity_type.capitalize()} '{entity_id}' not found"}), 404
+
+        # Generate AI insights (Completely disabled for customer)
+        if entity_type_clean == 'customer':
+            ai_insights = []
+        else:
+            ai_insights = generate_drilldown_ai_insights(entity_type.capitalize(), entity_data)
+
+        return jsonify({
+            "status": "success",
+            "data": entity_data,
+            "ai_insights": ai_insights
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"status": "error", "error": f"Failed to retrieve {entity_type} drilldown: {str(e)}"}), 500
+
+
+# -------------------------------------------------------------
+# ON-DEMAND AI REFRESH API
+# -------------------------------------------------------------
+@fancy.route('/api/fancy/refresh_ai', methods=['POST'])
+def api_fancy_refresh_ai():
+    if not session.get('logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    # Invalidate AI cache in MongoDB
+    db["fancy_ai_cache"].delete_many({})
+    return jsonify({"status": "success", "message": "AI cache refreshed successfully"})
+
 
 from io import BytesIO
 from flask import send_file
@@ -836,176 +710,73 @@ def download_dashboard_excel():
         return redirect(url_for('auth.login'))
 
     collection = get_selected_collection()
-
     current_bookings = list(collection.find())
 
-    total_bookings_count = len(current_bookings)
-
-    total_revenue = sum(
-        b.get('price', 0)
-        for b in current_bookings
-    )
-
-    returned_count = sum(
-        1
-        for b in current_bookings
-        if b.get('returned')
-    )
-
-    taken_count = sum(
-        1
-        for b in current_bookings
-        if b.get('taken')
-    )
-
-    not_returned = sum(
-        1
-        for b in current_bookings
-        if b.get('taken') and not b.get('returned')
-    )
-
-    # Top Costumes
-    costume_counter = Counter()
-
-    for b in current_bookings:
-        costume = b.get('details')
-
-        if costume:
-            costume_counter[costume] += 1
-
-    top_costumes = sorted(
-        costume_counter.items(),
-        key=lambda x: x[1],
-        reverse=True
-    )
-
-    # Top Schools
-    school_counter = Counter()
-
-    for b in current_bookings:
-        school = b.get('school')
-
-        if school:
-            school_counter[school] += 1
-
-    top_schools = sorted(
-        school_counter.items(),
-        key=lambda x: x[1],
-        reverse=True
-    )
-
-    # Top Customers
-    all_bookings = []
-
-    for cycle in get_all_cycles():
-
-        cycle_collection = db[
-            cycle["collection_name"]
-        ]
-
-        all_bookings.extend(
-            list(cycle_collection.find())
-        )
-
-    customer_totals = {}
-
-    for b in all_bookings:
-
-        mobile = b.get('mobile')
-
-        if not mobile:
-            continue
-
-        if mobile not in customer_totals:
-
-            customer_totals[mobile] = {
-                'name': b.get('name', ''),
-                'mobile': mobile,
-                'total_amount': 0,
-                'total_bookings': 0
-            }
-
-        customer_totals[mobile]['total_amount'] += b.get('price', 0)
-        customer_totals['mobile'] if False else None
-        customer_totals[mobile]['total_bookings'] += 1
-
-    top_customers = sorted(
-        customer_totals.values(),
-        key=lambda x: x['total_amount'],
-        reverse=True
-    )[:50]
+    items, summary = normalize_cycle_bookings(current_bookings)
 
     wb = Workbook()
 
-    # Summary Sheet
-    ws = wb.active
-    ws.title = "Summary"
-
-    ws.append(["Metric", "Value"])
-    ws.append(["Total Bookings", total_bookings_count])
-    ws.append(["Total Revenue", total_revenue])
-    ws.append(["Returned", returned_count])
-    ws.append(["Taken", taken_count])
-    ws.append(["Not Returned", not_returned])
-
-    # Costumes Sheet
-    ws2 = wb.create_sheet("Top Costumes")
-    ws2.append(["Costume", "Bookings"])
-
-    for costume, count in top_costumes:
-        ws2.append([costume, count])
-
-    # Schools Sheet
-    ws3 = wb.create_sheet("Top Schools")
-    ws3.append(["School", "Bookings"])
-
-    for school, count in top_schools:
-        ws3.append([school, count])
-
-    # Customers Sheet
-    ws4 = wb.create_sheet("Top Customers")
-    ws4.append([
-        "Name",
-        "Mobile",
-        "Total Amount",
-        "Total Bookings"
-    ])
-
-    for customer in top_customers:
-        ws4.append([
-            customer["name"],
-            customer["mobile"],
-            customer["total_amount"],
-            customer["total_bookings"]
-        ])
-
-    # All Bookings Sheet
-    ws5 = wb.create_sheet("All Bookings")
-
-    ws5.append([
-        "Name",
-        "Mobile",
-        "Address",
+    # Sheet 1: Normalized Line Items
+    ws1 = wb.active
+    ws1.title = "Normalized Rentals"
+    ws1.append([
+        "Booking ID",
+        "Date",
+        "Customer Name",
         "School",
-        "Start Date",
-        "End Date",
-        "Price",
-        "Costume",
-        "Details"
+        "Canonical Product",
+        "Category",
+        "Units Rented",
+        "Allocated Revenue (Rs)"
     ])
-
-    for booking in current_bookings:
-        ws5.append([
-            booking.get("name", ""),
-            booking.get("mobile", ""),
-            booking.get("address", ""),
-            booking.get("school", ""),
-            booking.get("start_date", ""),
-            booking.get("end_date", ""),
-            booking.get("price", 0),
-            booking.get("costume", ""),
-            booking.get("details", "")
+    for it in items:
+        ws1.append([
+            it["booking_id"],
+            it["booking_date"],
+            it["customer_name"],
+            it["school_clean"],
+            it["canonical_product"],
+            it["canonical_category"],
+            it["units"],
+            it["allocated_revenue"]
         ])
+
+    # Sheet 2: Category Summary
+    ws2 = wb.create_sheet("Category Summary")
+    ws2.append(["Category", "Units Rented", "Total Revenue (Rs)"])
+    cat_rev = Counter()
+    cat_units = Counter()
+    for it in items:
+        cat_rev[it["canonical_category"]] += it["allocated_revenue"]
+        cat_units[it["canonical_category"]] += it["units"]
+    for c, rev in cat_rev.most_common():
+        ws2.append([c, cat_units[c], round(rev, 2)])
+
+    # Sheet 3: Product Summary
+    ws3 = wb.create_sheet("Product Summary")
+    ws3.append(["Product Name", "Category", "Units Rented", "Total Revenue (Rs)"])
+    prod_rev = Counter()
+    prod_units = Counter()
+    prod_cat = {}
+    for it in items:
+        p = it["canonical_product"]
+        prod_rev[p] += it["allocated_revenue"]
+        prod_units[p] += it["units"]
+        prod_cat[p] = it["canonical_category"]
+    for p, rev in prod_rev.most_common():
+        ws3.append([p, prod_cat.get(p, "General"), prod_units[p], round(rev, 2)])
+
+    # Sheet 4: School Leaderboard (Current Cycle)
+    ws4 = wb.create_sheet("School Leaderboard")
+    ws4.append(["Rank", "School Name", "Bookings", "Total Revenue (Rs)"])
+    school_rev = Counter()
+    school_cnt = Counter()
+    for it in items:
+        if not it["is_walkin"]:
+            school_rev[it["school_clean"]] += it["allocated_revenue"]
+            school_cnt[it["school_clean"]] += 1
+    for rank, (s, rev) in enumerate(school_rev.most_common(), 1):
+        ws4.append([rank, s, school_cnt[s], round(rev, 2)])
 
     output = BytesIO()
     wb.save(output)
@@ -1014,7 +785,7 @@ def download_dashboard_excel():
     return send_file(
         output,
         as_attachment=True,
-        download_name="dashboard_report.xlsx",
+        download_name="fancy_dashboard_report.xlsx",
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
