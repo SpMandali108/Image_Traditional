@@ -459,17 +459,17 @@ body {
         <i class="bi bi-search"></i> Search Storage Directory
       </div>
       <div class="card-body-modern">
-        <form action="/Storage" method="POST" class="row g-3 align-items-end">
+        <form action="/Storage" method="POST" id="storageSearchForm" class="row g-3 align-items-end">
           <div class="col-md-3">
             <label class="form-label">Search By</label>
-            <select name="search_type" class="form-select">
-              <option value="product">Product Code</option>
-              <option value="bag">Bag Name</option>
+            <select name="search_type" id="storageSearchType" class="form-select">
+              <option value="product" {% if search_type == 'product' %}selected{% endif %}>Product Code</option>
+              <option value="bag" {% if search_type == 'bag' %}selected{% endif %}>Bag Name</option>
             </select>
           </div>
           <div class="col-md-6">
             <label class="form-label">Search Query</label>
-            <input type="text" name="query" class="form-control" placeholder="Enter product code (e.g. C101) or bag name" required>
+            <input type="text" name="query" id="storageQueryInput" class="form-control" placeholder="Enter product code prefix (e.g. K, KA, C101) or bag name" value="{{ query or '' }}" autocomplete="off">
           </div>
           <div class="col-md-3">
             <button type="submit" class="btn btn-modern btn-info-modern w-100">
@@ -480,51 +480,157 @@ body {
       </div>
     </div>
 
-    <!-- SEARCH RESULTS -->
-    {% if result %}
-    <div id="results" class="modern-card results-card">
-      <div class="card-header-modern">
-        <i class="bi bi-bar-chart-fill"></i> Search Results
+    <!-- SEARCH RESULTS CONTAINER -->
+    <div id="resultsContainer">
+    {% if searched %}
+      <div id="results" class="modern-card results-card">
+        <div class="card-header-modern d-flex justify-content-between align-items-center">
+          <div><i class="bi bi-bar-chart-fill me-1"></i> Search Results</div>
+          {% if query %}
+            <small class="text-muted" style="font-size:0.8rem;">Query: <span class="text-warning fw-semibold">{{ query }}</span></small>
+          {% endif %}
+        </div>
+        <div class="card-body-modern">
+          {% if result is mapping %}
+            <div class="row g-3">
+              <div class="col-12 mb-2 d-flex justify-content-between align-items-center">
+                <h5 style="color:var(--white); font-weight:700; margin:0;">Product Storage Location</h5>
+                {% if result.is_exact %}
+                  <span class="badge bg-success">Exact Match</span>
+                {% endif %}
+              </div>
+              <div class="col-md-4">
+                <div class="result-box">
+                  <div class="result-label">Product Code</div>
+                  <div class="result-value" style="font-family:monospace; color:var(--gold-lt);">{{ result._id }}</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="result-box">
+                  <div class="result-label">Assigned Bag</div>
+                  <div class="result-value">{{ result.bag_name }}</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="result-box">
+                  <div class="result-label">Description / Rack</div>
+                  <div class="result-value" style="font-size:0.95rem;">{{ result.bag_description or 'N/A' }}</div>
+                </div>
+              </div>
+            </div>
+          {% elif search_type == 'product' %}
+            {% if result|length == 0 %}
+              <div class="text-center py-4">
+                <i class="bi bi-search text-muted" style="font-size: 2rem;"></i>
+                <h5 class="mt-3 text-light">No Products Found</h5>
+                <p class="text-muted mb-0">No inventory products starting with "<span class="text-warning fw-bold">{{ query }}</span>".</p>
+              </div>
+            {% elif result|length == 1 %}
+              <div class="row g-3">
+                <div class="col-12 mb-2 d-flex justify-content-between align-items-center">
+                  <h5 style="color:var(--white); font-weight:700; margin:0;">Product Storage Location</h5>
+                  {% if result[0].is_exact %}
+                    <span class="badge bg-success">Exact Match</span>
+                  {% endif %}
+                </div>
+                <div class="col-md-4">
+                  <div class="result-box">
+                    <div class="result-label">Product Code</div>
+                    <div class="result-value" style="font-family:monospace; color:var(--gold-lt);">{{ result[0]._id }}</div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="result-box">
+                    <div class="result-label">Assigned Bag</div>
+                    <div class="result-value">{{ result[0].bag_name }}</div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="result-box">
+                    <div class="result-label">Description / Rack</div>
+                    <div class="result-value" style="font-size:0.95rem;">{{ result[0].bag_description or 'N/A' }}</div>
+                  </div>
+                </div>
+              </div>
+            {% else %}
+              {% if result[0].is_exact %}
+                <div class="mb-4">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="text-uppercase fw-bold text-muted mb-0" style="font-size:0.8rem; letter-spacing:0.5px;">Exact Match</h6>
+                    <span class="badge bg-success">Exact Match</span>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <div class="result-box">
+                        <div class="result-label">Product Code</div>
+                        <div class="result-value" style="font-family:monospace; color:var(--gold-lt);">{{ result[0]._id }}</div>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="result-box">
+                        <div class="result-label">Assigned Bag</div>
+                        <div class="result-value">{{ result[0].bag_name }}</div>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="result-box">
+                        <div class="result-label">Description / Rack</div>
+                        <div class="result-value" style="font-size:0.95rem;">{{ result[0].bag_description or 'N/A' }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+              <h5 class="mb-3" style="color:var(--white); font-weight:700;">
+                Matching Products ({{ result|length }} items)
+              </h5>
+              <div class="list-group">
+                {% for item in result %}
+                  <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="fw-bold" style="color:var(--gold-lt); font-size:1.05rem;">{{ item._id }}</span>
+                      {% if item.is_exact %}
+                        <span class="badge bg-success" style="font-size:0.7rem;">Exact</span>
+                      {% endif %}
+                    </div>
+                    <div class="d-flex align-items-center gap-3 text-end">
+                      <div>
+                        <span class="text-muted small d-block">Bag</span>
+                        <span class="fw-semibold text-light">{{ item.bag_name }}</span>
+                      </div>
+                      <div>
+                        <span class="text-muted small d-block">Rack</span>
+                        <span class="text-light">{{ item.bag_description or 'N/A' }}</span>
+                      </div>
+                      <span class="badge bg-dark text-warning border border-secondary fw-semibold">Stored</span>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% elif search_type == 'bag' %}
+            {% if result|length == 0 %}
+              <div class="text-center py-4">
+                <i class="bi bi-box-seam text-muted" style="font-size: 2rem;"></i>
+                <h5 class="mt-3 text-light">No Bag Found</h5>
+                <p class="text-muted mb-0">No bag found matching "<span class="text-warning fw-bold">{{ query }}</span>" or bag has no products.</p>
+              </div>
+            {% else %}
+              <h5 class="mb-3" style="color:var(--white); font-weight:700;">Products Stored in Bag ({{ result|length }} items)</h5>
+              <div class="list-group">
+                {% for item in result %}
+                  <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ item._id }}</span>
+                    <span class="badge bg-dark text-warning border border-secondary fw-semibold">Stored</span>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endif %}
+        </div>
       </div>
-      <div class="card-body-modern">
-        {% if result is mapping %}
-          <div class="row g-3">
-            <div class="col-12 mb-2">
-              <h5 style="color:var(--white); font-weight:700;">Product Storage Location</h5>
-            </div>
-            <div class="col-md-4">
-              <div class="result-box">
-                <div class="result-label">Product Code</div>
-                <div class="result-value" style="font-family:monospace; color:var(--gold-lt);">{{ result._id }}</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="result-box">
-                <div class="result-label">Assigned Bag</div>
-                <div class="result-value">{{ result.bag_name }}</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="result-box">
-                <div class="result-label">Description / Rack</div>
-                <div class="result-value" style="font-size:0.95rem;">{{ result.bag_description or 'N/A' }}</div>
-              </div>
-            </div>
-          </div>
-        {% elif result is iterable %}
-          <h5 class="mb-3" style="color:var(--white); font-weight:700;">Products Stored in Bag ({{ result|length }} items)</h5>
-          <div class="list-group">
-            {% for item in result %}
-              <div class="list-group-item d-flex justify-content-between align-items-center">
-                <span>{{ item._id }}</span>
-                <span class="badge bg-dark text-warning border border-secondary fw-semibold">Stored</span>
-              </div>
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
-    </div>
     {% endif %}
+    </div>
 
   </div>
 </div>
@@ -546,6 +652,196 @@ $(document).ready(function() {
     if (e.target.type !== 'checkbox' && !$(e.target).is('label')) {
       var checkbox = $(this).find('.form-check-input');
       checkbox.prop('checked', !checkbox.prop('checked'));
+    }
+  });
+
+  // Helper to escape HTML safely
+  function escapeHtml(str) {
+    if (!str) return '';
+    return $('<div>').text(str).html();
+  }
+
+  let liveSearchTimer = null;
+
+  function renderLiveResults(data) {
+    const container = $('#resultsContainer');
+    if (!data || !data.query) {
+      container.empty();
+      return;
+    }
+
+    let html = `
+      <div id="results" class="modern-card results-card">
+        <div class="card-header-modern d-flex justify-content-between align-items-center">
+          <div><i class="bi bi-bar-chart-fill me-1"></i> Search Results</div>
+          <small class="text-muted" style="font-size:0.8rem;">Query: <span class="text-warning fw-semibold">${escapeHtml(data.query)}</span> (${data.total} found)</small>
+        </div>
+        <div class="card-body-modern">
+    `;
+
+    if (data.search_type === 'product') {
+      if (data.results.length === 0) {
+        html += `
+          <div class="text-center py-4">
+            <i class="bi bi-search text-muted" style="font-size: 2rem;"></i>
+            <h5 class="mt-3 text-light">No Products Found</h5>
+            <p class="text-muted mb-0">No inventory products starting with "<span class="text-warning fw-bold">${escapeHtml(data.query)}</span>".</p>
+          </div>
+        `;
+      } else if (data.results.length === 1) {
+        const item = data.results[0];
+        html += `
+          <div class="row g-3">
+            <div class="col-12 mb-2 d-flex justify-content-between align-items-center">
+              <h5 style="color:var(--white); font-weight:700; margin:0;">Product Storage Location</h5>
+              ${item.is_exact ? '<span class="badge bg-success">Exact Match</span>' : '<span class="badge bg-info text-dark">Prefix Match</span>'}
+            </div>
+            <div class="col-md-4">
+              <div class="result-box">
+                <div class="result-label">Product Code</div>
+                <div class="result-value" style="font-family:monospace; color:var(--gold-lt);">${escapeHtml(item._id)}</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="result-box">
+                <div class="result-label">Assigned Bag</div>
+                <div class="result-value">${escapeHtml(item.bag_name)}</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="result-box">
+                <div class="result-label">Description / Rack</div>
+                <div class="result-value" style="font-size:0.95rem;">${escapeHtml(item.bag_description || 'N/A')}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        if (data.results[0].is_exact) {
+          const top = data.results[0];
+          html += `
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="text-uppercase fw-bold text-muted mb-0" style="font-size:0.8rem; letter-spacing:0.5px;">Exact Match</h6>
+                <span class="badge bg-success">Exact Match</span>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="result-box">
+                    <div class="result-label">Product Code</div>
+                    <div class="result-value" style="font-family:monospace; color:var(--gold-lt);">${escapeHtml(top._id)}</div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="result-box">
+                    <div class="result-label">Assigned Bag</div>
+                    <div class="result-value">${escapeHtml(top.bag_name)}</div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="result-box">
+                    <div class="result-label">Description / Rack</div>
+                    <div class="result-value" style="font-size:0.95rem;">${escapeHtml(top.bag_description || 'N/A')}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+        html += `
+          <h5 class="mb-3" style="color:var(--white); font-weight:700;">
+            Matching Products (${data.results.length} items)
+          </h5>
+          <div class="list-group">
+        `;
+        data.results.forEach(function(item) {
+          html += `
+            <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold" style="color:var(--gold-lt); font-size:1.05rem;">${escapeHtml(item._id)}</span>
+                ${item.is_exact ? '<span class="badge bg-success" style="font-size:0.7rem;">Exact</span>' : ''}
+              </div>
+              <div class="d-flex align-items-center gap-3 text-end">
+                <div>
+                  <span class="text-muted small d-block">Bag</span>
+                  <span class="fw-semibold text-light">${escapeHtml(item.bag_name)}</span>
+                </div>
+                <div>
+                  <span class="text-muted small d-block">Rack</span>
+                  <span class="text-light">${escapeHtml(item.bag_description || 'N/A')}</span>
+                </div>
+                <span class="badge bg-dark text-warning border border-secondary fw-semibold">Stored</span>
+              </div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      }
+    } else if (data.search_type === 'bag') {
+      if (data.results.length === 0) {
+        html += `
+          <div class="text-center py-4">
+            <i class="bi bi-box-seam text-muted" style="font-size: 2rem;"></i>
+            <h5 class="mt-3 text-light">No Bag Found</h5>
+            <p class="text-muted mb-0">No bag found matching "<span class="text-warning fw-bold">${escapeHtml(data.query)}</span>" or bag has no products.</p>
+          </div>
+        `;
+      } else {
+        html += `
+          <h5 class="mb-3" style="color:var(--white); font-weight:700;">Products Stored in Bag (${data.results.length} items)</h5>
+          <div class="list-group">
+        `;
+        data.results.forEach(function(item) {
+          html += `
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <span>${escapeHtml(item._id)}</span>
+              <span class="badge bg-dark text-warning border border-secondary fw-semibold">Stored</span>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      }
+    }
+
+    html += `
+        </div>
+      </div>
+    `;
+    container.html(html);
+  }
+
+  function doLiveSearch() {
+    const query = $('#storageQueryInput').val().trim();
+    const searchType = $('#storageSearchType').val();
+    if (!query) {
+      $('#resultsContainer').empty();
+      return;
+    }
+    $.ajax({
+      url: '/api/storage-search',
+      method: 'GET',
+      data: { query: query, search_type: searchType },
+      dataType: 'json',
+      success: function(data) {
+        if (data && data.success) {
+          renderLiveResults(data);
+        }
+      },
+      error: function(xhr, status, err) {
+        console.warn('Storage live search error:', err);
+      }
+    });
+  }
+
+  $('#storageQueryInput').on('input', function() {
+    clearTimeout(liveSearchTimer);
+    liveSearchTimer = setTimeout(doLiveSearch, 200);
+  });
+
+  $('#storageSearchType').on('change', function() {
+    const query = $('#storageQueryInput').val().trim();
+    if (query) {
+      doLiveSearch();
     }
   });
 });

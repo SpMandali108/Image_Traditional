@@ -1,6 +1,7 @@
 import csv
 import io
 import os
+import re
 
 from bson import ObjectId
 from flask import Blueprint, Response, current_app, render_template, request, redirect, send_file, url_for, session, flash, jsonify
@@ -2384,34 +2385,135 @@ def add_product():
 
     return redirect(url_for('navaratri.Storage'))
 
+def _search_storage(search_type, query):
+    query = (query or '').strip()
+    if not query:
+        return []
+
+    if search_type == 'product':
+        reg = f"^{re.escape(query)}"
+        raw_products = list(products.find({"_id": {"$regex": reg, "$options": "i"}}))
+
+        all_bags_list = list(bags.find())
+        bag_map = {str(b['_id']): b for b in all_bags_list}
+
+        q_upper = query.upper()
+        exact_matches = []
+        prefix_matches = []
+
+        for p in raw_products:
+            p_code = str(p.get('_id', ''))
+            if not p_code.upper().startswith(q_upper):
+                continue
+
+            b_id = str(p.get('bag_id', ''))
+            bag = bag_map.get(b_id)
+            if not bag and ObjectId.is_valid(b_id):
+                bag = bags.find_one({"_id": ObjectId(b_id)})
+                if bag:
+                    bag_map[b_id] = bag
+
+            p['bag_name'] = bag.get('name', 'Unknown') if bag else 'Unknown'
+            p['bag_description'] = bag.get('description', 'No description') if bag else 'No description'
+            p['is_exact'] = (p_code.upper() == q_upper)
+
+            if p['is_exact']:
+                exact_matches.append(p)
+            else:
+                prefix_matches.append(p)
+
+        def sort_key(item):
+            code = str(item['_id'])
+            m = re.match(r'^([A-Za-z]+)(\d+)$', code)
+            if m:
+                return (m.group(1).upper(), int(m.group(2)), code)
+            return (code.upper(), 0, code)
+
+        prefix_matches.sort(key=sort_key)
+        return exact_matches + prefix_matches
+
+    elif search_type == 'bag':
+        bag = bags.find_one({"name": {"$regex": f"^{re.escape(query)}$", "$options": "i"}})
+        if not bag:
+            bag = bags.find_one({"name": {"$regex": f"^{re.escape(query)}", "$options": "i"}})
+        if bag:
+            bag_id_str = str(bag['_id'])
+            return list(products.find({"bag_id": bag_id_str}))
+        return []
+
+    return []
+
+
+@navaratri.route('/api/storage-search')
+def api_storage_search():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "error": "Unauthorized"}), 401
+    search_type = request.args.get('search_type', 'product')
+    query = request.args.get('query', '').strip()
+    if not query:
+        return jsonify({"success": True, "query": "", "search_type": search_type, "total": 0, "results": []})
+
+    results = _search_storage(search_type, query)
+
+    serialized = []
+    for item in results:
+        serialized.append({
+            "_id": str(item.get('_id', '')),
+            "bag_id": str(item.get('bag_id', '')),
+            "bag_name": str(item.get('bag_name', 'Unknown')),
+            "bag_description": str(item.get('bag_description', 'No description')),
+            "is_exact": bool(item.get('is_exact', False))
+        })
+
+    return jsonify({
+        "success": True,
+        "query": query,
+        "search_type": search_type,
+        "total": len(serialized),
+        "results": serialized
+    })
+
+
 @navaratri.route('/Storage', methods=['GET', 'POST'])
 def Storage():
     if not session.get('logged_in'):
         return redirect(url_for('auth.login'))
+
+    # Check for AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.args.get('ajax'):
+        search_type = request.args.get('search_type') or request.form.get('search_type', 'product')
+        query = (request.args.get('query') or request.form.get('query', '')).strip()
+        if not query:
+            return jsonify({"success": True, "query": "", "search_type": search_type, "total": 0, "results": []})
+        results = _search_storage(search_type, query)
+        serialized = []
+        for item in results:
+            serialized.append({
+                "_id": str(item.get('_id', '')),
+                "bag_id": str(item.get('bag_id', '')),
+                "bag_name": str(item.get('bag_name', 'Unknown')),
+                "bag_description": str(item.get('bag_description', 'No description')),
+                "is_exact": bool(item.get('is_exact', False))
+            })
+        return jsonify({
+            "success": True,
+            "query": query,
+            "search_type": search_type,
+            "total": len(serialized),
+            "results": serialized
+        })
+
     result = None
+    search_type = 'product'
+    query = ''
+    searched = False
+
     if request.method == 'POST':
-        search_type = request.form['search_type']
-        query = request.form['query'].strip()
-
-        if search_type == 'product':
-            result = products.find_one({"_id": query})
-            if result:
-                bag_id = result.get('bag_id')
-                bag = bags.find_one({"_id": ObjectId(bag_id)}) if ObjectId.is_valid(bag_id) else bags.find_one({"_id": bag_id})
-                if bag:
-                    result['bag_name'] = bag.get('name', 'Unknown')
-                    result['bag_description'] = bag.get('description', 'No description')
-                else:
-                    result['bag_name'] = 'Unknown'
-                    result['bag_description'] = 'No description'
-
-        elif search_type == 'bag':
-            bag = bags.find_one({"name": query})
-            if bag:
-                bag_id_str = str(bag['_id'])
-                result = list(products.find({"bag_id": bag_id_str}))
-            else:
-                result = []
+        search_type = request.form.get('search_type', 'product')
+        query = request.form.get('query', '').strip()
+        if query:
+            searched = True
+            result = _search_storage(search_type, query)
 
     all_bags = list(bags.find())
 
@@ -2420,7 +2522,15 @@ def Storage():
     used_codes = [p['_id'] for p in products.find({}, {"_id": 1})]
     available_codes = [c for c in all_codes if c not in used_codes]
 
-    return render_template('navaratri/Storage.html', result=result, bags=all_bags, available_codes=available_codes)
+    return render_template(
+        'navaratri/Storage.html',
+        result=result,
+        search_type=search_type,
+        query=query,
+        searched=searched,
+        bags=all_bags,
+        available_codes=available_codes
+    )
 
 
 @navaratri.route('/export_product_report')
