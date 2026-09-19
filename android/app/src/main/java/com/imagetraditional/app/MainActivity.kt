@@ -15,6 +15,8 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import java.io.InputStream
+import java.util.Locale
 import android.view.View
 import android.webkit.CookieManager
 import android.webkit.ValueCallback
@@ -268,9 +270,33 @@ class MainActivity : AppCompatActivity() {
                 request: WebResourceRequest?
             ): WebResourceResponse? {
                 val uri = request?.url ?: return null
-                val scheme = uri.scheme?.lowercase() ?: ""
+                val scheme = uri.scheme?.lowercase(Locale.ROOT) ?: ""
                 if (scheme != "http" && scheme != "https") {
                     return super.shouldInterceptRequest(view, request)
+                }
+
+                val host = uri.host?.lowercase(Locale.ROOT) ?: ""
+
+                // 1. Intercept FontAwesome CDN requests (for offline & fast rendering)
+                if (host.contains("cdnjs.cloudflare.com") && uri.path?.contains("font-awesome") == true) {
+                    val faPath = uri.path ?: ""
+                    when {
+                        faPath.endsWith(".css") -> {
+                            openAssetStream("web/static/fa/all.min.css")?.let { stream ->
+                                return WebResourceResponse("text/css", "UTF-8", 200, "OK", mapOf("Access-Control-Allow-Origin" to "*"), stream)
+                            }
+                        }
+                        faPath.endsWith(".woff2") -> {
+                            openAssetStream("web/static/fa/webfonts/fa-solid-900.woff2")?.let { stream ->
+                                return WebResourceResponse("font/woff2", "UTF-8", 200, "OK", mapOf("Access-Control-Allow-Origin" to "*"), stream)
+                            }
+                        }
+                        faPath.endsWith(".ttf") -> {
+                            openAssetStream("web/static/fa/webfonts/fa-solid-900.ttf")?.let { stream ->
+                                return WebResourceResponse("font/ttf", "UTF-8", 200, "OK", mapOf("Access-Control-Allow-Origin" to "*"), stream)
+                            }
+                        }
+                    }
                 }
 
                 if (!isInternalDomain(uri)) {
@@ -279,39 +305,23 @@ class MainActivity : AppCompatActivity() {
 
                 val path = uri.path ?: "/"
 
-                // 1. Intercept bundled static assets (/static/...) from local APK assets
+                // 2. Intercept bundled static assets (/static/...) from local APK assets
                 if (path.startsWith("/static/")) {
                     val decodedPath = Uri.decode(path)
                     val assetPath = "web" + decodedPath
 
-                    try {
-                        val inputStream = assets.open(assetPath)
+                    val stream = openAssetStream(assetPath)
+                    if (stream != null) {
                         val mimeType = getMimeType(assetPath)
                         val headers = mapOf(
                             "Access-Control-Allow-Origin" to "*",
                             "Cache-Control" to "public, max-age=31536000"
                         )
-                        return WebResourceResponse(mimeType, "UTF-8", 200, "OK", headers, inputStream)
-                    } catch (e: Exception) {
-                        // Fallback from Jpg to Webp if requested
-                        if (assetPath.contains("/KediyaJpg/") && assetPath.endsWith(".jpg")) {
-                            val webpAsset = assetPath.replace("/KediyaJpg/", "/Kediya/").replace(".jpg", ".webp")
-                            try {
-                                val inputStream = assets.open(webpAsset)
-                                return WebResourceResponse("image/webp", "UTF-8", 200, "OK", mapOf("Access-Control-Allow-Origin" to "*"), inputStream)
-                            } catch (ignored: Exception) {}
-                        }
-                        if (assetPath.contains("/CholiJpg/") && assetPath.endsWith(".jpg")) {
-                            val webpAsset = assetPath.replace("/CholiJpg/", "/Choli/").replace(".jpg", ".webp")
-                            try {
-                                val inputStream = assets.open(webpAsset)
-                                return WebResourceResponse("image/webp", "UTF-8", 200, "OK", mapOf("Access-Control-Allow-Origin" to "*"), inputStream)
-                            } catch (ignored: Exception) {}
-                        }
+                        return WebResourceResponse(mimeType, "UTF-8", 200, "OK", headers, stream)
                     }
                 }
 
-                // 2. Intercept public HTML routes when offline
+                // 3. Intercept public HTML routes when offline
                 if (!isNetworkAvailable()) {
                     val pageAsset = getOfflinePageAsset(path)
                     if (pageAsset != null) {
@@ -409,12 +419,21 @@ class MainActivity : AppCompatActivity() {
         // Internal URL within Image Traditional domain -> MUST LOAD IN WEBVIEW!
         if (isInternalDomain(uri)) {
             val urlString = uri.toString()
-            if (!isNetworkAvailable() && isAdminRoute(urlString)) {
-                offlineTitle.text = getString(R.string.offline_title)
-                offlineMessage.text = getString(R.string.offline_admin_msg)
-                offlineContainer.visibility = View.VISIBLE
-                webView.visibility = View.GONE
-                return true
+            if (!isNetworkAvailable()) {
+                if (isAdminRoute(urlString)) {
+                    offlineTitle.text = getString(R.string.offline_title)
+                    offlineMessage.text = getString(R.string.offline_admin_msg)
+                    offlineContainer.visibility = View.VISIBLE
+                    webView.visibility = View.GONE
+                    return true
+                }
+                // Seamless instant offline navigation for public pages (no network error flash!)
+                val path = uri.path ?: "/"
+                val pageAsset = getOfflinePageAsset(path)
+                if (pageAsset != null) {
+                    loadLocalPage(pageAsset, path)
+                    return true
+                }
             }
             return false
         }
@@ -641,9 +660,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isAdminRoute(url: String): Boolean {
-        val path = Uri.parse(url).path?.lowercase() ?: ""
-        // Catalogue routes are NEVER admin routes
-        if (path == "" || path == "/" || path.startsWith("/kediya") || path.startsWith("/choli") || path.startsWith("/catalogue")) {
+        val path = Uri.parse(url).path?.lowercase(Locale.ROOT) ?: ""
+        // Catalogue and home routes are NEVER admin routes
+        if (path == "" || path == "/" || path == "/home" || path == "/index" || path.startsWith("/kediya") || path.startsWith("/choli") || path.startsWith("/catalogue")) {
             return false
         }
 
@@ -666,7 +685,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getOfflinePageAsset(rawPath: String): String? {
         val path = Uri.decode(rawPath).trimEnd('/')
-        if (path.isEmpty() || path == "/" || path == "/app" || path == "/home") {
+        if (path.isEmpty() || path == "/" || path == "/app" || path == "/home" || path == "/index") {
             return "web/home.html"
         }
         if (path == "/kediya") {
@@ -675,12 +694,78 @@ class MainActivity : AppCompatActivity() {
         if (path == "/choli") {
             return "web/choli.html"
         }
-        if (path == "/catalogue/fancy") {
+        if (path == "/catalogue/fancy" || path == "/catalogue") {
             return "web/fancy_subcategories.html"
         }
         if (path.startsWith("/catalogue/fancy/")) {
             val sub = path.removePrefix("/catalogue/fancy/").trim('/')
-            return "web/fancy_sub/$sub.html"
+            val candidates = mutableListOf(
+                "web/fancy_sub/$sub.html",
+                "web/fancy_sub/${sub.replace('_', ' ')}.html",
+                "web/fancy_sub/${sub.replace(' ', '_')}.html"
+            )
+            val capitalized = sub.split(" ", "_").joinToString(" ") { word ->
+                word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+            }
+            candidates.add("web/fancy_sub/$capitalized.html")
+            candidates.add("web/fancy_sub/${capitalized.replace(' ', '_')}.html")
+
+            for (candidate in candidates) {
+                try {
+                    assets.open(candidate).close()
+                    return candidate
+                } catch (ignored: Exception) {}
+            }
+            return "web/fancy_subcategories.html"
+        }
+        return null
+    }
+
+    private fun openAssetStream(assetPath: String): InputStream? {
+        val candidates = mutableListOf<String>()
+        candidates.add(assetPath)
+
+        // Variations with space replaced by underscore and vice-versa
+        if (assetPath.contains(" ")) {
+            candidates.add(assetPath.replace(" ", "_"))
+        }
+        if (assetPath.contains("_")) {
+            candidates.add(assetPath.replace("_", " "))
+        }
+
+        // Fallback for KediyaJpg and CholiJpg
+        if (assetPath.contains("/KediyaJpg/") && assetPath.endsWith(".jpg")) {
+            candidates.add(assetPath.replace("/KediyaJpg/", "/Kediya/").replace(".jpg", ".webp"))
+        }
+        if (assetPath.contains("/CholiJpg/") && assetPath.endsWith(".jpg")) {
+            candidates.add(assetPath.replace("/CholiJpg/", "/Choli/").replace(".jpg", ".webp"))
+        }
+
+        // Generic JPG to WEBP fallback
+        if (assetPath.endsWith(".jpg") || assetPath.endsWith(".jpeg")) {
+            val base = assetPath.substringBeforeLast('.')
+            candidates.add("$base.webp")
+        }
+
+        // Case-insensitive / capitalized matching for subfolder names
+        if (assetPath.contains("/Fancy/")) {
+            val parts = assetPath.split("/Fancy/")
+            if (parts.size == 2) {
+                val subAndFile = parts[1]
+                val subName = subAndFile.substringBefore('/')
+                val fileName = subAndFile.substringAfter('/')
+                val capitalizedSub = subName.split(" ", "_").joinToString("_") { word ->
+                    word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+                }
+                candidates.add("${parts[0]}/Fancy/$capitalizedSub/$fileName")
+                candidates.add("${parts[0]}/Fancy/${capitalizedSub.replace('_', ' ')}/$fileName")
+            }
+        }
+
+        for (candidate in candidates) {
+            try {
+                return assets.open(candidate)
+            } catch (ignored: Exception) {}
         }
         return null
     }

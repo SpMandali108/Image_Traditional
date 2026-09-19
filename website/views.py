@@ -63,10 +63,10 @@ def app_version():
             pass
 
     resp = jsonify({
-        "version_code": 2,
-        "version_name": "1.0.1",
+        "version_code": 3,
+        "version_name": "1.0.2",
         "apk_url": "/download/ImageTraditional.apk",
-        "release_notes": "Added In-App Auto-Updates and offline catalogue with 507 items.",
+        "release_notes": "Seamless offline navigation: Home, Fancy Dress with 20 categories, Kediya, Choli with all images & icons completely offline.",
         "mandatory": false
     })
     resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
