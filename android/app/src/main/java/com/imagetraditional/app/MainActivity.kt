@@ -123,15 +123,20 @@ class MainActivity : AppCompatActivity() {
         btnRetry.setOnClickListener {
             offlineContainer.visibility = View.GONE
             webView.visibility = View.VISIBLE
-            webView.reload()
+            if (isNetworkAvailable()) {
+                val currentUrl = webView.url
+                if (currentUrl.isNullOrEmpty() || currentUrl.contains("offline.html") || currentUrl.startsWith("data:")) {
+                    webView.loadUrl(defaultAppUrl)
+                } else {
+                    webView.reload()
+                }
+            } else {
+                webView.loadUrl(defaultAppUrl)
+            }
         }
 
         btnOfflineCatalogue.setOnClickListener {
-            offlineContainer.visibility = View.GONE
-            webView.visibility = View.VISIBLE
-            // Navigate to public catalogue which operates with Service Worker / Cache
-            val catalogueUrl = Uri.parse(defaultAppUrl).buildUpon().path("/kediya").build().toString()
-            webView.loadUrl(catalogueUrl)
+            loadOfflineCatalogue()
         }
     }
 
@@ -260,21 +265,26 @@ class MainActivity : AppCompatActivity() {
                 // Only handle main frame navigation errors
                 if (request?.isForMainFrame == true) {
                     val url = request.url.toString()
-                    val isAdminRoute = url.contains("/admin") ||
-                            url.contains("/login") ||
-                            url.contains("/app") ||
-                            url.contains("/navaratri") ||
-                            url.contains("/fancy") ||
-                            url.contains("/book") ||
-                            url.contains("/modify") ||
-                            url.contains("/delete") ||
-                            url.contains("/calendar")
+                    val offline = !isNetworkAvailable()
 
-                    if (!isNetworkAvailable()) {
-                        if (isAdminRoute) {
-                            // Show clear, styled admin offline warning
+                    if (offline) {
+                        if (isAdminRoute(url)) {
+                            // Admin route accessed while offline: show strictly online warning
                             offlineTitle.text = getString(R.string.offline_title)
                             offlineMessage.text = getString(R.string.offline_admin_msg)
+                            offlineContainer.visibility = View.VISIBLE
+                            webView.visibility = View.GONE
+                        } else {
+                            // Public catalogue or general route: display offline catalogue seamlessly
+                            loadOfflineCatalogue()
+                        }
+                    } else {
+                        // Online, but server failed to respond or encountered an error
+                        if (isCatalogueRoute(url)) {
+                            loadOfflineCatalogue()
+                        } else {
+                            offlineTitle.text = getString(R.string.offline_title)
+                            offlineMessage.text = "Unable to connect to server. Please check connection and retry."
                             offlineContainer.visibility = View.VISIBLE
                             webView.visibility = View.GONE
                         }
@@ -333,6 +343,14 @@ class MainActivity : AppCompatActivity() {
 
         // Internal URL within Image Traditional domain -> MUST LOAD IN WEBVIEW!
         if (isInternalDomain(uri)) {
+            val urlString = uri.toString()
+            if (!isNetworkAvailable() && isAdminRoute(urlString)) {
+                offlineTitle.text = getString(R.string.offline_title)
+                offlineMessage.text = getString(R.string.offline_admin_msg)
+                offlineContainer.visibility = View.VISIBLE
+                webView.visibility = View.GONE
+                return true
+            }
             return false
         }
 
@@ -544,8 +562,65 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun isCatalogueRoute(url: String): Boolean {
+        val path = Uri.parse(url).path?.lowercase() ?: ""
+        return path == "/" ||
+                path.startsWith("/kediya") ||
+                path.startsWith("/choli") ||
+                path.startsWith("/catalogue") ||
+                path.startsWith("/offline") ||
+                path.endsWith("offline.html") ||
+                path.startsWith("/static")
+    }
+
+    private fun isAdminRoute(url: String): Boolean {
+        if (isCatalogueRoute(url)) return false
+
+        val path = Uri.parse(url).path?.lowercase() ?: ""
+        return path == "/admin" || path.startsWith("/admin/") ||
+                path == "/login" || path.startsWith("/login/") ||
+                path == "/logout" || path.startsWith("/logout/") ||
+                path == "/app" || path.startsWith("/app/") ||
+                path == "/fancy" || path.startsWith("/fancy_") || path.startsWith("/fancy-") ||
+                path.startsWith("/navaratri") ||
+                path.startsWith("/book") ||
+                path.startsWith("/listing") ||
+                path.startsWith("/calendar") ||
+                path.startsWith("/modify") ||
+                path.startsWith("/delete") ||
+                path.startsWith("/dashboard") ||
+                path.startsWith("/storage") ||
+                path.startsWith("/profile") ||
+                path.startsWith("/api/")
+    }
+
+    private fun loadOfflineCatalogue() {
+        try {
+            val html = assets.open("offline_catalogue.html").bufferedReader().use { it.readText() }
+            offlineContainer.visibility = View.GONE
+            webView.visibility = View.VISIBLE
+            webView.loadDataWithBaseURL(
+                "https://image-traditional.onrender.com/",
+                html,
+                "text/html",
+                "UTF-8",
+                "https://image-traditional.onrender.com/offline.html"
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            offlineContainer.visibility = View.GONE
+            webView.visibility = View.VISIBLE
+            val offlineUrl = Uri.parse(defaultAppUrl).buildUpon().path("/offline.html").build().toString()
+            webView.loadUrl(offlineUrl)
+        }
+    }
+
     private fun loadInitialUrl() {
-        webView.loadUrl(defaultAppUrl)
+        if (!isNetworkAvailable()) {
+            loadOfflineCatalogue()
+        } else {
+            webView.loadUrl(defaultAppUrl)
+        }
     }
 
     override fun onPause() {
