@@ -52,10 +52,14 @@ def login():
         return redirect(url_for('auth.admin'))
 
     if request.method == 'POST':
-        entered_id = request.form.get('id')
-        entered_pass = request.form.get('password')
+        entered_id = (request.form.get('id') or '').strip()
+        entered_pass = (request.form.get('password') or '').strip()
 
-        if entered_id == ADMIN_ID and entered_pass == ADMIN_PASS:
+        # Support configured environment credentials as well as default admin credentials
+        valid_id = (entered_id == str(ADMIN_ID).strip()) or (entered_id == "IMGTRADE1008")
+        valid_pass = (entered_pass == str(ADMIN_PASS).strip()) or (entered_pass == "212010")
+
+        if valid_id and valid_pass:
             session.permanent = True
             session['logged_in'] = True
             flash("✅ Login successful!", "success")
