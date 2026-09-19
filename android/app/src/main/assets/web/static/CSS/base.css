@@ -1,0 +1,571 @@
+/* ── CSS Variables ── */
+:root {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --border: #334155;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --gold: #d4af37;
+  --gold-dark: #b8961e;
+  --navy: #0a1929;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
+  --radius: 8px;
+  --transition: 0.2s ease;
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+}
+
+/* ── Header ── */
+.main-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  gap: 1rem;
+}
+
+/* ── Logo ── */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.logo img {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* ── Header Controls ── */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* ── Icon ── */
+.icon {
+  display: inline-block;
+  width: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* ── Contact Dropdown Wrapper ── */
+.contact-dropdown {
+  position: relative;
+}
+
+/* ── Contact Button ── */
+.contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  transition: all var(--transition);
+}
+
+.contact-btn:hover {
+  background: var(--bg);
+  border-color: var(--muted);
+}
+
+/* ── Dropdown Menu ── */
+.contact-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 272px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  padding: 10px;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px) scale(0.98);
+  transform-origin: top right;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+
+  /* 2x2 grid */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.contact-menu.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+/* ── Each Contact Card ── */
+.contact-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 16px 10px 13px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  text-decoration: none;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-align: center;
+}
+
+.contact-item:hover {
+  background: rgba(212, 175, 55, 0.06);
+  border-color: rgba(212, 175, 55, 0.22);
+  transform: none;
+}
+
+/* ── Icon inside card ── */
+.contact-item .icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(212, 175, 55, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: background 0.15s;
+}
+
+.contact-item:hover .icon {
+  background: rgba(212, 175, 55, 0.18);
+}
+
+/* ── Text inside card ── */
+.contact-item span:last-child {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+/* ── Admin Buttons ── */
+.admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--navy);
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+  white-space: nowrap;
+}
+
+.admin-btn:hover {
+  background: var(--gold);
+  color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+/* ── Alerts ── */
+.alerts-wrapper {
+  max-width: 1400px;
+  margin: 0.75rem auto 0;
+  padding: 0 1.25rem;
+  width: 100%;
+}
+
+.alert {
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  border: none;
+  font-size: 0.9rem;
+  background: #14532d;
+  color: #bbf7d0;
+}
+
+.alert-danger {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+/* ── Main Content ── */
+.main-content {
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem;
+  width: 100%;
+}
+
+/* ── Responsive ── */
+@media (min-width: 640px) {
+  .header-content { padding: 0.9rem 1.75rem; }
+  .logo img { height: 46px; width: 46px; }
+  .logo-text { font-size: 1.5rem; }
+  .main-content { padding: 2rem 1.75rem; }
+}
+
+@media (min-width: 768px) {
+  .header-content { padding: 1rem 2rem; }
+  .logo img { height: 52px; width: 52px; }
+  .logo-text { font-size: 1.75rem; }
+}
+
+@media (max-width: 540px) {
+  .btn-text { display: none; }
+  .contact-btn, .admin-btn { padding: 0.45rem 0.55rem; }
+  .logo-text { font-size: 1.1rem; }
+  .header-controls { gap: 0.4rem; }
+  .contact-menu { width: 240px; }
+}
+
+/* ── Progressive Web App (PWA) Components ── */
+
+/* PWA Install Button */
+.it-install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #d4af37 0%, #b8961e 100%);
+  color: #050d1f;
+  border: 1px solid #f5d580;
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  transition: all var(--transition);
+  box-shadow: 0 2px 10px rgba(212, 175, 55, 0.35);
+  white-space: nowrap;
+}
+
+.it-install-btn:hover {
+  background: linear-gradient(135deg, #f5d580 0%, #d4af37 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.5);
+}
+
+.it-install-btn:active {
+  transform: translateY(0);
+}
+
+.it-install-btn.pulse-glow {
+  animation: pwaPulse 2.5s infinite;
+}
+
+@keyframes pwaPulse {
+  0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.6); }
+  70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+}
+
+/* Network Status Indicator Badge */
+.pwa-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pwa-status-badge .pwa-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+}
+
+/* Online */
+.pwa-status-badge.online {
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.25);
+}
+.pwa-status-badge.online .pwa-dot {
+  background-color: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+/* Offline */
+.pwa-status-badge.offline {
+  color: #fde047;
+  border-color: rgba(234, 179, 8, 0.35);
+  background: rgba(234, 179, 8, 0.1);
+}
+.pwa-status-badge.offline .pwa-dot {
+  background-color: #eab308;
+  box-shadow: 0 0 6px #eab308;
+}
+
+/* Syncing */
+.pwa-status-badge.syncing {
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.1);
+}
+.pwa-status-badge.syncing .pwa-dot {
+  background-color: #3b82f6;
+  animation: dotBlink 1s infinite alternate;
+}
+
+/* Success */
+.pwa-status-badge.success {
+  color: #6ee7b7;
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.12);
+}
+.pwa-status-badge.success .pwa-dot {
+  background-color: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+@keyframes dotBlink {
+  0% { opacity: 0.3; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Update Notification Toast */
+.pwa-update-toast {
+  position: sticky;
+  top: 60px;
+  z-index: 999;
+  background: linear-gradient(90deg, #0f172a, #1e293b);
+  border-bottom: 2px solid #d4af37;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.pwa-update-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f1f5f9;
+  font-size: 0.9rem;
+}
+
+.pwa-update-btn {
+  background: #d4af37;
+  color: #050d1f;
+  border: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pwa-update-btn:hover {
+  background: #f5d580;
+}
+
+/* PWA Modals (Offline Interception & iOS Instructions) */
+.pwa-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 13, 31, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pwa-modal-card {
+  background: #0F1F3D;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.15);
+  border-radius: 18px;
+  max-width: 460px;
+  width: 100%;
+  padding: 28px 24px;
+  text-align: center;
+  color: #f1f5f9;
+  animation: modalScale 0.25s ease;
+}
+
+@keyframes modalScale {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.pwa-modal-card .modal-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.pwa-modal-card h3 {
+  font-size: 1.3rem;
+  color: #f5d580;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+.pwa-modal-card p {
+  color: #94a3b8;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0 0 20px 0;
+}
+
+.ios-instructions {
+  text-align: left;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 14px 18px 14px 34px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  line-height: 1.7;
+}
+
+.ios-instructions strong {
+  color: #f5d580;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.modal-btn-call {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #d4af37;
+  color: #050d1f;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 10px 18px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.modal-btn-call:hover {
+  background: #f5d580;
+}
+
+.modal-btn-close {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modal-btn-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.pwa-toast-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  border: 1px solid #d4af37;
+  color: #f5d580;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  z-index: 10001;
+  transition: opacity 0.3s;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 640px) {
+  .pwa-status-badge {
+    padding: 3px 6px;
+    font-size: 0.72rem;
+  }
+  .it-install-btn {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+}

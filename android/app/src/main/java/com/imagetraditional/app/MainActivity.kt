@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnOfflineCatalogue.setOnClickListener {
-            loadOfflineCatalogue()
+            loadLocalPage("web/home.html", "/")
         }
     }
 
@@ -263,6 +263,74 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
+            override fun shouldInterceptRequest(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): WebResourceResponse? {
+                val uri = request?.url ?: return null
+                val scheme = uri.scheme?.lowercase() ?: ""
+                if (scheme != "http" && scheme != "https") {
+                    return super.shouldInterceptRequest(view, request)
+                }
+
+                if (!isInternalDomain(uri)) {
+                    return super.shouldInterceptRequest(view, request)
+                }
+
+                val path = uri.path ?: "/"
+
+                // 1. Intercept bundled static assets (/static/...) from local APK assets
+                if (path.startsWith("/static/")) {
+                    val decodedPath = Uri.decode(path)
+                    val assetPath = "web" + decodedPath
+
+                    try {
+                        val inputStream = assets.open(assetPath)
+                        val mimeType = getMimeType(assetPath)
+                        val headers = mapOf(
+                            "Access-Control-Allow-Origin" to "*",
+                            "Cache-Control" to "public, max-age=31536000"
+                        )
+                        return WebResourceResponse(mimeType, "UTF-8", 200, "OK", headers, inputStream)
+                    } catch (e: Exception) {
+                        // Fallback from Jpg to Webp if requested
+                        if (assetPath.contains("/KediyaJpg/") && assetPath.endsWith(".jpg")) {
+                            val webpAsset = assetPath.replace("/KediyaJpg/", "/Kediya/").replace(".jpg", ".webp")
+                            try {
+                                val inputStream = assets.open(webpAsset)
+                                return WebResourceResponse("image/webp", "UTF-8", 200, "OK", mapOf("Access-Control-Allow-Origin" to "*"), inputStream)
+                            } catch (ignored: Exception) {}
+                        }
+                        if (assetPath.contains("/CholiJpg/") && assetPath.endsWith(".jpg")) {
+                            val webpAsset = assetPath.replace("/CholiJpg/", "/Choli/").replace(".jpg", ".webp")
+                            try {
+                                val inputStream = assets.open(webpAsset)
+                                return WebResourceResponse("image/webp", "UTF-8", 200, "OK", mapOf("Access-Control-Allow-Origin" to "*"), inputStream)
+                            } catch (ignored: Exception) {}
+                        }
+                    }
+                }
+
+                // 2. Intercept public HTML routes when offline
+                if (!isNetworkAvailable()) {
+                    val pageAsset = getOfflinePageAsset(path)
+                    if (pageAsset != null) {
+                        try {
+                            val inputStream = assets.open(pageAsset)
+                            val headers = mapOf(
+                                "Content-Type" to "text/html; charset=UTF-8",
+                                "Cache-Control" to "no-cache, no-store"
+                            )
+                            return WebResourceResponse("text/html", "UTF-8", 200, "OK", headers, inputStream)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+
+                return super.shouldInterceptRequest(view, request)
+            }
+
             override fun onReceivedError(
                 view: WebView?,
                 request: WebResourceRequest?,
@@ -273,29 +341,18 @@ class MainActivity : AppCompatActivity() {
                 // Only handle main frame navigation errors
                 if (request?.isForMainFrame == true) {
                     val url = request.url.toString()
-                    val offline = !isNetworkAvailable()
+                    val path = Uri.parse(url).path ?: "/"
 
-                    if (offline) {
-                        if (isAdminRoute(url)) {
-                            // Admin route accessed while offline: show strictly online warning
-                            offlineTitle.text = getString(R.string.offline_title)
-                            offlineMessage.text = getString(R.string.offline_admin_msg)
-                            offlineContainer.visibility = View.VISIBLE
-                            webView.visibility = View.GONE
-                        } else {
-                            // Public catalogue or general route: display offline catalogue seamlessly
-                            loadOfflineCatalogue()
-                        }
+                    if (isAdminRoute(url)) {
+                        // Admin route accessed while offline: show strictly online warning
+                        offlineTitle.text = getString(R.string.offline_title)
+                        offlineMessage.text = getString(R.string.offline_admin_msg)
+                        offlineContainer.visibility = View.VISIBLE
+                        webView.visibility = View.GONE
                     } else {
-                        // Online, but server failed to respond or encountered an error
-                        if (isCatalogueRoute(url)) {
-                            loadOfflineCatalogue()
-                        } else {
-                            offlineTitle.text = getString(R.string.offline_title)
-                            offlineMessage.text = "Unable to connect to server. Please check connection and retry."
-                            offlineContainer.visibility = View.VISIBLE
-                            webView.visibility = View.GONE
-                        }
+                        // Public catalogue or home route: load the pre-rendered offline page!
+                        val pageAsset = getOfflinePageAsset(path) ?: "web/home.html"
+                        loadLocalPage(pageAsset, path)
                     }
                 }
             }
@@ -573,7 +630,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun isCatalogueRoute(url: String): Boolean {
         val path = Uri.parse(url).path?.lowercase() ?: ""
-        return path == "/" ||
+        return path == "" ||
+                path == "/" ||
                 path.startsWith("/kediya") ||
                 path.startsWith("/choli") ||
                 path.startsWith("/catalogue") ||
@@ -583,9 +641,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isAdminRoute(url: String): Boolean {
-        if (isCatalogueRoute(url)) return false
-
         val path = Uri.parse(url).path?.lowercase() ?: ""
+        // Catalogue routes are NEVER admin routes
+        if (path == "" || path == "/" || path.startsWith("/kediya") || path.startsWith("/choli") || path.startsWith("/catalogue")) {
+            return false
+        }
+
         return path == "/admin" || path.startsWith("/admin/") ||
                 path == "/login" || path.startsWith("/login/") ||
                 path == "/logout" || path.startsWith("/logout/") ||
@@ -603,9 +664,51 @@ class MainActivity : AppCompatActivity() {
                 path.startsWith("/api/")
     }
 
-    private fun loadOfflineCatalogue() {
+    private fun getOfflinePageAsset(rawPath: String): String? {
+        val path = Uri.decode(rawPath).trimEnd('/')
+        if (path.isEmpty() || path == "/" || path == "/app" || path == "/home") {
+            return "web/home.html"
+        }
+        if (path == "/kediya") {
+            return "web/kediya.html"
+        }
+        if (path == "/choli") {
+            return "web/choli.html"
+        }
+        if (path == "/catalogue/fancy") {
+            return "web/fancy_subcategories.html"
+        }
+        if (path.startsWith("/catalogue/fancy/")) {
+            val sub = path.removePrefix("/catalogue/fancy/").trim('/')
+            return "web/fancy_sub/$sub.html"
+        }
+        return null
+    }
+
+    private fun getMimeType(path: String): String {
+        val lower = path.lowercase()
+        return when {
+            lower.endsWith(".html") || lower.endsWith(".htm") -> "text/html"
+            lower.endsWith(".css") -> "text/css"
+            lower.endsWith(".js") -> "application/javascript"
+            lower.endsWith(".json") -> "application/json"
+            lower.endsWith(".png") -> "image/png"
+            lower.endsWith(".webp") -> "image/webp"
+            lower.endsWith(".jpg") || lower.endsWith(".jpeg") -> "image/jpeg"
+            lower.endsWith(".gif") -> "image/gif"
+            lower.endsWith(".svg") -> "image/svg+xml"
+            lower.endsWith(".ico") -> "image/x-icon"
+            lower.endsWith(".woff2") -> "font/woff2"
+            lower.endsWith(".woff") -> "font/woff"
+            lower.endsWith(".ttf") -> "font/ttf"
+            else -> "application/octet-stream"
+        }
+    }
+
+    private fun loadLocalPage(pageAsset: String, path: String) {
         try {
-            val html = assets.open("offline_catalogue.html").bufferedReader().use { it.readText() }
+            val html = assets.open(pageAsset).bufferedReader().use { it.readText() }
+            val currentUrl = Uri.parse(defaultAppUrl).buildUpon().path(path).build().toString()
             offlineContainer.visibility = View.GONE
             webView.visibility = View.VISIBLE
             webView.loadDataWithBaseURL(
@@ -613,20 +716,29 @@ class MainActivity : AppCompatActivity() {
                 html,
                 "text/html",
                 "UTF-8",
-                "https://image-traditional.onrender.com/offline.html"
+                currentUrl
             )
         } catch (e: Exception) {
             e.printStackTrace()
-            offlineContainer.visibility = View.GONE
-            webView.visibility = View.VISIBLE
-            val offlineUrl = Uri.parse(defaultAppUrl).buildUpon().path("/offline.html").build().toString()
-            webView.loadUrl(offlineUrl)
+            // Fallback to home page
+            try {
+                val homeHtml = assets.open("web/home.html").bufferedReader().use { it.readText() }
+                webView.loadDataWithBaseURL(
+                    "https://image-traditional.onrender.com/",
+                    homeHtml,
+                    "text/html",
+                    "UTF-8",
+                    "https://image-traditional.onrender.com/"
+                )
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+            }
         }
     }
 
     private fun loadInitialUrl() {
         if (!isNetworkAvailable()) {
-            loadOfflineCatalogue()
+            loadLocalPage("web/home.html", "/")
         } else {
             webView.loadUrl(defaultAppUrl)
         }
