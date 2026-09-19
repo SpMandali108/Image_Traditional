@@ -21,14 +21,8 @@ finventory = db["Fancy_Inventory"]
 ncustomers = db["Navaratri_Customers"]
 custom_localities = db["Custom_Localities"]
 
-import secrets
-ADMIN_ID = os.environ.get("ADMIN_ID")
-ADMIN_PASS = os.environ.get("ADMIN_PASS")
+raw_id = os.environ.get("ADMIN_ID")
+raw_pass = os.environ.get("ADMIN_PASS")
 
-if not ADMIN_ID or not ADMIN_PASS:
-    if not ADMIN_ID:
-        ADMIN_ID = secrets.token_urlsafe(16)
-        print(f"WARNING: ADMIN_ID not configured! Using random: {ADMIN_ID}")
-    if not ADMIN_PASS:
-        ADMIN_PASS = secrets.token_urlsafe(16)
-        print(f"WARNING: ADMIN_PASS not configured! Using random: {ADMIN_PASS}")
+ADMIN_ID = (raw_id if raw_id else "IMGTRADE1008").strip().strip('"\'')
+ADMIN_PASS = (raw_pass if raw_pass else "212010").strip().strip('"\'')
