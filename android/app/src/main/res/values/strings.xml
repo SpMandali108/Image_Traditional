@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Image Traditional</string>
+    <string name="app_url">https://image-traditional.onrender.com/app</string>
+    <string name="offline_title">Internet Connection Required</string>
+    <string name="offline_admin_msg">Internet connection required for Admin Panel.</string>
+    <string name="offline_retry">Retry Connection</string>
+    <string name="offline_catalogue_notice">Viewing saved offline catalogue</string>
+    <string name="exit_prompt">Press back again to exit</string>
+    <string name="download_started">Downloading bill / invoice…</string>
+</resources>

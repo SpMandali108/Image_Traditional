@@ -1,0 +1,65 @@
+{
+  "name": "Image Traditional",
+  "short_name": "Image Traditional",
+  "description": "Private administrative portal and costume rental management system for Image Traditional.",
+  "start_url": "/app",
+  "id": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#050D1F",
+  "theme_color": "#050D1F",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": ["business", "management", "utilities"],
+  "icons": [
+    {
+      "src": "/static/Icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/Icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/Icons/icon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/Icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Admin Dashboard",
+      "short_name": "Admin",
+      "description": "Open Image Traditional Admin Panel",
+      "url": "/app",
+      "icons": [{ "src": "/static/Icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Fancy Dress System",
+      "short_name": "Fancy Dress",
+      "description": "Fancy Dress Rental Operations",
+      "url": "/app",
+      "icons": [{ "src": "/static/Icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Navaratri Collection",
+      "short_name": "Navaratri",
+      "description": "Navaratri Kediya & Choli Bookings",
+      "url": "/app",
+      "icons": [{ "src": "/static/Icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

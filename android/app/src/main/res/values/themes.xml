@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base Application Theme -->
+    <style name="Theme.ImageTraditional" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_gold</item>
+        <item name="colorPrimaryVariant">@color/brand_gold_dark</item>
+        <item name="colorOnPrimary">@color/brand_bg</item>
+        <item name="colorSecondary">@color/brand_gold_light</item>
+        <item name="android:statusBarColor">@color/brand_bg</item>
+        <item name="android:navigationBarColor">@color/brand_bg</item>
+        <item name="android:windowBackground">@color/brand_bg</item>
+    </style>
+
+    <!-- Splash Screen Theme -->
+    <style name="Theme.ImageTraditional.Splash" parent="Theme.ImageTraditional">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
+</resources>

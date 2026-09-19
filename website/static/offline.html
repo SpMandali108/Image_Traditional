@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline | Image Traditional</title>
+  <link rel="icon" href="/static/Home_Img/favicon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#050D1F">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #050D1F;
+      --navy-card: #0F1F3D;
+      --gold: #d4af37;
+      --gold-lt: #f5d580;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: rgba(212, 175, 55, 0.25);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--navy);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+    .offline-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6), 0 0 30px rgba(212, 175, 55, 0.1);
+      border-radius: 20px;
+      max-width: 520px;
+      width: 100%;
+      padding: 40px 28px;
+      position: relative;
+    }
+    .brand-logo {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 2px solid var(--gold);
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
+    }
+    .offline-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(234, 179, 8, 0.15);
+      border: 1px solid rgba(234, 179, 8, 0.4);
+      color: #fde047;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      color: var(--gold-lt);
+      margin-bottom: 12px;
+    }
+    p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .nav-shortcuts {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-decoration: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+    .nav-btn:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold);
+      color: var(--gold-lt);
+      transform: translateX(4px);
+    }
+    .btn-retry {
+      display: inline-block;
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold), #b8961e);
+      color: #050D1F;
+      border: none;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 12px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3);
+      transition: all 0.2s ease;
+    }
+    .btn-retry:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+    }
+    .contact-note {
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .contact-note a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-card">
+    <img src="/static/Home_Img/favicon.png" alt="Image Traditional" class="brand-logo">
+    <div class="offline-badge">⚡ Offline Mode</div>
+    <h1>Saved Catalogue Available</h1>
+    <p>You are currently offline. Any catalogue sections you previously viewed are still fully accessible on your device.</p>
+    
+    <div class="nav-shortcuts">
+      <a href="/" class="nav-btn">
+        <span>🏠 Home & Collections</span>
+        <span>➔</span>
+      </a>
+      <a href="/kediya" class="nav-btn">
+        <span>🕺 Traditional Kediya</span>
+        <span>➔</span>
+      </a>
+      <a href="/choli" class="nav-btn">
+        <span>💃 Chaniya Choli</span>
+        <span>➔</span>
+      </a>
+      <a href="/catalogue/fancy/" class="nav-btn">
+        <span>🎭 Fancy Dress Catalogue</span>
+        <span>➔</span>
+      </a>
+    </div>
+
+    <button type="button" class="btn-retry" onclick="checkAndReload()">🔄 Retry Connection</button>
+
+    <div class="contact-note">
+      Need urgent rental assistance? Call <a href="tel:+919428610384">+91-9428610384</a>
+    </div>
+  </div>
+
+  <script>
+    function checkAndReload() {
+      if (navigator.onLine) {
+        window.location.reload();
+      } else {
+        alert("Still offline. Please check your internet connection or browse your saved catalogue.");
+      }
+    }
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>

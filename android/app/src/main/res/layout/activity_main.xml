@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/brand_bg"
+    tools:context=".MainActivity">
+
+    <!-- Pull to Refresh Container -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <WebView
+            android:id="@+id/webView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/brand_bg" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!-- Top Loading Progress Indicator -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_alignParentTop="true"
+        android:indeterminate="false"
+        android:max="100"
+        android:progress="0"
+        android:progressBackgroundTint="@color/brand_surface"
+        android:progressTint="@color/brand_gold"
+        android:visibility="gone" />
+
+    <!-- Offline Admin Fallback Screen -->
+    <LinearLayout
+        android:id="@+id/offlineContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:background="@color/brand_bg"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxWidth="480dp"
+            android:background="@drawable/bg_error_card"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="28dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⚠️"
+                android:textSize="44sp" />
+
+            <TextView
+                android:id="@+id/offlineTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/offline_title"
+                android:textColor="@color/brand_gold_light"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/offlineMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:lineSpacingMultiplier="1.2"
+                android:text="@string/offline_admin_msg"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+
+            <!-- Retry Button -->
+            <Button
+                android:id="@+id/btnRetry"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="22dp"
+                android:background="@drawable/bg_gold_button"
+                android:text="@string/offline_retry"
+                android:textAllCaps="false"
+                android:textColor="@color/brand_bg"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <!-- Fallback to Offline Catalogue Button -->
+            <Button
+                android:id="@+id/btnOfflineCatalogue"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="8dp"
+                android:text="Browse Cached Catalogue"
+                android:textAllCaps="false"
+                android:textColor="@color/brand_gold"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

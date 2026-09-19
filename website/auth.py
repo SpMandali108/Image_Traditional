@@ -15,7 +15,7 @@ from collections import Counter
 from flask import (
     Blueprint, render_template, request, redirect, url_for,
     session, flash, jsonify, send_file, send_from_directory,
-    current_app, Response
+    current_app, Response, make_response
 )
 from pymongo import MongoClient
 from bson.objectid import ObjectId
@@ -39,28 +39,46 @@ from .general.db import (
 def admin():
     if not session.get('logged_in'):
         return redirect(url_for('auth.login'))
-    return render_template("general/admin.html")
+    resp = make_response(render_template("general/admin.html"))
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    resp.headers['Pragma'] = 'no-cache'
+    return resp
 
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    # If already logged in, redirect directly to admin panel
+    if session.get('logged_in'):
+        return redirect(url_for('auth.admin'))
+
     if request.method == 'POST':
         entered_id = request.form.get('id')
         entered_pass = request.form.get('password')
 
         if entered_id == ADMIN_ID and entered_pass == ADMIN_PASS:
+            session.permanent = True
             session['logged_in'] = True
             flash("✅ Login successful!", "success")
             return redirect(url_for('auth.admin'))
         else:
             flash("❌ Invalid credentials!", "error")
-            return render_template('general/login.html')
-    return render_template('general/login.html')
+            resp = make_response(render_template('general/login.html'))
+            resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+            resp.headers['Pragma'] = 'no-cache'
+            return resp
+
+    resp = make_response(render_template('general/login.html'))
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    resp.headers['Pragma'] = 'no-cache'
+    return resp
 
 
 @auth.route('/logout')
 def logout():
-    session.pop('logged_in', None)
+    session.clear()
     flash("🔒 You have been logged out.", "info")
-    return redirect(url_for('auth.login'))
+    resp = redirect(url_for('auth.login'))
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    resp.headers['Pragma'] = 'no-cache'
+    return resp
 

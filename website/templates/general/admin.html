@@ -111,11 +111,113 @@
 
         </div>
 
+        <!-- Private Admin PWA Installation Card (Shown only to authenticated admin on installable devices) -->
+        <div class="admin-pwa-install-banner" id="adminPwaInstallSection">
+            <div class="admin-pwa-card-inner">
+                <div class="admin-pwa-badge">📱 Private Android App</div>
+                <div class="admin-pwa-content">
+                    <h3 class="admin-pwa-heading">Image Traditional Android App</h3>
+                    <p class="admin-pwa-subtext">Download the official private Android APK or install the app directly on your phone or tablet for fast 1-tap admin access directly from your home screen.</p>
+                </div>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                    <a href="{{ url_for('views.download_apk') }}" class="admin-pwa-cta-btn" id="adminDownloadApkBtn" download>
+                        <span class="icon">📥</span>
+                        <span>Download Image Traditional App</span>
+                    </a>
+                    <button type="button" class="admin-pwa-cta-btn" id="adminInstallActionBtn" style="background: rgba(255,255,255,0.08); border-color: rgba(212,175,55,0.4); color: #f5d580;">
+                        <span class="icon">📲</span>
+                        <span>Install App</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <!-- Dashboard Styling -->
 <style>
+    /* Admin PWA Installation Banner */
+    .admin-pwa-install-banner {
+        margin-top: 30px;
+        max-width: 860px;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+    }
+
+    .admin-pwa-card-inner {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(212, 175, 55, 0.35);
+        border-radius: 16px;
+        padding: 24px 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        position: relative;
+        flex-wrap: wrap;
+    }
+
+    .admin-pwa-badge {
+        position: absolute;
+        top: -12px;
+        left: 24px;
+        background: #b8961e;
+        color: #050d1f;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 2px 10px;
+        border-radius: 10px;
+    }
+
+    .admin-pwa-content {
+        flex: 1;
+        min-width: 260px;
+        text-align: left;
+    }
+
+    .admin-pwa-heading {
+        margin: 0 0 6px 0;
+        font-family: 'Cinzel', serif;
+        font-size: 1.25rem;
+        color: var(--gold, #d4af37);
+        font-weight: 700;
+    }
+
+    .admin-pwa-subtext {
+        margin: 0;
+        color: #94a3b8;
+        font-size: 0.88rem;
+        line-height: 1.5;
+    }
+
+    .admin-pwa-cta-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #d4af37 0%, #b8961e 100%);
+        color: #050d1f;
+        border: 1px solid #f5d580;
+        padding: 12px 24px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 0.95rem;
+        font-family: 'Poppins', sans-serif;
+        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+        transition: all 0.25s ease;
+        white-space: nowrap;
+    }
+
+    .admin-pwa-cta-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(212, 175, 55, 0.5);
+    }
     .festive-admin-wrapper {
         position: relative;
         background: radial-gradient(circle at 50% 50%, var(--surface, #1e293b) 0%, var(--bg, #0f172a) 100%);

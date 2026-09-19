@@ -408,6 +408,138 @@ def add_custom_locality():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
+# ------------------ PWA Catalogue Synchronization API ------------------
+@general.route('/api/catalogue/sync', methods=['GET'])
+def catalogue_sync():
+    """
+    Public API providing structured catalogue data for PWA offline storage (IndexedDB).
+    Contains only public catalogue listings (Kediya, Choli, Fancy Dress).
+    Contains NO administrative, user, or session data.
+    """
+    try:
+        # 1. Kediya products
+        kediya_products = []
+        kediya_candidates = [
+            os.path.join(current_app.root_path, '..', 'kediya.json'),
+            os.path.join(os.getcwd(), 'kediya.json'),
+            'kediya.json'
+        ]
+        for kp in kediya_candidates:
+            if os.path.exists(kp):
+                try:
+                    with open(kp, 'r', encoding='utf-8') as f:
+                        kediya_products = json.load(f)
+                    break
+                except Exception:
+                    pass
 
+        # 2. Choli products
+        choli_products = []
+        choli_candidates = [
+            os.path.join(current_app.root_path, '..', 'choli.json'),
+            os.path.join(os.getcwd(), 'choli.json'),
+            'choli.json'
+        ]
+        for cp in choli_candidates:
+            if os.path.exists(cp):
+                try:
+                    with open(cp, 'r', encoding='utf-8') as f:
+                        choli_products = json.load(f)
+                    break
+                except Exception:
+                    pass
 
+        # 3. Fancy categories & items
+        icon_map = {
+            "Bhagwan": "bhagwan.png",
+            "Mataji": "mataji.png",
+            "Profession": "Proffesion.png",
+            "Freedom Fighter": "Freedom Fighter.png",
+            "Regional": "Regional.png",
+            "Wild Animals": "Wild Animal.png",
+            "Domestic Animals": "Domestic Animal.png",
+            "Water Animals": "Water Animal.png",
+            "Insects": "Insect.png",
+            "Birds": "Bird.png",
+            "Fruits": "fruit.png",
+            "Vegetables": "vegetable.png",
+            "Halloween": "Halloween.png",
+            "Cartoon": "Cartoon.png",
+            "Superhero": "Superhero.png",
+            "International": "International.png",
+            "Flexi": "Flex.png",
+            "Nature": "Nature.png",
+            "Tiranga": "Tiranga.png",
+            "Others": "Other.png"
+        }
 
+        desc_path = os.path.join(current_app.root_path, 'static', 'fancy_descriptions.json')
+        descriptions = {}
+        if os.path.exists(desc_path):
+            try:
+                with open(desc_path, 'r', encoding='utf-8') as df:
+                    descriptions = json.load(df)
+            except Exception:
+                pass
+
+        base_fancy_dir = os.path.join(current_app.root_path, 'static', 'Products', 'Fancy')
+        fancy_categories = []
+        for subfolder, icon in icon_map.items():
+            folder_path = os.path.join(base_fancy_dir, subfolder)
+            cat_items = []
+            if os.path.exists(folder_path):
+                raw_images = [
+                    f for f in os.listdir(folder_path)
+                    if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))
+                ]
+                for f in sorted(raw_images):
+                    stem = os.path.splitext(f)[0]
+                    clean = stem.replace('_', ' ').replace('-', ' ')
+                    clean = re.sub(r'[^a-zA-Z ]', '', clean)
+                    clean = re.sub(r'\s+', ' ', clean).strip().title()
+                    key = f"{subfolder}/{f}"
+                    desc = descriptions.get(key, f"A premium quality stage-wear costume representing {clean}, designed with comfortable fabrics and vibrant colors.")
+                    cat_items.append({
+                        'file': f,
+                        'name': clean,
+                        'desc': desc,
+                        'img_url': f"/static/Products/Fancy/{subfolder}/{f}"
+                    })
+            fancy_categories.append({
+                'name': subfolder,
+                'icon': icon,
+                'icon_url': f"/static/Icons/{icon}",
+                'url': f"/catalogue/fancy/{subfolder}/",
+                'item_count': len(cat_items),
+                'items': cat_items
+            })
+
+        sync_version = f"sync_{datetime.utcnow().strftime('%Y%m%d%H')}"
+
+        return jsonify({
+            'status': 'success',
+            'version': sync_version,
+            'updated_at': datetime.utcnow().isoformat() + 'Z',
+            'data': {
+                'kediya': {
+                    'title': 'Traditional Kediya',
+                    'url': '/kediya',
+                    'count': len(kediya_products),
+                    'items': kediya_products
+                },
+                'choli': {
+                    'title': 'Chaniya Choli',
+                    'url': '/choli',
+                    'count': len(choli_products),
+                    'items': choli_products
+                },
+                'fancy': {
+                    'title': 'Fancy Dress Costumes',
+                    'url': '/catalogue/fancy/',
+                    'categories_count': len(fancy_categories),
+                    'categories': fancy_categories
+                }
+            }
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500

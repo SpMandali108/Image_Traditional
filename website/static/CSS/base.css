@@ -276,4 +276,296 @@ body {
   .logo-text { font-size: 1.1rem; }
   .header-controls { gap: 0.4rem; }
   .contact-menu { width: 240px; }
-}   
+}
+
+/* ── Progressive Web App (PWA) Components ── */
+
+/* PWA Install Button */
+.it-install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #d4af37 0%, #b8961e 100%);
+  color: #050d1f;
+  border: 1px solid #f5d580;
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  transition: all var(--transition);
+  box-shadow: 0 2px 10px rgba(212, 175, 55, 0.35);
+  white-space: nowrap;
+}
+
+.it-install-btn:hover {
+  background: linear-gradient(135deg, #f5d580 0%, #d4af37 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.5);
+}
+
+.it-install-btn:active {
+  transform: translateY(0);
+}
+
+.it-install-btn.pulse-glow {
+  animation: pwaPulse 2.5s infinite;
+}
+
+@keyframes pwaPulse {
+  0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.6); }
+  70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+}
+
+/* Network Status Indicator Badge */
+.pwa-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pwa-status-badge .pwa-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+}
+
+/* Online */
+.pwa-status-badge.online {
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.25);
+}
+.pwa-status-badge.online .pwa-dot {
+  background-color: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+/* Offline */
+.pwa-status-badge.offline {
+  color: #fde047;
+  border-color: rgba(234, 179, 8, 0.35);
+  background: rgba(234, 179, 8, 0.1);
+}
+.pwa-status-badge.offline .pwa-dot {
+  background-color: #eab308;
+  box-shadow: 0 0 6px #eab308;
+}
+
+/* Syncing */
+.pwa-status-badge.syncing {
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.1);
+}
+.pwa-status-badge.syncing .pwa-dot {
+  background-color: #3b82f6;
+  animation: dotBlink 1s infinite alternate;
+}
+
+/* Success */
+.pwa-status-badge.success {
+  color: #6ee7b7;
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.12);
+}
+.pwa-status-badge.success .pwa-dot {
+  background-color: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+@keyframes dotBlink {
+  0% { opacity: 0.3; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Update Notification Toast */
+.pwa-update-toast {
+  position: sticky;
+  top: 60px;
+  z-index: 999;
+  background: linear-gradient(90deg, #0f172a, #1e293b);
+  border-bottom: 2px solid #d4af37;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.pwa-update-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f1f5f9;
+  font-size: 0.9rem;
+}
+
+.pwa-update-btn {
+  background: #d4af37;
+  color: #050d1f;
+  border: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pwa-update-btn:hover {
+  background: #f5d580;
+}
+
+/* PWA Modals (Offline Interception & iOS Instructions) */
+.pwa-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 13, 31, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pwa-modal-card {
+  background: #0F1F3D;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.15);
+  border-radius: 18px;
+  max-width: 460px;
+  width: 100%;
+  padding: 28px 24px;
+  text-align: center;
+  color: #f1f5f9;
+  animation: modalScale 0.25s ease;
+}
+
+@keyframes modalScale {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.pwa-modal-card .modal-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.pwa-modal-card h3 {
+  font-size: 1.3rem;
+  color: #f5d580;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+.pwa-modal-card p {
+  color: #94a3b8;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0 0 20px 0;
+}
+
+.ios-instructions {
+  text-align: left;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 14px 18px 14px 34px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  line-height: 1.7;
+}
+
+.ios-instructions strong {
+  color: #f5d580;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.modal-btn-call {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #d4af37;
+  color: #050d1f;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 10px 18px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.modal-btn-call:hover {
+  background: #f5d580;
+}
+
+.modal-btn-close {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modal-btn-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.pwa-toast-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  border: 1px solid #d4af37;
+  color: #f5d580;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  z-index: 10001;
+  transition: opacity 0.3s;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 640px) {
+  .pwa-status-badge {
+    padding: 3px 6px;
+    font-size: 0.72rem;
+  }
+  .it-install-btn {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+}

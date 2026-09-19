@@ -4,10 +4,21 @@
   <title>{% block title %}Image Traditional{% endblock %}</title>
 
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta name="description" content="{% block description %}{% endblock %}">
   <meta name="google-site-verification" content="rblFv2qDddK7ALu3uQhHjVXBk0ucyy6hkBWO735_ZUw" />
   <meta name="google-site-verification" content="e7akNJ_R_ulf6WM24z7vIhQFphN3IrS-EYve6iyAYmg" />
+
+  <!-- Progressive Web App (PWA) Configuration -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#050D1F">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Image Traditional">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='Icons/apple-touch-icon.png') }}">
+  <link rel="apple-touch-icon" sizes="192x192" href="{{ url_for('static', filename='Icons/icon-192x192.png') }}">
+  <link rel="apple-touch-icon" sizes="512x512" href="{{ url_for('static', filename='Icons/icon-512x512.png') }}">
 
   <!-- Open Graph Meta Tags (For WhatsApp & Facebook Link Sharing Preview Logo) -->
   <meta property="og:title" content="Image Traditional | Premium Costumes & rentals" />
@@ -24,7 +35,6 @@
   <meta name="twitter:title" content="Image Traditional" />
   <meta name="twitter:description" content="Premium traditional outfits & fancy costume rentals." />
   <meta name="twitter:image" content="{{ request.url_root }}static/Home_Img/favicon.png" />
-
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -60,6 +70,12 @@
 
     <div class="header-controls">
 
+      <!-- PWA Network Status Indicator -->
+      <div id="pwaNetworkBadge" class="pwa-status-badge online" aria-live="polite" title="Network connectivity status">
+        <span class="pwa-dot"></span>
+        <span class="pwa-status-text">Online</span>
+      </div>
+
       <!-- Contact Dropdown -->
       <div class="contact-dropdown">
         <button class="contact-btn" id="contactToggle" aria-expanded="false">
@@ -92,8 +108,19 @@
         </div>
       </div>
 
-      <!-- Admin Actions -->
+      <!-- Admin Actions (Only exposed to authenticated administrators) -->
       {% if session.logged_in %}
+      <!-- Private Admin APK Download & PWA Install Buttons -->
+      <a href="{{ url_for('views.download_apk') }}" class="it-install-btn" id="apkDownloadBtn" download title="Download Private Android APK">
+        <span class="icon">📥</span>
+        <span class="btn-text">Download Image Traditional App</span>
+      </a>
+
+      <button type="button" class="it-install-btn" id="pwaInstallBtn" aria-label="Install Image Traditional App">
+        <span class="icon">📲</span>
+        <span class="btn-text">Install App</span>
+      </button>
+
       <div class="admin-actions">
 
         <a href="{{ url_for('auth.admin') }}" class="admin-btn panel-btn">
@@ -111,6 +138,58 @@
     </div>
   </div>
 </header>
+
+<!-- PWA Update Notification Banner -->
+<div id="pwaUpdateToast" class="pwa-update-toast" style="display: none;" role="alert">
+  <div class="pwa-update-content">
+    <span class="pwa-update-icon">✨</span>
+    <span class="pwa-update-text">An update to Image Traditional is ready!</span>
+  </div>
+  <button type="button" id="pwaUpdateBtn" class="pwa-update-btn">Update Now</button>
+</div>
+
+<!-- Offline Action Interception Modal -->
+<div id="offlineModal" class="pwa-modal-backdrop" style="display: none;">
+  <div class="pwa-modal-card">
+    <div class="modal-icon">⚠️</div>
+    <h3>Live Connection Required</h3>
+    <p id="offlineModalMsg">You are browsing the saved offline catalogue. Live availability checks and booking inquiries require an active internet connection.</p>
+    <div class="modal-actions">
+      <a href="tel:+919428610384" class="modal-btn-call">📞 Call +91-9428610384</a>
+      <button type="button" class="modal-btn-close" onclick="document.getElementById('offlineModal').style.display='none'">Dismiss</button>
+    </div>
+  </div>
+</div>
+
+{% if session.logged_in %}
+<!-- Device-Adaptive App Installation Instructions Modal (Private to Admin) -->
+<div id="iosInstallModal" class="pwa-modal-backdrop" style="display: none;">
+  <div class="pwa-modal-card ios-card">
+    <div class="modal-icon">📲</div>
+    <h3 id="pwaModalTitle">Install Image Traditional App</h3>
+    <p id="pwaModalDesc">Follow these quick steps to install Image Traditional on your device:</p>
+    
+    <div id="iosInstructionsBlock">
+      <ol class="ios-instructions">
+        <li>Tap the <strong>Share</strong> button <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; display: inline;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> in Safari.</li>
+        <li>Scroll down and tap <strong>Add to Home Screen</strong> <span style="font-size: 1.1em;">➕</span>.</li>
+        <li>Tap <strong>Add</strong> in the top-right corner.</li>
+      </ol>
+    </div>
+
+    <div id="androidDesktopInstructionsBlock" style="display: none;">
+      <ol class="ios-instructions">
+        <li><strong>On Computer (Chrome / Edge / Brave):</strong> Click the <strong>Install icon (⊕)</strong> on the right side of the address bar, or click browser menu (⋮) → <strong>Install Image Traditional</strong>.</li>
+        <li><strong>On Android Phone / Tablet:</strong> Tap browser menu (⋮) → tap <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li>
+      </ol>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="modal-btn-close" onclick="document.getElementById('iosInstallModal').style.display='none'">Got It</button>
+    </div>
+  </div>
+</div>
+{% endif %}
 
 <!-- Flash Messages -->
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -132,6 +211,7 @@
 
 <!-- JS -->
 <script src="{{ url_for('static', filename='JS/base.js') }}" defer></script>
+<script src="{{ url_for('static', filename='JS/pwa-manager.js') }}" defer></script>
 
 {% block scripts %}{% endblock %}
 

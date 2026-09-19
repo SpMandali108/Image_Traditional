@@ -30,6 +30,10 @@ collection = LocalProxy(lambda: get_selected_collection())
 
 navaratri = Blueprint('navaratri', __name__)
 
+@navaratri.route('/login')
+def login():
+    return redirect(url_for('auth.login'))
+
 # ------------------ BOOK ------------------
 
 @navaratri.route('/book', methods=['GET', 'POST'])
