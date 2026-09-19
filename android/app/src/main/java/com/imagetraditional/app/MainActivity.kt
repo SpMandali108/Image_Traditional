@@ -59,6 +59,11 @@ class MainActivity : AppCompatActivity() {
     }
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
 
+    // In-app automated OTA update manager
+    private val updateManager: AppUpdateManager by lazy {
+        AppUpdateManager(this)
+    }
+
     // Production entry point route (/app)
     private val defaultAppUrl: String by lazy {
         getString(R.string.app_url)
@@ -83,6 +88,9 @@ class MainActivity : AppCompatActivity() {
             } else {
                 loadInitialUrl()
             }
+
+            // Silently check for native app updates if online
+            checkAppUpdates()
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(this, "Starting Image Traditional...", Toast.LENGTH_SHORT).show()
@@ -522,6 +530,7 @@ class MainActivity : AppCompatActivity() {
                                 webView.reload()
                             }
                         }
+                        checkAppUpdates()
                     }
                 }
 
@@ -620,6 +629,13 @@ class MainActivity : AppCompatActivity() {
             loadOfflineCatalogue()
         } else {
             webView.loadUrl(defaultAppUrl)
+        }
+    }
+
+    private fun checkAppUpdates() {
+        if (isNetworkAvailable()) {
+            val versionUrl = Uri.parse(defaultAppUrl).buildUpon().path("/api/app/version").build().toString()
+            updateManager.checkForUpdatesSilently(versionUrl)
         }
     }
 
