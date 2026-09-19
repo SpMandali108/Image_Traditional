@@ -52,8 +52,12 @@ class MainActivity : AppCompatActivity() {
 
     private var doubleBackToExitPressedOnce = false
     private val mainHandler = Handler(Looper.getMainLooper())
-    private lateinit var connectivityManager: ConnectivityManager
-    private lateinit var networkCallback: ConnectivityManager.NetworkCallback
+
+    // Lazy initialization ensures connectivityManager is never accessed uninitialized
+    private val connectivityManager: ConnectivityManager by lazy {
+        getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    }
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
 
     // Production entry point route (/app)
     private val defaultAppUrl: String by lazy {
@@ -66,17 +70,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        initViews()
-        initFileChooser()
-        initWebView()
-        initBackNavigation()
-        initNetworkMonitoring()
+        try {
+            initViews()
+            initFileChooser()
+            initNetworkMonitoring()
+            initWebView()
+            initBackNavigation()
 
-        // Load entry point
-        if (savedInstanceState != null) {
-            webView.restoreState(savedInstanceState)
-        } else {
-            loadInitialUrl()
+            // Load entry point
+            if (savedInstanceState != null) {
+                webView.restoreState(savedInstanceState)
+            } else {
+                loadInitialUrl()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Starting Image Traditional...", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -106,9 +115,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Prevent SwipeRefresh when not at top of page
-        webView.viewTreeObserver.addOnScrollChangedListener {
-            swipeRefresh.isEnabled = (webView.scrollY == 0)
+        // Crash-safe scroll check for SwipeRefreshLayout with WebView
+        swipeRefresh.setOnChildScrollUpCallback { _, _ ->
+            webView.scrollY > 0
         }
 
         btnRetry.setOnClickListener {
@@ -217,7 +226,11 @@ class MainActivity : AppCompatActivity() {
                 swipeRefresh.isRefreshing = false
 
                 // Flush session cookies to SQLite persistent disk storage
-                CookieManager.getInstance().flush()
+                try {
+                    CookieManager.getInstance().flush()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
 
             override fun onReceivedHttpError(
@@ -305,8 +318,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         // 10. File Downloads Handling (Invoices, PDF bills, APK downloads)
-        webView.setDownloadListener { url, userAgent, contentDisposition, mimeType, contentLength ->
-            handleDownload(url, contentDisposition, mimeType)
+        webView.setDownloadListener { url, _, _, _, _ ->
+            handleDownload(url)
         }
     }
 
@@ -371,11 +384,13 @@ class MainActivity : AppCompatActivity() {
                 host == "10.0.2.2"
     }
 
-    private fun handleDownload(url: String, contentDisposition: String, mimeType: String) {
+    private fun handleDownload(url: String) {
         try {
             val request = DownloadManager.Request(Uri.parse(url))
             val cookie = CookieManager.getInstance().getCookie(url)
-            request.addRequestHeader("Cookie", cookie)
+            if (cookie != null) {
+                request.addRequestHeader("Cookie", cookie)
+            }
             request.addRequestHeader("User-Agent", webView.settings.userAgentString)
             request.setDescription(getString(R.string.download_started))
             request.setTitle("Image Traditional Document")
@@ -477,45 +492,56 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initNetworkMonitoring() {
-        connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        try {
+            val callback = object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    runOnUiThread {
+                        updateCacheMode(true)
+                        if (::offlineContainer.isInitialized && offlineContainer.visibility == View.VISIBLE) {
+                            offlineContainer.visibility = View.GONE
+                            if (::webView.isInitialized) {
+                                webView.visibility = View.VISIBLE
+                                webView.reload()
+                            }
+                        }
+                    }
+                }
 
-        networkCallback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                runOnUiThread {
-                    updateCacheMode(true)
-                    if (offlineContainer.visibility == View.VISIBLE) {
-                        offlineContainer.visibility = View.GONE
-                        webView.visibility = View.VISIBLE
-                        webView.reload()
+                override fun onLost(network: Network) {
+                    runOnUiThread {
+                        updateCacheMode(false)
                     }
                 }
             }
+            networkCallback = callback
 
-            override fun onLost(network: Network) {
-                runOnUiThread {
-                    updateCacheMode(false)
-                }
-            }
+            val request = NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .build()
+            connectivityManager.registerNetworkCallback(request, callback)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-
-        val request = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .build()
-        connectivityManager.registerNetworkCallback(request, networkCallback)
     }
 
     private fun updateCacheMode(online: Boolean) {
-        webView.settings.cacheMode = if (online) {
-            WebSettings.LOAD_DEFAULT
-        } else {
-            WebSettings.LOAD_CACHE_ELSE_NETWORK
+        if (::webView.isInitialized) {
+            webView.settings.cacheMode = if (online) {
+                WebSettings.LOAD_DEFAULT
+            } else {
+                WebSettings.LOAD_CACHE_ELSE_NETWORK
+            }
         }
     }
 
     private fun isNetworkAvailable(): Boolean {
-        val activeNetwork = connectivityManager.activeNetwork ?: return false
-        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        return try {
+            val activeNetwork = connectivityManager.activeNetwork ?: return false
+            val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        } catch (e: Exception) {
+            true // Safe optimistic fallback
+        }
     }
 
     private fun loadInitialUrl() {
@@ -524,23 +550,53 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        CookieManager.getInstance().flush()
+        try {
+            CookieManager.getInstance().flush()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        CookieManager.getInstance().flush()
+        try {
+            CookieManager.getInstance().flush()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        webView.saveState(outState)
+        try {
+            if (::webView.isInitialized) {
+                webView.saveState(outState)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        CookieManager.getInstance().flush()
-        connectivityManager.unregisterNetworkCallback(networkCallback)
-        webView.destroy()
+        try {
+            CookieManager.getInstance().flush()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        try {
+            networkCallback?.let { callback ->
+                connectivityManager.unregisterNetworkCallback(callback)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        try {
+            if (::webView.isInitialized) {
+                webView.destroy()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
