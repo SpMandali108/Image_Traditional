@@ -78,7 +78,7 @@
 
       <!-- Contact Dropdown -->
       <div class="contact-dropdown">
-        <button class="contact-btn" id="contactToggle" aria-expanded="false">
+        <button class="contact-btn" id="contactToggle" aria-expanded="false" title="Contact Us" aria-label="Contact Us">
           <span class="icon">📞</span>
           <span class="btn-text">Contact</span>
         </button>
@@ -110,25 +110,20 @@
 
       <!-- Admin Actions (Only exposed to authenticated administrators) -->
       {% if session.logged_in %}
-      <!-- Private Admin APK Download & PWA Install Buttons -->
-      <a href="{{ url_for('views.download_apk') }}" class="it-install-btn" id="apkDownloadBtn" download title="Download Private Android APK">
+      <!-- Private Admin APK Download Button -->
+      <a href="{{ url_for('views.download_apk') }}" class="it-install-btn" id="apkDownloadBtn" download title="Download Private Android APK" aria-label="Download App">
         <span class="icon">📥</span>
-        <span class="btn-text">Download Image Traditional App</span>
+        <span class="btn-text"><span class="btn-text-desktop">Download </span>App</span>
       </a>
-
-      <button type="button" class="it-install-btn" id="pwaInstallBtn" aria-label="Install Image Traditional App">
-        <span class="icon">📲</span>
-        <span class="btn-text">Install App</span>
-      </button>
 
       <div class="admin-actions">
 
-        <a href="{{ url_for('auth.admin') }}" class="admin-btn panel-btn">
+        <a href="{{ url_for('auth.admin') }}" class="admin-btn panel-btn" title="Admin Panel" aria-label="Admin Panel">
           <span class="icon">⚙️</span>
-          <span class="btn-text">Admin Panel</span>
+          <span class="btn-text">Admin<span class="btn-text-desktop"> Panel</span></span>
         </a>
 
-        <a href="{{ url_for('auth.logout') }}" class="admin-btn logout-btn">
+        <a href="{{ url_for('auth.logout') }}" class="admin-btn logout-btn" title="Logout" aria-label="Logout">
           <span class="icon">🚪</span>
           <span class="btn-text">Logout</span>
         </a>

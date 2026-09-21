@@ -47,13 +47,15 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      overflow-x: clip;
+    }
     body {
       background: var(--bg-dark);
       color: var(--text-main);
       font-family: 'Inter', system-ui, sans-serif;
       font-size: 14px;
       -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
       background-image: 
         radial-gradient(circle at 10% 10%, rgba(201, 162, 39, 0.07), transparent 35%),
         radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.06), transparent 35%),
@@ -64,7 +66,7 @@
       padding: 0 !important;
       max-width: 100% !important;
       margin: 0 !important;
-      overflow-x: hidden;
+      overflow-x: clip;
     }
 
     /* Custom Scrollbar */
@@ -187,10 +189,10 @@
     }
 
     /* ─── MAIN LAYOUT ───────────────────────────────────────────────── */
-    /* CSS Grid instead of flex: a single 1fr column below 992px (so the
+    /* CSS Grid instead of flex: a single 1fr column below 1200px (so the
        sidebar, which becomes a fixed off-canvas drawer at that width,
        never reserves phantom space next to the main column), and an
-       explicit two-column track at 992px+ where the sidebar is static. */
+       explicit two-column track at 1200px+ where the sidebar is static. */
     .bm-layout {
       max-width: 1400px;
       margin: 0 auto;
@@ -201,17 +203,17 @@
       gap: 24px;
       width: 100%;
     }
-    .bm-main { min-width: 0; }
+    .bm-main { min-width: 0; width: 100%; }
     .bm-sidebar {
       min-width: 0;
-      --bs-offcanvas-width: 320px;
+      --bs-offcanvas-width: 340px;
       --bs-offcanvas-bg: #091322;
       --bs-offcanvas-color: var(--text-main);
       --bs-offcanvas-border-color: var(--border-color);
     }
-    @media (min-width: 992px) {
+    @media (min-width: 1200px) {
       .bm-layout { grid-template-columns: 290px minmax(0, 1fr); }
-      .bm-sidebar { position: sticky; top: 20px; align-self: start; }
+      .bm-sidebar { position: sticky; top: 75px; align-self: start; }
     }
 
     /* ─── SIDEBAR ROSTER ────────────────────────────────────────────── */
@@ -220,10 +222,10 @@
       border-radius: var(--r-lg);
       border: 1px solid rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(16px);
-      overflow: hidden;
+      overflow: visible;
       display: flex;
       flex-direction: column;
-      max-height: calc(100vh - 120px);
+      max-height: calc(100vh - 95px);
       box-shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.85);
       position: relative;
     }
@@ -232,6 +234,23 @@
       position: absolute; top: 0; left: 0; right: 0; height: 3px;
       background: linear-gradient(90deg, transparent, var(--gold-primary) 50%, transparent);
       opacity: 0.7;
+    }
+    .offcanvas .roster-panel {
+      height: 100%;
+      max-height: 100%;
+      border-radius: 0;
+      border: none;
+      box-shadow: none;
+      background: transparent;
+    }
+    .offcanvas .roster-panel::before {
+      display: none;
+    }
+    .offcanvas .ledger-list {
+      max-height: none;
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
     .roster-head {
       padding: 16px 18px 8px;
@@ -440,19 +459,23 @@
     .pil-value { font-weight: 600; color: var(--text-main); font-size: 0.85rem; word-break: break-word; }
 
     /* ─── RESERVED ITEMS TIMELINE ────────────────────────────────────── */
-    #bookingTable { position: relative; padding: 20px 22px; }
+    #bookingTable {
+      position: relative;
+      padding: 18px 22px;
+    }
     #bookingTable::before {
       content: '';
       position: absolute; top: 20px; bottom: 30px; left: 41px;
       width: 2px; background: rgba(255, 255, 255, 0.08);
+      pointer-events: none;
     }
     .item-row {
       position: relative;
       display: grid;
-      grid-template-columns: 28px minmax(95px, auto) 1fr auto auto;
+      grid-template-columns: 24px minmax(105px, auto) 1fr auto;
       align-items: center;
-      gap: 14px;
-      padding: 12px 16px;
+      gap: 16px;
+      padding: 12px 18px;
       background: var(--bg-input);
       border: 1px solid var(--border-color);
       border-radius: var(--r-md);
@@ -467,30 +490,42 @@
       justify-self: center; z-index: 1;
     }
     .ir-date {
-      font-weight: 700; color: var(--gold-light); font-size: 0.78rem;
-      display: flex; align-items: center; gap: 6px; white-space: nowrap;
+      font-weight: 700; color: var(--gold-light); font-size: 0.82rem;
+      display: flex; align-items: center; gap: 8px; white-space: nowrap;
     }
-    .ir-product { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .ir-product { display: flex; align-items: center; gap: 12px; min-width: 0; }
     .ir-thumb {
       width: 42px; height: 42px; object-fit: cover;
       border-radius: 10px; background: #000; flex-shrink: 0;
       border: 1px solid var(--border-color);
     }
-    .ir-thumb:hover { transform: scale(1.12); }
-    .ir-code { font-size: 0.8rem; padding: 4px 10px; white-space: nowrap; font-family: monospace; }
-    .ir-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .ir-thumb:hover { transform: scale(1.08); }
+    .ir-code { font-size: 0.82rem; padding: 4px 12px; white-space: nowrap; font-family: monospace; }
+    .ir-actions { display: flex; gap: 8px; flex-wrap: nowrap; align-items: center; flex-shrink: 0; }
+    .ir-actions .btn { padding: 6px 12px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
 
-    @media (max-width: 767.98px) {
+    @media (max-width: 991.98px) {
       .item-row {
-        grid-template-columns: 30px 1fr;
-        grid-template-rows: auto auto auto;
+        grid-template-columns: 20px 1fr auto;
+        grid-template-rows: auto auto;
         row-gap: 8px;
+        column-gap: 8px;
+        padding: 10px 14px;
       }
-      #bookingTable::before { left: 28px; }
+      #bookingTable::before { left: 30px; }
+      .ir-date { grid-column: 2; grid-row: 1; }
+      .ir-actions { grid-column: 3; grid-row: 1; justify-self: end; }
+      .ir-product { grid-column: 2 / span 2; grid-row: 2; }
+    }
+    @media (max-width: 575.98px) {
+      .item-row {
+        grid-template-columns: 24px 1fr;
+        grid-template-rows: auto auto auto;
+        row-gap: 6px;
+      }
       .ir-date { grid-column: 2; grid-row: 1; }
       .ir-product { grid-column: 2; grid-row: 2; }
-      .ir-status { grid-column: 2; grid-row: 3; }
-      .ir-actions { grid-column: 2; grid-row: 4; justify-self: start; }
+      .ir-actions { grid-column: 2; grid-row: 3; justify-self: start; }
     }
 
     /* ─── FINANCIAL SUMMARY & PAYMENT ───────────────────────────────── */
@@ -810,9 +845,15 @@
     .toast-close:hover { color: #ffffff; }
 
     /* ─── RESPONSIVE RULES ──────────────────────────────────────────── */
+    @media (max-width: 1199.98px) {
+      .bm-layout { padding: 20px 20px 50px; gap: 20px; }
+      .topline { padding: 18px 20px 0; }
+      .topline-title { font-size: 1.5rem; }
+      .roster-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); padding: 16px 18px 22px; }
+    }
     @media (max-width: 991.98px) {
       .bm-layout { padding: 16px 16px 50px; gap: 16px; }
-      .topline { padding: 20px 16px 0; }
+      .topline { padding: 16px 16px 0; }
       .topline-title { font-size: 1.35rem; }
     }
     @media (max-width: 768px) {
@@ -830,6 +871,61 @@
       .stat-strip { grid-template-columns: 1fr; }
       .it-card-body { padding: 16px; }
       .phc-meta-grid { grid-template-columns: 1fr 1fr; padding: 0 16px 18px; }
+    }
+
+    /* Action buttons grid inside Financial card */
+    .action-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .settled-badge-card {
+      background: rgba(16, 185, 129, 0.06);
+      border: 1.5px dashed rgba(16, 185, 129, 0.35);
+      border-radius: var(--r-md);
+      padding: 16px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    /* Tablet Landscape & Short Viewport Heights */
+    @media (orientation: landscape) and (max-height: 850px) {
+      .topline { padding-top: 14px; }
+      .topline-row1 { padding-bottom: 12px; }
+      .bm-layout { padding-top: 16px; padding-bottom: 30px; gap: 16px; }
+      .it-card { margin-bottom: 14px; }
+      .profile-header-card { margin-bottom: 14px; }
+      .phc-top { padding: 12px 18px; gap: 14px; }
+      .phc-avatar { width: 48px; height: 48px; font-size: 1.1rem; border-radius: 12px; }
+      .phc-name { font-size: 1.25rem; }
+      .phc-mobile { font-size: 0.75rem; padding: 2px 10px; margin-top: 2px; }
+      .phc-balance { padding: 8px 16px; }
+      .phc-balance-value { font-size: 1.1rem; }
+      .phc-meta-grid { padding: 0 18px 12px; gap: 8px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .phc-meta-item { padding: 6px 12px; }
+      .pil-label { font-size: 0.58rem; margin-bottom: 2px; }
+      .pil-value { font-size: 0.8rem; }
+      .pay-summary { padding: 12px 16px; margin-bottom: 12px; }
+      .pay-block-title { margin-bottom: 8px; }
+      .pay-row { padding: 6px 0; font-size: 0.8rem; }
+      .progress-track { margin-top: 10px; }
+      .collect-payment-form { padding: 12px; }
+      .it-card-body { padding: 16px; }
+      .it-card-header { padding: 12px 18px; }
+      #editCustomerModal .modal-dialog {
+        max-height: 94vh !important;
+        margin: 3vh auto !important;
+      }
+      #editCustomerModal .modal-content {
+        max-height: 94vh !important;
+      }
+      #editCustomerModal .modal-body {
+        padding: 14px 18px !important;
+      }
     }
   </style>
 {% endblock %}
@@ -864,7 +960,12 @@
       </div>
 
       <div class="topline-actions">
-        <button class="btn btn-ghost-light btn-sm d-lg-none" type="button"
+        {% if customer %}
+          <a href="{{ url_for('navaratri.navaratri_booking') }}" class="btn btn-ghost-light btn-sm fw-bold">
+            <i class="bi bi-grid-fill me-1"></i> All Bookings
+          </a>
+        {% endif %}
+        <button class="btn btn-ghost-light btn-sm d-xl-none" type="button"
                 data-bs-toggle="offcanvas" data-bs-target="#customerOffcanvas" aria-controls="customerOffcanvas">
           <i class="bi bi-people-fill me-1"></i> Customers
           <span class="badge-gold ms-1">{{ bookings|length }}</span>
@@ -887,7 +988,7 @@
 <div class="bm-layout">
 
   <!-- ── SIDEBAR — ROSTER (DESKTOP) ────────────────────────────────── -->
-  <div class="bm-sidebar d-none d-lg-block">
+  <div class="bm-sidebar d-none d-xl-block">
     <div class="roster-panel">
 
       <div class="roster-head d-flex">
@@ -1021,154 +1122,168 @@
         </div>
       </div>
 
-      <!-- ── PROFILE CONTENT GRID ────────────────────────────────── -->
-      <div class="row g-3">
+      <!-- ── FINANCIAL & ACTIONS HUB (FULL WIDTH) ──────────────────── -->
+      <div class="it-card">
+        <div class="it-card-header">
+          <h3 class="it-card-title"><i class="bi bi-credit-card-2-back-fill"></i> Financial Overview & Quick Actions</h3>
+          <span class="badge-navy">
+            {% set pct = (customer.given_price / customer.total_price * 100) if customer.total_price > 0 else 0 %}
+            {{ "%.0f"|format(pct) }}% collected
+          </span>
+        </div>
+        <div class="it-card-body">
+          <div class="row g-3 align-items-stretch">
 
-        <!-- Left: Financials + Actions -->
-        <div class="col-xl-5 col-lg-12">
-          <div class="it-card">
-            <div class="it-card-header">
-              <h3 class="it-card-title"><i class="bi bi-credit-card-2-back-fill"></i> Financial Overview</h3>
-              <span class="badge-navy">
-                {% set pct = (customer.given_price / customer.total_price * 100) if customer.total_price > 0 else 0 %}
-                {{ "%.0f"|format(pct) }}% collected
-              </span>
-            </div>
-            <div class="it-card-body">
-
-              <div class="pay-summary">
-                <div class="pay-block-title"><i class="bi bi-receipt me-1"></i> Invoice Breakdown</div>
-                <div class="pay-row">
-                  <span>Total Invoice</span>
-                  <span class="fw-bold" style="color:var(--gold-light);" id="disp-total">₹{{ customer.total_price }}</span>
-                </div>
-                <div class="pay-row">
-                  <span>Amount Received</span>
-                  <span class="fw-bold" style="color:var(--accent-success)" id="disp-given">₹{{ customer.given_price }}</span>
-                </div>
-
-                {% if customer.remaining > 0 %}
-                  <div class="pay-row remaining-due">
-                    <span class="fw-bold" style="color:var(--accent-danger)">Balance Due</span>
-                    <span class="fw-bold" style="color:var(--accent-danger)" id="disp-remaining">₹{{ customer.remaining }}</span>
+            <!-- Col 1: Invoice Breakdown & Progress Track -->
+            <div class="col-xl-5 col-lg-5 col-12">
+              <div class="pay-summary mb-0 h-100 d-flex flex-column justify-content-between">
+                <div>
+                  <div class="pay-block-title"><i class="bi bi-receipt me-1"></i> Invoice Breakdown</div>
+                  <div class="pay-row">
+                    <span>Total Invoice</span>
+                    <span class="fw-bold" style="color:var(--gold-light);" id="disp-total">₹{{ customer.total_price }}</span>
                   </div>
-                {% else %}
-                  <div class="pay-row payment-complete">
-                    <span class="fw-bold" style="color:var(--accent-success)"><i class="bi bi-patch-check-fill me-1"></i>Paid in Full</span>
-                    <span class="fw-bold" style="color:var(--accent-success)">₹0</span>
+                  <div class="pay-row">
+                    <span>Amount Received</span>
+                    <span class="fw-bold" style="color:var(--accent-success)" id="disp-given">₹{{ customer.given_price }}</span>
                   </div>
-                {% endif %}
 
-                <div class="progress-track">
-                  <div class="progress-fill" id="disp-progress-fill" style="width:{{ pct }}%"></div>
+                  {% if customer.remaining > 0 %}
+                    <div class="pay-row remaining-due">
+                      <span class="fw-bold" style="color:var(--accent-danger)">Balance Due</span>
+                      <span class="fw-bold" style="color:var(--accent-danger)" id="disp-remaining">₹{{ customer.remaining }}</span>
+                    </div>
+                  {% else %}
+                    <div class="pay-row payment-complete">
+                      <span class="fw-bold" style="color:var(--accent-success)"><i class="bi bi-patch-check-fill me-1"></i>Paid in Full</span>
+                      <span class="fw-bold" style="color:var(--accent-success)">₹0</span>
+                    </div>
+                  {% endif %}
                 </div>
-                <div class="d-flex justify-content-between mt-2" style="font-size:0.72rem; color:var(--text-muted);">
-                  <span>Collection Status</span>
-                  <span id="disp-percentage">{{ "%.1f"|format(pct) }}%</span>
+
+                <div class="mt-2">
+                  <div class="progress-track">
+                    <div class="progress-fill" id="disp-progress-fill" style="width:{{ pct }}%"></div>
+                  </div>
+                  <div class="d-flex justify-content-between mt-1" style="font-size:0.72rem; color:var(--text-muted);">
+                    <span>Collection Status</span>
+                    <span id="disp-percentage">{{ "%.1f"|format(pct) }}%</span>
+                  </div>
                 </div>
               </div>
+            </div>
 
+            <!-- Col 2: Collect Payment Form or Settled Badge -->
+            <div class="col-xl-3 col-lg-3 col-md-6 col-12">
               {% if customer.remaining > 0 %}
-                <div class="collect-payment-form mb-3">
+                <div class="collect-payment-form h-100 d-flex flex-column justify-content-center mb-0">
                   <div class="form-label mb-2 fw-bold text-light"><i class="bi bi-cash-stack me-1"></i> Collect Payment</div>
-                  <form id="addPaymentForm" class="d-flex gap-2 m-0 flex-wrap" onsubmit="submitAddPayment(event, '{{ customer._id|string }}')">
-                    <div class="input-group input-group-sm flex-grow-1" style="min-width:140px;">
+                  <form id="addPaymentForm" class="d-flex flex-column gap-2 m-0" onsubmit="submitAddPayment(event, '{{ customer._id|string }}')">
+                    <div class="input-group input-group-sm">
                       <span class="input-group-text">₹</span>
                       <input type="number" id="paymentAmountInput" name="amount" class="form-control"
                              placeholder="Amount" max="{{ customer.remaining }}" min="1" required>
                     </div>
-                    <button type="submit" class="btn btn-solid-success btn-sm fw-bold text-nowrap" id="paymentSubmitBtn">
-                      <i class="bi bi-plus-circle me-1"></i>Add
+                    <button type="submit" class="btn btn-solid-success btn-sm fw-bold w-100" id="paymentSubmitBtn">
+                      <i class="bi bi-plus-circle me-1"></i> Add Payment
                     </button>
                   </form>
                 </div>
+              {% else %}
+                <div class="settled-badge-card">
+                  <i class="bi bi-patch-check-fill display-6 mb-2" style="color:var(--accent-success);"></i>
+                  <span class="fw-bold" style="color:var(--accent-success); font-size:0.95rem;">Paid in Full</span>
+                  <span class="text-muted mt-1" style="font-size:0.75rem;">All dues settled</span>
+                </div>
               {% endif %}
+            </div>
 
-              <!-- Action buttons -->
-              <div class="d-flex gap-2 flex-wrap">
-                <button class="btn btn-gold flex-fill" onclick="openEditModal()">
-                  <i class="bi bi-pencil-square me-1"></i> Edit Booking
-                </button>
-                <form method="POST" action="{{ url_for('navaratri.download_customer') }}" class="m-0 flex-fill">
-                  <input type="hidden" name="mobile" value="{{ customer.mobile }}">
-                  <button type="submit" class="btn btn-ghost-success w-100 fw-bold">
-                    <i class="bi bi-file-earmark-pdf-fill me-1"></i> Bill PDF
+            <!-- Col 3: Action Controls -->
+            <div class="col-xl-4 col-lg-4 col-md-6 col-12">
+              <div class="action-grid h-100 d-flex flex-column justify-content-center">
+                <div class="d-flex gap-2">
+                  <button class="btn btn-gold flex-fill text-nowrap" onclick="openEditModal()">
+                    <i class="bi bi-pencil-square me-1"></i> Edit Booking
                   </button>
-                </form>
+                  <form method="POST" action="{{ url_for('navaratri.download_customer') }}" class="m-0 flex-fill">
+                    <input type="hidden" name="mobile" value="{{ customer.mobile }}">
+                    <button type="submit" class="btn btn-ghost-success w-100 fw-bold text-nowrap">
+                      <i class="bi bi-file-earmark-pdf-fill me-1"></i> Bill PDF
+                    </button>
+                  </form>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-ghost-light flex-fill text-nowrap" onclick="openQrModal('{{ customer.mobile }}')">
+                    <i class="bi bi-qr-code me-1"></i> View QR
+                  </button>
+                  <a href="https://wa.me/91{{ customer.mobile }}?text={{ ('*Image Traditional - Booking Invoice*\n\nDear *' ~ customer.Name ~ '*,\nThank you for your booking at Image Traditional!\n\n💰 *Total Bill:* ₹' ~ customer.total_price ~ '\n✅ *Paid Amount:* ₹' ~ customer.given_price ~ '\n📌 *Balance Due:* ₹' ~ (customer.total_price - customer.given_price) ~ '\n\n📄 *View & Download Digital Bill:* ' ~ url_for('navaratri.download_bill_page', id=customer._id|string, _external=True) ~ '\n\nStore Address: Nr. Laxminarayan Bus-stand, Maninagar(E), Ahmedabad')|urlencode }}"
+                     target="_blank" class="btn btn-ghost-success flex-fill fw-bold text-nowrap text-truncate" style="border-color:rgba(34,197,94,0.4); color:#4ade80;" title="Send WhatsApp Bill">
+                    <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                  </a>
+                </div>
+                <button type="button" class="btn btn-ghost-danger w-100 fw-bold" onclick="openDeleteCustomerModal()">
+                  <i class="bi bi-person-x-fill me-1"></i> Remove Booking from Cycle
+                </button>
               </div>
-              <button class="btn btn-ghost-light w-100 mt-2" onclick="openQrModal('{{ customer.mobile }}')">
-                <i class="bi bi-qr-code me-1"></i> View QR Code
-              </button>
-
-              <a href="https://wa.me/91{{ customer.mobile }}?text={{ ('*Image Traditional - Booking Invoice*\n\nDear *' ~ customer.Name ~ '*,\nThank you for your booking at Image Traditional!\n\n💰 *Total Bill:* ₹' ~ customer.total_price ~ '\n✅ *Paid Amount:* ₹' ~ customer.given_price ~ '\n📌 *Balance Due:* ₹' ~ (customer.total_price - customer.given_price) ~ '\n\n📄 *View & Download Digital Bill:* ' ~ url_for('navaratri.download_bill_page', id=customer._id|string, _external=True) ~ '\n\nStore Address: Nr. Laxminarayan Bus-stand, Maninagar(E), Ahmedabad')|urlencode }}"
-                 target="_blank" class="btn btn-ghost-success w-100 mt-2 fw-bold" style="border-color:rgba(34,197,94,0.4); color:#4ade80;">
-                <i class="bi bi-whatsapp me-1"></i> Send Text Bill Link via WhatsApp
-              </a>
-              <button type="button" class="btn btn-ghost-danger w-100 mt-2 fw-bold" onclick="openDeleteCustomerModal()">
-                <i class="bi bi-person-x-fill me-1"></i> Remove Booking from Cycle
-              </button>
-
             </div>
+
           </div>
         </div>
+      </div>
 
-        <!-- Right: Reserved Items Timeline -->
-        <div class="col-xl-7 col-lg-12">
-          <div class="it-card">
-            <div class="it-card-header">
-              <h3 class="it-card-title"><i class="bi bi-calendar-check-fill"></i> Reserved Items Timeline</h3>
-              <span class="badge-gold" id="disp-booking-count">
-                {% set total_prods = namespace(val=0) %}
-                {% for date, items in customer.bookings.items() %}
-                  {% set total_prods.val = total_prods.val + items|length %}
-                {% endfor %}
-                {{ total_prods.val }} Item(s)
-              </span>
-            </div>
-            <div class="it-card-body-flush">
+      <!-- ── RESERVED ITEMS TIMELINE (FULL WIDTH) ──────────────────── -->
+      <div class="it-card">
+        <div class="it-card-header">
+          <h3 class="it-card-title"><i class="bi bi-calendar-check-fill"></i> Reserved Items Timeline</h3>
+          <span class="badge-gold" id="disp-booking-count">
+            {% set total_prods = namespace(val=0) %}
+            {% for date, items in customer.bookings.items() %}
+              {% set total_prods.val = total_prods.val + items|length %}
+            {% endfor %}
+            {{ total_prods.val }} Item(s)
+          </span>
+        </div>
+        <div class="it-card-body-flush">
 
-              <div id="bookingTable">
-                {% if customer.bookings %}
-                  {% for date, items in customer.bookings.items() %}
-                    {% for item in items %}
-                      <div class="item-row" data-date="{{ date }}" data-product="{{ item }}">
-                        <div class="ir-date"><i class="bi bi-calendar3 me-1"></i>{{ date }}</div>
-                        <div class="ir-product">
-                          {% if item and item|upper|first == 'K' %}
-                            <img src="/static/Kediya/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png';this.style.opacity=0.4;" class="ir-thumb">
-                          {% else %}
-                            <img src="/static/Choli/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png';this.style.opacity=0.4;" class="ir-thumb">
-                          {% endif %}
-                          <a href="{{ url_for('navaratri.code_detail', code=item) }}"
-                             class="badge-navy text-decoration-none font-monospace fw-bold ir-code">
-                            {{ item }}
-                          </a>
-                        </div>
-                        <div class="ir-actions">
-                          <button type="button" class="btn btn-ghost-light btn-sm" title="Reassign"
-                                  onclick="quickReassign('{{ date }}', '{{ item }}')">
-                            <i class="bi bi-arrow-left-right me-1"></i>Reassign
-                          </button>
-                          <button type="button" class="btn btn-ghost-danger btn-sm" title="Delete"
-                                  onclick="quickDeleteBookingRow('{{ date }}', '{{ item }}')">
-                            <i class="bi bi-trash3-fill me-1"></i>Delete
-                          </button>
-                        </div>
-                      </div>
-                    {% endfor %}
-                  {% endfor %}
-                {% else %}
-                  <div class="text-center py-5 text-muted">
-                    <i class="bi bi-box-seam display-4 d-block mb-3" style="color: var(--border-color)"></i>
-                    No reserved products for this customer.
+          <div id="bookingTable">
+            {% if customer.bookings %}
+              {% for date, items in customer.bookings.items() %}
+                {% for item in items %}
+                  <div class="item-row" data-date="{{ date }}" data-product="{{ item }}">
+                    <div class="ir-date"><i class="bi bi-calendar3 me-1"></i>{{ date }}</div>
+                    <div class="ir-product">
+                      {% if item and item|upper|first == 'K' %}
+                        <img src="/static/Kediya/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png';this.style.opacity=0.4;" class="ir-thumb">
+                      {% else %}
+                        <img src="/static/Choli/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png';this.style.opacity=0.4;" class="ir-thumb">
+                      {% endif %}
+                      <a href="{{ url_for('navaratri.code_detail', code=item) }}"
+                         class="badge-navy text-decoration-none font-monospace fw-bold ir-code">
+                        {{ item }}
+                      </a>
+                    </div>
+                    <div class="ir-actions">
+                      <button type="button" class="btn btn-ghost-light btn-sm" title="Reassign"
+                              onclick="quickReassign('{{ date }}', '{{ item }}')">
+                        <i class="bi bi-arrow-left-right me-1"></i>Reassign
+                      </button>
+                      <button type="button" class="btn btn-ghost-danger btn-sm" title="Delete"
+                              onclick="quickDeleteBookingRow('{{ date }}', '{{ item }}')">
+                        <i class="bi bi-trash3-fill me-1"></i>Delete
+                      </button>
+                    </div>
                   </div>
-                {% endif %}
+                {% endfor %}
+              {% endfor %}
+            {% else %}
+              <div class="text-center py-5 text-muted">
+                <i class="bi bi-box-seam display-4 d-block mb-3" style="color: var(--border-color)"></i>
+                No reserved products for this customer.
               </div>
-
-            </div>
+            {% endif %}
           </div>
-        </div>
 
+        </div>
       </div>
 
     {% else %}
@@ -1269,7 +1384,7 @@
 
 <!-- QR Code Modal -->
 <div class="modal fade" id="qrCodeModal" tabindex="-1">
-  <div class="modal-dialog modal-sm modal-dialog-centered">
+  <div class="modal-dialog modal-sm modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title"><i class="bi bi-qr-code me-2"></i>Customer QR Code</h5>
@@ -1287,7 +1402,7 @@
 
 <!-- Availability Checker Modal -->
 <div class="modal fade" id="quickAvailabilityModal" tabindex="-1">
-  <div class="modal-dialog modal-md modal-dialog-centered">
+  <div class="modal-dialog modal-md modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title"><i class="bi bi-calendar-check-fill me-2"></i>Live Availability Checker</h5>
@@ -1401,7 +1516,7 @@
 
 <!-- Reassign Modal -->
 <div class="modal fade" id="reassignModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title"><i class="bi bi-arrow-left-right me-2"></i>Reassign Costume Allocation</h5>
@@ -1449,7 +1564,7 @@
 
 <!-- Delete Booking Row Modal -->
 <div class="modal fade" id="deleteBookingRowModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content" style="border-top: 4px solid var(--accent-danger);">
       <div class="modal-header">
         <h5 class="modal-title" style="color:var(--accent-danger);">
@@ -1485,7 +1600,7 @@
 
 <!-- Delete Cycle Booking Modal (Password Protected) -->
 <div class="modal fade" id="deleteCustomerModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content" style="border-top: 4px solid var(--accent-danger);">
       <div class="modal-header">
         <h5 class="modal-title" style="color:var(--accent-danger);">
@@ -1515,7 +1630,7 @@
 
 <!-- New Booking Success & Share Bill Modal -->
 <div class="modal fade" id="bookingSuccessModal" tabindex="-1" data-bs-backdrop="static">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content" style="border-top: 4px solid var(--accent-success);">
       <div class="modal-header">
         <h5 class="modal-title" style="color:var(--accent-success);">
@@ -1578,8 +1693,8 @@
   </div>
 </div>
 
-<!-- Mobile Customer Register Offcanvas Drawer (<992px) -->
-<div class="offcanvas offcanvas-start d-lg-none bm-sidebar" tabindex="-1" id="customerOffcanvas" aria-labelledby="customerOffcanvasLabel" style="--bs-offcanvas-bg:#091322;--bs-offcanvas-color:var(--text-main);--bs-offcanvas-border-color:var(--border-color);--bs-offcanvas-width:320px;">
+<!-- Mobile & Tablet Customer Register Offcanvas Drawer (<1200px) -->
+<div class="offcanvas offcanvas-start d-xl-none bm-sidebar" tabindex="-1" id="customerOffcanvas" aria-labelledby="customerOffcanvasLabel" style="--bs-offcanvas-bg:#091322;--bs-offcanvas-color:var(--text-main);--bs-offcanvas-border-color:var(--border-color);--bs-offcanvas-width:340px;">
   <div class="offcanvas-header border-bottom border-secondary">
     <h5 class="roster-head-title m-0" id="customerOffcanvasLabel">
       <i class="bi bi-person-lines-fill"></i> Customer Register
@@ -1673,7 +1788,7 @@
     const offcanvasEl = document.getElementById('customerOffcanvas');
     if (offcanvasEl) {
       offcanvasEl.addEventListener('click', function (e) {
-        if (e.target.closest('.ledger-entry') && window.innerWidth < 992) {
+        if (e.target.closest('.ledger-entry') && window.innerWidth < 1200) {
           const inst = bootstrap.Offcanvas.getInstance(offcanvasEl);
           if (inst) inst.hide();
         }

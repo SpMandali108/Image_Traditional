@@ -1615,6 +1615,24 @@ def download_customer():
 
     pdf = PDF('P', 'mm', 'A4')
     pdf.alias_nb_pages()
+
+    # Register Unicode Gujarati font
+    font_reg = os.path.join(current_app.root_path, "static", "fonts", "NotoSansGujarati-Regular.ttf")
+    font_bold = os.path.join(current_app.root_path, "static", "fonts", "NotoSansGujarati-Bold.ttf")
+    if not os.path.exists(font_reg) and os.path.exists(r"C:\Windows\Fonts\shruti.ttf"):
+        font_reg = r"C:\Windows\Fonts\shruti.ttf"
+        font_bold = r"C:\Windows\Fonts\shrutib.ttf"
+    if os.path.exists(font_reg):
+        pdf.add_font("NotoSansGujarati", "", font_reg)
+        if os.path.exists(font_bold):
+            pdf.add_font("NotoSansGujarati", "B", font_bold)
+        else:
+            pdf.add_font("NotoSansGujarati", "B", font_reg)
+        try:
+            pdf.set_text_shaping(True)
+        except Exception:
+            pass
+
     pdf.add_page()
 
     # ------- Customer Details Heading -------
@@ -1776,32 +1794,102 @@ def download_customer():
     pdf.cell(45, 6, "Balance Due:", align="R")
     pdf.set_font("helvetica", "B", 11.5)
     pdf.cell(30, 6, f"Rs. {remaining}", align="R")
-    pdf.ln(13)
+    # ------- Terms & Conditions (Bilingual) -------
+    # Visual gap after Balance Due box (box bottom is y + 8.5)
+    gap_after_payment = 10.0
+    candidate_tc_y = y + 8.5 + gap_after_payment
 
-    # ------- Terms & Conditions -------
+    guj_terms = [
+        "1. ચણિયાચોળી/કેડિયાનું એડવાન્સ બુકિંગ ટોકન એમાઉન્ટ આપી બુક કરાવવાનું રહેશે અને બાકીની પૂરી રકમ નવરાત્રી પહેલા જમા કરાવવાની રહેશે, તો જ તમારું બુકિંગ માન્ય રહેશે.",
+        "2. ભાડું એક દિવસ / રાત્રી માટે જ રહેશે. વધારે સમય માટે અલગથી ભાડું ચૂકવવાનું રહેશે.",
+        "3. બુકિંગ સમયે ડિપોઝિટ / ઓળખાણ ફરજિયાત રહેશે.",
+        "4. વરસાદ કે અન્ય કોઈપણ કારણોસર બુકિંગ કેન્સલ થશે નહીં અને કોઈપણ પ્રકારનું રિફંડ મળશે નહીં તેમજ બુકિંગ અન્ય કોઈપણ દિવસે ટ્રાન્સફર થશે નહીં.",
+        "5. વસ્તુ લેવા આવો ત્યારે બરાબર તપાસીને જોઈને જ લઈ જવી. પાછળથી કોઈ તકરાર ચાલશે નહીં.",
+        "6. કપડું ફાટી ગયું હશે અથવા કોઈ ઓર્નામેન્ટ્સ ખોવાઈ ગયું હશે તો તેની પૂરેપૂરી નુકસાની ગ્રાહકે આપવાની રહેશે.",
+        "7. ગરબા થઈ ગયા પછી આપના ભીના કપડાં પંખા નીચે હવામાં સુકાઈ જાય પછી જ થેલીમાં પેક કરી લાવવાં.",
+        "8. ચણિયાચોળી/કેડિયું જમા કરાવવાનો સમય સવારે 9 થી 12 અને ચણિયાચોળી/કેડિયું લઈ જવાનો સમય બપોરે 2 થી 7 રહેશે.",
+        "9. ડિપોઝિટ રિફંડેબલ છે."
+    ]
+
+    eng_terms = [
+        "1. Chaniya Choli/Kediya must be booked in advance by paying a token amount. The remaining full amount must be paid before Navratri; only then will your booking be considered valid.",
+        "2. The rental is valid for one day/night only. Additional charges will apply for extra time.",
+        "3. A security deposit / valid identification is mandatory at the time of booking.",
+        "4. Bookings cannot be cancelled due to rain or any other reason. No refund of any kind will be provided, and the booking cannot be transferred to any other date.",
+        "5. Please inspect the items carefully before taking them. No complaints or disputes will be accepted later.",
+        "6. If the clothes are torn or any ornaments/accessories are lost, the customer will be responsible for paying the full cost of the damage/loss.",
+        "7. After the Garba event, wet clothes must be properly air-dried under a fan before packing them back into the bag.",
+        "8. The return time for Chaniya Choli/Kediya is from 9:00 AM to 12:00 PM, and the collection time for Chaniya Choli/Kediya is from 2:00 PM to 7:00 PM.",
+        "9. The security deposit is refundable."
+    ]
+
+    guj_font = "NotoSansGujarati" if "notosansgujarati" in pdf.fonts else "helvetica"
+    tc_font_size = 7.5
+    line_h = 3.6
+    point_gap = 1.2
+    sec_gap = 7.0
+
+    # Calculate required height for complete T&C
+    pdf.set_font(guj_font, "", tc_font_size)
+    guj_h = 7.0
+    for pt in guj_terms:
+        lines = pdf.multi_cell(180, line_h, pt, dry_run=True, output="LINES")
+        guj_h += len(lines) * line_h + point_gap
+
+    pdf.set_font("helvetica", "", tc_font_size)
+    eng_h = 7.0
+    for pt in eng_terms:
+        lines = pdf.multi_cell(180, line_h, pt, dry_run=True, output="LINES")
+        eng_h += len(lines) * line_h + point_gap
+
+    total_tc_h = guj_h + sec_gap + eng_h
+
+    # Page break rule: if complete T&C cannot comfortably fit on current page, move to new page
+    if candidate_tc_y + total_tc_h > 272:
+        pdf.add_page()
+        tc_y = 48.0
+    else:
+        tc_y = candidate_tc_y
+
+    pdf.set_y(tc_y)
+
+    # 1. Gujarati Section
     pdf.set_x(15)
-    pdf.set_font("helvetica", "B", 8.5)
-    pdf.set_text_color(100, 116, 139)
-    pdf.cell(0, 4, "Terms & Conditions:", ln=1)
-    
-    pdf.set_font("helvetica", "", 7.5)
-    pdf.set_text_color(148, 163, 184)
+    pdf.set_font(guj_font, "B", 9)
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(180, 5.5, "નિયમો અને શરતો :-")
+    pdf.ln(7.0)
+
+    pdf.set_font(guj_font, "", tc_font_size)
+    pdf.set_text_color(51, 65, 85)
+    for pt in guj_terms:
+        pdf.set_x(15)
+        pdf.multi_cell(180, line_h, pt, align="L")
+        pdf.ln(point_gap)
+
+    # Spacing between Gujarati and English sections
+    pdf.ln(sec_gap)
+
+    # 2. English Section
     pdf.set_x(15)
-    pdf.multi_cell(
-        180, 3.5,
-        "1. Please verify the condition of all rental items before leaving the shop.\n"
-        "2. Rental items must be returned on the scheduled return date. Delayed returns may incur penalty fees.\n"
-        "3. The security deposit is fully refundable upon returning all items without damage.\n"
-        "4. Thank you for choosing Image Traditional!",
-        align="L"
-    )
+    pdf.set_font("helvetica", "B", 9)
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(180, 5.5, "Terms & Conditions")
+    pdf.ln(7.0)
+
+    pdf.set_font("helvetica", "", tc_font_size)
+    pdf.set_text_color(51, 65, 85)
+    for pt in eng_terms:
+        pdf.set_x(15)
+        pdf.multi_cell(180, line_h, pt, align="L")
+        pdf.ln(point_gap)
 
     # Output PDF as bytes
-    pdf_output = pdf.output(dest="S")
-    if isinstance(pdf_output, str):
-        pdf_bytes = pdf_output.encode("latin1")
-    else:
+    pdf_output = pdf.output()
+    if isinstance(pdf_output, (bytes, bytearray)):
         pdf_bytes = bytes(pdf_output)
+    else:
+        pdf_bytes = pdf_output.encode("latin1")
 
     pdf_buffer = io.BytesIO(pdf_bytes)
     pdf_buffer.seek(0)
