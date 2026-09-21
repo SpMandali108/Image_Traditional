@@ -512,7 +512,7 @@
         {% endif %}
 
         <!-- Big Pulse CTA Button to Download PDF -->
-        <form action="{{ url_for('navaratri.download_customer') }}" method="post" style="margin: 0; width: 100%;">
+        <form action="{{ url_for('navaratri.download_customer', id=id, mobile=mobile) }}" method="get" style="margin: 0; width: 100%;">
             {% if id %}
                 <input type="hidden" name="id" value="{{ id }}">
             {% endif %}

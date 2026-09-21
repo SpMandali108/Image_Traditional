@@ -418,6 +418,9 @@ class MainActivity : AppCompatActivity() {
 
         // Handle File Downloads & Exports (PDFs, CSVs, APK, customer bills)
         if (isDownloadRoute(uri)) {
+            if (uri.path?.lowercase(Locale.ROOT) == "/download-customer" && uri.query.isNullOrEmpty()) {
+                return false
+            }
             handleDownload(uri.toString())
             return true
         }
@@ -523,9 +526,18 @@ class MainActivity : AppCompatActivity() {
                     "ImageTraditional.apk"
                 lowerUrl.contains("export-calendar-pdf") ->
                     "Bookings_" + System.currentTimeMillis() + ".pdf"
+                lowerUrl.contains("download-customer") ->
+                    "Navaratri_Bill_" + System.currentTimeMillis() + ".pdf"
                 else ->
                     "ImageTraditional_" + System.currentTimeMillis() + ".pdf"
             }
+
+            val mimeType = when {
+                fileName.endsWith(".csv") -> "text/csv"
+                fileName.endsWith(".apk") -> "application/vnd.android.package-archive"
+                else -> "application/pdf"
+            }
+            request.setMimeType(mimeType)
 
             request.setDestinationInExternalPublicDir(
                 Environment.DIRECTORY_DOWNLOADS,
