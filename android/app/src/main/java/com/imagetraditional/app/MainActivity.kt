@@ -416,6 +416,12 @@ class MainActivity : AppCompatActivity() {
             return handleExternalIntent(uri)
         }
 
+        // Handle File Downloads & Exports (PDFs, CSVs, APK, customer bills)
+        if (isDownloadRoute(uri)) {
+            handleDownload(uri.toString())
+            return true
+        }
+
         // Internal URL within Image Traditional domain -> MUST LOAD IN WEBVIEW!
         if (isInternalDomain(uri)) {
             val urlString = uri.toString()
@@ -451,6 +457,17 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             false
         }
+    }
+
+    private fun isDownloadRoute(uri: Uri): Boolean {
+        val path = uri.path?.lowercase(Locale.ROOT) ?: ""
+        return path.startsWith("/export-") ||
+                path.startsWith("/export_") ||
+                path.startsWith("/download-customer") ||
+                path.startsWith("/download/app") ||
+                path.endsWith(".pdf") ||
+                path.endsWith(".csv") ||
+                path.endsWith(".apk")
     }
 
     private fun isExternalScheme(uri: Uri): Boolean {
@@ -497,9 +514,22 @@ class MainActivity : AppCompatActivity() {
             request.setDescription(getString(R.string.download_started))
             request.setTitle("Image Traditional Document")
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+
+            val lowerUrl = url.lowercase(Locale.ROOT)
+            val fileName = when {
+                lowerUrl.contains(".csv") || lowerUrl.contains("export-calendar-bookings") || lowerUrl.contains("export_bookings") ->
+                    "Bookings_" + System.currentTimeMillis() + ".csv"
+                lowerUrl.contains(".apk") || lowerUrl.contains("download/app") ->
+                    "ImageTraditional.apk"
+                lowerUrl.contains("export-calendar-pdf") ->
+                    "Bookings_" + System.currentTimeMillis() + ".pdf"
+                else ->
+                    "ImageTraditional_" + System.currentTimeMillis() + ".pdf"
+            }
+
             request.setDestinationInExternalPublicDir(
                 Environment.DIRECTORY_DOWNLOADS,
-                "ImageTraditional_" + System.currentTimeMillis() + ".pdf"
+                fileName
             )
 
             val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager

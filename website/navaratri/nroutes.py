@@ -2140,6 +2140,331 @@ def export_calendar_bookings():
     )
 
 
+@navaratri.route("/export-calendar-pdf", methods=["GET", "POST"])
+def export_calendar_pdf():
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    date = (request.args.get("date") or request.form.get("date") or "").strip()
+    if not date:
+        return "No date provided", 400
+
+    try:
+        from datetime import timedelta
+        date_obj = datetime.strptime(date, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d-%m-%y")
+        formatted_date_display = date_obj.strftime("%d-%b-%Y")
+        full_date_display = date_obj.strftime("%d %B %Y (%A)")
+    except ValueError:
+        try:
+            date_obj = datetime.strptime(date, "%d-%m-%y")
+            formatted_date = date
+            formatted_date_display = date_obj.strftime("%d-%b-%Y")
+            full_date_display = date_obj.strftime("%d %B %Y (%A)")
+        except ValueError:
+            return "Invalid date format. Expected YYYY-MM-DD", 400
+
+    # Calculate yesterday's and tomorrow's date strings
+    from datetime import timedelta
+    yesterday_obj = date_obj - timedelta(days=1)
+    yesterday_date_str = yesterday_obj.strftime("%d-%m-%y")
+    
+    tomorrow_obj = date_obj + timedelta(days=1)
+    tomorrow_date_str = tomorrow_obj.strftime("%d-%m-%y")
+
+    # Query MongoDB for bookings on formatted_date, yesterday, and tomorrow
+    customers = list(collection.find({f"bookings.{formatted_date}": {"$exists": True}}))
+    yesterday_customers = list(collection.find({f"bookings.{yesterday_date_str}": {"$exists": True}}))
+    tomorrow_customers = list(collection.find({f"bookings.{tomorrow_date_str}": {"$exists": True}}))
+    
+    # Map product codes to yesterday's renter details
+    yesterday_map = {}
+    for yc in yesterday_customers:
+        y_prods = yc.get("bookings", {}).get(yesterday_date_str, [])
+        for yp in y_prods:
+            yesterday_map[yp] = {
+                "name": yc.get("Name", "Unknown"),
+                "mobile": yc.get("mobile", "N/A")
+            }
+            
+    # Map product codes to tomorrow's renter details
+    tomorrow_map = {}
+    for tc in tomorrow_customers:
+        t_prods = tc.get("bookings", {}).get(tomorrow_date_str, [])
+        for tp in t_prods:
+            tomorrow_map[tp] = {
+                "name": tc.get("Name", "Unknown"),
+                "mobile": tc.get("mobile", "N/A")
+            }
+
+    # Collect rows
+    rows = []
+    for c in customers:
+        products = c.get("bookings", {}).get(formatted_date, [])
+        for product in products:
+            y_info = yesterday_map.get(product)
+            t_info = tomorrow_map.get(product)
+            rows.append({
+                "name": c.get("Name", "N/A"),
+                "mobile": c.get("mobile", "N/A"),
+                "product": product,
+                "yesterday": f"{y_info['name']} ({y_info['mobile']})" if y_info else None,
+                "tomorrow": f"{t_info['name']} ({t_info['mobile']})" if t_info else None,
+            })
+
+    class CalendarPDF(FPDF):
+        def header(self):
+            # Background navy banner
+            self.set_fill_color(10, 17, 32)  # #0a1120 Premium navy
+            self.rect(0, 0, 210, 42, 'F')
+            
+            # Shop Logo
+            logo_path = os.path.join(current_app.root_path, "static", "Home_Img", "favicon.png")
+            if os.path.exists(logo_path):
+                self.image(logo_path, 15, 10, 22)
+            
+            # Title
+            self.set_text_color(212, 175, 55)  # Gold #d4af37
+            self.set_font('helvetica', 'B', 22)
+            self.set_xy(42, 10)
+            self.cell(0, 10, 'IMAGE TRADITIONAL')
+            
+            # Address info (white text)
+            self.set_text_color(241, 245, 249)
+            self.set_font('helvetica', '', 9)
+            self.set_xy(42, 20)
+            self.multi_cell(
+                95, 4.5,
+                "Nr. Laxminarayan Bus-stand, Opp Prarabdh Soc.\n"
+                "Maninagar(E), Ahmedabad-08",
+                align='L'
+            )
+            
+            # Owner & Meta Details (Right Side)
+            self.set_text_color(212, 175, 55)  # Gold
+            self.set_font('helvetica', 'B', 10)
+            self.set_xy(140, 11)
+            self.cell(55, 5, "Prakash Mandali: 9428610384", align='R')
+            
+            self.set_text_color(241, 245, 249)
+            self.set_font('helvetica', '', 9)
+            self.set_xy(140, 17)
+            self.cell(55, 5, "Daily Bookings Schedule", align='R')
+            
+            self.set_xy(140, 23)
+            self.cell(55, 5, f"Date: {formatted_date_display}", align='R')
+            
+            self.ln(25)
+
+        def footer(self):
+            self.set_y(-15)
+            self.set_font('helvetica', 'I', 8)
+            self.set_text_color(148, 163, 184)
+            self.cell(0, 10, f'Page {self.page_no()}/{{nb}} | Image Traditional Daily Bookings Schedule', align='C')
+
+    pdf = CalendarPDF('P', 'mm', 'A4')
+    pdf.alias_nb_pages()
+
+    # Register Unicode Gujarati font
+    font_reg = os.path.join(current_app.root_path, "static", "fonts", "NotoSansGujarati-Regular.ttf")
+    font_bold = os.path.join(current_app.root_path, "static", "fonts", "NotoSansGujarati-Bold.ttf")
+    if not os.path.exists(font_reg) and os.path.exists(r"C:\Windows\Fonts\shruti.ttf"):
+        font_reg = r"C:\Windows\Fonts\shruti.ttf"
+        font_bold = r"C:\Windows\Fonts\shrutib.ttf"
+    if os.path.exists(font_reg):
+        pdf.add_font("NotoSansGujarati", "", font_reg)
+        pdf.add_font("NotoSansGujarati", "B", font_bold if os.path.exists(font_bold) else font_reg)
+        try:
+            pdf.set_text_shaping(True)
+        except Exception:
+            pass
+
+    has_guj_font = "notosansgujarati" in pdf.fonts
+
+    def is_gujarati(text):
+        return any('\u0a80' <= ch <= '\u0aff' for ch in str(text))
+
+    def set_smart_font(text, style='', size=8):
+        if is_gujarati(text) and has_guj_font:
+            pdf.set_font("NotoSansGujarati", style, size)
+        else:
+            pdf.set_font("helvetica", style, size)
+
+    def draw_table_header():
+        pdf.set_font("helvetica", "B", 8.5)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_fill_color(10, 17, 32)
+        pdf.set_draw_color(10, 17, 32)
+
+        pdf.set_x(15)
+        pdf.cell(8, 8, "Sr.", border=1, align="C", fill=True)
+        pdf.cell(36, 8, "Customer Name", border=1, align="C", fill=True)
+        pdf.cell(24, 8, "Mobile", border=1, align="C", fill=True)
+        pdf.cell(16, 8, "Product", border=1, align="C", fill=True)
+        pdf.cell(48, 8, "Booked Yesterday (Handover)", border=1, align="C", fill=True)
+        pdf.cell(48, 8, "Booked Tomorrow (Next)", border=1, align="C", fill=True)
+        pdf.ln()
+
+    pdf.add_page()
+    pdf.set_y(46)
+
+    # Title
+    pdf.set_font('helvetica', 'B', 11)
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(0, 7, "DAILY BOOKINGS & HANDOVER SCHEDULE")
+    pdf.ln(7)
+
+    # Gold separator line
+    pdf.set_draw_color(212, 175, 55)
+    pdf.set_line_width(0.5)
+    pdf.line(15, pdf.get_y(), 195, pdf.get_y())
+    pdf.ln(3.5)
+
+    # KPI summary bar
+    b2b_count = sum(1 for r in rows if r.get('yesterday'))
+    total_count = len(rows)
+
+    kpi_y = pdf.get_y()
+    pdf.set_fill_color(248, 250, 252)
+    pdf.set_draw_color(226, 232, 240)
+    pdf.set_line_width(0.3)
+    pdf.rect(15, kpi_y, 180, 9, 'DF')
+
+    # Date
+    pdf.set_xy(18, kpi_y + 2)
+    pdf.set_font('helvetica', 'B', 8.5)
+    pdf.set_text_color(100, 116, 139)
+    pdf.cell(24, 5, "Schedule Date: ")
+    pdf.set_font('helvetica', 'B', 9)
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(50, 5, full_date_display)
+
+    # Total Costumes
+    pdf.set_xy(95, kpi_y + 2)
+    pdf.set_font('helvetica', 'B', 8.5)
+    pdf.set_text_color(100, 116, 139)
+    pdf.cell(28, 5, "Total Costumes: ")
+    pdf.set_font('helvetica', 'B', 9)
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(18, 5, str(total_count))
+
+    # B2B Handovers
+    pdf.set_xy(145, kpi_y + 2)
+    pdf.set_font('helvetica', 'B', 8.5)
+    pdf.set_text_color(100, 116, 139)
+    pdf.cell(26, 5, "B2B Handovers: ")
+    pdf.set_font('helvetica', 'B', 9)
+    if b2b_count > 0:
+        pdf.set_text_color(220, 38, 38)
+    else:
+        pdf.set_text_color(16, 185, 129)
+    pdf.cell(20, 5, f"{b2b_count} item(s)")
+
+    pdf.set_y(kpi_y + 12)
+
+    # Draw Table
+    draw_table_header()
+
+    if not rows:
+        pdf.set_x(15)
+        pdf.set_font('helvetica', 'I', 9)
+        pdf.set_text_color(148, 163, 184)
+        pdf.cell(180, 14, "No costume bookings scheduled for this date.", border=1, align="C")
+    else:
+        for idx, r in enumerate(rows):
+            # Check for page overflow
+            if pdf.get_y() + 8.5 > 270:
+                pdf.add_page()
+                pdf.set_y(46)
+                draw_table_header()
+
+            bg_fill = (idx % 2 == 1)
+            pdf.set_x(15)
+            if bg_fill:
+                pdf.set_fill_color(248, 250, 252)
+            else:
+                pdf.set_fill_color(255, 255, 255)
+            pdf.set_draw_color(226, 232, 240)
+
+            # 1. Sr. (8mm)
+            pdf.set_font('helvetica', '', 8)
+            pdf.set_text_color(100, 116, 139)
+            pdf.cell(8, 7.5, str(idx + 1), border=1, align="C", fill=True)
+
+            # 2. Customer Name (36mm)
+            name = str(r.get('name', 'N/A'))
+            set_smart_font(name, style='B' if not is_gujarati(name) else '', size=8)
+            pdf.set_text_color(15, 23, 42)
+            while pdf.get_string_width('  ' + name) > 34 and len(name) > 3:
+                name = name[:-2] + '..'
+            pdf.cell(36, 7.5, '  ' + name, border=1, align="L", fill=True)
+
+            # 3. Mobile (24mm)
+            pdf.set_font('helvetica', '', 8)
+            pdf.set_text_color(51, 65, 85)
+            pdf.cell(24, 7.5, str(r.get('mobile', 'N/A')), border=1, align="C", fill=True)
+
+            # 4. Product Code (16mm)
+            pdf.set_font('helvetica', 'B', 8.5)
+            pdf.set_text_color(10, 17, 32)
+            pdf.cell(16, 7.5, str(r.get('product', '-')), border=1, align="C", fill=True)
+
+            # 5. Booked Yesterday (48mm)
+            y_info = r.get('yesterday')
+            if y_info:
+                set_smart_font(y_info, size=7.5)
+                pdf.set_text_color(185, 28, 28)  # Alert Red
+                y_text = str(y_info)
+                while pdf.get_string_width('  ' + y_text) > 46 and len(y_text) > 3:
+                    y_text = y_text[:-2] + '..'
+                pdf.cell(48, 7.5, '  ' + y_text, border=1, align="L", fill=True)
+            else:
+                pdf.set_font('helvetica', '', 7.5)
+                pdf.set_text_color(21, 128, 61)  # Success Green
+                pdf.cell(48, 7.5, '  In shop - ready', border=1, align="L", fill=True)
+
+            # 6. Booked Tomorrow (48mm)
+            t_info = r.get('tomorrow')
+            if t_info:
+                set_smart_font(t_info, size=7.5)
+                pdf.set_text_color(29, 78, 216)  # Info Blue
+                t_text = str(t_info)
+                while pdf.get_string_width('  ' + t_text) > 46 and len(t_text) > 3:
+                    t_text = t_text[:-2] + '..'
+                pdf.cell(48, 7.5, '  ' + t_text, border=1, align="L", fill=True)
+            else:
+                pdf.set_font('helvetica', '', 7.5)
+                pdf.set_text_color(148, 163, 184)  # Muted slate
+                pdf.cell(48, 7.5, '  -', border=1, align="L", fill=True)
+
+            pdf.ln()
+
+        # Operational Note
+        pdf.ln(3)
+        if pdf.get_y() + 10 <= 270:
+            pdf.set_x(15)
+            pdf.set_font('helvetica', 'I', 7.5)
+            pdf.set_text_color(100, 116, 139)
+            pdf.cell(180, 5, "* Note: Costumes with Back-to-Back (B2B) handovers must be checked and sanitized immediately upon return.")
+
+    pdf_output = pdf.output()
+    if isinstance(pdf_output, (bytes, bytearray)):
+        pdf_bytes = bytes(pdf_output)
+    else:
+        pdf_bytes = pdf_output.encode("latin1")
+
+    pdf_buffer = io.BytesIO(pdf_bytes)
+    pdf_buffer.seek(0)
+
+    filename = f"Bookings_{date}.pdf"
+    return send_file(
+        pdf_buffer,
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=filename
+    )
+
+
 @navaratri.route("/download-bill", methods=["GET", "POST"])
 def download_bill_page():
     cust_id = request.args.get("id", "") or request.form.get("id", "")

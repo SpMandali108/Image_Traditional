@@ -683,9 +683,14 @@ body {
             </div>
         </div>
         {% if date and bookings %}
-        <a href="{{ url_for('navaratri.export_calendar_bookings', date=date) }}" class="btn-ghost">
-            <i class="fa-solid fa-file-arrow-down"></i> Export CSV
-        </a>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <a href="{{ url_for('navaratri.export_calendar_bookings', date=date) }}" class="btn-ghost" title="Export as CSV">
+                <i class="fa-solid fa-file-arrow-down"></i> Export CSV
+            </a>
+            <a href="{{ url_for('navaratri.export_calendar_pdf', date=date) }}" class="btn-ghost" title="Export as PDF">
+                <i class="fa-solid fa-file-pdf"></i> Export PDF
+            </a>
+        </div>
         {% endif %}
     </div>
 
@@ -717,9 +722,14 @@ body {
                     {% endif %}
                 </h2>
                 {% if date and bookings %}
-                <a href="{{ url_for('navaratri.export_calendar_bookings', date=date) }}" class="btn-ghost">
-                    <i class="fa-solid fa-file-arrow-down"></i> CSV
-                </a>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <a href="{{ url_for('navaratri.export_calendar_bookings', date=date) }}" class="btn-ghost" title="Export as CSV">
+                        <i class="fa-solid fa-file-arrow-down"></i> CSV
+                    </a>
+                    <a href="{{ url_for('navaratri.export_calendar_pdf', date=date) }}" class="btn-ghost" title="Export as PDF">
+                        <i class="fa-solid fa-file-pdf"></i> PDF
+                    </a>
+                </div>
                 {% endif %}
             </div>
             <div class="panel-body">

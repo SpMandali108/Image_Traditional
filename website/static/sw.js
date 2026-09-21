@@ -5,7 +5,7 @@
  * and enforces strict network-only security for Admin Panel routes.
  */
 
-const CACHE_VERSION = 'it-pwa-v1.0.2';
+const CACHE_VERSION = 'it-pwa-v1.0.3';
 const CORE_CACHE = `image-traditional-core-${CACHE_VERSION}`;
 const PAGES_CACHE = `image-traditional-pages-${CACHE_VERSION}`;
 const IMAGES_CACHE = `image-traditional-images-${CACHE_VERSION}`;
@@ -61,10 +61,6 @@ const ADMIN_ROUTE_PREFIXES = [
   '/navaratri_booking',
   '/pay_remaining',
   '/download-bill',
-  '/download-customer',
-  '/export_bookings',
-  '/export-calendar-bookings',
-  '/export_product_report',
   '/generate-qr',
   '/QR',
   '/update_status',
@@ -160,6 +156,22 @@ self.addEventListener('fetch', (event) => {
       return;
     }
     // Let other cross-origin requests proceed over network
+    return;
+  }
+
+  // 0. BINARY DOWNLOADS & FILE EXPORTS (PDFs, CSVs, APK, Documents)
+  // MUST bypass Service Worker completely so browser/WebView native download managers handle the file stream directly!
+  if (
+    url.pathname.startsWith('/export') ||
+    url.pathname.startsWith('/download-customer') ||
+    url.pathname.startsWith('/download/app') ||
+    url.pathname.includes('/export-') ||
+    url.pathname.includes('/export_') ||
+    url.pathname.endsWith('.pdf') ||
+    url.pathname.endsWith('.csv') ||
+    url.pathname.endsWith('.xlsx') ||
+    url.pathname.endsWith('.apk')
+  ) {
     return;
   }
 
