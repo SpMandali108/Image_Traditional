@@ -1,5 +1,5 @@
 {% extends "general/base.html" %}
-{% block title %}Costume Sale Form | Image Traditional{% endblock %}
+{% block title %}Costume Sales | Image Traditional POS{% endblock %}
 
 {% block logo_link %}
 <a href="/navaratri_admin" class="logo">
@@ -16,50 +16,47 @@
 <!-- Bootstrap 5 & Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
-<!-- Google Fonts matching Booking Manager -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 
 <style>
-/* ─── DESIGN SYSTEM & PALETTE (MATCHING BOOKING MANAGER) ─────────────── */
 :root {
   --bg-dark:        #060c17;
-  --bg-card:        rgba(14, 25, 44, 0.85);
-  --bg-card-hover:  rgba(22, 38, 64, 0.95);
-  --bg-input:       #0a1424;
-  --border-color:   rgba(255, 255, 255, 0.08);
-  --border-gold:    rgba(201, 162, 39, 0.35);
+  --bg-surface:     #0c1626;
+  --bg-card:        #0f1d32;
+  --bg-card-subtle: #14243d;
+  --bg-input:       #081220;
+  
+  --border-subtle:  rgba(255, 255, 255, 0.08);
+  --border-focus:   rgba(201, 162, 39, 0.5);
+  --border-gold:    rgba(201, 162, 39, 0.3);
   
   --gold-primary:   #c9a227;
   --gold-light:     #f3d068;
   --gold-glow:      rgba(201, 162, 39, 0.2);
   
-  --text-main:      #e2e8f0;
-  --text-muted:     #64748b;
-  --text-dark:      #94a3b8;
+  --text-main:      #f8fafc;
+  --text-body:      #cbd5e1;
+  --text-muted:     #8899ad;
   
-  --accent-danger:  #ef4444;
-  --accent-success: #10b981;
-  --accent-warning: #f59e0b;
-  --accent-info:    #3b82f6;
+  --color-success:  #10b981;
+  --color-danger:   #ef4444;
+  --color-warning:  #f59e0b;
 
-  --r-lg: 20px;
-  --r-md: 14px;
-  --r-sm: 10px;
+  --r-card:         16px;
+  --r-input:        10px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
-  background: var(--bg-dark) !important;
-  color: var(--text-main) !important;
+  background-color: var(--bg-dark) !important;
+  color: var(--text-body) !important;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 14px;
+  font-size: 14.5px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
-  background-image: 
-    radial-gradient(circle at 10% 10%, rgba(201, 162, 39, 0.07), transparent 35%),
-    radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.06), transparent 35%),
-    radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.03), transparent 50%);
 }
 
 .main-content {
@@ -68,968 +65,868 @@ body {
   margin: 0 !important;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(201, 162, 39, 0.3); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--gold-primary); }
-
-/* ─── HERO TOPLINE ──────────────────────────────────────────────────── */
-.topline {
-  background: linear-gradient(180deg, rgba(14, 25, 44, 0.95) 0%, var(--bg-dark) 100%);
-  border-bottom: 1px solid var(--border-color);
-  padding: 22px 24px;
-  position: relative;
-  backdrop-filter: blur(12px);
-  margin-bottom: 24px;
+/* ─── PAGE HEADER ───────────────────────────────────────────────────── */
+.pos-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 20px 32px;
+  margin-bottom: 28px;
 }
-.topline::after {
-  content: '';
-  position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold-primary) 50%, transparent);
-  opacity: 0.6;
-}
-.topline-inner { max-width: 1400px; margin: 0 auto; }
-.topline-row1 {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 16px; flex-wrap: wrap;
-}
-.topline-heading { display: flex; align-items: center; gap: 14px; }
-.topline-badge {
-  width: 48px; height: 48px; border-radius: 14px;
-  background: linear-gradient(145deg, rgba(201, 162, 39, 0.25), rgba(201, 162, 39, 0.05));
-  border: 1px solid var(--border-gold);
-  display: flex; align-items: center; justify-content: center;
-  color: var(--gold-light); font-size: 1.35rem; flex-shrink: 0;
-  box-shadow: 0 0 20px var(--gold-glow);
-}
-.topline-eyebrow {
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.16em; color: var(--gold-primary); margin-bottom: 2px;
-}
-.topline-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.65rem; font-weight: 700; color: #ffffff;
-  margin: 0; line-height: 1.1; letter-spacing: -0.01em;
-}
-.topline-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-
-/* ─── STAT CHIPS (KPIs) ─────────────────────────────────────────────── */
-.stat-strip {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-.stat-chip {
-  display: flex; align-items: center; gap: 12px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--r-md);
-  padding: 14px 18px;
-  backdrop-filter: blur(10px);
-  transition: all 0.2s ease;
-}
-.stat-chip:hover { border-color: var(--border-gold); transform: translateY(-2px); }
-.stat-chip-icon {
-  width: 40px; height: 40px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; flex-shrink: 0;
-  background: rgba(201, 162, 39, 0.15); color: var(--gold-light);
-}
-.stat-chip.is-danger .stat-chip-icon { background: rgba(239, 68, 68, 0.15); color: var(--accent-danger); }
-.stat-chip.is-success .stat-chip-icon { background: rgba(16, 185, 129, 0.15); color: var(--accent-success); }
-.stat-chip-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
-.stat-chip-value { font-size: 1.25rem; font-weight: 800; color: #ffffff; line-height: 1.1; }
-.stat-chip.is-danger .stat-chip-value { color: var(--accent-danger); }
-.stat-chip.is-success .stat-chip-value { color: var(--accent-success); }
-
-/* ─── 2-COLUMN LAYOUT ───────────────────────────────────────────────── */
-.sell-layout {
-  max-width: 1400px;
+.pos-header-inner {
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 0 24px 60px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-  align-items: start;
-}
-@media (min-width: 1200px) {
-  .sell-layout {
-    grid-template-columns: 1.25fr 0.75fr;
-  }
-}
-
-/* ─── FORM & SIDEBAR CARDS ──────────────────────────────────────────── */
-.sell-card {
-  background: linear-gradient(180deg, rgba(20, 34, 58, 0.92), rgba(14, 25, 44, 0.92));
-  border-radius: var(--r-lg);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(16px);
-  box-shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.85);
-  position: relative;
-  overflow: hidden;
-}
-.sell-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, transparent, var(--gold-primary) 50%, transparent);
-  opacity: 0.7;
-}
-
-.sell-card-head {
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--border-color);
-  background: linear-gradient(90deg, rgba(201, 162, 39, 0.08) 0%, rgba(14, 25, 44, 0.6) 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 16px;
 }
-.sell-card-title {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1.15rem;
-  font-weight: 700;
+.pos-title-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.pos-title-icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(201, 162, 39, 0.12);
+  border: 1px solid var(--border-gold);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--gold-light);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+.pos-heading-text h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+  line-height: 1.2;
+}
+.pos-heading-text p {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  margin: 3px 0 0 0;
+}
+.pos-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ─── MAIN 2-COLUMN POS LAYOUT ──────────────────────────────────────── */
+.pos-layout {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 32px 60px;
+  display: grid;
+  grid-template-columns: 1fr 390px;
+  gap: 28px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .pos-layout {
+    grid-template-columns: 1fr;
+    padding: 0 20px 50px;
+    gap: 24px;
+  }
+}
+
+/* ─── CARDS ─────────────────────────────────────────────────────────── */
+.pos-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-card);
+  padding: 24px 26px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+.pos-card:last-child {
+  margin-bottom: 0;
+}
+.pos-card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 18px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pos-card-title i {
+  color: var(--gold-primary);
+  font-size: 1.15rem;
+}
+
+/* ─── FORM LABELS & INPUTS ──────────────────────────────────────────── */
+.form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 7px;
+}
+.form-label .req {
+  color: var(--color-danger);
+  margin-left: 2px;
+}
+.form-label .opt {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 0.78rem;
+  margin-left: 4px;
+}
+
+.pos-input, .form-control {
+  width: 100%;
+  height: 44px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-input);
+  color: var(--text-main);
+  padding: 10px 14px;
+  font-size: 0.92rem;
+  font-family: inherit;
+  transition: all 0.15s ease-in-out;
+}
+textarea.pos-input, textarea.form-control {
+  height: auto;
+  min-height: 80px;
+  resize: vertical;
+}
+.pos-input:focus, .form-control:focus {
+  background: var(--bg-input);
+  border-color: var(--gold-primary);
+  color: var(--text-main);
+  box-shadow: 0 0 0 3px var(--gold-glow);
+  outline: none;
+}
+.pos-input::placeholder, .form-control::placeholder {
+  color: var(--text-muted);
+}
+
+/* ─── CODE SEARCH & SELECTION ───────────────────────────────────────── */
+.code-entry-bar {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+.code-entry-input {
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  font-size: 1.05rem;
+  color: var(--gold-light) !important;
+}
+
+.btn-add-code {
+  background: var(--gold-primary);
+  color: #060c17;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: var(--r-input);
+  padding: 0 24px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+.btn-add-code:hover {
+  background: var(--gold-light);
+  color: #060c17;
+}
+
+/* Selected Costumes List */
+.selected-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+.selected-item-row {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  transition: border-color 0.15s ease;
+}
+.selected-item-row:hover {
+  border-color: var(--border-gold);
+}
+.selected-item-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.selected-item-thumb {
+  width: 44px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #000;
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+.selected-item-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.selected-item-code {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text-main);
+  font-family: monospace;
+}
+.selected-item-category {
+  font-size: 0.8rem;
+  color: var(--gold-light);
+  font-weight: 600;
+}
+.selected-item-badge {
+  font-size: 0.72rem;
+  color: var(--color-success);
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn-remove-item {
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.btn-remove-item:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--color-danger);
+  color: #ff9090;
+}
+
+/* Empty State */
+.empty-items-notice {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  border-radius: 12px;
+  background: rgba(8, 18, 32, 0.5);
+  margin-top: 14px;
+}
+.empty-items-notice strong {
+  display: block;
+  color: #e2e8f0;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+.empty-items-notice span {
+  font-size: 0.82rem;
+}
+
+/* ─── RIGHT SIDE BILLING PANEL (STICKY ON DESKTOP) ───────────────────── */
+.billing-panel-wrapper {
+  position: sticky;
+  top: 24px;
+}
+.billing-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r-card);
+  padding: 24px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+.billing-card-header {
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.billing-card-header h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
   margin: 0;
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
-.sell-card-body {
-  padding: 24px;
-}
-
-/* ─── SECTION TITLES & FORM CONTROLS ────────────────────────────────── */
-.modal-section-title {
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 700;
+.billing-card-header h2 i {
   color: var(--gold-primary);
-  border-bottom: 1px dashed var(--border-color);
-  padding-bottom: 8px;
-  margin-bottom: 16px;
-  margin-top: 8px;
 }
 
-.form-label {
-  color: var(--text-muted);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  margin-bottom: 6px;
-  display: block;
+.billing-items-summary {
+  background: var(--bg-surface);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  font-size: 0.84rem;
+  max-height: 160px;
+  overflow-y: auto;
 }
-.form-label .req { color: var(--accent-danger); font-weight: 800; }
-.form-label .opt { color: var(--text-dark); font-size: 0.72rem; font-weight: 400; }
-
-.form-control, .form-select {
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
-  color: #ffffff;
-  border-radius: var(--r-sm);
-  font-size: 0.86rem;
-  padding: 10px 14px;
-  transition: all 0.2s ease;
-}
-.form-control::placeholder { color: var(--text-muted); }
-.form-control:focus, .form-select:focus {
-  background: var(--bg-input);
-  border-color: var(--gold-primary);
-  color: #ffffff;
-  box-shadow: 0 0 0 3px var(--gold-glow);
-  outline: none;
-}
-
-/* ─── MULTI-CODE SELECTION UI ───────────────────────────────────────── */
-.add-code-bar {
-  display: flex;
-  gap: 10px;
-  align-items: stretch;
-}
-.add-code-bar input {
-  text-transform: uppercase;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  font-size: 0.95rem;
-}
-
-/* Live Candidate Preview Card */
-.candidate-preview {
-  background: rgba(6, 12, 23, 0.6);
-  border: 1px dashed var(--border-gold);
-  border-radius: var(--r-md);
-  padding: 10px 14px;
-  display: none;
-  align-items: center;
-  gap: 14px;
-  margin-top: 10px;
-}
-.candidate-preview.active { display: flex; }
-.candidate-thumb {
-  width: 50px;
-  height: 56px;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 1px solid var(--border-gold);
-  background: #000;
-  flex-shrink: 0;
-}
-
-/* Selected Costumes Grid / Cards */
-.selected-costumes-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 12px;
-  margin-top: 14px;
-}
-.costume-item-card {
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
-  border-radius: var(--r-md);
-  padding: 10px 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: all 0.2s ease;
-  position: relative;
-}
-.costume-item-card:hover {
-  border-color: var(--border-gold);
-  background: var(--bg-card-hover);
-  transform: translateY(-2px);
-}
-.costume-card-thumb {
-  width: 48px;
-  height: 54px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid var(--border-gold);
-  background: #000;
-  flex-shrink: 0;
-}
-.costume-card-info {
-  flex-grow: 1;
-  min-width: 0;
-}
-.costume-card-code {
-  font-weight: 800;
-  font-size: 0.92rem;
-  color: #ffffff;
-  font-family: monospace;
-}
-.costume-card-cat {
-  font-size: 0.72rem;
-  color: var(--gold-light);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.btn-remove-code {
-  background: transparent;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: var(--accent-danger);
-  border-radius: 8px;
-  padding: 4px 8px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  flex-shrink: 0;
-}
-.btn-remove-code:hover {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: var(--accent-danger);
-  color: #ff9090;
-}
-
-/* ─── FINANCIAL SUMMARY BOX ─────────────────────────────────────────── */
-.financial-calc-box {
-  background: rgba(6, 12, 23, 0.55);
-  border: 1px solid var(--border-color);
-  border-radius: var(--r-md);
-  padding: 16px 20px;
-  margin-top: 14px;
-}
-.calc-row {
+.billing-item-line {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 0;
-  font-size: 0.85rem;
-  color: var(--text-dark);
+  padding: 4px 0;
+  color: var(--text-body);
 }
-.calc-row.balance-due-row {
-  border-top: 1px dashed var(--border-color);
-  margin-top: 8px;
-  padding-top: 12px;
+.billing-item-line:not(:last-child) {
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
 }
-.balance-badge {
+
+/* Financial Rows */
+.price-display-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.price-row:last-child {
+  margin-bottom: 0;
+}
+.price-label {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.price-val-large {
+  font-size: 1.55rem;
   font-weight: 800;
-  font-size: 1.15rem;
-  padding: 4px 12px;
-  border-radius: 999px;
+  color: var(--text-main);
+  font-family: 'Outfit', sans-serif;
+}
+.price-input-row {
+  margin-bottom: 16px;
+}
+
+/* Remaining Balance Highlight */
+.balance-highlight-box {
+  background: rgba(6, 12, 23, 0.6);
+  border: 1.5px solid var(--border-gold);
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+.balance-highlight-box.is-paid {
+  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.08);
+}
+.balance-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.balance-highlight-box.is-paid .balance-title {
+  color: var(--color-success);
+}
+.balance-amount {
+  font-size: 1.45rem;
+  font-weight: 800;
+  font-family: 'Outfit', sans-serif;
+  color: var(--text-main);
+}
+.balance-highlight-box.is-paid .balance-amount {
+  color: var(--color-success);
+}
+
+/* Password Row */
+.auth-row {
+  margin-bottom: 22px;
+}
+.password-input-wrap {
+  position: relative;
+}
+.btn-toggle-eye {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+}
+.btn-toggle-eye:hover {
+  color: var(--text-main);
+}
+
+/* ─── PRIMARY ACTION BUTTON ─────────────────────────────────────────── */
+.btn-generate-bill {
+  width: 100%;
+  height: 52px;
+  background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-light) 100%);
+  color: #060c17 !important;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  border: none;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 6px 20px rgba(201, 162, 39, 0.35);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-generate-bill:hover {
+  background: linear-gradient(135deg, #dbb02c 0%, #fae298 100%);
+  box-shadow: 0 8px 26px rgba(201, 162, 39, 0.5);
+  transform: translateY(-1px);
+}
+.btn-generate-bill:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.btn-subtext {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* Secondary Buttons */
+.btn-nav-ghost {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-}
-.balance-badge.due {
-  background: rgba(239, 68, 68, 0.12);
-  color: var(--accent-danger);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-.balance-badge.paid {
-  background: rgba(16, 185, 129, 0.12);
-  color: var(--accent-success);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-/* ─── BUTTONS ───────────────────────────────────────────────────────── */
-.btn-gold {
-  background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-light) 100%);
-  color: #060c17;
-  font-weight: 700;
-  font-size: 0.85rem;
-  border: none;
-  border-radius: 999px;
-  padding: 10px 22px;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 15px rgba(201, 162, 39, 0.3);
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.btn-gold:hover {
-  box-shadow: 0 8px 25px rgba(201, 162, 39, 0.5);
-  transform: translateY(-1px);
-  color: #060c17;
-}
-.btn-gold:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn-ghost-light {
-  background: transparent;
-  color: var(--text-dark);
-  border: 1px solid var(--border-color);
-  font-weight: 600;
-  font-size: 0.82rem;
-  border-radius: 999px;
-  padding: 8px 18px;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-}
-.btn-ghost-light:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
-}
-
-.btn-ghost-gold {
-  background: transparent;
-  color: var(--gold-light);
-  border: 1px solid var(--border-gold);
-  font-weight: 600;
-  font-size: 0.82rem;
-  border-radius: 999px;
-  padding: 8px 18px;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-}
-.btn-ghost-gold:hover {
-  background: var(--gold-glow);
-  color: #ffffff;
-  border-color: var(--gold-light);
-}
-
-.btn-ghost-success {
-  background: transparent;
-  color: var(--accent-success);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  font-weight: 600;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  color: var(--text-body);
   font-size: 0.84rem;
-  border-radius: 999px;
-  padding: 9px 20px;
-  transition: all 0.2s ease;
+  font-weight: 600;
   text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.btn-ghost-success:hover {
-  background: rgba(16, 185, 129, 0.12);
-  color: #4ade80;
-}
-
-/* ─── BADGES ────────────────────────────────────────────────────────── */
-.badge-gold {
-  background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
-  color: #060c17;
-  font-weight: 800;
-  font-size: 0.68rem;
-  padding: 4px 12px;
-  border-radius: 999px;
-  letter-spacing: 0.03em;
-}
-.badge-navy {
-  background: rgba(6, 12, 23, 0.6);
-  color: var(--text-dark);
-  border: 1px solid var(--border-color);
-  font-size: 0.72rem;
-  padding: 4px 12px;
-  border-radius: 999px;
-}
-
-/* ─── SIDEBAR ARCHIVE (SOLD COSTUMES) ───────────────────────────────── */
-.sold-archive-list {
-  max-height: 520px;
-  overflow-y: auto;
-  padding: 12px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.sold-item-entry {
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
-  border-radius: var(--r-md);
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: all 0.2s ease;
-}
-.sold-item-entry:hover {
-  border-color: rgba(239, 68, 68, 0.4);
-  background: var(--bg-card-hover);
-}
-.sold-entry-thumb {
-  width: 44px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid var(--border-gold);
-  background: #000;
-  flex-shrink: 0;
-}
-.sold-entry-info {
-  flex-grow: 1;
-  min-width: 0;
-}
-.sold-entry-code {
-  font-weight: 800;
-  color: #fff;
-  font-size: 0.88rem;
-  font-family: monospace;
-}
-.sold-entry-meta {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.btn-restore-pill {
-  padding: 5px 12px;
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: 999px;
-  color: #6ee7b7;
-  font-size: 0.74rem;
-  font-weight: 700;
   cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
-.btn-restore-pill:hover {
-  background: var(--accent-success);
-  color: #060c17;
+.btn-nav-ghost:hover {
+  background: rgba(201, 162, 39, 0.12);
+  border-color: var(--border-gold);
+  color: var(--gold-light);
 }
 
-/* ─── MODAL STYLING (MATCHING BOOKING SUCCESS MODAL) ─────────────────── */
+/* ─── MODAL STYLING ─────────────────────────────────────────────────── */
 .modal-content {
-  background: #091322;
+  background: #0d1a2d;
   border: 1px solid var(--border-gold);
-  border-radius: var(--r-lg);
+  border-radius: 18px;
   color: var(--text-main);
-  box-shadow: 0 35px 70px -20px rgba(0,0,0,0.9);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
 }
 .modal-header {
-  background: linear-gradient(90deg, #0e192c, #162640);
-  border-bottom: 1px solid var(--border-color);
-  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 18px 24px;
 }
 .modal-title {
-  color: var(--gold-light);
-  font-weight: 700;
-  font-size: 1.05rem;
   font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
 }
 .modal-body {
   padding: 24px;
 }
 .modal-footer {
-  background: #060c17;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-subtle);
   padding: 14px 24px;
+}
+
+/* Inline Alert */
+.pos-alert {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: none;
+}
+.pos-alert.alert-danger {
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+.pos-alert.alert-success {
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #6ee7b7;
+}
+.pos-alert.alert-warning {
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fde68a;
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="topline">
-  <div class="topline-inner">
-    <div class="topline-row1">
-      <div class="topline-heading">
-        <div class="topline-badge">
-          <i class="bi bi-tag-fill"></i>
-        </div>
-        <div>
-          <div class="topline-eyebrow">IMAGE TRADITIONAL • SALES DESK</div>
-          <h1 class="topline-title">Costume Sales Manager</h1>
-        </div>
+
+<!-- ─── PAGE HEADER ─────────────────────────────────────────────────── -->
+<div class="pos-header">
+  <div class="pos-header-inner">
+    <div class="pos-title-group">
+      <div class="pos-title-icon">
+        <i class="bi bi-receipt-cutoff"></i>
       </div>
-      <div class="topline-actions">
-        <a href="{{ url_for('navaratri.navaratri_booking') }}" class="btn-ghost-light">
-          <i class="bi bi-calendar2-week me-1"></i> Booking Manager
-        </a>
-        <a href="/navaratri_products" class="btn-ghost-light">
-          <i class="bi bi-grid-3x3-gap-fill me-1"></i> All Costumes
-        </a>
-        <a href="/navaratri_admin" class="btn-gold">
-          <i class="bi bi-shield-lock-fill me-1"></i> Navaratri Admin
-        </a>
+      <div class="pos-heading-text">
+        <h1>Costume Sales</h1>
+        <p>Create a new costume sale and generate the customer bill &bull; <span style="color: var(--gold-light);">{{ available_count }}</span> costumes available</p>
       </div>
+    </div>
+    
+    <div class="pos-header-actions">
+      <a href="#" class="btn-nav-ghost" data-bs-toggle="modal" data-bs-target="#soldArchiveModal">
+        <i class="bi bi-clock-history"></i> View Sold Costumes ({{ sold_products|length }})
+      </a>
+      <a href="{{ url_for('navaratri.navaratri_booking') }}" class="btn-nav-ghost">
+        <i class="bi bi-arrow-left"></i> Booking Manager
+      </a>
     </div>
   </div>
 </div>
 
-<div class="sell-layout">
+<!-- ─── POS 2-COLUMN LAYOUT ─────────────────────────────────────────── -->
+<div class="pos-layout">
 
-  <!-- LEFT: MAIN SELLING FORM -->
-  <div class="sell-main">
+  <!-- LEFT COLUMN: CUSTOMER + PRODUCT SELECTION (60-65%) -->
+  <div class="pos-left-column">
+    
+    <form id="posSaleForm" onsubmit="event.preventDefault(); submitSaleTransaction();">
 
-    <!-- STATS ROW -->
-    <div class="stat-strip">
-      <div class="stat-chip">
-        <div class="stat-chip-icon"><i class="bi bi-box-seam"></i></div>
-        <div>
-          <div class="stat-chip-label">Total Costumes</div>
-          <div class="stat-chip-value" id="statTotalCount">{{ total_count }}</div>
-        </div>
-      </div>
-      <div class="stat-chip is-success">
-        <div class="stat-chip-icon"><i class="bi bi-check-circle-fill"></i></div>
-        <div>
-          <div class="stat-chip-label">Available on Rent</div>
-          <div class="stat-chip-value" id="statAvailCount">{{ available_count }}</div>
-        </div>
-      </div>
-      <div class="stat-chip is-danger">
-        <div class="stat-chip-icon"><i class="bi bi-tag-fill"></i></div>
-        <div>
-          <div class="stat-chip-label">Sold Costumes</div>
-          <div class="stat-chip-value" id="statSoldCount">{{ sold_count }}</div>
-        </div>
-      </div>
-    </div>
+      <!-- CARD 1: CUSTOMER INFORMATION -->
+      <div class="pos-card">
+        <h2 class="pos-card-title">
+          <i class="bi bi-person-fill"></i> Customer Information
+        </h2>
 
-    <!-- FORM CARD -->
-    <div class="sell-card">
-      <div class="sell-card-head">
-        <div>
-          <h2 class="sell-card-title">
-            <i class="bi bi-bag-check-fill text-danger"></i> Dedicated Costume Sell Form
-          </h2>
-          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
-            Records customer purchase, stores in customer database, sets costume <code>on_rent: false</code>, and issues an official invoice.
-          </div>
-        </div>
-        <span class="badge-gold">
-          <i class="bi bi-receipt me-1"></i> Bill Generation Enabled
-        </span>
-      </div>
-
-      <div class="sell-card-body">
-        
-        <form id="sellCostumeForm" onsubmit="event.preventDefault(); submitSaleForm();">
-          
-          <!-- SECTION 1: CUSTOMER PROFILE -->
-          <div class="modal-section-title">
-            <i class="bi bi-person-fill me-1"></i> Customer Profile Information
-          </div>
-
-          <div class="row g-3 mb-4">
-            <div class="col-md-6">
-              <label class="form-label" for="custName">
-                Customer Full Name <span class="req">*</span>
-              </label>
-              <input type="text" 
-                     id="custName" 
-                     name="name" 
-                     required 
-                     class="form-control" 
-                     placeholder="e.g. Ramesh Patel"
-                     autocomplete="name">
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label" for="custMobile">
-                Mobile Number (10 digits) <span class="req">*</span>
-              </label>
-              <input type="tel" 
-                     id="custMobile" 
-                     name="mobile" 
-                     required 
-                     maxlength="10" 
-                     pattern="[0-9]{10}"
-                     class="form-control" 
-                     placeholder="e.g. 9825012345" 
-                     autocomplete="tel"
-                     oninput="validateMobileInput(this.value)">
-              <div id="mobileErrorMsg" class="d-none mt-1" style="font-size: 0.75rem; color: var(--accent-danger);">
-                Please enter exactly 10 numeric digits.
-              </div>
-            </div>
-
-            <div class="col-12">
-              <label class="form-label" for="custAddress">
-                Customer Address <span class="req">*</span>
-              </label>
-              <textarea id="custAddress" 
-                        name="address" 
-                        required 
-                        rows="2" 
-                        class="form-control" 
-                        placeholder="Complete residential / delivery address..."></textarea>
-            </div>
-
-            <div class="col-12">
-              <label class="form-label" for="custReference">
-                Reference Person <span class="opt">(Optional)</span>
-              </label>
-              <input type="text" 
-                     id="custReference" 
-                     name="reference" 
-                     class="form-control" 
-                     placeholder="e.g. Reference contact or referral name">
-            </div>
-          </div>
-
-          <!-- SECTION 2: COSTUMES TO SELL (MULTI-CODE CAPABILITY) -->
-          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div class="modal-section-title mb-0">
-              <i class="bi bi-tags-fill me-1"></i> Costumes to Sell <span class="req">*</span>
-            </div>
-            <span class="badge badge-gold" id="costumesCountBadge">0 Costumes Added</span>
-          </div>
-
-          <p style="font-size: 0.78rem; color: var(--text-dark); margin: 6px 0 12px 0;">
-            Add one or more costume codes to this sale. Each added costume will be marked as sold and removed from active rental booking availability.
-          </p>
-
-          <div class="add-code-bar">
+        <!-- 2 Columns on Desktop: Name | Mobile -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label" for="custName">
+              Customer Name <span class="req">*</span>
+            </label>
             <input type="text" 
-                   id="codeSearchInput" 
-                   class="form-control" 
-                   placeholder="Type costume code (e.g. C180 or K10)..." 
-                   list="allCostumesDatalist" 
-                   autocomplete="off"
-                   oninput="onCodeSearchInput(this.value)"
-                   onkeydown="if(event.key==='Enter'){event.preventDefault(); addCostumeFromInput();}">
-            
-            <button type="button" class="btn-gold" id="btnAddCode" onclick="addCostumeFromInput()">
-              <i class="bi bi-plus-circle-fill me-1"></i> Add Costume
-            </button>
+                   id="custName" 
+                   name="name" 
+                   class="pos-input" 
+                   placeholder="Enter full customer name" 
+                   required 
+                   autocomplete="name">
           </div>
 
-          <!-- Datalist of Available Costumes -->
-          <datalist id="allCostumesDatalist">
-            {% for p in products %}
-              {% if p.on_rent %}
-                <option value="{{ p.code }}">{{ p.code }} (Available)</option>
-              {% endif %}
-            {% endfor %}
-          </datalist>
-
-          <!-- Candidate Live Preview -->
-          <div class="candidate-preview" id="candidatePreview">
-            <img src="" id="candidateThumb" class="candidate-thumb" alt="Costume Preview">
-            <div class="flex-grow-1 min-width-0">
-              <div class="d-flex align-items-center gap-2">
-                <span class="fw-bold text-white fs-6" id="candidateCode">--</span>
-                <span class="badge badge-navy" id="candidateCat">--</span>
-              </div>
-              <div id="candidateStatusText" style="font-size: 0.74rem; color: var(--accent-success); margin-top: 2px;">
-                ● Available for sale
-              </div>
-            </div>
-            <button type="button" class="btn-gold btn-sm" onclick="addCostumeFromInput()">
-              + Select
-            </button>
-          </div>
-
-          <!-- Empty Notice -->
-          <div id="emptyCostumesNotice" class="text-center p-3 rounded mt-3" style="background: rgba(6, 12, 23, 0.4); border: 1.5px dashed var(--border-color); color: var(--text-muted); font-size: 0.84rem;">
-            <i class="bi bi-bag-plus me-1 text-warning"></i> No costumes added to this sale yet. Please enter a code above and click <strong>Add Costume</strong>.
-          </div>
-
-          <!-- Selected Costumes Cards Container -->
-          <div id="selectedCostumesContainer" class="selected-costumes-container"></div>
-          
-          <div id="costumesErrorMsg" class="d-none mt-2" style="font-size: 0.78rem; color: var(--accent-danger);">
-            <i class="bi bi-exclamation-circle-fill me-1"></i> Please add at least one costume code before completing the sale.
-          </div>
-
-          <!-- SECTION 3: FINANCIAL DETAILS -->
-          <div class="modal-section-title mt-4">
-            <i class="bi bi-wallet2 me-1"></i> Financial Information
-          </div>
-
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label" for="totalPrice">
-                Total Selling Price (₹) <span class="req">*</span>
-              </label>
-              <input type="number" 
-                     id="totalPrice" 
-                     name="total_price" 
-                     min="0" 
-                     required 
-                     class="form-control" 
-                     placeholder="Total sale amount ₹" 
-                     value="0"
-                     oninput="calculateBalance()">
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label" for="givenPrice">
-                Amount Received / Paid (₹) <span class="req">*</span>
-              </label>
-              <input type="number" 
-                     id="givenPrice" 
-                     name="given_price" 
-                     min="0" 
-                     required 
-                     class="form-control" 
-                     placeholder="Amount paid by customer ₹" 
-                     value="0"
-                     oninput="calculateBalance()">
+          <div class="col-md-6">
+            <label class="form-label" for="custMobile">
+              Mobile Number <span class="req">*</span>
+            </label>
+            <input type="tel" 
+                   id="custMobile" 
+                   name="mobile" 
+                   class="pos-input" 
+                   placeholder="10-digit mobile number" 
+                   maxlength="10" 
+                   pattern="[0-9]{10}" 
+                   required 
+                   autocomplete="tel"
+                   oninput="validateMobileInput(this.value)">
+            <div id="mobileErrorMsg" class="d-none mt-1" style="font-size: 0.76rem; color: var(--color-danger);">
+              Please enter exactly 10 numeric digits.
             </div>
           </div>
+        </div>
 
-          <!-- Live Balance Summary Box -->
-          <div class="financial-calc-box">
-            <div class="calc-row">
-              <span>Total Sale Value:</span>
-              <strong style="color: #ffffff;" id="dispTotal">₹0</strong>
-            </div>
-            <div class="calc-row">
-              <span>Amount Paid:</span>
-              <strong style="color: var(--accent-success);" id="dispPaid">₹0</strong>
-            </div>
-            <div class="calc-row balance-due-row">
-              <span class="fw-bold" style="color: var(--gold-light);">Remaining Balance Due:</span>
-              <span id="dispBalanceBadge" class="balance-badge paid">₹0 • Fully Paid</span>
-            </div>
-            <div id="priceErrorMsg" class="d-none mt-2" style="font-size: 0.78rem; color: var(--accent-danger);">
-              <i class="bi bi-exclamation-triangle-fill me-1"></i> Amount received cannot exceed the total selling price.
-            </div>
-          </div>
-
-          <!-- SECTION 4: AUTHORIZATION -->
-          <div class="modal-section-title mt-4">
-            <i class="bi bi-shield-lock-fill me-1"></i> Admin Authorization
-          </div>
-
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label" for="adminPassword">
-                Admin Password <span class="req">*</span>
-              </label>
-              <div class="input-group">
-                <input type="password" 
-                       id="adminPassword" 
-                       name="password" 
-                       required 
-                       class="form-control" 
-                       placeholder="Enter admin password to authorize sale and inventory update"
-                       autocomplete="current-password">
-                <button type="button" class="btn-ghost-light" onclick="togglePasswordVisibility('adminPassword', this)">
-                  <i class="bi bi-eye"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- INLINE ALERT BANNER -->
-          <div id="saleAlertMsg" class="d-none mt-4 p-3 rounded" style="font-size: 0.85rem; font-weight: 600;"></div>
-
-          <!-- SUBMIT BUTTON -->
-          <div class="mt-4">
-            <button type="submit" id="btnSubmitSale" class="btn-gold w-100 py-3 fw-bold fs-6">
-              <i class="bi bi-bag-check-fill me-2"></i> Complete Sale &amp; Generate Bill
-            </button>
-          </div>
-
-        </form>
-
-      </div>
-    </div>
-
-  </div>
-
-  <!-- RIGHT: SOLD COSTUMES ARCHIVE REGISTER -->
-  <div class="sell-sidebar">
-    <div class="sell-card">
-      <div class="sell-card-head">
-        <h3 class="sell-card-title" style="font-size: 1.05rem;">
-          <i class="bi bi-archive-fill text-danger"></i> Sold Costumes Archive
-        </h3>
-        <span class="badge" style="background: rgba(239,68,68,0.2); color:#fca5a5; font-weight:700;" id="soldListCountBadge">
-          {{ sold_products|length }}
-        </span>
-      </div>
-
-      <div style="padding: 14px 18px 8px;">
-        <input type="text" 
-               id="searchSoldInput" 
-               placeholder="Search sold code or buyer..." 
-               class="form-control" 
-               style="font-size: 0.82rem; border-radius: 999px; padding: 8px 16px;"
-               oninput="filterSoldList(this.value)">
-      </div>
-
-      <div class="sold-archive-list" id="soldListContainer">
-        {% if sold_products %}
-          {% for sp in sold_products %}
-            {% set is_c = sp.code.startswith('C') %}
-            {% set cat_name = 'Choli' if is_c else 'Kediya' %}
-            {% set jpg_dir = 'CholiJpg' if is_c else 'KediyaJpg' %}
-            <div class="sold-item-entry" data-code="{{ sp.code }}" data-buyer="{{ sp.sold_info.buyer_name if sp.sold_info else '' }}">
-              <img src="/static/{{ jpg_dir }}/{{ sp.code }}.jpg" 
-                   class="sold-entry-thumb" 
-                   alt="{{ sp.code }}"
-                   onerror="this.onerror=null; this.src='/static/{{ cat_name }}/{{ sp.image }}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
-              <div class="sold-entry-info">
-                <div class="sold-entry-code">{{ sp.code }}</div>
-                <div class="sold-entry-meta">
-                  {% if sp.sold_info and sp.sold_info.buyer_name %}
-                    👤 {{ sp.sold_info.buyer_name }}
-                  {% else %}
-                    Marked Sold
-                  {% endif %}
-                  {% if sp.sold_info and sp.sold_info.price %}
-                    • ₹{{ sp.sold_info.price }}
-                  {% endif %}
-                </div>
-              </div>
-              <button type="button" class="btn-restore-pill" onclick="openRestorePrompt('{{ sp.code }}')">
-                <i class="bi bi-arrow-counterclockwise"></i> Restore
-              </button>
-            </div>
-          {% endfor %}
-        {% else %}
-          <div id="noSoldNotice" class="text-center py-4" style="color: var(--text-muted); font-size: 0.82rem;">
-            No costumes marked as sold yet. All inventory is active on rent!
-          </div>
-        {% endif %}
-      </div>
-
-      <div style="padding: 12px 18px; border-top: 1px solid var(--border-color); text-align: center;">
-        <a href="/navaratri_products" style="color: var(--gold-light); font-size: 0.8rem; text-decoration: none; font-weight: 600;">
-          View Full Costumes Table &amp; Inventory &rarr;
-        </a>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- ═════════════════════════════════════════════════════════════════════════ -->
-<!-- SALE SUCCESS & DIGITAL BILL MODAL                                        -->
-<!-- ═════════════════════════════════════════════════════════════════════════ -->
-<div class="modal fade" id="saleSuccessModal" tabindex="-1" data-bs-backdrop="static">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content" style="border-top: 4px solid var(--accent-success);">
-      <div class="modal-header">
-        <h5 class="modal-title" style="color: var(--accent-success);">
-          <i class="bi bi-check-circle-fill me-2"></i>Sale Confirmed &amp; Bill Ready!
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="resetFormForNewSale()"></button>
-      </div>
-
-      <div class="modal-body p-4 text-center">
+        <!-- Address: Full Width Textarea -->
         <div class="mb-3">
-          <span class="badge bg-success px-3 py-2 fs-6 rounded-pill" style="background:#10b981 !important;">
-            <i class="bi bi-bag-check-fill me-1"></i> Costume Sale Completed
+          <label class="form-label" for="custAddress">
+            Address <span class="req">*</span>
+          </label>
+          <textarea id="custAddress" 
+                    name="address" 
+                    class="pos-input" 
+                    placeholder="Enter complete residential or delivery address" 
+                    rows="2" 
+                    required></textarea>
+        </div>
+
+        <!-- Reference: Full Width Input -->
+        <div>
+          <label class="form-label" for="custReference">
+            Reference <span class="opt">(Optional)</span>
+          </label>
+          <input type="text" 
+                 id="custReference" 
+                 name="reference" 
+                 class="pos-input" 
+                 placeholder="Reference contact or referral person name">
+        </div>
+      </div>
+
+      <!-- CARD 2: COSTUME SELECTION -->
+      <div class="pos-card">
+        <h2 class="pos-card-title">
+          <i class="bi bi-tags-fill"></i> Select Costumes
+        </h2>
+
+        <!-- Top Input: Code + Add Button -->
+        <div class="mb-2">
+          <label class="form-label" for="costumeCodeInput">
+            Costume Code <span class="req">*</span>
+          </label>
+          <div class="code-entry-bar">
+            <input type="text" 
+                   id="costumeCodeInput" 
+                   class="pos-input code-entry-input" 
+                   placeholder="e.g. C180 or K10" 
+                   list="availableCostumesDatalist" 
+                   autocomplete="off"
+                   onkeydown="if(event.key === 'Enter'){ event.preventDefault(); addCostumeFromInput(); }">
+            <button type="button" class="btn-add-code" onclick="addCostumeFromInput()">
+              <i class="bi bi-plus-lg"></i> Add Costume
+            </button>
+          </div>
+        </div>
+
+        <!-- Datalist with all available costumes -->
+        <datalist id="availableCostumesDatalist">
+          {% for p in products %}
+            {% if p.on_rent %}
+              <option value="{{ p.code }}">{{ p.code }} &bull; Available</option>
+            {% endif %}
+          {% endfor %}
+        </datalist>
+
+        <!-- Inline alert for code validation -->
+        <div id="codeFeedbackAlert" class="pos-alert mt-2"></div>
+
+        <!-- Selected Costumes Section -->
+        <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+          <label class="form-label m-0" style="font-size: 0.9rem; font-weight: 700; color: var(--text-main);">
+            Selected Costumes
+          </label>
+          <span class="badge" style="background: rgba(201, 162, 39, 0.15); color: var(--gold-light); font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;" id="selectedCountBadge">
+            0 Selected
           </span>
         </div>
 
-        <h4 class="fw-bold mb-1" id="succCustName" style="color: var(--gold-light);"></h4>
+        <!-- Empty State -->
+        <div id="emptyCostumesNotice" class="empty-items-notice">
+          <strong>No costumes selected</strong>
+          <span>Enter a costume code above to add products to this sale.</span>
+        </div>
+
+        <!-- Compact Selected Costumes Rows -->
+        <div id="selectedCostumesList" class="selected-items-list"></div>
+
+      </div>
+
+    </form>
+
+  </div>
+
+  <!-- RIGHT COLUMN: SALE SUMMARY / BILLING (35-40%) (STICKY) -->
+  <div class="pos-right-column">
+    <div class="billing-panel-wrapper">
+      
+      <div class="billing-card">
+        <div class="billing-card-header">
+          <h2><i class="bi bi-receipt"></i> Sale Summary</h2>
+          <span id="billingCounterBadge" style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">
+            0 items
+          </span>
+        </div>
+
+        <!-- Items Summary List -->
+        <label class="form-label" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+          Items
+        </label>
+        <div class="billing-items-summary" id="billingItemsSummary">
+          <div class="text-center text-muted py-2" id="billingEmptyPlaceholder" style="font-size: 0.82rem;">
+            No items added yet
+          </div>
+        </div>
+
+        <!-- Total Price Row -->
+        <div class="mb-3">
+          <label class="form-label" for="totalPriceInput">
+            Total Price (₹) <span class="req">*</span>
+          </label>
+          <input type="number" 
+                 id="totalPriceInput" 
+                 class="pos-input" 
+                 min="0" 
+                 value="0" 
+                 required 
+                 style="font-size: 1.15rem; font-weight: 800; font-family: 'Outfit', sans-serif;"
+                 oninput="calculateBilling()">
+        </div>
+
+        <!-- Amount Received Row -->
+        <div class="mb-3">
+          <label class="form-label" for="amountReceivedInput">
+            Amount Received (₹) <span class="req">*</span>
+          </label>
+          <input type="number" 
+                 id="amountReceivedInput" 
+                 class="pos-input" 
+                 min="0" 
+                 value="0" 
+                 required 
+                 style="font-size: 1.15rem; font-weight: 800; font-family: 'Outfit', sans-serif; color: var(--color-success);"
+                 oninput="calculateBilling()">
+        </div>
+
+        <!-- Remaining Balance Display -->
+        <div class="balance-highlight-box" id="balanceHighlightBox">
+          <div>
+            <div class="balance-title" id="balanceTitleText">Remaining Balance</div>
+            <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 1px;" id="balanceSubtext">Calculated live</div>
+          </div>
+          <div class="balance-amount" id="balanceDisplayAmount">₹0</div>
+        </div>
+
+        <div id="overpayErrorMsg" class="d-none mb-3" style="font-size: 0.78rem; color: var(--color-danger); font-weight: 600;">
+          <i class="bi bi-exclamation-circle-fill me-1"></i> Amount received cannot exceed Total Price.
+        </div>
+
+        <!-- Admin Password -->
+        <div class="auth-row">
+          <label class="form-label" for="posAdminPassword">
+            Admin Password <span class="req">*</span>
+          </label>
+          <div class="password-input-wrap">
+            <input type="password" 
+                   id="posAdminPassword" 
+                   class="pos-input" 
+                   placeholder="Enter admin password" 
+                   required 
+                   autocomplete="current-password">
+            <button type="button" class="btn-toggle-eye" onclick="togglePasswordEye('posAdminPassword', this)">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- General Feedback Alert -->
+        <div id="generalFeedbackAlert" class="pos-alert mb-3"></div>
+
+        <!-- Primary Bill Action Button -->
+        <button type="button" id="btnGenerateBill" class="btn-generate-bill" onclick="submitSaleTransaction()">
+          <i class="bi bi-check2-circle fs-5"></i> Generate Bill
+        </button>
+        <span class="btn-subtext">Save Sale &amp; Generate Bill</span>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ═════════════════════════════════════════════════════════════════════════ -->
+<!-- CONFIRMATION & BILL DOWNLOAD MODAL                                       -->
+<!-- ═════════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="saleSuccessModal" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-top: 4px solid var(--color-success);">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color: var(--color-success);">
+          <i class="bi bi-check-circle-fill me-2"></i>Sale Completed Successfully
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="resetSaleForm()"></button>
+      </div>
+
+      <div class="modal-body text-center p-4">
+        <div class="mb-3">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: var(--color-success); font-size: 1.8rem; display: inline-flex; align-items: center; justify-content: center;">
+            <i class="bi bi-check-lg"></i>
+          </div>
+        </div>
+
+        <h3 class="fw-bold mb-1" id="succCustName" style="color: var(--text-main); font-family: 'Outfit', sans-serif;"></h3>
         <p style="color: var(--text-muted); font-size: 0.88rem;" class="mb-3">
           Mobile: <strong id="succCustMobile" style="color: #ffffff;"></strong>
         </p>
 
-        <!-- Sold Costumes Badges -->
-        <div class="mb-3">
-          <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;">Purchased Costumes:</div>
-          <div id="succCostumesList" class="d-flex justify-content-center gap-2 flex-wrap"></div>
+        <!-- QR Code -->
+        <div class="p-2 mb-3 rounded d-inline-block shadow-sm" style="background: #ffffff; border: 1.5px solid var(--border-gold);">
+          <img id="succQrImg" src="" alt="Bill QR Code" style="width: 160px; height: 160px;" class="img-fluid">
+          <div style="font-size: 0.72rem; color: #1e293b; font-weight: 700; margin-top: 4px;">Scan to View / Download Bill</div>
         </div>
 
-        <!-- QR Code Container -->
-        <div class="p-3 mb-3 rounded d-inline-block shadow-sm" style="background: #ffffff; border: 2px solid var(--border-gold);">
-          <img id="succQrImg" src="" alt="Download Bill QR Code" style="width: 170px; height: 170px;" class="img-fluid">
-          <div style="font-size: 0.75rem; color: #1e293b; font-weight: 700;" class="mt-2">Scan QR to View / Download Bill</div>
-        </div>
-
-        <!-- Bill Financial Summary Box -->
-        <div class="p-3 mb-3 rounded text-start" style="background: rgba(15,23,42,0.85); border: 1px solid var(--border-color);">
-          <div class="d-flex justify-content-between mb-1" style="font-size: 0.85rem;">
-            <span style="color: var(--text-muted);">Total Sale Invoice:</span>
+        <!-- Financial Summary -->
+        <div class="p-3 mb-3 rounded text-start" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); font-size: 0.88rem;">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Total Price:</span>
             <strong style="color: #ffffff;" id="succTotalPrice">₹0</strong>
           </div>
-          <div class="d-flex justify-content-between mb-1" style="font-size: 0.85rem;">
-            <span style="color: var(--text-muted);">Amount Paid:</span>
-            <strong style="color: var(--accent-success);" id="succGivenPrice">₹0</strong>
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Amount Received:</span>
+            <strong style="color: var(--color-success);" id="succGivenPrice">₹0</strong>
           </div>
-          <div class="d-flex justify-content-between border-top border-secondary pt-1 mt-1" style="font-size: 0.9rem;">
-            <strong style="color: var(--gold-primary);">Remaining Balance:</strong>
-            <strong style="color: var(--gold-light);" id="succRemainingPrice">₹0</strong>
+          <div class="d-flex justify-content-between border-top border-secondary pt-1 mt-1">
+            <strong style="color: var(--gold-light);">Remaining Balance:</strong>
+            <strong style="color: var(--gold-primary);" id="succRemainingPrice">₹0</strong>
           </div>
         </div>
 
-        <!-- Action Buttons: WhatsApp & Direct Download & Digital Bill -->
+        <!-- Action Buttons -->
         <div class="d-flex flex-column gap-2 mt-3">
-          <a id="succWhatsAppBtn" href="#" target="_blank" class="btn btn-ghost-success fw-bold py-2" style="font-size: 0.9rem;">
-            <i class="bi bi-whatsapp me-2 fs-5 align-middle"></i> Send Bill Link via WhatsApp
+          <a id="succPdfBtn" href="#" target="_blank" class="btn btn-generate-bill" style="height: 46px; font-size: 0.95rem;">
+            <i class="bi bi-file-earmark-pdf-fill"></i> Download PDF Bill
           </a>
 
-          <a id="succPdfBtn" href="#" target="_blank" class="btn btn-ghost-gold fw-bold py-2" style="font-size: 0.9rem;">
-            <i class="bi bi-file-earmark-pdf-fill me-2"></i> Open / Download PDF Invoice
+          <a id="succDigitalBillBtn" href="#" target="_blank" class="btn btn-nav-ghost justify-content-center py-2">
+            <i class="bi bi-phone"></i> View Digital Bill
           </a>
 
-          <a id="succDigitalBillBtn" href="#" target="_blank" class="btn btn-ghost-light fw-bold py-2" style="font-size: 0.9rem;">
-            <i class="bi bi-phone me-2"></i> View Digital Bill Page
+          <a id="succWhatsAppBtn" href="#" target="_blank" class="btn btn-nav-ghost justify-content-center py-2" style="color: #25d366; border-color: rgba(37, 211, 102, 0.3);">
+            <i class="bi bi-whatsapp"></i> Share on WhatsApp
           </a>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-gold w-100 fw-bold" onclick="resetFormForNewSale()">
-          <i class="bi bi-plus-circle me-1"></i> Record Another Costume Sale
+        <button type="button" class="btn btn-nav-ghost w-100 justify-content-center fw-bold" onclick="resetSaleForm()">
+          <i class="bi bi-plus-lg me-1"></i> New Sale
         </button>
       </div>
     </div>
@@ -1037,29 +934,96 @@ body {
 </div>
 
 <!-- ═════════════════════════════════════════════════════════════════════════ -->
-<!-- RESTORE PASSWORD PROMPT MODAL                                            -->
+<!-- SOLD COSTUMES ARCHIVE MODAL (CLEAN & SEPARATE)                            -->
 <!-- ═════════════════════════════════════════════════════════════════════════ -->
-<div class="modal fade" id="restoreModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="border-top: 4px solid var(--accent-success);">
+<div class="modal fade" id="soldArchiveModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" style="color: #ffffff;">
-          <i class="bi bi-arrow-counterclockwise text-success me-2"></i>Restore Costume to Rent
+        <h5 class="modal-title">
+          <i class="bi bi-clock-history text-danger me-2"></i>Sold Costumes Archive
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body p-4">
-        <p style="color: var(--text-main); font-size: 0.88rem; margin-bottom: 14px;">
-          Enter admin password to restore costume <strong id="restoreTargetCode" style="color: var(--gold-light);"></strong> back to active rental status (<code>on_rent: true</code>).
-        </p>
+      
+      <div class="modal-body p-3">
         <div class="mb-3">
-          <input type="password" id="restorePassword" placeholder="Enter Admin Password" class="form-control">
+          <input type="text" 
+                 id="searchArchiveInput" 
+                 class="pos-input" 
+                 placeholder="Search sold code or customer name..." 
+                 oninput="filterArchiveList(this.value)">
         </div>
-        <div id="restoreFeedback" class="d-none p-2 rounded mb-3" style="font-size: 0.82rem; font-weight: 600;"></div>
+
+        <div class="selected-items-list" id="archiveItemsList">
+          {% if sold_products %}
+            {% for sp in sold_products %}
+              {% set is_c = sp.code.startswith('C') %}
+              {% set cat_name = 'Choli' if is_c else 'Kediya' %}
+              {% set jpg_dir = 'CholiJpg' if is_c else 'KediyaJpg' %}
+              <div class="selected-item-row archive-item-row" data-code="{{ sp.code }}" data-buyer="{{ sp.sold_info.buyer_name if sp.sold_info else '' }}">
+                <div class="selected-item-left">
+                  <img src="/static/{{ jpg_dir }}/{{ sp.code }}.jpg" 
+                       class="selected-item-thumb" 
+                       alt="{{ sp.code }}"
+                       onerror="this.onerror=null; this.src='/static/{{ cat_name }}/{{ sp.image }}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
+                  <div class="selected-item-details">
+                    <span class="selected-item-code">{{ sp.code }}</span>
+                    <span class="selected-item-category">{{ cat_name }}</span>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">
+                      {% if sp.sold_info and sp.sold_info.buyer_name %}
+                        Sold to: {{ sp.sold_info.buyer_name }} {% if sp.sold_info.price %}(₹{{ sp.sold_info.price }}){% endif %}
+                      {% else %}
+                        Marked as sold
+                      {% endif %}
+                    </span>
+                  </div>
+                </div>
+                <button type="button" class="btn-remove-item" style="color: var(--color-success); border-color: rgba(16,185,129,0.3);" onclick="promptRestore('{{ sp.code }}')">
+                  <i class="bi bi-arrow-counterclockwise"></i> Restore
+                </button>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-center py-4 text-muted">
+              No sold costumes recorded. All costumes are available for rent!
+            </div>
+          {% endif %}
+        </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn-ghost-light" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn-gold" id="btnConfirmRestore" onclick="executeRestore()">
+
+      <div class="modal-footer justify-content-between">
+        <a href="/navaratri_products" class="btn-nav-ghost" style="font-size: 0.8rem;">
+          View Full Costumes Table &rarr;
+        </a>
+        <button type="button" class="btn-nav-ghost" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════════════════════════ -->
+<!-- RESTORE CONFIRMATION PROMPT MODAL                                         -->
+<!-- ═════════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="restoreConfirmModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content" style="border-top: 4px solid var(--color-success);">
+      <div class="modal-header">
+        <h6 class="modal-title m-0">Restore to Rent</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-3">
+        <p style="font-size: 0.84rem; color: var(--text-body); margin-bottom: 12px;">
+          Restore costume <strong id="restoreTargetCodeText" style="color: var(--gold-light);"></strong> back to active rental status (<code>on_rent: true</code>)?
+        </p>
+        <div class="mb-2">
+          <input type="password" id="restoreAdminPassword" class="pos-input" placeholder="Admin password">
+        </div>
+        <div id="restoreFeedbackMsg" class="pos-alert p-2 mt-2" style="font-size: 0.78rem;"></div>
+      </div>
+      <div class="modal-footer p-2">
+        <button type="button" class="btn-nav-ghost" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn-add-code" id="btnExecuteRestore" onclick="executeRestoreAction()">
           Confirm Restore
         </button>
       </div>
@@ -1069,105 +1033,63 @@ body {
 {% endblock %}
 
 {% block scripts %}
-<!-- Bootstrap 5 Bundle JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// State for selected costumes: array of objects { code, category, thumb_url, orig_url }
+// State
 let selectedCostumes = [];
-let candidateLookupTimer = null;
 let restoreTargetCode = '';
 let prefillCode = "{{ prefill_code|default('') }}".trim().toUpperCase();
 
-// Initialize on DOM load
+// Initialize on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
   if (prefillCode) {
     addCostumeByCode(prefillCode);
   }
-  calculateBalance();
+  calculateBilling();
 });
 
-// ─── CANDIDATE SEARCH & LIVE PREVIEW ──────────────────────────────────
-function onCodeSearchInput(val) {
-  clearTimeout(candidateLookupTimer);
-  const code = (val || '').trim().toUpperCase();
-  const preview = document.getElementById('candidatePreview');
-  
-  if (code.length >= 2) {
-    candidateLookupTimer = setTimeout(() => fetchCandidateDetails(code), 250);
-  } else {
-    preview.classList.remove('active');
-  }
-}
-
-async function fetchCandidateDetails(code) {
-  const preview = document.getElementById('candidatePreview');
-  const thumb = document.getElementById('candidateThumb');
-  const codeText = document.getElementById('candidateCode');
-  const catText = document.getElementById('candidateCat');
-  const statusText = document.getElementById('candidateStatusText');
-
-  try {
-    const res = await fetch(`/api/navaratri/product-info/${encodeURIComponent(code)}`);
-    const data = await res.json();
-
-    if (res.ok && data.success && data.found) {
-      preview.classList.add('active');
-      codeText.textContent = data.code;
-      catText.textContent = data.category === 'Choli' ? '👗 Choli' : '🕺 Kediya';
-      thumb.src = data.thumb_url;
-      thumb.onerror = function() {
-        this.onerror = null;
-        this.src = data.orig_url;
-        this.onerror = function() { this.src = '/static/Home_Img/favicon.png'; };
-      };
-
-      if (data.on_rent) {
-        statusText.style.color = 'var(--accent-success)';
-        statusText.innerHTML = '● Available for rent &amp; sale';
-      } else {
-        statusText.style.color = 'var(--accent-danger)';
-        statusText.innerHTML = '⚠️ Already marked as Sold';
-      }
-    } else {
-      preview.classList.remove('active');
-    }
-  } catch (err) {
-    preview.classList.remove('active');
-  }
-}
-
-// ─── ADD / REMOVE MULTIPLE COSTUMES ───────────────────────────────────
+// ─── ADD / REMOVE COSTUME LOGIC ─────────────────────────────────────────
 function addCostumeFromInput() {
-  const inp = document.getElementById('codeSearchInput');
+  const inp = document.getElementById('costumeCodeInput');
   const code = (inp?.value || '').trim().toUpperCase();
-  if (!code) return;
+  if (!code) {
+    showCodeAlert('Please enter a costume code (e.g. C180 or K10).', 'warning');
+    inp.focus();
+    return;
+  }
   addCostumeByCode(code);
   inp.value = '';
-  document.getElementById('candidatePreview').classList.remove('active');
   inp.focus();
 }
 
 async function addCostumeByCode(code) {
+  hideCodeAlert();
+
+  // Prevent duplicate codes
   if (selectedCostumes.some(c => c.code === code)) {
-    showInlineAlert(`Costume <b>${code}</b> is already in the list!`, 'warning');
+    showCodeAlert(`Costume <b>${code}</b> is already in the selected list.`, 'warning');
     return;
   }
 
-  // Fetch product info to get photo thumbnail
   try {
     const res = await fetch(`/api/navaratri/product-info/${encodeURIComponent(code)}`);
     const data = await res.json();
 
-    const isCholi = code.startsWith('C');
-    const category = (data && data.category) ? data.category : (isCholi ? 'Choli' : 'Kediya');
-    const thumb_url = (data && data.thumb_url) ? data.thumb_url : `/static/${isCholi ? 'CholiJpg' : 'KediyaJpg'}/${code}.jpg`;
-    const orig_url = (data && data.orig_url) ? data.orig_url : `/static/${category}/${code}.webp`;
-
-    if (data && data.found && data.on_rent === false) {
-      showInlineAlert(`⚠️ Note: Costume <b>${code}</b> is already marked as sold in inventory!`, 'danger');
+    if (!res.ok || !data.found) {
+      showCodeAlert(`Costume code <b>${code}</b> not found in database.`, 'danger');
       return;
     }
+
+    if (data.on_rent === false) {
+      showCodeAlert(`Costume <b>${code}</b> is already marked as sold and unavailable for sale.`, 'danger');
+      return;
+    }
+
+    const isCholi = code.startsWith('C');
+    const category = data.category || (isCholi ? 'Choli' : 'Kediya');
+    const thumb_url = data.thumb_url || `/static/${isCholi ? 'CholiJpg' : 'KediyaJpg'}/${code}.jpg`;
+    const orig_url = data.orig_url || `/static/${category}/${code}.webp`;
 
     selectedCostumes.push({
       code: code,
@@ -1177,85 +1099,102 @@ async function addCostumeByCode(code) {
     });
 
     renderSelectedCostumes();
-    document.getElementById('costumesErrorMsg').classList.add('d-none');
-  } catch (e) {
-    // If network fails, add with default fallback
-    const isCholi = code.startsWith('C');
-    selectedCostumes.push({
-      code: code,
-      category: isCholi ? 'Choli' : 'Kediya',
-      thumb_url: `/static/${isCholi ? 'CholiJpg' : 'KediyaJpg'}/${code}.jpg`,
-      orig_url: '/static/Home_Img/favicon.png'
-    });
-    renderSelectedCostumes();
+    calculateBilling();
+  } catch (err) {
+    showCodeAlert(`Error checking costume code: ${err.message}`, 'danger');
   }
 }
 
 function removeCostume(code) {
   selectedCostumes = selectedCostumes.filter(c => c.code !== code);
   renderSelectedCostumes();
+  calculateBilling();
 }
 
 function renderSelectedCostumes() {
-  const container = document.getElementById('selectedCostumesContainer');
+  const container = document.getElementById('selectedCostumesList');
   const emptyNotice = document.getElementById('emptyCostumesNotice');
-  const badge = document.getElementById('costumesCountBadge');
+  const countBadge = document.getElementById('selectedCountBadge');
+  const summaryList = document.getElementById('billingItemsSummary');
+  const counterText = document.getElementById('billingCounterBadge');
 
-  badge.textContent = `${selectedCostumes.length} Costume${selectedCostumes.length === 1 ? '' : 's'} Added`;
+  const count = selectedCostumes.length;
+  countBadge.textContent = `${count} Selected`;
+  counterText.textContent = `${count} item${count === 1 ? '' : 's'}`;
 
-  if (selectedCostumes.length === 0) {
-    emptyNotice.classList.remove('d-none');
+  if (count === 0) {
+    emptyNotice.style.display = 'block';
     container.innerHTML = '';
+    summaryList.innerHTML = `<div class="text-center text-muted py-2" style="font-size: 0.82rem;">No items added yet</div>`;
     return;
   }
 
-  emptyNotice.classList.add('d-none');
+  emptyNotice.style.display = 'none';
+
+  // Render Left Column Costume Rows
   container.innerHTML = selectedCostumes.map(item => `
-    <div class="costume-item-card">
-      <img src="${item.thumb_url}" 
-           class="costume-card-thumb" 
-           alt="${item.code}"
-           onerror="this.onerror=null; this.src='${item.orig_url}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
-      <div class="costume-card-info">
-        <div class="costume-card-code">${item.code}</div>
-        <div class="costume-card-cat">${item.category === 'Choli' ? '👗 Choli' : '🕺 Kediya'}</div>
+    <div class="selected-item-row">
+      <div class="selected-item-left">
+        <img src="${item.thumb_url}" 
+             class="selected-item-thumb" 
+             alt="${item.code}"
+             onerror="this.onerror=null; this.src='${item.orig_url}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
+        <div class="selected-item-details">
+          <span class="selected-item-code">${item.code}</span>
+          <span class="selected-item-category">${item.category === 'Choli' ? '👗 Choli' : '🕺 Kediya'}</span>
+          <span class="selected-item-badge"><i class="bi bi-check-circle-fill"></i> Available for sale</span>
+        </div>
       </div>
-      <button type="button" class="btn-remove-code" onclick="removeCostume('${item.code}')" title="Remove costume">
-        <i class="bi bi-x-lg"></i>
+      <button type="button" class="btn-remove-item" onclick="removeCostume('${item.code}')">
+        <i class="bi bi-trash3 me-1"></i> Remove
       </button>
+    </div>
+  `).join('');
+
+  // Render Right Column Summary Items
+  summaryList.innerHTML = selectedCostumes.map(item => `
+    <div class="billing-item-line">
+      <span class="fw-bold" style="color: var(--text-main); font-family: monospace;">${item.code}</span>
+      <span style="font-size: 0.78rem; color: var(--gold-light);">${item.category}</span>
     </div>
   `).join('');
 }
 
-// ─── FINANCIAL CALCULATIONS ───────────────────────────────────────────
-function calculateBalance() {
-  const totalVal = Math.max(0, parseInt(document.getElementById('totalPrice')?.value || 0, 10) || 0);
-  const givenVal = Math.max(0, parseInt(document.getElementById('givenPrice')?.value || 0, 10) || 0);
+// ─── BILLING & FINANCIAL CALCULATIONS ───────────────────────────────────
+function calculateBilling() {
+  const totalVal = Math.max(0, parseInt(document.getElementById('totalPriceInput')?.value || 0, 10) || 0);
+  const receivedVal = Math.max(0, parseInt(document.getElementById('amountReceivedInput')?.value || 0, 10) || 0);
 
-  document.getElementById('dispTotal').textContent = `₹${totalVal}`;
-  document.getElementById('dispPaid').textContent = `₹${givenVal}`;
+  const balance = totalVal - receivedVal;
+  const balanceAmountEl = document.getElementById('balanceDisplayAmount');
+  const balanceTitleEl = document.getElementById('balanceTitleText');
+  const balanceSubtextEl = document.getElementById('balanceSubtext');
+  const highlightBox = document.getElementById('balanceHighlightBox');
+  const overpayErr = document.getElementById('overpayErrorMsg');
 
-  const balance = totalVal - givenVal;
-  const badge = document.getElementById('dispBalanceBadge');
-  const priceErr = document.getElementById('priceErrorMsg');
-
-  if (givenVal > totalVal) {
-    priceErr.classList.remove('d-none');
-    badge.className = 'balance-badge due';
-    badge.textContent = `Overpaid by ₹${givenVal - totalVal}`;
+  if (receivedVal > totalVal) {
+    overpayErr.classList.remove('d-none');
+    highlightBox.classList.remove('is-paid');
+    balanceTitleEl.textContent = 'Overpaid Amount';
+    balanceAmountEl.textContent = `+ ₹${receivedVal - totalVal}`;
+    balanceSubtextEl.textContent = 'Received exceeds total';
   } else {
-    priceErr.classList.add('d-none');
-    if (balance === 0) {
-      badge.className = 'balance-badge paid';
-      badge.textContent = `₹0 • Fully Paid`;
+    overpayErr.classList.add('d-none');
+    if (balance === 0 && totalVal > 0) {
+      highlightBox.classList.add('is-paid');
+      balanceTitleEl.textContent = 'Fully Paid';
+      balanceAmountEl.textContent = '₹0';
+      balanceSubtextEl.textContent = 'No remaining balance';
     } else {
-      badge.className = 'balance-badge due';
-      badge.textContent = `₹${balance} Remaining`;
+      highlightBox.classList.remove('is-paid');
+      balanceTitleEl.textContent = 'Remaining Balance';
+      balanceAmountEl.textContent = `₹${balance}`;
+      balanceSubtextEl.textContent = 'Pending balance due';
     }
   }
 }
 
-// ─── VALIDATION HELPERS ───────────────────────────────────────────────
+// ─── VALIDATION HELPERS ─────────────────────────────────────────────────
 function validateMobileInput(val) {
   const clean = (val || '').replace(/[^0-9]/g, '');
   const err = document.getElementById('mobileErrorMsg');
@@ -1266,7 +1205,7 @@ function validateMobileInput(val) {
   }
 }
 
-function togglePasswordVisibility(fieldId, btn) {
+function togglePasswordEye(fieldId, btn) {
   const inp = document.getElementById(fieldId);
   if (!inp) return;
   const icon = btn.querySelector('i');
@@ -1279,86 +1218,91 @@ function togglePasswordVisibility(fieldId, btn) {
   }
 }
 
-function showInlineAlert(msg, type) {
-  const el = document.getElementById('saleAlertMsg');
+function showCodeAlert(msg, type) {
+  const el = document.getElementById('codeFeedbackAlert');
   if (!el) return;
-  el.classList.remove('d-none', 'alert-danger', 'alert-warning', 'alert-success', 'alert-info');
-  el.classList.add(`alert-${type}`);
-  if (type === 'danger') {
-    el.style.background = 'rgba(239, 68, 68, 0.15)';
-    el.style.border = '1px solid rgba(239, 68, 68, 0.4)';
-    el.style.color = '#fca5a5';
-  } else if (type === 'success') {
-    el.style.background = 'rgba(16, 185, 129, 0.15)';
-    el.style.border = '1px solid rgba(16, 185, 129, 0.4)';
-    el.style.color = '#6ee7b7';
-  } else if (type === 'warning') {
-    el.style.background = 'rgba(245, 158, 11, 0.15)';
-    el.style.border = '1px solid rgba(245, 158, 11, 0.4)';
-    el.style.color = '#fde68a';
-  }
+  el.style.display = 'block';
+  el.className = `pos-alert alert-${type}`;
   el.innerHTML = msg;
 }
 
-// ─── FORM SUBMISSION VIA AJAX ─────────────────────────────────────────
-async function submitSaleForm() {
+function hideCodeAlert() {
+  const el = document.getElementById('codeFeedbackAlert');
+  if (el) el.style.display = 'none';
+}
+
+function showGeneralAlert(msg, type) {
+  const el = document.getElementById('generalFeedbackAlert');
+  if (!el) return;
+  el.style.display = 'block';
+  el.className = `pos-alert alert-${type}`;
+  el.innerHTML = msg;
+}
+
+function hideGeneralAlert() {
+  const el = document.getElementById('generalFeedbackAlert');
+  if (el) el.style.display = 'none';
+}
+
+// ─── FORM SUBMISSION VIA AJAX ───────────────────────────────────────────
+async function submitSaleTransaction() {
+  hideGeneralAlert();
+
   const name = (document.getElementById('custName')?.value || '').trim();
   const mobile = (document.getElementById('custMobile')?.value || '').trim();
   const address = (document.getElementById('custAddress')?.value || '').trim();
   const reference = (document.getElementById('custReference')?.value || '').trim();
-  const password = (document.getElementById('adminPassword')?.value || '').trim();
-  const total_price = parseInt(document.getElementById('totalPrice')?.value || 0, 10);
-  const given_price = parseInt(document.getElementById('givenPrice')?.value || 0, 10);
-  const btn = document.getElementById('btnSubmitSale');
+  const total_price = parseInt(document.getElementById('totalPriceInput')?.value || 0, 10);
+  const given_price = parseInt(document.getElementById('amountReceivedInput')?.value || 0, 10);
+  const password = (document.getElementById('posAdminPassword')?.value || '').trim();
+  const btn = document.getElementById('btnGenerateBill');
 
-  // Client validations
+  // Validations
   if (!name) {
-    showInlineAlert('Customer Name is mandatory.', 'danger');
+    showGeneralAlert('Customer Name is required.', 'danger');
     document.getElementById('custName').focus();
     return;
   }
   if (!mobile || !/^\d{10}$/.test(mobile)) {
-    showInlineAlert('A valid 10-digit mobile number is mandatory.', 'danger');
+    showGeneralAlert('A valid 10-digit mobile number is required.', 'danger');
     document.getElementById('custMobile').focus();
     return;
   }
   if (!address) {
-    showInlineAlert('Customer Address is mandatory.', 'danger');
+    showGeneralAlert('Customer Address is required.', 'danger');
     document.getElementById('custAddress').focus();
     return;
   }
   if (selectedCostumes.length === 0) {
-    document.getElementById('costumesErrorMsg').classList.remove('d-none');
-    document.getElementById('codeSearchInput').focus();
-    showInlineAlert('Please add at least one costume code before saving sale.', 'danger');
+    showGeneralAlert('Please add at least one costume to this sale.', 'danger');
+    document.getElementById('costumeCodeInput').focus();
     return;
   }
   if (isNaN(total_price) || total_price < 0) {
-    showInlineAlert('Total Price must be 0 or greater.', 'danger');
-    document.getElementById('totalPrice').focus();
+    showGeneralAlert('Total Price must be a valid non-negative number.', 'danger');
+    document.getElementById('totalPriceInput').focus();
     return;
   }
   if (isNaN(given_price) || given_price < 0) {
-    showInlineAlert('Amount Received must be 0 or greater.', 'danger');
-    document.getElementById('givenPrice').focus();
+    showGeneralAlert('Amount Received must be a valid non-negative number.', 'danger');
+    document.getElementById('amountReceivedInput').focus();
     return;
   }
   if (given_price > total_price) {
-    showInlineAlert(`Amount Received (₹${given_price}) cannot exceed Total Selling Price (₹${total_price}).`, 'danger');
-    document.getElementById('givenPrice').focus();
+    showGeneralAlert(`Amount Received (₹${given_price}) cannot exceed Total Price (₹${total_price}).`, 'danger');
+    document.getElementById('amountReceivedInput').focus();
     return;
   }
   if (!password) {
-    showInlineAlert('Admin password is required to confirm sale and update inventory.', 'danger');
-    document.getElementById('adminPassword').focus();
+    showGeneralAlert('Admin password is required to authorize the sale.', 'danger');
+    document.getElementById('posAdminPassword').focus();
     return;
   }
 
   const codes = selectedCostumes.map(c => c.code);
 
   btn.disabled = true;
-  btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Processing Sale &amp; Generating Bill...`;
-  showInlineAlert('<span class="spinner-border spinner-border-sm me-2"></span> Saving sale record in MongoDB customer collection and generating bill...', 'info');
+  btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Generating Bill...`;
 
   try {
     const res = await fetch('/api/navaratri/sell-costumes', {
@@ -1382,21 +1326,20 @@ async function submitSaleForm() {
     const data = await res.json();
 
     if (res.ok && data.success) {
-      showInlineAlert(`✅ <b>Success!</b> Sale confirmed for ${codes.join(', ')}. Bill generated.`, 'success');
-      showSuccessModal(data);
+      showSaleSuccessModal(data);
     } else {
-      showInlineAlert(`❌ <b>Failed:</b> ${data.message || 'Error processing costume sale.'}`, 'danger');
+      showGeneralAlert(`❌ ${data.message || 'Error processing costume sale.'}`, 'danger');
     }
   } catch (err) {
-    showInlineAlert(`❌ <b>Network Error:</b> ${err.message}`, 'danger');
+    showGeneralAlert(`❌ Network Error: ${err.message}`, 'danger');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = `<i class="bi bi-bag-check-fill me-2"></i> Complete Sale &amp; Generate Bill`;
+    btn.innerHTML = `<i class="bi bi-check2-circle fs-5"></i> Generate Bill`;
   }
 }
 
-// ─── POST-SUBMIT SUCCESS MODAL ────────────────────────────────────────
-function showSuccessModal(data) {
+// ─── POST-SUBMIT CONFIRMATION & BILL DOWNLOADS ─────────────────────────
+function showSaleSuccessModal(data) {
   const sale = data.data || {};
   const custId = data.customer_id;
   const billUrl = data.bill_url || `/download-customer?id=${custId}`;
@@ -1411,89 +1354,92 @@ function showSuccessModal(data) {
   // QR Code
   const qrImg = document.getElementById('succQrImg');
   const fullBillUrl = window.location.origin + billPageUrl;
-  qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullBillUrl)}`;
+  qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(fullBillUrl)}`;
 
-  // Purchased Costumes Badges
-  const badgesContainer = document.getElementById('succCostumesList');
-  const codes = sale.codes || selectedCostumes.map(c => c.code);
-  badgesContainer.innerHTML = codes.map(c => `
-    <span class="badge badge-gold" style="font-size: 0.8rem; padding: 6px 14px;">
-      <i class="bi bi-tag-fill me-1"></i> ${c}
-    </span>
-  `).join('');
-
-  // Action Buttons
+  // Download & View Links
   document.getElementById('succPdfBtn').href = billUrl;
   document.getElementById('succDigitalBillBtn').href = billPageUrl;
 
+  const codes = sale.codes || selectedCostumes.map(c => c.code);
   const waText = encodeURIComponent(
     `Hello ${sale.name} Ji! Thank you for purchasing from Image Traditional.\n\n` +
     `🏷️ Costumes: ${codes.join(', ')}\n` +
     `💰 Total Price: ₹${sale.total_price}\n` +
     `✅ Paid: ₹${sale.given_price}\n` +
     `💵 Balance: ₹${sale.remaining}\n\n` +
-    `📄 View your official Digital Bill & Download PDF Invoice here:\n${fullBillUrl}`
+    `📄 View your official Bill & Download PDF Invoice here:\n${fullBillUrl}`
   );
   document.getElementById('succWhatsAppBtn').href = `https://wa.me/91${sale.mobile}?text=${waText}`;
 
-  // Open modal
+  // Launch Modal
   const modalEl = document.getElementById('saleSuccessModal');
   const modal = new bootstrap.Modal(modalEl);
   modal.show();
 }
 
-function resetFormForNewSale() {
+function resetSaleForm() {
   const modalEl = document.getElementById('saleSuccessModal');
   const modalInstance = bootstrap.Modal.getInstance(modalEl);
   if (modalInstance) modalInstance.hide();
 
-  // Reset inputs
   document.getElementById('custName').value = '';
   document.getElementById('custMobile').value = '';
   document.getElementById('custAddress').value = '';
   document.getElementById('custReference').value = '';
-  document.getElementById('adminPassword').value = '';
-  document.getElementById('totalPrice').value = '0';
-  document.getElementById('givenPrice').value = '0';
-  document.getElementById('codeSearchInput').value = '';
-  document.getElementById('saleAlertMsg').classList.add('d-none');
-  
+  document.getElementById('totalPriceInput').value = '0';
+  document.getElementById('amountReceivedInput').value = '0';
+  document.getElementById('posAdminPassword').value = '';
+  document.getElementById('costumeCodeInput').value = '';
+  hideGeneralAlert();
+  hideCodeAlert();
+
   selectedCostumes = [];
   renderSelectedCostumes();
-  calculateBalance();
-  
-  // Reload page to sync inventory stats
-  setTimeout(() => window.location.reload(), 300);
+  calculateBilling();
+
+  setTimeout(() => window.location.reload(), 250);
 }
 
-// ─── RESTORE TO RENT SYSTEM ───────────────────────────────────────────
-function openRestorePrompt(code) {
-  restoreTargetCode = code;
-  document.getElementById('restoreTargetCode').textContent = code;
-  document.getElementById('restorePassword').value = '';
-  const fb = document.getElementById('restoreFeedback');
-  fb.className = 'd-none';
+// ─── ARCHIVE SEARCH & RESTORE ───────────────────────────────────────────
+function filterArchiveList(term) {
+  const q = (term || '').trim().toUpperCase();
+  const rows = document.querySelectorAll('.archive-item-row');
+  rows.forEach(row => {
+    const code = (row.getAttribute('data-code') || '').toUpperCase();
+    const buyer = (row.getAttribute('data-buyer') || '').toUpperCase();
+    row.style.display = (!q || code.includes(q) || buyer.includes(q)) ? 'flex' : 'none';
+  });
+}
 
-  const modalEl = document.getElementById('restoreModal');
+function promptRestore(code) {
+  restoreTargetCode = code;
+  document.getElementById('restoreTargetCodeText').textContent = code;
+  document.getElementById('restoreAdminPassword').value = '';
+  const fb = document.getElementById('restoreFeedbackMsg');
+  fb.style.display = 'none';
+
+  const modalEl = document.getElementById('restoreConfirmModal');
   const modal = new bootstrap.Modal(modalEl);
   modal.show();
-  setTimeout(() => document.getElementById('restorePassword').focus(), 300);
+  setTimeout(() => document.getElementById('restoreAdminPassword').focus(), 250);
 }
 
-async function executeRestore() {
-  const pw = (document.getElementById('restorePassword')?.value || '').trim();
-  const fb = document.getElementById('restoreFeedback');
-  const btn = document.getElementById('btnConfirmRestore');
+async function executeRestoreAction() {
+  const pw = (document.getElementById('restoreAdminPassword')?.value || '').trim();
+  const fb = document.getElementById('restoreFeedbackMsg');
+  const btn = document.getElementById('btnExecuteRestore');
 
   if (!pw) {
-    fb.className = 'p-2 rounded mb-3 alert-danger text-danger d-block';
-    fb.innerHTML = 'Please enter admin password.';
+    fb.style.display = 'block';
+    fb.className = 'pos-alert alert-danger';
+    fb.textContent = 'Please enter admin password.';
     return;
   }
 
   btn.disabled = true;
-  fb.className = 'p-2 rounded mb-3 alert-info text-info d-block';
-  fb.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Restoring costume...';
+  fb.style.display = 'block';
+  fb.className = 'pos-alert alert-warning';
+  fb.textContent = 'Restoring costume...';
 
   try {
     const res = await fetch('/api/navaratri/restore-product', {
@@ -1502,39 +1448,20 @@ async function executeRestore() {
       body: JSON.stringify({ code: restoreTargetCode, password: pw })
     });
     const data = await res.json();
+
     if (res.ok && data.success) {
-      fb.className = 'p-2 rounded mb-3 alert-success text-success d-block';
-      fb.innerHTML = `✅ ${data.message}`;
-      setTimeout(() => {
-        window.location.reload();
-      }, 700);
+      fb.className = 'pos-alert alert-success';
+      fb.textContent = 'Costume restored successfully!';
+      setTimeout(() => window.location.reload(), 600);
     } else {
-      fb.className = 'p-2 rounded mb-3 alert-danger text-danger d-block';
-      fb.innerHTML = `❌ ${data.message || 'Incorrect password.'}`;
+      fb.className = 'pos-alert alert-danger';
+      fb.textContent = data.message || 'Incorrect password.';
     }
-  } catch (e) {
-    fb.className = 'p-2 rounded mb-3 alert-danger text-danger d-block';
-    fb.innerHTML = `❌ Error: ${e.message}`;
+  } catch (err) {
+    fb.className = 'pos-alert alert-danger';
+    fb.textContent = err.message;
   } finally {
     btn.disabled = false;
-  }
-}
-
-function filterSoldList(term) {
-  const q = (term || '').trim().toUpperCase();
-  const items = document.querySelectorAll('.sold-item-entry');
-  let visibleCount = 0;
-  items.forEach(el => {
-    const code = (el.getAttribute('data-code') || '').toUpperCase();
-    const buyer = (el.getAttribute('data-buyer') || '').toUpperCase();
-    const match = !q || code.includes(q) || buyer.includes(q);
-    el.style.display = match ? 'flex' : 'none';
-    if (match) visibleCount++;
-  });
-
-  const noNotice = document.getElementById('noSoldNotice');
-  if (noNotice) {
-    noNotice.style.display = (visibleCount === 0) ? 'block' : 'none';
   }
 }
 </script>
