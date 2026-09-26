@@ -3657,6 +3657,130 @@ def api_verify_navaratri_password():
         return jsonify({"success": True, "message": "Password verified."})
     return jsonify({"success": False, "message": "Incorrect password."}), 401
 
+@navaratri.route("/api/navaratri/product-profile/<product_code>", methods=["GET"])
+def api_navaratri_product_profile(product_code):
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    code_clean = str(product_code).strip().upper()
+    product = get_navaratri_product(code_clean)
+    if not product:
+        try:
+            sync_navaratri_products()
+            product = get_navaratri_product(code_clean)
+        except Exception:
+            pass
+
+    if not product:
+        return jsonify({"success": False, "message": f"Product '{code_clean}' not found in catalog."}), 404
+
+    is_choli = code_clean.startswith('C')
+    category_label = "Chaniya Choli" if is_choli else ("Traditional Kediya" if code_clean.startswith('K') else "Costume")
+
+    # Image URLs
+    image_name = product.get("image", "")
+    if is_choli:
+        image_url = url_for('static', filename=f'CholiJpg/{code_clean}.jpg')
+        fallback_url = url_for('static', filename=f'Choli/{image_name}') if image_name else '/static/Home_Img/favicon.png'
+    else:
+        image_url = url_for('static', filename=f'KediyaJpg/{code_clean}.jpg')
+        fallback_url = url_for('static', filename=f'Kediya/{image_name}') if image_name else '/static/Home_Img/favicon.png'
+
+    # Storage Info
+    storage_info = None
+    try:
+        storage_results = _search_storage('product', code_clean)
+        for s in storage_results:
+            if s.get('is_exact') or str(s.get('_id', '')).upper() == code_clean:
+                storage_info = {
+                    "bag_id": s.get("bag_id", ""),
+                    "bag_name": s.get("bag_name", "Unknown"),
+                    "bag_description": s.get("bag_description", "")
+                }
+                break
+    except Exception:
+        pass
+
+    # Bookings search across selected cycle and other cycles
+    selected_cycle = get_selected_cycle()
+    selected_cycle_id = str(selected_cycle.get("_id", "")) if selected_cycle else ""
+
+    bookings = []
+    cycles_to_search = []
+    if selected_cycle:
+        cycles_to_search.append(selected_cycle)
+
+    try:
+        all_cycles = get_all_cycles()
+        for cyc in all_cycles:
+            if str(cyc.get("_id")) != selected_cycle_id:
+                cycles_to_search.append(cyc)
+    except Exception:
+        pass
+
+    existing_collections = set(db.list_collection_names())
+
+    for cyc in cycles_to_search:
+        cname = cyc.get("collection_name")
+        if not cname or cname not in existing_collections:
+            continue
+        is_current = (str(cyc.get("_id")) == selected_cycle_id)
+        cycle_title = cyc.get("name", "Cycle")
+        try:
+            for doc in db[cname].find():
+                cust_bookings = doc.get("bookings", {})
+                if not isinstance(cust_bookings, dict):
+                    continue
+                for d_str, prods in cust_bookings.items():
+                    if isinstance(prods, list) and code_clean in prods:
+                        total_p = doc.get("total_price", 0) or 0
+                        given_p = doc.get("given_price", 0) or 0
+                        bookings.append({
+                            "date": d_str,
+                            "cycle_name": cycle_title,
+                            "is_current_cycle": is_current,
+                            "customer_id": str(doc.get("_id", "")),
+                            "customer_name": doc.get("Name") or "Unnamed Customer",
+                            "customer_mobile": doc.get("mobile") or "",
+                            "customer_address": doc.get("address") or "",
+                            "customer_deposit": str(doc.get("deposit") or "Not provided"),
+                            "customer_reference": doc.get("reference") or "None",
+                            "customer_group": doc.get("group") or "None",
+                            "customer_total_price": total_p,
+                            "customer_given_price": given_p,
+                            "customer_remaining": total_p - given_p,
+                            "all_customer_bookings": cust_bookings
+                        })
+        except Exception as e:
+            current_app.logger.error(f"Error scanning bookings for product {code_clean} in {cname}: {e}")
+
+    def sort_key(b):
+        d_str = b.get("date", "")
+        for fmt in ("%d-%m-%y", "%d-%m-%Y", "%Y-%m-%d"):
+            try:
+                return (0 if b.get("is_current_cycle") else 1, datetime.strptime(d_str, fmt))
+            except ValueError:
+                pass
+        return (0 if b.get("is_current_cycle") else 1, datetime.min)
+
+    bookings.sort(key=sort_key)
+
+    return jsonify({
+        "success": True,
+        "product": {
+            "code": code_clean,
+            "image_url": image_url,
+            "fallback_url": fallback_url,
+            "category": category_label,
+            "on_rent": bool(product.get("on_rent", True)),
+            "sold_info": product.get("sold_info"),
+            "storage": storage_info
+        },
+        "bookings": bookings,
+        "total_bookings": len(bookings)
+    })
+
+
 @navaratri.route("/sell_product", methods=["GET", "POST"])
 @navaratri.route("/sell_costume", methods=["GET", "POST"])
 @navaratri.route("/navaratri_sell", methods=["GET", "POST"])

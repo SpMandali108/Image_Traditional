@@ -590,6 +590,528 @@ body {
     font-weight: 600;
 }
 
+/* ── INTERACTIVE PRODUCT PREVIEW & CODE ── */
+.clickable-preview {
+    cursor: pointer !important;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.clickable-preview:hover {
+    transform: scale(1.14);
+    box-shadow: 0 0 16px rgba(243, 208, 104, 0.6);
+    border-color: #f3d068 !important;
+}
+
+.clickable-code {
+    cursor: pointer !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.clickable-code:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(243, 208, 104, 0.45);
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(212, 175, 55, 0.2)) !important;
+    border-color: #f3d068 !important;
+}
+
+/* ── PRODUCT PROFILE & CUSTOMER PROFILE MODAL ── */
+.product-profile-dialog {
+    max-width: 820px !important;
+    width: 95% !important;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 26px 30px;
+    background: linear-gradient(145deg, #0d1829 0%, #08101d 100%) !important;
+    border: 2px solid var(--gold-bd) !important;
+}
+
+.profile-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1.5px solid rgba(212, 175, 55, 0.25);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.profile-hero {
+    display: flex;
+    gap: 22px;
+    background: rgba(15, 30, 50, 0.7);
+    border: 1.5px solid rgba(212, 175, 55, 0.3);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.profile-hero-img-wrap {
+    width: 160px;
+    height: 160px;
+    border-radius: 14px;
+    border: 2px solid var(--gold-bd);
+    overflow: hidden;
+    background: #060c17;
+    flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+.profile-hero-img:hover {
+    transform: scale(1.06);
+}
+
+.profile-hero-info {
+    flex: 1;
+    min-width: 240px;
+}
+
+.profile-code-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.profile-cat-badge {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #cbd5e1;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.profile-meta-chip {
+    background: rgba(6, 12, 23, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 8px 12px;
+}
+.profile-meta-chip-lbl {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #f3d068;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+.profile-meta-chip-val {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ffffff;
+    word-break: break-word;
+}
+
+/* Bookings list inside Product Profile */
+.section-subtitle-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.section-subtitle-bar h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.section-subtitle-bar p {
+    font-size: 0.88rem;
+    color: #cbd5e1;
+    margin: 3px 0 0 0;
+}
+
+.booking-item-card {
+    background: rgba(15, 30, 50, 0.85);
+    border: 1.5px solid rgba(212, 175, 55, 0.28);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.booking-item-card:hover {
+    border-color: #f3d068;
+    background: rgba(21, 40, 68, 0.95);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 14px rgba(243, 208, 104, 0.2);
+}
+
+.bic-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 220px;
+}
+.bic-date-box {
+    background: rgba(212, 175, 55, 0.18);
+    border: 1.5px solid rgba(212, 175, 55, 0.45);
+    border-radius: 10px;
+    padding: 8px 12px;
+    text-align: center;
+    min-width: 105px;
+    flex-shrink: 0;
+}
+.bic-date-val {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.2;
+}
+.bic-cycle-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #f3d068;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.bic-cust-info {
+    flex: 1;
+    min-width: 0;
+}
+.bic-cust-name {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.bic-cust-mobile {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #f3d068;
+    font-family: monospace;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.bic-cust-addr {
+    font-size: 0.84rem;
+    color: #cbd5e1;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 320px;
+}
+
+.bic-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.bic-price-tag {
+    font-size: 0.88rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+    text-align: right;
+    white-space: nowrap;
+}
+.bic-price-tag.paid {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}
+.bic-price-tag.due {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.btn-open-cust {
+    background: var(--gold-bg);
+    border: 1px solid var(--gold-bd);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 14px;
+    min-height: 40px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+.booking-item-card:hover .btn-open-cust {
+    background: #f3d068;
+    color: #060c17;
+}
+
+.empty-bookings-box {
+    background: rgba(15, 30, 50, 0.6);
+    border: 1.5px dashed rgba(212, 175, 55, 0.35);
+    border-radius: 14px;
+    padding: 32px 20px;
+    text-align: center;
+    color: #cbd5e1;
+}
+.empty-bookings-box i {
+    font-size: 2.2rem;
+    color: #f3d068;
+    display: block;
+    margin-bottom: 10px;
+}
+.empty-bookings-box p {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Customer Profile View Inside Modal */
+.cust-profile-card {
+    background: rgba(15, 30, 50, 0.75);
+    border: 1.5px solid rgba(212, 175, 55, 0.35);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 22px;
+}
+
+.cpc-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.cpc-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #d4af37, #f3d068);
+    color: #060c17;
+    font-size: 1.4rem;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.4);
+    flex-shrink: 0;
+}
+
+.cpc-title-box {
+    flex: 1;
+    min-width: 200px;
+}
+.cpc-name {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 4px 0;
+}
+.cpc-mobile {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #f3d068;
+    font-family: monospace;
+}
+
+.cpc-action-btns {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.btn-contact-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    min-height: 42px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+.btn-whatsapp {
+    background: #10b981;
+    color: #ffffff !important;
+    border: none;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+}
+.btn-whatsapp:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+.btn-call {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff !important;
+}
+.btn-call:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+.btn-full-booking {
+    background: linear-gradient(135deg, #d4af37, #b89228);
+    color: #060c17 !important;
+    border: none;
+    font-weight: 800;
+    box-shadow: 0 2px 10px rgba(212, 175, 55, 0.35);
+}
+.btn-full-booking:hover {
+    background: #f3d068;
+    transform: translateY(-1px);
+}
+
+.btn-back-to-prod {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid var(--gold-bd);
+    color: #f3d068;
+    padding: 8px 16px;
+    min-height: 42px;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+.btn-back-to-prod:hover {
+    background: var(--gold-bg);
+    color: #ffffff;
+    border-color: #f3d068;
+}
+
+.cust-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+.cd-box {
+    background: rgba(6, 12, 23, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 10px 14px;
+}
+.cd-box-lbl {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #f3d068;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+}
+.cd-box-val {
+    font-size: 0.96rem;
+    font-weight: 700;
+    color: #ffffff;
+    word-break: break-word;
+}
+
+.cust-balance-row {
+    background: rgba(10, 20, 35, 0.85);
+    border: 1.5px solid var(--gold-bd);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+.cbr-stat {
+    text-align: center;
+}
+.cbr-stat-lbl {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #cbd5e1;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.cbr-stat-val {
+    font-size: 1.45rem;
+    font-weight: 800;
+    margin-top: 2px;
+}
+
+.cust-items-timeline {
+    background: rgba(15, 30, 50, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 16px 20px;
+}
+.timeline-date-entry {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    flex-wrap: wrap;
+}
+.timeline-date-entry:last-child {
+    border-bottom: none;
+}
+.tde-date {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #f3d068;
+    min-width: 110px;
+}
+.tde-codes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.tde-code-chip {
+    background: rgba(212, 175, 55, 0.2);
+    border: 1px solid #f3d068;
+    color: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.tde-code-chip:hover {
+    background: #f3d068;
+    color: #060c17;
+}
+
 @media (max-width: 1199.98px) {
     .products-container { padding: 16px 12px 60px 12px; }
     .top-nav-bar { padding: 14px 16px; }
@@ -597,6 +1119,14 @@ body {
     .filter-pill { min-height: 42px; font-size: 0.92rem; }
     .products-table th, .products-table td { padding: 12px 14px; font-size: 0.95rem; }
     .btn-sell, .btn-disabled-sold { min-height: 42px; font-size: 0.9rem; padding: 9px 18px; }
+    
+    .product-profile-dialog { padding: 20px; width: 98% !important; }
+    .profile-hero { flex-direction: column; align-items: flex-start; }
+    .profile-hero-img-wrap { width: 140px; height: 140px; }
+    .profile-code-title { font-size: 1.6rem; }
+    .booking-item-card { flex-direction: column; align-items: stretch; gap: 10px; }
+    .bic-right { justify-content: space-between; }
+    .btn-open-cust { width: 100%; justify-content: center; }
 }
 
 @media (max-width: 768px) {
@@ -686,25 +1216,25 @@ body {
                         data-status="{% if is_rent %}available{% else %}sold{% endif %}">
                         
                         <!-- Thumbnail -->
-                        <td>
+                        <td onclick="openProductProfile('{{ p.code }}')" style="cursor: pointer;" title="View Product Profile & Bookings for {{ p.code }}">
                             {% if is_choli %}
                                 <img src="{{ url_for('static', filename='CholiJpg/' ~ p.code ~ '.jpg') }}" 
                                      alt="{{ p.code }}" 
-                                     class="prod-thumb" 
+                                     class="prod-thumb clickable-preview" 
                                      loading="lazy" 
                                      onerror="this.onerror=null; this.src='{{ url_for('static', filename='Choli/' ~ p.image) }}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
                             {% else %}
                                 <img src="{{ url_for('static', filename='KediyaJpg/' ~ p.code ~ '.jpg') }}" 
                                      alt="{{ p.code }}" 
-                                     class="prod-thumb" 
+                                     class="prod-thumb clickable-preview" 
                                      loading="lazy" 
                                      onerror="this.onerror=null; this.src='{{ url_for('static', filename='Kediya/' ~ p.image) }}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
                             {% endif %}
                         </td>
 
                         <!-- Code -->
-                        <td>
-                            <span class="prod-code-badge">{{ p.code }}</span>
+                        <td onclick="openProductProfile('{{ p.code }}')" style="cursor: pointer;" title="View Product Profile & Bookings for {{ p.code }}">
+                            <span class="prod-code-badge clickable-code">{{ p.code }}</span>
                         </td>
 
                         <!-- Category -->
@@ -837,6 +1367,160 @@ body {
                 <button type="submit" class="btn-modal-verify" id="btnConfirmRestore">Restore Product</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- ============================================================================== -->
+<!-- 👗 PRODUCT PROFILE & CUSTOMER PROFILE MODAL -->
+<!-- ============================================================================== -->
+<div class="modal-overlay" id="productProfileModal" onclick="if(event.target===this) closeProductProfileModal();">
+    <div class="modal-dialog-box product-profile-dialog">
+        <button type="button" class="modal-close-btn" onclick="closeProductProfileModal()" title="Close">✕</button>
+
+        <!-- Loading State -->
+        <div id="productProfileLoading" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding: 48px 20px;">
+            <div style="width: 48px; height: 48px; border: 3px solid rgba(212,175,55,0.25); border-top-color: #f3d068; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px;"></div>
+            <p style="font-size: 1.05rem; font-weight: 700; color: #ffffff; margin: 0;">Loading Product Profile & Bookings...</p>
+        </div>
+
+        <!-- VIEW 1: PRODUCT PROFILE -->
+        <div id="productProfileView" style="display:none;">
+            <!-- Topbar -->
+            <div class="profile-topbar">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-size: 1.4rem;">🪔</span>
+                    <h2 class="modal-title" style="margin: 0; font-size: 1.4rem;">Product Profile</h2>
+                    <span id="profStatusPill"></span>
+                </div>
+            </div>
+
+            <!-- Product Hero Card -->
+            <div class="profile-hero">
+                <div class="profile-hero-img-wrap">
+                    <img id="profImg" src="" alt="Product Image" class="profile-hero-img" onerror="this.onerror=null; this.src='/static/Home_Img/favicon.png';">
+                </div>
+                <div class="profile-hero-info">
+                    <h2 class="profile-code-title">
+                        <span id="profCode"></span>
+                    </h2>
+                    <div class="profile-cat-badge">
+                        <span id="profCat"></span>
+                    </div>
+
+                    <div class="profile-meta-grid">
+                        <div class="profile-meta-chip">
+                            <div class="profile-meta-chip-lbl">Rental Status</div>
+                            <div class="profile-meta-chip-val" id="profRentalText"></div>
+                        </div>
+                        <div class="profile-meta-chip">
+                            <div class="profile-meta-chip-lbl">Storage Bag</div>
+                            <div class="profile-meta-chip-val" id="profStorageText"></div>
+                        </div>
+                        <div class="profile-meta-chip">
+                            <div class="profile-meta-chip-lbl">Total Bookings</div>
+                            <div class="profile-meta-chip-val" id="profTotalBookingsBadge"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap;" id="profActionRow">
+                        <!-- Populated dynamically (e.g. Sell or Restore button) -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bookings List Section -->
+            <div class="section-subtitle-bar">
+                <div>
+                    <h3>📅 Costume Booking History</h3>
+                    <p>Click on any booking below to view customer profile</p>
+                </div>
+                <span class="badge-count" id="profBookingCountBadge" style="font-size: 0.88rem; padding: 4px 12px;"></span>
+            </div>
+
+            <div id="profBookingsList">
+                <!-- Populated dynamically via JS -->
+            </div>
+        </div>
+
+        <!-- VIEW 2: CUSTOMER PROFILE -->
+        <div id="customerProfileView" style="display:none;">
+            <!-- Topbar with Back button -->
+            <div class="profile-topbar">
+                <button type="button" class="btn-back-to-prod" onclick="backToProductProfile()">
+                    <span id="backToProdBtnText">← Back to Costume</span>
+                </button>
+                <div style="font-size: 0.88rem; font-weight: 700; color: var(--gold-lt); text-transform: uppercase; letter-spacing: 0.5px;">
+                    Customer Profile
+                </div>
+            </div>
+
+            <!-- Customer Header Card -->
+            <div class="cust-profile-card">
+                <div class="cpc-header">
+                    <div class="cpc-avatar" id="custAvatar">CU</div>
+                    <div class="cpc-title-box">
+                        <h2 class="cpc-name" id="custName"></h2>
+                        <div class="cpc-mobile" id="custMobile"></div>
+                        <div class="cpc-action-btns">
+                            <a href="#" target="_blank" class="btn-contact-action btn-whatsapp" id="custWhatsappBtn">
+                                💬 WhatsApp Chat
+                            </a>
+                            <a href="#" class="btn-contact-action btn-call" id="custCallBtn">
+                                📞 Call
+                            </a>
+                            <a href="#" class="btn-contact-action btn-full-booking" id="custFullBookingBtn">
+                                🔗 Open in Booking Manager
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Balance Summary Row -->
+                <div class="cust-balance-row">
+                    <div class="cbr-stat">
+                        <div class="cbr-stat-lbl">Total Billing</div>
+                        <div class="cbr-stat-val" style="color: #ffffff;" id="custTotalBill">₹0</div>
+                    </div>
+                    <div class="cbr-stat">
+                        <div class="cbr-stat-lbl">Given / Advance</div>
+                        <div class="cbr-stat-val" style="color: #34d399;" id="custGivenBill">₹0</div>
+                    </div>
+                    <div class="cbr-stat">
+                        <div class="cbr-stat-lbl">Remaining Balance</div>
+                        <div class="cbr-stat-val" id="custRemainingBill">₹0</div>
+                    </div>
+                </div>
+
+                <!-- Customer Details Grid -->
+                <div class="cust-details-grid">
+                    <div class="cd-box">
+                        <div class="cd-box-lbl">Full Address</div>
+                        <div class="cd-box-val" id="custAddress"></div>
+                    </div>
+                    <div class="cd-box">
+                        <div class="cd-box-lbl">Deposit Submitted</div>
+                        <div class="cd-box-val" id="custDeposit"></div>
+                    </div>
+                    <div class="cd-box">
+                        <div class="cd-box-lbl">Reference / Group</div>
+                        <div class="cd-box-val" id="custRefGroup"></div>
+                    </div>
+                    <div class="cd-box">
+                        <div class="cd-box-lbl">Booking Cycle</div>
+                        <div class="cd-box-val" id="custCycle"></div>
+                    </div>
+                </div>
+
+                <!-- Customer All Costumes Timeline -->
+                <div class="cust-items-timeline">
+                    <h4 style="font-size: 1rem; font-weight: 800; color: #ffffff; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                        📦 All Costumes Booked by this Customer in Cycle
+                    </h4>
+                    <div id="custTimelineList"></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -1156,5 +1840,262 @@ function showToast(msg) {
         toast.style.display = "none";
     }, 3500);
 }
+
+// ── Product Profile & Customer Profile Interactive View ──
+let currentProductProfileData = null;
+let currentProductBookings = [];
+
+async function openProductProfile(code) {
+    if (!code) return;
+    const modal = document.getElementById("productProfileModal");
+    const loading = document.getElementById("productProfileLoading");
+    const pView = document.getElementById("productProfileView");
+    const cView = document.getElementById("customerProfileView");
+
+    modal.classList.add("active");
+    loading.style.display = "flex";
+    pView.style.display = "none";
+    cView.style.display = "none";
+
+    try {
+        const res = await fetch(`/api/navaratri/product-profile/${encodeURIComponent(code)}`);
+        const data = await res.json();
+
+        if (!data.success) {
+            showToast(data.message || "Failed to load product profile.");
+            closeProductProfileModal();
+            return;
+        }
+
+        currentProductProfileData = data.product;
+        currentProductBookings = data.bookings || [];
+
+        renderProductProfile(data);
+        loading.style.display = "none";
+        pView.style.display = "block";
+    } catch (err) {
+        console.error("Error loading product profile:", err);
+        showToast("❌ Network error loading product profile.");
+        closeProductProfileModal();
+    }
+}
+
+function renderProductProfile(data) {
+    const p = data.product;
+    const bookings = data.bookings || [];
+
+    // Image
+    const imgEl = document.getElementById("profImg");
+    imgEl.src = p.image_url;
+    imgEl.onerror = function() {
+        this.onerror = function() { this.src = '/static/Home_Img/favicon.png'; };
+        this.src = p.fallback_url;
+    };
+
+    // Code & Category
+    document.getElementById("profCode").innerText = p.code;
+    document.getElementById("profCat").innerText = (p.category === 'Chaniya Choli' ? '👗 ' : '🕺 ') + p.category;
+
+    // Status pill
+    const statusPill = document.getElementById("profStatusPill");
+    const rentalText = document.getElementById("profRentalText");
+    if (p.on_rent) {
+        statusPill.innerHTML = '<span class="badge-status status-rentable" style="font-size:0.78rem;">🟢 Available for Rent</span>';
+        rentalText.innerHTML = '<span style="color:#34d399; font-weight:800;">🟢 Available for Rent</span>';
+    } else {
+        statusPill.innerHTML = '<span class="badge-status status-sold" style="font-size:0.78rem;">🔴 Sold / Not for Rent</span>';
+        rentalText.innerHTML = '<span style="color:#f87171; font-weight:800;">🔴 Sold / Not for Rent</span>';
+    }
+
+    // Storage
+    const storageEl = document.getElementById("profStorageText");
+    if (p.storage && p.storage.bag_name) {
+        let desc = p.storage.bag_description ? ` (${p.storage.bag_description})` : '';
+        storageEl.innerHTML = `<span style="color:#f3d068; font-weight:700;">📦 Bag: ${p.storage.bag_name}${desc}</span>`;
+    } else {
+        storageEl.innerHTML = '<span style="color:#94a3b8;">Not assigned to bag</span>';
+    }
+
+    // Total bookings count
+    const totalCountText = bookings.length === 1 ? '1 Booking' : `${bookings.length} Bookings`;
+    document.getElementById("profTotalBookingsBadge").innerText = totalCountText;
+    document.getElementById("profBookingCountBadge").innerText = totalCountText;
+
+    // Action button inside hero
+    const actionRow = document.getElementById("profActionRow");
+    if (p.on_rent) {
+        actionRow.innerHTML = `
+            <button type="button" class="btn-sell" onclick="closeProductProfileModal(); initiateSell('${p.code}');">
+                🏷️ Sell / Mark Sold
+            </button>
+        `;
+    } else {
+        actionRow.innerHTML = `
+            <button type="button" class="btn-restore" style="margin-left:0; min-height:38px; padding:8px 16px; font-size:0.88rem;" onclick="closeProductProfileModal(); initiateRestore('${p.code}');">
+                ↩ Restore to Available
+            </button>
+        `;
+    }
+
+    // Bookings list
+    const listContainer = document.getElementById("profBookingsList");
+    if (bookings.length === 0) {
+        listContainer.innerHTML = `
+            <div class="empty-bookings-box">
+                <i class="bi bi-calendar2-check"></i>
+                <p>✨ No bookings recorded for <strong>${p.code}</strong> in the database.</p>
+                <div style="font-size:0.85rem; color:#8da2bb; margin-top:4px;">This costume is currently unreserved and available for bookings.</div>
+            </div>
+        `;
+    } else {
+        let html = '';
+        bookings.forEach((b, idx) => {
+            const isDue = (b.customer_remaining > 0);
+            const priceHtml = isDue
+                ? `<span class="bic-price-tag due">Due ₹${b.customer_remaining} (Paid ₹${b.customer_given_price})</span>`
+                : `<span class="bic-price-tag paid">✓ Paid in Full (₹${b.customer_total_price})</span>`;
+
+            const cycleBadge = b.is_current_cycle 
+                ? `<span class="bic-cycle-tag" style="color:#34d399;">● ${b.cycle_name}</span>`
+                : `<span class="bic-cycle-tag" style="color:#a3b8cc;">${b.cycle_name}</span>`;
+
+            html += `
+                <div class="booking-item-card" onclick="showCustomerProfileFromBooking(${idx})">
+                    <div class="bic-left">
+                        <div class="bic-date-box">
+                            <div class="bic-date-val">${b.date}</div>
+                            ${cycleBadge}
+                        </div>
+                        <div class="bic-cust-info">
+                            <div class="bic-cust-name">
+                                👤 ${escapeHtml(b.customer_name)}
+                            </div>
+                            <div class="bic-cust-mobile">
+                                📞 ${escapeHtml(b.customer_mobile)}
+                            </div>
+                            ${b.customer_address ? `<div class="bic-cust-addr">📍 ${escapeHtml(b.customer_address)}</div>` : ''}
+                        </div>
+                    </div>
+                    <div class="bic-right">
+                        ${priceHtml}
+                        <button type="button" class="btn-open-cust">
+                            View Profile →
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        listContainer.innerHTML = html;
+    }
+}
+
+function showCustomerProfileFromBooking(idx) {
+    if (!currentProductBookings || !currentProductBookings[idx]) return;
+    const b = currentProductBookings[idx];
+
+    document.getElementById("productProfileView").style.display = "none";
+    document.getElementById("customerProfileView").style.display = "block";
+
+    // Set back button text
+    document.getElementById("backToProdBtnText").innerText = `← Back to Costume ${currentProductProfileData ? currentProductProfileData.code : ''}`;
+
+    // Avatar initials
+    const initials = (b.customer_name || 'CU').substring(0, 2).toUpperCase();
+    document.getElementById("custAvatar").innerText = initials;
+
+    // Name & Mobile
+    document.getElementById("custName").innerText = b.customer_name || 'Unnamed Customer';
+    document.getElementById("custMobile").innerText = b.customer_mobile || 'No mobile provided';
+
+    // WhatsApp, Call, and Booking Manager links
+    const cleanMobile = (b.customer_mobile || '').replace(/\D/g, '');
+    const waBtn = document.getElementById("custWhatsappBtn");
+    const callBtn = document.getElementById("custCallBtn");
+    const fullBookingBtn = document.getElementById("custFullBookingBtn");
+
+    if (cleanMobile) {
+        waBtn.href = `https://wa.me/91${cleanMobile}`;
+        waBtn.style.display = "inline-flex";
+        callBtn.href = `tel:${cleanMobile}`;
+        callBtn.style.display = "inline-flex";
+        fullBookingBtn.href = `/navaratri_booking?mobile=${encodeURIComponent(b.customer_mobile)}`;
+    } else {
+        waBtn.style.display = "none";
+        callBtn.style.display = "none";
+        fullBookingBtn.href = `/navaratri_booking`;
+    }
+
+    // Billing status
+    document.getElementById("custTotalBill").innerText = `₹${b.customer_total_price}`;
+    document.getElementById("custGivenBill").innerText = `₹${b.customer_given_price}`;
+
+    const remEl = document.getElementById("custRemainingBill");
+    if (b.customer_remaining <= 0) {
+        remEl.innerHTML = '<span style="color:#34d399; font-weight:800;">₹0 <small style="font-size:0.75rem; text-transform:uppercase; font-weight:700;">(Paid in Full)</small></span>';
+    } else {
+        remEl.innerHTML = `<span style="color:#f87171; font-weight:800;">₹${b.customer_remaining} <small style="font-size:0.75rem; text-transform:uppercase; font-weight:700;">(Pending)</small></span>`;
+    }
+
+    // Details Grid
+    document.getElementById("custAddress").innerText = b.customer_address || 'None provided';
+    document.getElementById("custDeposit").innerText = b.customer_deposit || 'Not provided';
+    document.getElementById("custRefGroup").innerText = `${b.customer_reference || 'Self'} / ${b.customer_group || '-'}`;
+    document.getElementById("custCycle").innerText = b.cycle_name || 'Active Cycle';
+
+    // Timeline / All costumes booked by this customer
+    const timelineList = document.getElementById("custTimelineList");
+    const allBookings = b.all_customer_bookings || {};
+    const dates = Object.keys(allBookings);
+
+    if (dates.length === 0) {
+        timelineList.innerHTML = '<div style="color:#94a3b8; font-size:0.9rem;">No other costumes booked.</div>';
+    } else {
+        let tHtml = '';
+        dates.forEach(d => {
+            const prods = Array.isArray(allBookings[d]) ? allBookings[d] : [allBookings[d]];
+            const chips = prods.map(code => `
+                <span class="tde-code-chip" onclick="openProductProfile('${escapeHtml(code)}')" title="Click to view ${escapeHtml(code)} profile">
+                    ${escapeHtml(code)}
+                </span>
+            `).join(' ');
+
+            tHtml += `
+                <div class="timeline-date-entry">
+                    <div class="tde-date">📅 ${d}</div>
+                    <div class="tde-codes">${chips}</div>
+                </div>
+            `;
+        });
+        timelineList.innerHTML = tHtml;
+    }
+}
+
+function backToProductProfile() {
+    document.getElementById("customerProfileView").style.display = "none";
+    document.getElementById("productProfileView").style.display = "block";
+}
+
+function closeProductProfileModal() {
+    document.getElementById("productProfileModal").classList.remove("active");
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// Global key listener for Escape key
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeProductProfileModal();
+        closeSellModal();
+        closeRestoreModal();
+    }
+});
 </script>
 {% endblock %}
