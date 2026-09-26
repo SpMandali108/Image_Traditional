@@ -1,5 +1,5 @@
 {% extends "general/base.html" %}
-{% block title %}Sell Costume Form | Image Traditional{% endblock %}
+{% block title %}Costume Sale Form | Image Traditional{% endblock %}
 
 {% block logo_link %}
 <a href="/navaratri_admin" class="logo">
@@ -12,996 +12,1530 @@
 <meta name="robots" content="noindex, nofollow" />
 {% endblock %}
 
-{% block content %}
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap');
+{% block head %}
+<!-- Bootstrap 5 & Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
+<!-- Google Fonts matching Booking Manager -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 
+<style>
+/* ─── DESIGN SYSTEM & PALETTE (MATCHING BOOKING MANAGER) ─────────────── */
 :root {
-    --navy-bg:      #0a1628;
-    --surface-bg:   #0f1e32;
-    --card-bg:      #111f33;
-    --card-hover:   #152540;
-    --gold:         #d4af37;
-    --gold-lt:      #f5d580;
-    --gold-dk:      #b8961e;
-    --gold-bg:      rgba(212, 175, 55, 0.08);
-    --gold-bd:      rgba(212, 175, 55, 0.25);
-    --gold-bd-h:    rgba(212, 175, 55, 0.5);
-    --white:        #f8fafc;
-    --text:         #b8c5d4;
-    --muted:        #64748b;
-    --danger:       #ef4444;
-    --danger-bg:    rgba(239, 68, 68, 0.12);
-    --danger-bd:    rgba(239, 68, 68, 0.35);
-    --success:      #10b981;
-    --success-bg:   rgba(16, 185, 129, 0.12);
-    --success-bd:   rgba(16, 185, 129, 0.35);
-    --border-subtle: rgba(255, 255, 255, 0.08);
+  --bg-dark:        #060c17;
+  --bg-card:        rgba(14, 25, 44, 0.85);
+  --bg-card-hover:  rgba(22, 38, 64, 0.95);
+  --bg-input:       #0a1424;
+  --border-color:   rgba(255, 255, 255, 0.08);
+  --border-gold:    rgba(201, 162, 39, 0.35);
+  
+  --gold-primary:   #c9a227;
+  --gold-light:     #f3d068;
+  --gold-glow:      rgba(201, 162, 39, 0.2);
+  
+  --text-main:      #e2e8f0;
+  --text-muted:     #64748b;
+  --text-dark:      #94a3b8;
+  
+  --accent-danger:  #ef4444;
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-info:    #3b82f6;
+
+  --r-lg: 20px;
+  --r-md: 14px;
+  --r-sm: 10px;
 }
+
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
-    background-color: var(--navy-bg) !important;
-    color: var(--text) !important;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    min-height: 100vh;
+  background: var(--bg-dark) !important;
+  color: var(--text-main) !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(201, 162, 39, 0.07), transparent 35%),
+    radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.06), transparent 35%),
+    radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.03), transparent 50%);
 }
 
-.sell-container {
-    max-width: 1240px;
-    margin: 0 auto;
-    padding: 24px 16px 80px 16px;
+.main-content {
+  padding: 0 !important;
+  max-width: 100% !important;
+  margin: 0 !important;
 }
 
-/* ── TOP NAV BAR ── */
-.top-nav-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--surface-bg);
-    border: 1px solid var(--gold-bd);
-    border-radius: 16px;
-    padding: 16px 22px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    gap: 14px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-}
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(201, 162, 39, 0.3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold-primary); }
 
-.nav-title-group h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    color: var(--white);
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+/* ─── HERO TOPLINE ──────────────────────────────────────────────────── */
+.topline {
+  background: linear-gradient(180deg, rgba(14, 25, 44, 0.95) 0%, var(--bg-dark) 100%);
+  border-bottom: 1px solid var(--border-color);
+  padding: 22px 24px;
+  position: relative;
+  backdrop-filter: blur(12px);
+  margin-bottom: 24px;
 }
-.nav-title-group h1 span { color: var(--gold); }
-.nav-title-group p {
-    margin: 4px 0 0 0;
-    font-size: 0.84rem;
-    color: var(--muted);
+.topline::after {
+  content: '';
+  position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-primary) 50%, transparent);
+  opacity: 0.6;
 }
+.topline-inner { max-width: 1400px; margin: 0 auto; }
+.topline-row1 {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+}
+.topline-heading { display: flex; align-items: center; gap: 14px; }
+.topline-badge {
+  width: 48px; height: 48px; border-radius: 14px;
+  background: linear-gradient(145deg, rgba(201, 162, 39, 0.25), rgba(201, 162, 39, 0.05));
+  border: 1px solid var(--border-gold);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold-light); font-size: 1.35rem; flex-shrink: 0;
+  box-shadow: 0 0 20px var(--gold-glow);
+}
+.topline-eyebrow {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.16em; color: var(--gold-primary); margin-bottom: 2px;
+}
+.topline-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.65rem; font-weight: 700; color: #ffffff;
+  margin: 0; line-height: 1.1; letter-spacing: -0.01em;
+}
+.topline-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
-.nav-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
+/* ─── STAT CHIPS (KPIs) ─────────────────────────────────────────────── */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
+.stat-chip {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--r-md);
+  padding: 14px 18px;
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+}
+.stat-chip:hover { border-color: var(--border-gold); transform: translateY(-2px); }
+.stat-chip-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+  background: rgba(201, 162, 39, 0.15); color: var(--gold-light);
+}
+.stat-chip.is-danger .stat-chip-icon { background: rgba(239, 68, 68, 0.15); color: var(--accent-danger); }
+.stat-chip.is-success .stat-chip-icon { background: rgba(16, 185, 129, 0.15); color: var(--accent-success); }
+.stat-chip-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+.stat-chip-value { font-size: 1.25rem; font-weight: 800; color: #ffffff; line-height: 1.1; }
+.stat-chip.is-danger .stat-chip-value { color: var(--accent-danger); }
+.stat-chip.is-success .stat-chip-value { color: var(--accent-success); }
 
-.btn-nav {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    color: var(--text);
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.btn-nav:hover {
-    background: rgba(212, 175, 55, 0.15);
-    border-color: var(--gold-bd);
-    color: var(--gold-lt);
-    transform: translateY(-1px);
-}
-.btn-nav-primary {
-    background: linear-gradient(135deg, var(--gold-dk) 0%, var(--gold) 100%);
-    border-color: var(--gold);
-    color: #060c17 !important;
-    font-weight: 700;
-}
-.btn-nav-primary:hover {
-    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-lt) 100%);
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
-}
-
-/* ── STATS ROW ── */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 14px;
-    margin-bottom: 24px;
-}
-
-.stat-card {
-    background: var(--surface-bg);
-    border: 1px solid var(--border-subtle);
-    border-radius: 14px;
-    padding: 16px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-.stat-card .stat-label {
-    font-size: 0.76rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--muted);
-    font-weight: 700;
-}
-.stat-card .stat-value {
-    font-size: 1.7rem;
-    font-weight: 800;
-    color: var(--white);
-    line-height: 1.1;
-}
-.stat-available { border-left: 4px solid var(--success); }
-.stat-sold { border-left: 4px solid var(--danger); }
-.stat-total { border-left: 4px solid var(--gold); }
-
-/* ── MAIN 2-COLUMN GRID ── */
+/* ─── 2-COLUMN LAYOUT ───────────────────────────────────────────────── */
 .sell-layout {
-    display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 24px;
-    align-items: start;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px 60px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
 }
-@media (max-width: 991px) {
-    .sell-layout {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* ── FORM CARD ── */
-.form-card {
-    background: var(--surface-bg);
-    border: 1px solid var(--danger-bd);
-    border-radius: 18px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
-    overflow: hidden;
+@media (min-width: 1200px) {
+  .sell-layout {
+    grid-template-columns: 1.25fr 0.75fr;
+  }
 }
 
-.form-card-header {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(212, 175, 55, 0.08) 100%);
-    border-bottom: 1px solid var(--danger-bd);
-    padding: 18px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+/* ─── FORM & SIDEBAR CARDS ──────────────────────────────────────────── */
+.sell-card {
+  background: linear-gradient(180deg, rgba(20, 34, 58, 0.92), rgba(14, 25, 44, 0.92));
+  border-radius: var(--r-lg);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.85);
+  position: relative;
+  overflow: hidden;
 }
-.form-card-header h2 {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #fca5a5;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.badge-danger-tag {
-    background: rgba(239, 68, 68, 0.2);
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    color: #fecaca;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.03em;
+.sell-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold-primary) 50%, transparent);
+  opacity: 0.7;
 }
 
-.form-card-body {
-    padding: 24px;
+.sell-card-head {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(90deg, rgba(201, 162, 39, 0.08) 0%, rgba(14, 25, 44, 0.6) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.sell-card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.info-banner {
-    background: rgba(239, 68, 68, 0.08);
-    border: 1px solid rgba(239, 68, 68, 0.25);
-    border-radius: 12px;
-    padding: 12px 16px;
-    margin-bottom: 22px;
-    font-size: 0.83rem;
-    color: #cbd5e1;
-    line-height: 1.45;
+.sell-card-body {
+  padding: 24px;
 }
-.info-banner strong { color: #fca5a5; }
 
-.form-group {
-    margin-bottom: 18px;
+/* ─── SECTION TITLES & FORM CONTROLS ────────────────────────────────── */
+.modal-section-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: var(--gold-primary);
+  border-bottom: 1px dashed var(--border-color);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  margin-top: 8px;
 }
+
 .form-label {
-    display: block;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--white);
-    margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+  display: block;
 }
-.form-label .req { color: var(--danger); }
-.form-label .opt { color: var(--muted); font-size: 0.75rem; font-weight: 400; }
+.form-label .req { color: var(--accent-danger); font-weight: 800; }
+.form-label .opt { color: var(--text-dark); font-size: 0.72rem; font-weight: 400; }
 
-.form-control-custom {
-    width: 100%;
-    background: #060c17;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 10px;
-    color: var(--white);
-    padding: 11px 14px;
-    font-size: 0.95rem;
-    font-family: inherit;
-    transition: all 0.2s ease;
-    box-sizing: border-box;
+.form-control, .form-select {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: #ffffff;
+  border-radius: var(--r-sm);
+  font-size: 0.86rem;
+  padding: 10px 14px;
+  transition: all 0.2s ease;
 }
-.form-control-custom:focus {
-    outline: none;
-    border-color: var(--danger);
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
-    background: #091322;
-}
-
-.input-code-group {
-    display: flex;
-    gap: 10px;
-}
-.input-code-group input {
-    text-transform: uppercase;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    font-size: 1.1rem;
-    color: #fff;
-}
-.btn-check-code {
-    padding: 0 18px;
-    background: rgba(212, 175, 55, 0.15);
-    border: 1px solid var(--gold-bd);
-    border-radius: 10px;
-    color: var(--gold-lt);
-    font-weight: 700;
-    font-size: 0.85rem;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s ease;
-}
-.btn-check-code:hover {
-    background: rgba(212, 175, 55, 0.3);
-    color: #fff;
+.form-control::placeholder { color: var(--text-muted); }
+.form-control:focus, .form-select:focus {
+  background: var(--bg-input);
+  border-color: var(--gold-primary);
+  color: #ffffff;
+  box-shadow: 0 0 0 3px var(--gold-glow);
+  outline: none;
 }
 
-/* ── PREVIEW CARD ── */
-.preview-card {
-    background: #081220;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    transition: all 0.2s ease;
+/* ─── MULTI-CODE SELECTION UI ───────────────────────────────────────── */
+.add-code-bar {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
 }
-.preview-thumb {
-    width: 80px;
-    height: 90px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid var(--gold-bd);
-    background: #000;
-    flex-shrink: 0;
-}
-.preview-details {
-    flex-grow: 1;
-    min-width: 0;
-}
-.preview-code-title {
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: var(--white);
-    margin: 0 0 4px 0;
-}
-.preview-cat {
-    font-size: 0.82rem;
-    color: var(--text);
-    margin-bottom: 6px;
-}
-.preview-status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 10px;
-    border-radius: 16px;
-    font-size: 0.75rem;
-    font-weight: 700;
-}
-.badge-available {
-    background: var(--success-bg);
-    border: 1px solid var(--success-bd);
-    color: #6ee7b7;
-}
-.badge-sold {
-    background: var(--danger-bg);
-    border: 1px solid var(--danger-bd);
-    color: #fca5a5;
+.add-code-bar input {
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  font-size: 0.95rem;
 }
 
-/* ── PASSWORD TOGGLE ── */
-.password-wrap {
-    position: relative;
+/* Live Candidate Preview Card */
+.candidate-preview {
+  background: rgba(6, 12, 23, 0.6);
+  border: 1px dashed var(--border-gold);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
+  display: none;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
 }
-.btn-toggle-pw {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 4px 8px;
-}
-.btn-toggle-pw:hover { color: var(--white); }
-
-/* ── SUBMIT BUTTON ── */
-.btn-submit-sell {
-    width: 100%;
-    padding: 14px 20px;
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    border: 1px solid rgba(239, 68, 68, 0.5);
-    border-radius: 12px;
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 800;
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.35);
-    transition: all 0.2s ease;
-}
-.btn-submit-sell:hover {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.5);
-    transform: translateY(-1px);
-}
-.btn-submit-sell:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
+.candidate-preview.active { display: flex; }
+.candidate-thumb {
+  width: 50px;
+  height: 56px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--border-gold);
+  background: #000;
+  flex-shrink: 0;
 }
 
-/* ── FEEDBACK ALERTS ── */
-.alert-feedback {
-    border-radius: 12px;
-    padding: 14px 18px;
-    margin-top: 18px;
-    font-size: 0.88rem;
-    font-weight: 600;
-    display: none;
-    line-height: 1.45;
+/* Selected Costumes Grid / Cards */
+.selected-costumes-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
 }
-.alert-feedback.alert-success {
-    background: rgba(16, 185, 129, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.4);
-    color: #6ee7b7;
+.costume-item-card {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+  position: relative;
 }
-.alert-feedback.alert-danger {
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    color: #fca5a5;
+.costume-item-card:hover {
+  border-color: var(--border-gold);
+  background: var(--bg-card-hover);
+  transform: translateY(-2px);
 }
-.alert-feedback.alert-info {
-    background: rgba(59, 130, 246, 0.15);
-    border: 1px solid rgba(59, 130, 246, 0.4);
-    color: #93c5fd;
+.costume-card-thumb {
+  width: 48px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border-gold);
+  background: #000;
+  flex-shrink: 0;
 }
-
-/* ── SIDE PANEL (SOLD COSTUMES) ── */
-.side-card {
-    background: var(--surface-bg);
-    border: 1px solid var(--border-subtle);
-    border-radius: 18px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-    overflow: hidden;
+.costume-card-info {
+  flex-grow: 1;
+  min-width: 0;
 }
-.side-card-header {
-    background: rgba(255, 255, 255, 0.03);
-    border-bottom: 1px solid var(--border-subtle);
-    padding: 16px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.costume-card-code {
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: #ffffff;
+  font-family: monospace;
 }
-.side-card-header h3 {
-    font-size: 1.05rem;
-    color: var(--white);
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.costume-card-cat {
+  font-size: 0.72rem;
+  color: var(--gold-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.side-search-box {
-    padding: 12px 18px;
-    border-bottom: 1px solid var(--border-subtle);
+.btn-remove-code {
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--accent-danger);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
 }
-.sold-list {
-    max-height: 540px;
-    overflow-y: auto;
-    padding: 12px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.sold-item-card {
-    background: #081324;
-    border: 1px solid rgba(239, 68, 68, 0.25);
-    border-radius: 12px;
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: all 0.2s ease;
-}
-.sold-item-card:hover {
-    border-color: rgba(239, 68, 68, 0.5);
-    background: #0c1a30;
-}
-.sold-item-thumb {
-    width: 48px;
-    height: 56px;
-    object-fit: cover;
-    border-radius: 6px;
-    border: 1px solid var(--gold-bd);
-    background: #000;
-    flex-shrink: 0;
-}
-.sold-item-info {
-    flex-grow: 1;
-    min-width: 0;
-}
-.sold-item-code {
-    font-weight: 800;
-    color: #fff;
-    font-size: 0.95rem;
-}
-.sold-item-cat {
-    font-size: 0.74rem;
-    color: var(--muted);
-}
-.sold-item-meta {
-    font-size: 0.72rem;
-    color: #cbd5e1;
-    margin-top: 2px;
-}
-.btn-restore-item {
-    padding: 6px 12px;
-    background: rgba(16, 185, 129, 0.15);
-    border: 1px solid var(--success-bd);
-    border-radius: 8px;
-    color: #6ee7b7;
-    font-size: 0.76rem;
-    font-weight: 700;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s ease;
-}
-.btn-restore-item:hover {
-    background: var(--success);
-    color: #060c17;
+.btn-remove-code:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--accent-danger);
+  color: #ff9090;
 }
 
-/* ── MODAL FOR RESTORE ── */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(6, 12, 23, 0.85);
-    backdrop-filter: blur(6px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    padding: 16px;
+/* ─── FINANCIAL SUMMARY BOX ─────────────────────────────────────────── */
+.financial-calc-box {
+  background: rgba(6, 12, 23, 0.55);
+  border: 1px solid var(--border-color);
+  border-radius: var(--r-md);
+  padding: 16px 20px;
+  margin-top: 14px;
 }
-.modal-overlay.active { display: flex; }
-.modal-box {
-    background: var(--surface-bg);
-    border: 1px solid var(--gold-bd);
-    border-radius: 16px;
-    width: 100%;
-    max-width: 420px;
-    padding: 24px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+.calc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 0.85rem;
+  color: var(--text-dark);
+}
+.calc-row.balance-due-row {
+  border-top: 1px dashed var(--border-color);
+  margin-top: 8px;
+  padding-top: 12px;
+}
+.balance-badge {
+  font-weight: 800;
+  font-size: 1.15rem;
+  padding: 4px 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.balance-badge.due {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--accent-danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.balance-badge.paid {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--accent-success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* ─── BUTTONS ───────────────────────────────────────────────────────── */
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-light) 100%);
+  color: #060c17;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 22px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(201, 162, 39, 0.3);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-gold:hover {
+  box-shadow: 0 8px 25px rgba(201, 162, 39, 0.5);
+  transform: translateY(-1px);
+  color: #060c17;
+}
+.btn-gold:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-ghost-light {
+  background: transparent;
+  color: var(--text-dark);
+  border: 1px solid var(--border-color);
+  font-weight: 600;
+  font-size: 0.82rem;
+  border-radius: 999px;
+  padding: 8px 18px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.btn-ghost-light:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.btn-ghost-gold {
+  background: transparent;
+  color: var(--gold-light);
+  border: 1px solid var(--border-gold);
+  font-weight: 600;
+  font-size: 0.82rem;
+  border-radius: 999px;
+  padding: 8px 18px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.btn-ghost-gold:hover {
+  background: var(--gold-glow);
+  color: #ffffff;
+  border-color: var(--gold-light);
+}
+
+.btn-ghost-success {
+  background: transparent;
+  color: var(--accent-success);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  font-weight: 600;
+  font-size: 0.84rem;
+  border-radius: 999px;
+  padding: 9px 20px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-ghost-success:hover {
+  background: rgba(16, 185, 129, 0.12);
+  color: #4ade80;
+}
+
+/* ─── BADGES ────────────────────────────────────────────────────────── */
+.badge-gold {
+  background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+  color: #060c17;
+  font-weight: 800;
+  font-size: 0.68rem;
+  padding: 4px 12px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+}
+.badge-navy {
+  background: rgba(6, 12, 23, 0.6);
+  color: var(--text-dark);
+  border: 1px solid var(--border-color);
+  font-size: 0.72rem;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+/* ─── SIDEBAR ARCHIVE (SOLD COSTUMES) ───────────────────────────────── */
+.sold-archive-list {
+  max-height: 520px;
+  overflow-y: auto;
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sold-item-entry {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+.sold-item-entry:hover {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: var(--bg-card-hover);
+}
+.sold-entry-thumb {
+  width: 44px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border-gold);
+  background: #000;
+  flex-shrink: 0;
+}
+.sold-entry-info {
+  flex-grow: 1;
+  min-width: 0;
+}
+.sold-entry-code {
+  font-weight: 800;
+  color: #fff;
+  font-size: 0.88rem;
+  font-family: monospace;
+}
+.sold-entry-meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.btn-restore-pill {
+  padding: 5px 12px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 999px;
+  color: #6ee7b7;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.btn-restore-pill:hover {
+  background: var(--accent-success);
+  color: #060c17;
+}
+
+/* ─── MODAL STYLING (MATCHING BOOKING SUCCESS MODAL) ─────────────────── */
+.modal-content {
+  background: #091322;
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r-lg);
+  color: var(--text-main);
+  box-shadow: 0 35px 70px -20px rgba(0,0,0,0.9);
+}
+.modal-header {
+  background: linear-gradient(90deg, #0e192c, #162640);
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px 24px;
+}
+.modal-title {
+  color: var(--gold-light);
+  font-weight: 700;
+  font-size: 1.05rem;
+  font-family: 'Outfit', sans-serif;
+}
+.modal-body {
+  padding: 24px;
+}
+.modal-footer {
+  background: #060c17;
+  border-top: 1px solid var(--border-color);
+  padding: 14px 24px;
 }
 </style>
+{% endblock %}
 
-<div class="sell-container">
+{% block content %}
+<div class="topline">
+  <div class="topline-inner">
+    <div class="topline-row1">
+      <div class="topline-heading">
+        <div class="topline-badge">
+          <i class="bi bi-tag-fill"></i>
+        </div>
+        <div>
+          <div class="topline-eyebrow">IMAGE TRADITIONAL • SALES DESK</div>
+          <h1 class="topline-title">Costume Sales Manager</h1>
+        </div>
+      </div>
+      <div class="topline-actions">
+        <a href="{{ url_for('navaratri.navaratri_booking') }}" class="btn-ghost-light">
+          <i class="bi bi-calendar2-week me-1"></i> Booking Manager
+        </a>
+        <a href="/navaratri_products" class="btn-ghost-light">
+          <i class="bi bi-grid-3x3-gap-fill me-1"></i> All Costumes
+        </a>
+        <a href="/navaratri_admin" class="btn-gold">
+          <i class="bi bi-shield-lock-fill me-1"></i> Navaratri Admin
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <!-- Top Navigation Bar -->
-    <div class="top-nav-bar">
-        <div class="nav-title-group">
-            <h1>🏷️ Sell Costume <span>Form</span></h1>
-            <p>Dedicated management form to sell costumes and update database status (sets <code>on_rent: false</code>).</p>
+<div class="sell-layout">
+
+  <!-- LEFT: MAIN SELLING FORM -->
+  <div class="sell-main">
+
+    <!-- STATS ROW -->
+    <div class="stat-strip">
+      <div class="stat-chip">
+        <div class="stat-chip-icon"><i class="bi bi-box-seam"></i></div>
+        <div>
+          <div class="stat-chip-label">Total Costumes</div>
+          <div class="stat-chip-value" id="statTotalCount">{{ total_count }}</div>
         </div>
-        <div class="nav-actions">
-            <a href="{{ url_for('navaratri.navaratri_booking') }}" class="btn-nav">
-                <i class="bi bi-arrow-left"></i> Booking Manager
-            </a>
-            <a href="/navaratri_products" class="btn-nav">
-                <i class="bi bi-table"></i> All Costumes Status
-            </a>
-            <a href="/navaratri_admin" class="btn-nav btn-nav-primary">
-                🪔 Navaratri Admin
-            </a>
+      </div>
+      <div class="stat-chip is-success">
+        <div class="stat-chip-icon"><i class="bi bi-check-circle-fill"></i></div>
+        <div>
+          <div class="stat-chip-label">Available on Rent</div>
+          <div class="stat-chip-value" id="statAvailCount">{{ available_count }}</div>
         </div>
+      </div>
+      <div class="stat-chip is-danger">
+        <div class="stat-chip-icon"><i class="bi bi-tag-fill"></i></div>
+        <div>
+          <div class="stat-chip-label">Sold Costumes</div>
+          <div class="stat-chip-value" id="statSoldCount">{{ sold_count }}</div>
+        </div>
+      </div>
     </div>
 
-    <!-- Flash Messages (if any) -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category if category != 'error' else 'danger' }} mb-4" role="alert" style="border-radius: 12px; font-weight: 600;">
-            {{ message }}
+    <!-- FORM CARD -->
+    <div class="sell-card">
+      <div class="sell-card-head">
+        <div>
+          <h2 class="sell-card-title">
+            <i class="bi bi-bag-check-fill text-danger"></i> Dedicated Costume Sell Form
+          </h2>
+          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+            Records customer purchase, stores in customer database, sets costume <code>on_rent: false</code>, and issues an official invoice.
           </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+        </div>
+        <span class="badge-gold">
+          <i class="bi bi-receipt me-1"></i> Bill Generation Enabled
+        </span>
+      </div>
 
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-        <div class="stat-card stat-total">
-            <span class="stat-label">Total Costumes</span>
-            <span class="stat-value" id="statTotalCount">{{ total_count }}</span>
-        </div>
-        <div class="stat-card stat-available">
-            <span class="stat-label">Active on Rent</span>
-            <span class="stat-value" id="statAvailCount" style="color: #6ee7b7;">{{ available_count }}</span>
-        </div>
-        <div class="stat-card stat-sold">
-            <span class="stat-label">Sold Costumes</span>
-            <span class="stat-value" id="statSoldCount" style="color: #fca5a5;">{{ sold_count }}</span>
-        </div>
+      <div class="sell-card-body">
+        
+        <form id="sellCostumeForm" onsubmit="event.preventDefault(); submitSaleForm();">
+          
+          <!-- SECTION 1: CUSTOMER PROFILE -->
+          <div class="modal-section-title">
+            <i class="bi bi-person-fill me-1"></i> Customer Profile Information
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label" for="custName">
+                Customer Full Name <span class="req">*</span>
+              </label>
+              <input type="text" 
+                     id="custName" 
+                     name="name" 
+                     required 
+                     class="form-control" 
+                     placeholder="e.g. Ramesh Patel"
+                     autocomplete="name">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="custMobile">
+                Mobile Number (10 digits) <span class="req">*</span>
+              </label>
+              <input type="tel" 
+                     id="custMobile" 
+                     name="mobile" 
+                     required 
+                     maxlength="10" 
+                     pattern="[0-9]{10}"
+                     class="form-control" 
+                     placeholder="e.g. 9825012345" 
+                     autocomplete="tel"
+                     oninput="validateMobileInput(this.value)">
+              <div id="mobileErrorMsg" class="d-none mt-1" style="font-size: 0.75rem; color: var(--accent-danger);">
+                Please enter exactly 10 numeric digits.
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label" for="custAddress">
+                Customer Address <span class="req">*</span>
+              </label>
+              <textarea id="custAddress" 
+                        name="address" 
+                        required 
+                        rows="2" 
+                        class="form-control" 
+                        placeholder="Complete residential / delivery address..."></textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label" for="custReference">
+                Reference Person <span class="opt">(Optional)</span>
+              </label>
+              <input type="text" 
+                     id="custReference" 
+                     name="reference" 
+                     class="form-control" 
+                     placeholder="e.g. Reference contact or referral name">
+            </div>
+          </div>
+
+          <!-- SECTION 2: COSTUMES TO SELL (MULTI-CODE CAPABILITY) -->
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="modal-section-title mb-0">
+              <i class="bi bi-tags-fill me-1"></i> Costumes to Sell <span class="req">*</span>
+            </div>
+            <span class="badge badge-gold" id="costumesCountBadge">0 Costumes Added</span>
+          </div>
+
+          <p style="font-size: 0.78rem; color: var(--text-dark); margin: 6px 0 12px 0;">
+            Add one or more costume codes to this sale. Each added costume will be marked as sold and removed from active rental booking availability.
+          </p>
+
+          <div class="add-code-bar">
+            <input type="text" 
+                   id="codeSearchInput" 
+                   class="form-control" 
+                   placeholder="Type costume code (e.g. C180 or K10)..." 
+                   list="allCostumesDatalist" 
+                   autocomplete="off"
+                   oninput="onCodeSearchInput(this.value)"
+                   onkeydown="if(event.key==='Enter'){event.preventDefault(); addCostumeFromInput();}">
+            
+            <button type="button" class="btn-gold" id="btnAddCode" onclick="addCostumeFromInput()">
+              <i class="bi bi-plus-circle-fill me-1"></i> Add Costume
+            </button>
+          </div>
+
+          <!-- Datalist of Available Costumes -->
+          <datalist id="allCostumesDatalist">
+            {% for p in products %}
+              {% if p.on_rent %}
+                <option value="{{ p.code }}">{{ p.code }} (Available)</option>
+              {% endif %}
+            {% endfor %}
+          </datalist>
+
+          <!-- Candidate Live Preview -->
+          <div class="candidate-preview" id="candidatePreview">
+            <img src="" id="candidateThumb" class="candidate-thumb" alt="Costume Preview">
+            <div class="flex-grow-1 min-width-0">
+              <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold text-white fs-6" id="candidateCode">--</span>
+                <span class="badge badge-navy" id="candidateCat">--</span>
+              </div>
+              <div id="candidateStatusText" style="font-size: 0.74rem; color: var(--accent-success); margin-top: 2px;">
+                ● Available for sale
+              </div>
+            </div>
+            <button type="button" class="btn-gold btn-sm" onclick="addCostumeFromInput()">
+              + Select
+            </button>
+          </div>
+
+          <!-- Empty Notice -->
+          <div id="emptyCostumesNotice" class="text-center p-3 rounded mt-3" style="background: rgba(6, 12, 23, 0.4); border: 1.5px dashed var(--border-color); color: var(--text-muted); font-size: 0.84rem;">
+            <i class="bi bi-bag-plus me-1 text-warning"></i> No costumes added to this sale yet. Please enter a code above and click <strong>Add Costume</strong>.
+          </div>
+
+          <!-- Selected Costumes Cards Container -->
+          <div id="selectedCostumesContainer" class="selected-costumes-container"></div>
+          
+          <div id="costumesErrorMsg" class="d-none mt-2" style="font-size: 0.78rem; color: var(--accent-danger);">
+            <i class="bi bi-exclamation-circle-fill me-1"></i> Please add at least one costume code before completing the sale.
+          </div>
+
+          <!-- SECTION 3: FINANCIAL DETAILS -->
+          <div class="modal-section-title mt-4">
+            <i class="bi bi-wallet2 me-1"></i> Financial Information
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="totalPrice">
+                Total Selling Price (₹) <span class="req">*</span>
+              </label>
+              <input type="number" 
+                     id="totalPrice" 
+                     name="total_price" 
+                     min="0" 
+                     required 
+                     class="form-control" 
+                     placeholder="Total sale amount ₹" 
+                     value="0"
+                     oninput="calculateBalance()">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="givenPrice">
+                Amount Received / Paid (₹) <span class="req">*</span>
+              </label>
+              <input type="number" 
+                     id="givenPrice" 
+                     name="given_price" 
+                     min="0" 
+                     required 
+                     class="form-control" 
+                     placeholder="Amount paid by customer ₹" 
+                     value="0"
+                     oninput="calculateBalance()">
+            </div>
+          </div>
+
+          <!-- Live Balance Summary Box -->
+          <div class="financial-calc-box">
+            <div class="calc-row">
+              <span>Total Sale Value:</span>
+              <strong style="color: #ffffff;" id="dispTotal">₹0</strong>
+            </div>
+            <div class="calc-row">
+              <span>Amount Paid:</span>
+              <strong style="color: var(--accent-success);" id="dispPaid">₹0</strong>
+            </div>
+            <div class="calc-row balance-due-row">
+              <span class="fw-bold" style="color: var(--gold-light);">Remaining Balance Due:</span>
+              <span id="dispBalanceBadge" class="balance-badge paid">₹0 • Fully Paid</span>
+            </div>
+            <div id="priceErrorMsg" class="d-none mt-2" style="font-size: 0.78rem; color: var(--accent-danger);">
+              <i class="bi bi-exclamation-triangle-fill me-1"></i> Amount received cannot exceed the total selling price.
+            </div>
+          </div>
+
+          <!-- SECTION 4: AUTHORIZATION -->
+          <div class="modal-section-title mt-4">
+            <i class="bi bi-shield-lock-fill me-1"></i> Admin Authorization
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label" for="adminPassword">
+                Admin Password <span class="req">*</span>
+              </label>
+              <div class="input-group">
+                <input type="password" 
+                       id="adminPassword" 
+                       name="password" 
+                       required 
+                       class="form-control" 
+                       placeholder="Enter admin password to authorize sale and inventory update"
+                       autocomplete="current-password">
+                <button type="button" class="btn-ghost-light" onclick="togglePasswordVisibility('adminPassword', this)">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- INLINE ALERT BANNER -->
+          <div id="saleAlertMsg" class="d-none mt-4 p-3 rounded" style="font-size: 0.85rem; font-weight: 600;"></div>
+
+          <!-- SUBMIT BUTTON -->
+          <div class="mt-4">
+            <button type="submit" id="btnSubmitSale" class="btn-gold w-100 py-3 fw-bold fs-6">
+              <i class="bi bi-bag-check-fill me-2"></i> Complete Sale &amp; Generate Bill
+            </button>
+          </div>
+
+        </form>
+
+      </div>
     </div>
 
-    <!-- Main Layout -->
-    <div class="sell-layout">
+  </div>
 
-        <!-- LEFT COLUMN: DEDICATED SELL FORM -->
-        <div class="form-card">
-            <div class="form-card-header">
-                <h2><i class="bi bi-tag-fill text-danger"></i> Dedicated Costume Sell Form</h2>
-                <span class="badge-danger-tag">Sets on_rent = false</span>
-            </div>
-            <div class="form-card-body">
+  <!-- RIGHT: SOLD COSTUMES ARCHIVE REGISTER -->
+  <div class="sell-sidebar">
+    <div class="sell-card">
+      <div class="sell-card-head">
+        <h3 class="sell-card-title" style="font-size: 1.05rem;">
+          <i class="bi bi-archive-fill text-danger"></i> Sold Costumes Archive
+        </h3>
+        <span class="badge" style="background: rgba(239,68,68,0.2); color:#fca5a5; font-weight:700;" id="soldListCountBadge">
+          {{ sold_products|length }}
+        </span>
+      </div>
 
-                <div class="info-banner">
-                    <i class="bi bi-shield-lock-fill text-danger me-1"></i>
-                    Selling a costume marks <strong>on_rent: false</strong> in MongoDB, hides it from customer catalogues, and prevents new rental bookings. Admin password required.
+      <div style="padding: 14px 18px 8px;">
+        <input type="text" 
+               id="searchSoldInput" 
+               placeholder="Search sold code or buyer..." 
+               class="form-control" 
+               style="font-size: 0.82rem; border-radius: 999px; padding: 8px 16px;"
+               oninput="filterSoldList(this.value)">
+      </div>
+
+      <div class="sold-archive-list" id="soldListContainer">
+        {% if sold_products %}
+          {% for sp in sold_products %}
+            {% set is_c = sp.code.startswith('C') %}
+            {% set cat_name = 'Choli' if is_c else 'Kediya' %}
+            {% set jpg_dir = 'CholiJpg' if is_c else 'KediyaJpg' %}
+            <div class="sold-item-entry" data-code="{{ sp.code }}" data-buyer="{{ sp.sold_info.buyer_name if sp.sold_info else '' }}">
+              <img src="/static/{{ jpg_dir }}/{{ sp.code }}.jpg" 
+                   class="sold-entry-thumb" 
+                   alt="{{ sp.code }}"
+                   onerror="this.onerror=null; this.src='/static/{{ cat_name }}/{{ sp.image }}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
+              <div class="sold-entry-info">
+                <div class="sold-entry-code">{{ sp.code }}</div>
+                <div class="sold-entry-meta">
+                  {% if sp.sold_info and sp.sold_info.buyer_name %}
+                    👤 {{ sp.sold_info.buyer_name }}
+                  {% else %}
+                    Marked Sold
+                  {% endif %}
+                  {% if sp.sold_info and sp.sold_info.price %}
+                    • ₹{{ sp.sold_info.price }}
+                  {% endif %}
                 </div>
-
-                <form id="standaloneSellForm" onsubmit="event.preventDefault(); submitDedicatedSell();">
-                    
-                    <!-- Costume Code Input -->
-                    <div class="form-group">
-                        <label class="form-label" for="sellCostumeCode">
-                            Costume Code <span class="req">*</span>
-                        </label>
-                        <div class="input-code-group">
-                            <input type="text" 
-                                   id="sellCostumeCode" 
-                                   name="code" 
-                                   value="{{ prefill_code }}" 
-                                   placeholder="e.g. C182 or K10" 
-                                   list="costumeDatalist"
-                                   class="form-control-custom" 
-                                   required 
-                                   autocomplete="off"
-                                   oninput="handleCodeInput(this.value)">
-                            <button type="button" class="btn-check-code" onclick="checkCurrentCode()">
-                                <i class="bi bi-search me-1"></i> Verify
-                            </button>
-                        </div>
-                        <datalist id="costumeDatalist">
-                            {% for p in products %}
-                            <option value="{{ p.code }}">{{ p.code }} - {% if p.on_rent %}Available{% else %}Sold{% endif %}</option>
-                            {% endfor %}
-                        </datalist>
-                    </div>
-
-                    <!-- Costume Live Preview Box -->
-                    <div class="preview-card" id="previewCard" style="display: none;">
-                        <img src="" id="previewImg" class="preview-thumb" alt="Costume Preview">
-                        <div class="preview-details">
-                            <h4 class="preview-code-title" id="previewCodeTitle">--</h4>
-                            <div class="preview-cat" id="previewCat">--</div>
-                            <div id="previewStatusBadge" class="preview-status-badge">--</div>
-                        </div>
-                    </div>
-
-                    <!-- Sale Details (Optional Record Keeping) -->
-                    <div class="row g-2 mb-3">
-                        <div class="col-sm-6">
-                            <label class="form-label" for="sellPrice">Selling Price (₹) <span class="opt">(Optional)</span></label>
-                            <input type="number" id="sellPrice" name="price" min="0" placeholder="e.g. 1500" class="form-control-custom">
-                        </div>
-                        <div class="col-sm-6">
-                            <label class="form-label" for="sellBuyerName">Buyer Name <span class="opt">(Optional)</span></label>
-                            <input type="text" id="sellBuyerName" name="buyer_name" placeholder="Customer full name" class="form-control-custom">
-                        </div>
-                    </div>
-
-                    <div class="row g-2 mb-3">
-                        <div class="col-sm-6">
-                            <label class="form-label" for="sellBuyerMobile">Buyer Mobile <span class="opt">(Optional)</span></label>
-                            <input type="tel" id="sellBuyerMobile" name="buyer_mobile" maxlength="10" placeholder="10-digit mobile" class="form-control-custom">
-                        </div>
-                        <div class="col-sm-6">
-                            <label class="form-label" for="sellNotes">Sale Remarks <span class="opt">(Optional)</span></label>
-                            <input type="text" id="sellNotes" name="notes" placeholder="e.g. Sold out-of-rent" class="form-control-custom">
-                        </div>
-                    </div>
-
-                    <!-- Admin Password Input -->
-                    <div class="form-group mb-4">
-                        <label class="form-label" for="sellAdminPassword">
-                            Admin Password <span class="req">*</span>
-                        </label>
-                        <div class="password-wrap">
-                            <input type="password" 
-                                   id="sellAdminPassword" 
-                                   name="password" 
-                                   placeholder="Enter Admin Password" 
-                                   class="form-control-custom" 
-                                   required 
-                                   autocomplete="current-password">
-                            <button type="button" class="btn-toggle-pw" onclick="togglePasswordVisibility('sellAdminPassword', this)">
-                                👁️
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <button type="submit" id="btnSubmitSell" class="btn-submit-sell">
-                        <i class="bi bi-tag-fill"></i> Confirm &amp; Mark as Sold (on_rent: false)
-                    </button>
-
-                    <!-- Feedback Alert -->
-                    <div id="sellAlertFeedback" class="alert-feedback"></div>
-
-                </form>
-
+              </div>
+              <button type="button" class="btn-restore-pill" onclick="openRestorePrompt('{{ sp.code }}')">
+                <i class="bi bi-arrow-counterclockwise"></i> Restore
+              </button>
             </div>
-        </div>
+          {% endfor %}
+        {% else %}
+          <div id="noSoldNotice" class="text-center py-4" style="color: var(--text-muted); font-size: 0.82rem;">
+            No costumes marked as sold yet. All inventory is active on rent!
+          </div>
+        {% endif %}
+      </div>
 
-        <!-- RIGHT COLUMN: SOLD COSTUMES SUMMARY & QUICK RESTORE -->
-        <div class="side-card">
-            <div class="side-card-header">
-                <h3><i class="bi bi-box-seam text-danger"></i> Sold Costumes</h3>
-                <span class="badge" style="background: rgba(239,68,68,0.2); color:#fca5a5; font-weight:700;" id="soldListCountBadge">
-                    {{ sold_products|length }}
-                </span>
-            </div>
-
-            <div class="side-search-box">
-                <input type="text" 
-                       id="searchSoldInput" 
-                       placeholder="Filter sold costumes..." 
-                       class="form-control-custom" 
-                       style="padding: 8px 12px; font-size: 0.85rem;"
-                       oninput="filterSoldList(this.value)">
-            </div>
-
-            <div class="sold-list" id="soldListContainer">
-                {% if sold_products %}
-                    {% for sp in sold_products %}
-                    {% set is_c = sp.code.startswith('C') %}
-                    {% set cat_name = 'Choli' if is_c else 'Kediya' %}
-                    {% set jpg_dir = 'CholiJpg' if is_c else 'KediyaJpg' %}
-                    <div class="sold-item-card" data-code="{{ sp.code }}">
-                        <img src="/static/{{ jpg_dir }}/{{ sp.code }}.jpg" 
-                             class="sold-item-thumb" 
-                             alt="{{ sp.code }}"
-                             onerror="this.onerror=null; this.src='/static/{{ cat_name }}/{{ sp.image }}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
-                        <div class="sold-item-info">
-                            <div class="sold-item-code">{{ sp.code }}</div>
-                            <div class="sold-item-cat">{{ cat_name }}</div>
-                            {% if sp.sold_info %}
-                                <div class="sold-item-meta">
-                                    {% if sp.sold_info.buyer_name %}👤 {{ sp.sold_info.buyer_name }}{% endif %}
-                                    {% if sp.sold_info.price %} • ₹{{ sp.sold_info.price }}{% endif %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <button type="button" class="btn-restore-item" onclick="openRestorePrompt('{{ sp.code }}')">
-                            🔄 Restore
-                        </button>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div id="noSoldNotice" class="text-center py-4" style="color: var(--muted); font-size: 0.85rem;">
-                        No sold costumes right now. All outfits are available for rent!
-                    </div>
-                {% endif %}
-            </div>
-
-            <div style="padding: 12px 18px; border-top: 1px solid var(--border-subtle); text-align: center;">
-                <a href="/navaratri_products" style="color: var(--gold-lt); font-size: 0.82rem; text-decoration: none; font-weight: 600;">
-                    View Full Inventory Table with Filters →
-                </a>
-            </div>
-        </div>
-
+      <div style="padding: 12px 18px; border-top: 1px solid var(--border-color); text-align: center;">
+        <a href="/navaratri_products" style="color: var(--gold-light); font-size: 0.8rem; text-decoration: none; font-weight: 600;">
+          View Full Costumes Table &amp; Inventory &rarr;
+        </a>
+      </div>
     </div>
+  </div>
 
 </div>
 
-<!-- RESTORE PASSWORD PROMPT MODAL -->
-<div class="modal-overlay" id="restoreModal">
-    <div class="modal-box">
-        <h4 style="color: var(--white); font-weight: 700; margin-bottom: 8px;">
-            🔄 Restore Costume to Rent
-        </h4>
-        <p style="color: var(--text); font-size: 0.85rem; margin-bottom: 16px;">
-            Enter admin password to restore costume <strong id="restoreTargetCode" style="color: var(--gold-lt);"></strong> back to active rental status (<code>on_rent: true</code>).
+<!-- ═════════════════════════════════════════════════════════════════════════ -->
+<!-- SALE SUCCESS & DIGITAL BILL MODAL                                        -->
+<!-- ═════════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="saleSuccessModal" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content" style="border-top: 4px solid var(--accent-success);">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color: var(--accent-success);">
+          <i class="bi bi-check-circle-fill me-2"></i>Sale Confirmed &amp; Bill Ready!
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="resetFormForNewSale()"></button>
+      </div>
+
+      <div class="modal-body p-4 text-center">
+        <div class="mb-3">
+          <span class="badge bg-success px-3 py-2 fs-6 rounded-pill" style="background:#10b981 !important;">
+            <i class="bi bi-bag-check-fill me-1"></i> Costume Sale Completed
+          </span>
+        </div>
+
+        <h4 class="fw-bold mb-1" id="succCustName" style="color: var(--gold-light);"></h4>
+        <p style="color: var(--text-muted); font-size: 0.88rem;" class="mb-3">
+          Mobile: <strong id="succCustMobile" style="color: #ffffff;"></strong>
+        </p>
+
+        <!-- Sold Costumes Badges -->
+        <div class="mb-3">
+          <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;">Purchased Costumes:</div>
+          <div id="succCostumesList" class="d-flex justify-content-center gap-2 flex-wrap"></div>
+        </div>
+
+        <!-- QR Code Container -->
+        <div class="p-3 mb-3 rounded d-inline-block shadow-sm" style="background: #ffffff; border: 2px solid var(--border-gold);">
+          <img id="succQrImg" src="" alt="Download Bill QR Code" style="width: 170px; height: 170px;" class="img-fluid">
+          <div style="font-size: 0.75rem; color: #1e293b; font-weight: 700;" class="mt-2">Scan QR to View / Download Bill</div>
+        </div>
+
+        <!-- Bill Financial Summary Box -->
+        <div class="p-3 mb-3 rounded text-start" style="background: rgba(15,23,42,0.85); border: 1px solid var(--border-color);">
+          <div class="d-flex justify-content-between mb-1" style="font-size: 0.85rem;">
+            <span style="color: var(--text-muted);">Total Sale Invoice:</span>
+            <strong style="color: #ffffff;" id="succTotalPrice">₹0</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-1" style="font-size: 0.85rem;">
+            <span style="color: var(--text-muted);">Amount Paid:</span>
+            <strong style="color: var(--accent-success);" id="succGivenPrice">₹0</strong>
+          </div>
+          <div class="d-flex justify-content-between border-top border-secondary pt-1 mt-1" style="font-size: 0.9rem;">
+            <strong style="color: var(--gold-primary);">Remaining Balance:</strong>
+            <strong style="color: var(--gold-light);" id="succRemainingPrice">₹0</strong>
+          </div>
+        </div>
+
+        <!-- Action Buttons: WhatsApp & Direct Download & Digital Bill -->
+        <div class="d-flex flex-column gap-2 mt-3">
+          <a id="succWhatsAppBtn" href="#" target="_blank" class="btn btn-ghost-success fw-bold py-2" style="font-size: 0.9rem;">
+            <i class="bi bi-whatsapp me-2 fs-5 align-middle"></i> Send Bill Link via WhatsApp
+          </a>
+
+          <a id="succPdfBtn" href="#" target="_blank" class="btn btn-ghost-gold fw-bold py-2" style="font-size: 0.9rem;">
+            <i class="bi bi-file-earmark-pdf-fill me-2"></i> Open / Download PDF Invoice
+          </a>
+
+          <a id="succDigitalBillBtn" href="#" target="_blank" class="btn btn-ghost-light fw-bold py-2" style="font-size: 0.9rem;">
+            <i class="bi bi-phone me-2"></i> View Digital Bill Page
+          </a>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-gold w-100 fw-bold" onclick="resetFormForNewSale()">
+          <i class="bi bi-plus-circle me-1"></i> Record Another Costume Sale
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════════════════════════ -->
+<!-- RESTORE PASSWORD PROMPT MODAL                                            -->
+<!-- ═════════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="restoreModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-top: 4px solid var(--accent-success);">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color: #ffffff;">
+          <i class="bi bi-arrow-counterclockwise text-success me-2"></i>Restore Costume to Rent
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p style="color: var(--text-main); font-size: 0.88rem; margin-bottom: 14px;">
+          Enter admin password to restore costume <strong id="restoreTargetCode" style="color: var(--gold-light);"></strong> back to active rental status (<code>on_rent: true</code>).
         </p>
         <div class="mb-3">
-            <input type="password" id="restorePassword" placeholder="Admin Password" class="form-control-custom">
+          <input type="password" id="restorePassword" placeholder="Enter Admin Password" class="form-control">
         </div>
-        <div id="restoreFeedback" class="mb-3 d-none p-2 rounded" style="font-size: 0.82rem; font-weight: 600;"></div>
-        <div class="d-flex justify-content-end gap-2">
-            <button type="button" class="btn-nav" onclick="closeRestoreModal()">Cancel</button>
-            <button type="button" class="btn-nav btn-nav-primary" id="btnConfirmRestore" onclick="executeRestore()">
-                Confirm Restore
-            </button>
-        </div>
+        <div id="restoreFeedback" class="d-none p-2 rounded mb-3" style="font-size: 0.82rem; font-weight: 600;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-ghost-light" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn-gold" id="btnConfirmRestore" onclick="executeRestore()">
+          Confirm Restore
+        </button>
+      </div>
     </div>
+  </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Bootstrap 5 Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-let lookupTimer = null;
+// State for selected costumes: array of objects { code, category, thumb_url, orig_url }
+let selectedCostumes = [];
+let candidateLookupTimer = null;
 let restoreTargetCode = '';
+let prefillCode = "{{ prefill_code|default('') }}".trim().toUpperCase();
+
+// Initialize on DOM load
+document.addEventListener('DOMContentLoaded', () => {
+  if (prefillCode) {
+    addCostumeByCode(prefillCode);
+  }
+  calculateBalance();
+});
+
+// ─── CANDIDATE SEARCH & LIVE PREVIEW ──────────────────────────────────
+function onCodeSearchInput(val) {
+  clearTimeout(candidateLookupTimer);
+  const code = (val || '').trim().toUpperCase();
+  const preview = document.getElementById('candidatePreview');
+  
+  if (code.length >= 2) {
+    candidateLookupTimer = setTimeout(() => fetchCandidateDetails(code), 250);
+  } else {
+    preview.classList.remove('active');
+  }
+}
+
+async function fetchCandidateDetails(code) {
+  const preview = document.getElementById('candidatePreview');
+  const thumb = document.getElementById('candidateThumb');
+  const codeText = document.getElementById('candidateCode');
+  const catText = document.getElementById('candidateCat');
+  const statusText = document.getElementById('candidateStatusText');
+
+  try {
+    const res = await fetch(`/api/navaratri/product-info/${encodeURIComponent(code)}`);
+    const data = await res.json();
+
+    if (res.ok && data.success && data.found) {
+      preview.classList.add('active');
+      codeText.textContent = data.code;
+      catText.textContent = data.category === 'Choli' ? '👗 Choli' : '🕺 Kediya';
+      thumb.src = data.thumb_url;
+      thumb.onerror = function() {
+        this.onerror = null;
+        this.src = data.orig_url;
+        this.onerror = function() { this.src = '/static/Home_Img/favicon.png'; };
+      };
+
+      if (data.on_rent) {
+        statusText.style.color = 'var(--accent-success)';
+        statusText.innerHTML = '● Available for rent &amp; sale';
+      } else {
+        statusText.style.color = 'var(--accent-danger)';
+        statusText.innerHTML = '⚠️ Already marked as Sold';
+      }
+    } else {
+      preview.classList.remove('active');
+    }
+  } catch (err) {
+    preview.classList.remove('active');
+  }
+}
+
+// ─── ADD / REMOVE MULTIPLE COSTUMES ───────────────────────────────────
+function addCostumeFromInput() {
+  const inp = document.getElementById('codeSearchInput');
+  const code = (inp?.value || '').trim().toUpperCase();
+  if (!code) return;
+  addCostumeByCode(code);
+  inp.value = '';
+  document.getElementById('candidatePreview').classList.remove('active');
+  inp.focus();
+}
+
+async function addCostumeByCode(code) {
+  if (selectedCostumes.some(c => c.code === code)) {
+    showInlineAlert(`Costume <b>${code}</b> is already in the list!`, 'warning');
+    return;
+  }
+
+  // Fetch product info to get photo thumbnail
+  try {
+    const res = await fetch(`/api/navaratri/product-info/${encodeURIComponent(code)}`);
+    const data = await res.json();
+
+    const isCholi = code.startsWith('C');
+    const category = (data && data.category) ? data.category : (isCholi ? 'Choli' : 'Kediya');
+    const thumb_url = (data && data.thumb_url) ? data.thumb_url : `/static/${isCholi ? 'CholiJpg' : 'KediyaJpg'}/${code}.jpg`;
+    const orig_url = (data && data.orig_url) ? data.orig_url : `/static/${category}/${code}.webp`;
+
+    if (data && data.found && data.on_rent === false) {
+      showInlineAlert(`⚠️ Note: Costume <b>${code}</b> is already marked as sold in inventory!`, 'danger');
+      return;
+    }
+
+    selectedCostumes.push({
+      code: code,
+      category: category,
+      thumb_url: thumb_url,
+      orig_url: orig_url
+    });
+
+    renderSelectedCostumes();
+    document.getElementById('costumesErrorMsg').classList.add('d-none');
+  } catch (e) {
+    // If network fails, add with default fallback
+    const isCholi = code.startsWith('C');
+    selectedCostumes.push({
+      code: code,
+      category: isCholi ? 'Choli' : 'Kediya',
+      thumb_url: `/static/${isCholi ? 'CholiJpg' : 'KediyaJpg'}/${code}.jpg`,
+      orig_url: '/static/Home_Img/favicon.png'
+    });
+    renderSelectedCostumes();
+  }
+}
+
+function removeCostume(code) {
+  selectedCostumes = selectedCostumes.filter(c => c.code !== code);
+  renderSelectedCostumes();
+}
+
+function renderSelectedCostumes() {
+  const container = document.getElementById('selectedCostumesContainer');
+  const emptyNotice = document.getElementById('emptyCostumesNotice');
+  const badge = document.getElementById('costumesCountBadge');
+
+  badge.textContent = `${selectedCostumes.length} Costume${selectedCostumes.length === 1 ? '' : 's'} Added`;
+
+  if (selectedCostumes.length === 0) {
+    emptyNotice.classList.remove('d-none');
+    container.innerHTML = '';
+    return;
+  }
+
+  emptyNotice.classList.add('d-none');
+  container.innerHTML = selectedCostumes.map(item => `
+    <div class="costume-item-card">
+      <img src="${item.thumb_url}" 
+           class="costume-card-thumb" 
+           alt="${item.code}"
+           onerror="this.onerror=null; this.src='${item.orig_url}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
+      <div class="costume-card-info">
+        <div class="costume-card-code">${item.code}</div>
+        <div class="costume-card-cat">${item.category === 'Choli' ? '👗 Choli' : '🕺 Kediya'}</div>
+      </div>
+      <button type="button" class="btn-remove-code" onclick="removeCostume('${item.code}')" title="Remove costume">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  `).join('');
+}
+
+// ─── FINANCIAL CALCULATIONS ───────────────────────────────────────────
+function calculateBalance() {
+  const totalVal = Math.max(0, parseInt(document.getElementById('totalPrice')?.value || 0, 10) || 0);
+  const givenVal = Math.max(0, parseInt(document.getElementById('givenPrice')?.value || 0, 10) || 0);
+
+  document.getElementById('dispTotal').textContent = `₹${totalVal}`;
+  document.getElementById('dispPaid').textContent = `₹${givenVal}`;
+
+  const balance = totalVal - givenVal;
+  const badge = document.getElementById('dispBalanceBadge');
+  const priceErr = document.getElementById('priceErrorMsg');
+
+  if (givenVal > totalVal) {
+    priceErr.classList.remove('d-none');
+    badge.className = 'balance-badge due';
+    badge.textContent = `Overpaid by ₹${givenVal - totalVal}`;
+  } else {
+    priceErr.classList.add('d-none');
+    if (balance === 0) {
+      badge.className = 'balance-badge paid';
+      badge.textContent = `₹0 • Fully Paid`;
+    } else {
+      badge.className = 'balance-badge due';
+      badge.textContent = `₹${balance} Remaining`;
+    }
+  }
+}
+
+// ─── VALIDATION HELPERS ───────────────────────────────────────────────
+function validateMobileInput(val) {
+  const clean = (val || '').replace(/[^0-9]/g, '');
+  const err = document.getElementById('mobileErrorMsg');
+  if (clean.length > 0 && clean.length !== 10) {
+    err.classList.remove('d-none');
+  } else {
+    err.classList.add('d-none');
+  }
+}
 
 function togglePasswordVisibility(fieldId, btn) {
-    const inp = document.getElementById(fieldId);
-    if (!inp) return;
-    if (inp.type === 'password') {
-        inp.type = 'text';
-        btn.textContent = '🔒';
+  const inp = document.getElementById(fieldId);
+  if (!inp) return;
+  const icon = btn.querySelector('i');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    if (icon) icon.className = 'bi bi-eye-slash';
+  } else {
+    inp.type = 'password';
+    if (icon) icon.className = 'bi bi-eye';
+  }
+}
+
+function showInlineAlert(msg, type) {
+  const el = document.getElementById('saleAlertMsg');
+  if (!el) return;
+  el.classList.remove('d-none', 'alert-danger', 'alert-warning', 'alert-success', 'alert-info');
+  el.classList.add(`alert-${type}`);
+  if (type === 'danger') {
+    el.style.background = 'rgba(239, 68, 68, 0.15)';
+    el.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+    el.style.color = '#fca5a5';
+  } else if (type === 'success') {
+    el.style.background = 'rgba(16, 185, 129, 0.15)';
+    el.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+    el.style.color = '#6ee7b7';
+  } else if (type === 'warning') {
+    el.style.background = 'rgba(245, 158, 11, 0.15)';
+    el.style.border = '1px solid rgba(245, 158, 11, 0.4)';
+    el.style.color = '#fde68a';
+  }
+  el.innerHTML = msg;
+}
+
+// ─── FORM SUBMISSION VIA AJAX ─────────────────────────────────────────
+async function submitSaleForm() {
+  const name = (document.getElementById('custName')?.value || '').trim();
+  const mobile = (document.getElementById('custMobile')?.value || '').trim();
+  const address = (document.getElementById('custAddress')?.value || '').trim();
+  const reference = (document.getElementById('custReference')?.value || '').trim();
+  const password = (document.getElementById('adminPassword')?.value || '').trim();
+  const total_price = parseInt(document.getElementById('totalPrice')?.value || 0, 10);
+  const given_price = parseInt(document.getElementById('givenPrice')?.value || 0, 10);
+  const btn = document.getElementById('btnSubmitSale');
+
+  // Client validations
+  if (!name) {
+    showInlineAlert('Customer Name is mandatory.', 'danger');
+    document.getElementById('custName').focus();
+    return;
+  }
+  if (!mobile || !/^\d{10}$/.test(mobile)) {
+    showInlineAlert('A valid 10-digit mobile number is mandatory.', 'danger');
+    document.getElementById('custMobile').focus();
+    return;
+  }
+  if (!address) {
+    showInlineAlert('Customer Address is mandatory.', 'danger');
+    document.getElementById('custAddress').focus();
+    return;
+  }
+  if (selectedCostumes.length === 0) {
+    document.getElementById('costumesErrorMsg').classList.remove('d-none');
+    document.getElementById('codeSearchInput').focus();
+    showInlineAlert('Please add at least one costume code before saving sale.', 'danger');
+    return;
+  }
+  if (isNaN(total_price) || total_price < 0) {
+    showInlineAlert('Total Price must be 0 or greater.', 'danger');
+    document.getElementById('totalPrice').focus();
+    return;
+  }
+  if (isNaN(given_price) || given_price < 0) {
+    showInlineAlert('Amount Received must be 0 or greater.', 'danger');
+    document.getElementById('givenPrice').focus();
+    return;
+  }
+  if (given_price > total_price) {
+    showInlineAlert(`Amount Received (₹${given_price}) cannot exceed Total Selling Price (₹${total_price}).`, 'danger');
+    document.getElementById('givenPrice').focus();
+    return;
+  }
+  if (!password) {
+    showInlineAlert('Admin password is required to confirm sale and update inventory.', 'danger');
+    document.getElementById('adminPassword').focus();
+    return;
+  }
+
+  const codes = selectedCostumes.map(c => c.code);
+
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Processing Sale &amp; Generating Bill...`;
+  showInlineAlert('<span class="spinner-border spinner-border-sm me-2"></span> Saving sale record in MongoDB customer collection and generating bill...', 'info');
+
+  try {
+    const res = await fetch('/api/navaratri/sell-costumes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({
+        name: name,
+        mobile: mobile,
+        address: address,
+        reference: reference,
+        codes: codes,
+        total_price: total_price,
+        given_price: given_price,
+        password: password
+      })
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      showInlineAlert(`✅ <b>Success!</b> Sale confirmed for ${codes.join(', ')}. Bill generated.`, 'success');
+      showSuccessModal(data);
     } else {
-        inp.type = 'password';
-        btn.textContent = '👁️';
+      showInlineAlert(`❌ <b>Failed:</b> ${data.message || 'Error processing costume sale.'}`, 'danger');
     }
+  } catch (err) {
+    showInlineAlert(`❌ <b>Network Error:</b> ${err.message}`, 'danger');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<i class="bi bi-bag-check-fill me-2"></i> Complete Sale &amp; Generate Bill`;
+  }
 }
 
-function handleCodeInput(val) {
-    clearTimeout(lookupTimer);
-    const code = (val || '').trim().toUpperCase();
-    if (code.length >= 2) {
-        lookupTimer = setTimeout(() => fetchCostumeDetails(code), 350);
-    } else {
-        document.getElementById('previewCard').style.display = 'none';
-    }
+// ─── POST-SUBMIT SUCCESS MODAL ────────────────────────────────────────
+function showSuccessModal(data) {
+  const sale = data.data || {};
+  const custId = data.customer_id;
+  const billUrl = data.bill_url || `/download-customer?id=${custId}`;
+  const billPageUrl = data.bill_page_url || `/download-bill?id=${custId}`;
+
+  document.getElementById('succCustName').textContent = sale.name || document.getElementById('custName').value;
+  document.getElementById('succCustMobile').textContent = sale.mobile || document.getElementById('custMobile').value;
+  document.getElementById('succTotalPrice').textContent = `₹${sale.total_price || 0}`;
+  document.getElementById('succGivenPrice').textContent = `₹${sale.given_price || 0}`;
+  document.getElementById('succRemainingPrice').textContent = `₹${sale.remaining || 0}`;
+
+  // QR Code
+  const qrImg = document.getElementById('succQrImg');
+  const fullBillUrl = window.location.origin + billPageUrl;
+  qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullBillUrl)}`;
+
+  // Purchased Costumes Badges
+  const badgesContainer = document.getElementById('succCostumesList');
+  const codes = sale.codes || selectedCostumes.map(c => c.code);
+  badgesContainer.innerHTML = codes.map(c => `
+    <span class="badge badge-gold" style="font-size: 0.8rem; padding: 6px 14px;">
+      <i class="bi bi-tag-fill me-1"></i> ${c}
+    </span>
+  `).join('');
+
+  // Action Buttons
+  document.getElementById('succPdfBtn').href = billUrl;
+  document.getElementById('succDigitalBillBtn').href = billPageUrl;
+
+  const waText = encodeURIComponent(
+    `Hello ${sale.name} Ji! Thank you for purchasing from Image Traditional.\n\n` +
+    `🏷️ Costumes: ${codes.join(', ')}\n` +
+    `💰 Total Price: ₹${sale.total_price}\n` +
+    `✅ Paid: ₹${sale.given_price}\n` +
+    `💵 Balance: ₹${sale.remaining}\n\n` +
+    `📄 View your official Digital Bill & Download PDF Invoice here:\n${fullBillUrl}`
+  );
+  document.getElementById('succWhatsAppBtn').href = `https://wa.me/91${sale.mobile}?text=${waText}`;
+
+  // Open modal
+  const modalEl = document.getElementById('saleSuccessModal');
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
 }
 
-function checkCurrentCode() {
-    const code = (document.getElementById('sellCostumeCode')?.value || '').trim().toUpperCase();
-    if (!code) {
-        showFeedback('Please enter a costume code first.', 'danger');
-        return;
-    }
-    fetchCostumeDetails(code);
+function resetFormForNewSale() {
+  const modalEl = document.getElementById('saleSuccessModal');
+  const modalInstance = bootstrap.Modal.getInstance(modalEl);
+  if (modalInstance) modalInstance.hide();
+
+  // Reset inputs
+  document.getElementById('custName').value = '';
+  document.getElementById('custMobile').value = '';
+  document.getElementById('custAddress').value = '';
+  document.getElementById('custReference').value = '';
+  document.getElementById('adminPassword').value = '';
+  document.getElementById('totalPrice').value = '0';
+  document.getElementById('givenPrice').value = '0';
+  document.getElementById('codeSearchInput').value = '';
+  document.getElementById('saleAlertMsg').classList.add('d-none');
+  
+  selectedCostumes = [];
+  renderSelectedCostumes();
+  calculateBalance();
+  
+  // Reload page to sync inventory stats
+  setTimeout(() => window.location.reload(), 300);
 }
 
-async function fetchCostumeDetails(code) {
-    try {
-        const res = await fetch(`/api/navaratri/product-info/${encodeURIComponent(code)}`);
-        const data = await res.json();
-        
-        const previewCard = document.getElementById('previewCard');
-        const previewImg = document.getElementById('previewImg');
-        const previewCodeTitle = document.getElementById('previewCodeTitle');
-        const previewCat = document.getElementById('previewCat');
-        const previewStatusBadge = document.getElementById('previewStatusBadge');
-
-        if (res.ok && data.success && data.found) {
-            previewCard.style.display = 'flex';
-            previewCodeTitle.textContent = data.code;
-            previewCat.textContent = data.category === 'Choli' ? '👗 Chaniya Choli' : '🕺 Traditional Kediya';
-            
-            previewImg.src = data.thumb_url;
-            previewImg.onerror = function() {
-                this.onerror = null;
-                this.src = data.orig_url;
-                this.onerror = function() { this.src = '/static/Home_Img/favicon.png'; };
-            };
-
-            if (data.on_rent) {
-                previewStatusBadge.className = 'preview-status-badge badge-available';
-                previewStatusBadge.innerHTML = '● Available on Rent';
-            } else {
-                previewStatusBadge.className = 'preview-status-badge badge-sold';
-                previewStatusBadge.innerHTML = '● Already Marked as Sold';
-            }
-        } else {
-            previewCard.style.display = 'flex';
-            previewCodeTitle.textContent = code;
-            previewCat.textContent = 'Not found in catalogue';
-            previewImg.src = '/static/Home_Img/favicon.png';
-            previewStatusBadge.className = 'preview-status-badge badge-sold';
-            previewStatusBadge.innerHTML = '⚠️ Unrecognized Code';
-        }
-    } catch (e) {
-        console.error('Error fetching costume info:', e);
-    }
-}
-
-async function submitDedicatedSell() {
-    const codeInp = document.getElementById('sellCostumeCode');
-    const passInp = document.getElementById('sellAdminPassword');
-    const priceInp = document.getElementById('sellPrice');
-    const buyerInp = document.getElementById('sellBuyerName');
-    const mobileInp = document.getElementById('sellBuyerMobile');
-    const notesInp = document.getElementById('sellNotes');
-    const btn = document.getElementById('btnSubmitSell');
-
-    const code = (codeInp?.value || '').trim().toUpperCase();
-    const password = (passInp?.value || '').trim();
-    const price = (priceInp?.value || '').trim();
-    const buyer_name = (buyerInp?.value || '').trim();
-    const buyer_mobile = (mobileInp?.value || '').trim();
-    const notes = (notesInp?.value || '').trim();
-
-    if (!code) {
-        showFeedback('Please enter a costume code (e.g. C182 or K10).', 'danger');
-        codeInp.focus();
-        return;
-    }
-    if (!password) {
-        showFeedback('Please enter the admin password.', 'danger');
-        passInp.focus();
-        return;
-    }
-
-    btn.disabled = true;
-    showFeedback('<span class="spinner-border spinner-border-sm me-1"></span> Processing sale and setting on_rent: false...', 'info');
-
-    try {
-        const res = await fetch('/api/navaratri/sell-product', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                code: code,
-                password: password,
-                buyer_name: buyer_name,
-                buyer_mobile: buyer_mobile,
-                price: price,
-                notes: notes
-            })
-        });
-
-        const data = await res.json();
-        if (res.ok && data.success) {
-            showFeedback(`✅ <b>Success!</b> Costume <b>${code}</b> is now SOLD. Database status set to <code>on_rent: false</code> and removed from customer catalogues.`, 'success');
-            
-            // Clear inputs
-            codeInp.value = '';
-            passInp.value = '';
-            if (priceInp) priceInp.value = '';
-            if (buyerInp) buyerInp.value = '';
-            if (mobileInp) mobileInp.value = '';
-            if (notesInp) notesInp.value = '';
-            document.getElementById('previewCard').style.display = 'none';
-
-            // Refresh sold list and counters without reload
-            setTimeout(() => {
-                window.location.reload();
-            }, 1200);
-        } else {
-            showFeedback(`❌ <b>Failed:</b> ${data.message || 'Incorrect password or costume not found.'}`, 'danger');
-        }
-    } catch (err) {
-        showFeedback(`❌ <b>Error:</b> ${err.message}`, 'danger');
-    } finally {
-        btn.disabled = false;
-    }
-}
-
-function showFeedback(msg, type) {
-    const el = document.getElementById('sellAlertFeedback');
-    if (!el) return;
-    el.style.display = 'block';
-    el.className = `alert-feedback alert-${type}`;
-    el.innerHTML = msg;
-}
-
-// ── RESTORE SYSTEM ──
+// ─── RESTORE TO RENT SYSTEM ───────────────────────────────────────────
 function openRestorePrompt(code) {
-    restoreTargetCode = code;
-    document.getElementById('restoreTargetCode').textContent = code;
-    document.getElementById('restorePassword').value = '';
-    const fb = document.getElementById('restoreFeedback');
-    fb.classList.add('d-none');
-    document.getElementById('restoreModal').classList.add('active');
-    setTimeout(() => document.getElementById('restorePassword').focus(), 200);
-}
+  restoreTargetCode = code;
+  document.getElementById('restoreTargetCode').textContent = code;
+  document.getElementById('restorePassword').value = '';
+  const fb = document.getElementById('restoreFeedback');
+  fb.className = 'd-none';
 
-function closeRestoreModal() {
-    document.getElementById('restoreModal').classList.remove('active');
+  const modalEl = document.getElementById('restoreModal');
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+  setTimeout(() => document.getElementById('restorePassword').focus(), 300);
 }
 
 async function executeRestore() {
-    const pw = (document.getElementById('restorePassword')?.value || '').trim();
-    const fb = document.getElementById('restoreFeedback');
-    const btn = document.getElementById('btnConfirmRestore');
+  const pw = (document.getElementById('restorePassword')?.value || '').trim();
+  const fb = document.getElementById('restoreFeedback');
+  const btn = document.getElementById('btnConfirmRestore');
 
-    if (!pw) {
-        fb.className = 'mb-3 p-2 rounded alert alert-danger text-danger d-block';
-        fb.innerHTML = 'Please enter admin password.';
-        return;
+  if (!pw) {
+    fb.className = 'p-2 rounded mb-3 alert-danger text-danger d-block';
+    fb.innerHTML = 'Please enter admin password.';
+    return;
+  }
+
+  btn.disabled = true;
+  fb.className = 'p-2 rounded mb-3 alert-info text-info d-block';
+  fb.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Restoring costume...';
+
+  try {
+    const res = await fetch('/api/navaratri/restore-product', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: restoreTargetCode, password: pw })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      fb.className = 'p-2 rounded mb-3 alert-success text-success d-block';
+      fb.innerHTML = `✅ ${data.message}`;
+      setTimeout(() => {
+        window.location.reload();
+      }, 700);
+    } else {
+      fb.className = 'p-2 rounded mb-3 alert-danger text-danger d-block';
+      fb.innerHTML = `❌ ${data.message || 'Incorrect password.'}`;
     }
-
-    btn.disabled = true;
-    fb.className = 'mb-3 p-2 rounded alert alert-info text-info d-block';
-    fb.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Restoring costume...';
-
-    try {
-        const res = await fetch('/api/navaratri/restore-product', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code: restoreTargetCode, password: pw })
-        });
-        const data = await res.json();
-        if (res.ok && data.success) {
-            fb.className = 'mb-3 p-2 rounded alert alert-success text-success d-block';
-            fb.innerHTML = `✅ ${data.message}`;
-            setTimeout(() => {
-                closeRestoreModal();
-                window.location.reload();
-            }, 800);
-        } else {
-            fb.className = 'mb-3 p-2 rounded alert alert-danger text-danger d-block';
-            fb.innerHTML = `❌ ${data.message || 'Incorrect password.'}`;
-        }
-    } catch (e) {
-        fb.className = 'mb-3 p-2 rounded alert alert-danger text-danger d-block';
-        fb.innerHTML = `❌ Error: ${e.message}`;
-    } finally {
-        btn.disabled = false;
-    }
+  } catch (e) {
+    fb.className = 'p-2 rounded mb-3 alert-danger text-danger d-block';
+    fb.innerHTML = `❌ Error: ${e.message}`;
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 function filterSoldList(term) {
-    const q = (term || '').trim().toUpperCase();
-    const items = document.querySelectorAll('.sold-item-card');
-    items.forEach(el => {
-        const code = el.getAttribute('data-code') || '';
-        el.style.display = (!q || code.includes(q)) ? 'flex' : 'none';
-    });
-}
+  const q = (term || '').trim().toUpperCase();
+  const items = document.querySelectorAll('.sold-item-entry');
+  let visibleCount = 0;
+  items.forEach(el => {
+    const code = (el.getAttribute('data-code') || '').toUpperCase();
+    const buyer = (el.getAttribute('data-buyer') || '').toUpperCase();
+    const match = !q || code.includes(q) || buyer.includes(q);
+    el.style.display = match ? 'flex' : 'none';
+    if (match) visibleCount++;
+  });
 
-// Auto-check if prefilled code is present on load
-document.addEventListener('DOMContentLoaded', () => {
-    const code = (document.getElementById('sellCostumeCode')?.value || '').trim();
-    if (code) {
-        fetchCostumeDetails(code);
-    }
-});
+  const noNotice = document.getElementById('noSoldNotice');
+  if (noNotice) {
+    noNotice.style.display = (visibleCount === 0) ? 'block' : 'none';
+  }
+}
 </script>
 {% endblock %}

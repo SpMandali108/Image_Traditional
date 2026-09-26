@@ -439,4 +439,185 @@ def restore_navaratri_product(code, password):
         return False, "A database error occurred. Please try again.", 500
 
 
+def record_multiple_costume_sale(name, mobile, address, reference, codes, total_price, given_price, password):
+    """
+    Validates and executes a multi-costume sale:
+    1. Verifies admin password
+    2. Validates customer details and multiple product codes
+    3. Verifies each code is currently rentable
+    4. Sets on_rent = False in navaratri_products collection
+    5. Saves customer record in the active cycle collection with type = 'selling'
+    6. Upserts customer record in Navaratri_Customers (ncustomers)
+    7. Logs admin actions
+    Returns: (success: bool, message: str, customer_id: str, data: dict, status_code: int)
+    """
+    from bson import ObjectId
+
+    if not verify_admin_password(password):
+        return False, "Incorrect admin password.", None, {}, 401
+
+    name = str(name or "").strip()
+    if not name:
+        return False, "Customer Name is mandatory.", None, {}, 400
+
+    mobile = str(mobile or "").strip()
+    if not mobile or not mobile.isdigit() or len(mobile) != 10:
+        return False, "A valid 10-digit Mobile Number is mandatory.", None, {}, 400
+
+    address = str(address or "").strip()
+    if not address:
+        return False, "Customer Address is mandatory.", None, {}, 400
+
+    reference = str(reference or "").strip()
+
+    if not codes:
+        return False, "At least one product code must be selected.", None, {}, 400
+
+    if isinstance(codes, str):
+        raw_list = [c.strip().upper() for c in codes.split(",") if c.strip()]
+    elif isinstance(codes, (list, tuple)):
+        raw_list = [str(c or "").strip().upper() for c in codes if str(c or "").strip()]
+    else:
+        raw_list = []
+
+    cleaned_codes = []
+    seen = set()
+    for c in raw_list:
+        if c and c not in seen:
+            seen.add(c)
+            cleaned_codes.append(c)
+
+    if not cleaned_codes:
+        return False, "At least one valid product code must be selected.", None, {}, 400
+
+    try:
+        total_price = int(total_price)
+    except (ValueError, TypeError):
+        return False, "Total Price is mandatory and must be a valid number.", None, {}, 400
+
+    try:
+        given_price = int(given_price)
+    except (ValueError, TypeError):
+        return False, "Given Price is mandatory and must be a valid number.", None, {}, 400
+
+    if total_price < 0:
+        return False, "Total Price cannot be negative.", None, {}, 400
+
+    if given_price < 0:
+        return False, "Given Price cannot be negative.", None, {}, 400
+
+    if given_price > total_price:
+        return False, f"Given Price (₹{given_price}) cannot exceed Total Price (₹{total_price}).", None, {}, 400
+
+    # Verify each costume exists and is rentable
+    for code in cleaned_codes:
+        prod = get_navaratri_product(code)
+        if not prod:
+            sync_navaratri_products()
+            prod = get_navaratri_product(code)
+
+        if not prod:
+            return False, f"Costume code '{code}' not found in database.", None, {}, 404
+
+        if prod.get("on_rent") is False:
+            return False, f"Costume '{code}' is already sold and unavailable for rent.", None, {}, 400
+
+    now = get_ist_now()
+    today_str = now.strftime("%d-%m-%y")
+    sale_id = ObjectId()
+
+    try:
+        from flask import url_for
+        qr_url = url_for('navaratri.download_bill_page', id=str(sale_id), _external=True)
+    except Exception:
+        qr_url = f"/download-bill?id={str(sale_id)}"
+
+    customer_doc = {
+        "_id": sale_id,
+        "Name": name,
+        "mobile": mobile,
+        "address": address,
+        "reference": reference,
+        "deposit": "N/A",
+        "group": "",
+        "type": "selling",
+        "sold_products": cleaned_codes,
+        "bookings": {today_str: cleaned_codes},
+        "total_price": total_price,
+        "given_price": given_price,
+        "date": today_str,
+        "created_at": now,
+        "qr_url": qr_url
+    }
+
+    try:
+        collection.insert_one(customer_doc)
+    except Exception as e:
+        return False, f"Database error creating customer sale record: {str(e)}", None, {}, 500
+
+    # Upsert customer record into Navaratri_Customers collection
+    try:
+        from website.general.db import ncustomers
+        ncustomers.update_one(
+            {"mobile": mobile},
+            {
+                "$set": {
+                    "name": name,
+                    "mobile": mobile,
+                    "address": address,
+                    "reference": reference,
+                    "updated_at": now
+                }
+            },
+            upsert=True
+        )
+    except Exception:
+        pass
+
+    # Mark all selected costumes as sold (on_rent: False)
+    for code in cleaned_codes:
+        try:
+            navaratri_products.update_one(
+                {"code": code},
+                {
+                    "$set": {
+                        "on_rent": False,
+                        "sold_info": {
+                            "buyer_name": name,
+                            "buyer_mobile": mobile,
+                            "sale_id": str(sale_id),
+                            "price": str(total_price),
+                            "sold_at": now.strftime("%d/%m/%Y %H:%M:%S")
+                        }
+                    }
+                }
+            )
+            try:
+                log_action("Admin", mobile, "product_sold", f"Marked costume '{code}' as sold to {name} ({mobile}).")
+            except Exception:
+                pass
+        except Exception:
+            pass
+
+    try:
+        log_action(name, mobile, "sale", f"Sold {len(cleaned_codes)} costume(s): {', '.join(cleaned_codes)}. Total: ₹{total_price}, Paid: ₹{given_price}.")
+    except Exception:
+        pass
+
+    remaining = total_price - given_price
+    return True, f"Sale successfully recorded for {len(cleaned_codes)} costume(s)!", str(sale_id), {
+        "customer_id": str(sale_id),
+        "name": name,
+        "mobile": mobile,
+        "address": address,
+        "reference": reference,
+        "codes": cleaned_codes,
+        "total_price": total_price,
+        "given_price": given_price,
+        "remaining": remaining,
+        "date": today_str
+    }, 200
+
+
+
 

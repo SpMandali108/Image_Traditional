@@ -1,6 +1,6 @@
 {% extends "general/base.html" %}
 
-{% block title %}Booking Verified | Download Customer Bill{% endblock %}
+{% block title %}{% if customer and customer.type == 'selling' %}Costume Sale Invoice | Download Customer Bill{% else %}Booking Verified | Download Customer Bill{% endif %}{% endblock %}
 
 {% block robots %}
 <meta name="robots" content="noindex, nofollow" />
@@ -482,7 +482,7 @@
         {% if customer.bookings %}
         <details class="items-accordion">
             <summary class="items-summary">
-                <span><i class="fa-solid fa-shirt"></i> View Rented Items / સામાન જુઓ</span>
+                <span><i class="fa-solid fa-shirt"></i> {% if customer.type == 'selling' %}View Purchased Costumes / ખરીદેલ સામાન{% else %}View Rented Items / સામાન જુઓ{% endif %}</span>
                 <i class="fa-solid fa-chevron-down chevron"></i>
             </summary>
             <div class="items-grid">

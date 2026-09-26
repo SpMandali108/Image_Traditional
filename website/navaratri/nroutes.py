@@ -1606,6 +1606,7 @@ def download_customer():
 
     # Remaining price
     customer['remaining'] = customer.get('total_price', 0) - customer.get('given_price', 0)
+    is_sale = (customer.get('type') == 'selling')
 
     class PDF(FPDF):
         def header(self):
@@ -1644,7 +1645,8 @@ def download_customer():
             self.set_text_color(241, 245, 249)
             self.set_font('helvetica', '', 9)
             self.set_xy(140, 17)
-            self.cell(55, 5, "Rental Booking Invoice", align='R', ln=1)
+            inv_title = "Costume Sale Invoice" if is_sale else "Rental Booking Invoice"
+            self.cell(55, 5, inv_title, align='R', ln=1)
             
             self.set_xy(140, 23)
             self.cell(55, 5, f"Date: {datetime.now().strftime('%d-%b-%Y')}", align='R', ln=1)
@@ -1656,7 +1658,8 @@ def download_customer():
             self.set_y(-15)
             self.set_font('helvetica', 'I', 8)
             self.set_text_color(148, 163, 184)
-            self.cell(0, 10, f'Page {self.page_no()}/{{nb}} | Image Traditional Rental Receipt', align='C')
+            footer_txt = 'Image Traditional Sale Receipt' if is_sale else 'Image Traditional Rental Receipt'
+            self.cell(0, 10, f'Page {self.page_no()}/{{nb}} | {footer_txt}', align='C')
 
     pdf = PDF('P', 'mm', 'A4')
     pdf.alias_nb_pages()
@@ -1684,7 +1687,7 @@ def download_customer():
     pdf.set_y(46)
     pdf.set_font('helvetica', 'B', 11)
     pdf.set_text_color(15, 23, 42)  # Dark slate
-    pdf.cell(0, 8, "CUSTOMER & BOOKING DETAILS", ln=1)
+    pdf.cell(0, 8, "CUSTOMER & SALE DETAILS" if is_sale else "CUSTOMER & BOOKING DETAILS", ln=1)
     
     # Gold separator line
     pdf.set_draw_color(212, 175, 55)
@@ -1715,16 +1718,21 @@ def download_customer():
         pdf.cell(57, 6, sanitize_latin1(str(val2)), border=0)
         pdf.ln(7.5)
 
-    render_row("Customer Name", customer.get("Name", "N/A"), "Group Name", customer.get("group", "N/A"))
-    render_row("Mobile Number", customer.get("mobile", "N/A"), "Reference", customer.get("reference", "N/A"))
-    render_row("Security Deposit", customer.get('deposit', 'N/A'), "Address", customer.get("address", "N/A"))
+    if is_sale:
+        render_row("Customer Name", customer.get("Name", "N/A"), "Reference", customer.get("reference") or "Direct Sale")
+        render_row("Mobile Number", customer.get("mobile", "N/A"), "Sale Date", customer.get("date") or datetime.now().strftime("%d-%m-%y"))
+        render_row("Customer Address", customer.get("address", "N/A"), "Invoice Type", "Costume Purchase")
+    else:
+        render_row("Customer Name", customer.get("Name", "N/A"), "Group Name", customer.get("group", "N/A"))
+        render_row("Mobile Number", customer.get("mobile", "N/A"), "Reference", customer.get("reference", "N/A"))
+        render_row("Security Deposit", customer.get('deposit', 'N/A'), "Address", customer.get("address", "N/A"))
     
     pdf.ln(2)
 
     # ------- Items Table Heading -------
     pdf.set_font('helvetica', 'B', 11)
     pdf.set_text_color(15, 23, 42)
-    pdf.cell(0, 8, "RENTAL ITEMS", ln=1)
+    pdf.cell(0, 8, "PURCHASED COSTUMES & ITEMS" if is_sale else "RENTAL ITEMS", ln=1)
     
     # Gold separator line
     pdf.set_draw_color(212, 175, 55)
@@ -1741,7 +1749,7 @@ def download_customer():
     pdf.cell(15, 9, "Sr.", border=1, align="C", fill=True)
     pdf.cell(50, 9, "Product Code", border=1, align="C", fill=True)
     pdf.cell(60, 9, "Product Preview", border=1, align="C", fill=True)
-    pdf.cell(55, 9, "Booking Date", border=1, align="C", fill=True)
+    pdf.cell(55, 9, "Sale Date" if is_sale else "Booking Date", border=1, align="C", fill=True)
     pdf.ln()
 
     # ------- Table Rows -------
@@ -1751,6 +1759,9 @@ def download_customer():
     
     sr = 1
     bookings = customer.get("bookings", {})
+    if not bookings and customer.get("sold_products"):
+        s_date = customer.get("date") or datetime.now().strftime("%d-%m-%y")
+        bookings = {s_date: customer.get("sold_products", [])}
 
     for date, codes in bookings.items():
         for code in codes:
@@ -1840,33 +1851,43 @@ def download_customer():
     pdf.set_font("helvetica", "B", 11.5)
     pdf.cell(30, 6, f"Rs. {remaining}", align="R")
     # ------- Terms & Conditions (Bilingual) -------
-    # Visual gap after Balance Due box (box bottom is y + 8.5)
     gap_after_payment = 10.0
     candidate_tc_y = y + 8.5 + gap_after_payment
 
-    guj_terms = [
-        "1. ચણિયાચોળી/કેડિયાનું એડવાન્સ બુકિંગ ટોકન એમાઉન્ટ આપી બુક કરાવવાનું રહેશે અને બાકીની પૂરી રકમ નવરાત્રી પહેલા જમા કરાવવાની રહેશે, તો જ તમારું બુકિંગ માન્ય રહેશે.",
-        "2. ભાડું એક દિવસ / રાત્રી માટે જ રહેશે. વધારે સમય માટે અલગથી ભાડું ચૂકવવાનું રહેશે.",
-        "3. બુકિંગ સમયે ડિપોઝિટ / ઓળખાણ ફરજિયાત રહેશે.",
-        "4. વરસાદ કે અન્ય કોઈપણ કારણોસર બુકિંગ કેન્સલ થશે નહીં અને કોઈપણ પ્રકારનું રિફંડ મળશે નહીં તેમજ બુકિંગ અન્ય કોઈપણ દિવસે ટ્રાન્સફર થશે નહીં.",
-        "5. વસ્તુ લેવા આવો ત્યારે બરાબર તપાસીને જોઈને જ લઈ જવી. પાછળથી કોઈ તકરાર ચાલશે નહીં.",
-        "6. કપડું ફાટી ગયું હશે અથવા કોઈ ઓર્નામેન્ટ્સ ખોવાઈ ગયું હશે તો તેની પૂરેપૂરી નુકસાની ગ્રાહકે આપવાની રહેશે.",
-        "7. ગરબા થઈ ગયા પછી આપના ભીના કપડાં પંખા નીચે હવામાં સુકાઈ જાય પછી જ થેલીમાં પેક કરી લાવવાં.",
-        "8. ચણિયાચોળી/કેડિયું જમા કરાવવાનો સમય સવારે 9 થી 12 અને ચણિયાચોળી/કેડિયું લઈ જવાનો સમય બપોરે 2 થી 7 રહેશે.",
-        "9. ડિપોઝિટ રિફંડેબલ છે."
-    ]
-
-    eng_terms = [
-        "1. Chaniya Choli/Kediya must be booked in advance by paying a token amount. The remaining full amount must be paid before Navratri; only then will your booking be considered valid.",
-        "2. The rental is valid for one day/night only. Additional charges will apply for extra time.",
-        "3. A security deposit / valid identification is mandatory at the time of booking.",
-        "4. Bookings cannot be cancelled due to rain or any other reason. No refund of any kind will be provided, and the booking cannot be transferred to any other date.",
-        "5. Please inspect the items carefully before taking them. No complaints or disputes will be accepted later.",
-        "6. If the clothes are torn or any ornaments/accessories are lost, the customer will be responsible for paying the full cost of the damage/loss.",
-        "7. After the Garba event, wet clothes must be properly air-dried under a fan before packing them back into the bag.",
-        "8. The return time for Chaniya Choli/Kediya is from 9:00 AM to 12:00 PM, and the collection time for Chaniya Choli/Kediya is from 2:00 PM to 7:00 PM.",
-        "9. The security deposit is refundable."
-    ]
+    if is_sale:
+        guj_terms = [
+            "1. વેચેલ કપડાં / સામાનનું વેચાણ આખરી છે. કોઈપણ સંજોગોમાં માલ પરત કે રિફંડ મળશે નહીં.",
+            "2. માલ લેતી વખતે બરાબર તપાસીને લેવો. પાછળથી કોઈ પણ ફરિયાદ માન્ય રહેશે નહીં.",
+            "3. બાકી રકમ નક્કી કરેલ સમયમર્યાદામાં પૂરેપૂરી ચૂકવવાની રહેશે."
+        ]
+        eng_terms = [
+            "1. All costume sales are final. Sold items are strictly non-refundable and non-returnable.",
+            "2. Please inspect the items carefully at the time of purchase. No complaints accepted later.",
+            "3. Any remaining balance must be cleared as per the agreed payment terms."
+        ]
+    else:
+        guj_terms = [
+            "1. ચણિયાચોળી/કેડિયાનું એડવાન્સ બુકિંગ ટોકન એમાઉન્ટ આપી બુક કરાવવાનું રહેશે અને બાકીની પૂરી રકમ નવરાત્રી પહેલા જમા કરાવવાની રહેશે, તો જ તમારું બુકિંગ માન્ય રહેશે.",
+            "2. ભાડું એક દિવસ / રાત્રી માટે જ રહેશે. વધારે સમય માટે અલગથી ભાડું ચૂકવવાનું રહેશે.",
+            "3. બુકિંગ સમયે ડિપોઝિટ / ઓળખાણ ફરજિયાત રહેશે.",
+            "4. વરસાદ કે અન્ય કોઈપણ કારણોસર બુકિંગ કેન્સલ થશે નહીં અને કોઈપણ પ્રકારનું રિફંડ મળશે નહીં તેમજ બુકિંગ અન્ય કોઈપણ દિવસે ટ્રાન્સફર થશે નહીં.",
+            "5. વસ્તુ લેવા આવો ત્યારે બરાબર તપાસીને જોઈને જ લઈ જવી. પાછળથી કોઈ તકરાર ચાલશે નહીં.",
+            "6. કપડું ફાટી ગયું હશે અથવા કોઈ ઓર્નામેન્ટ્સ ખોવાઈ ગયું હશે તો તેની પૂરેપૂરી નુકસાની ગ્રાહકે આપવાની રહેશે.",
+            "7. ગરબા થઈ ગયા પછી આપના ભીના કપડાં પંખા નીચે હવામાં સુકાઈ જાય પછી જ થેલીમાં પેક કરી લાવવાં.",
+            "8. ચણિયાચોળી/કેડિયું જમા કરાવવાનો સમય સવારે 9 થી 12 અને ચણિયાચોળી/કેડિયું લઈ જવાનો સમય બપોરે 2 થી 7 રહેશે.",
+            "9. ડિપોઝિટ રિફંડેબલ છે."
+        ]
+        eng_terms = [
+            "1. Chaniya Choli/Kediya must be booked in advance by paying a token amount. The remaining full amount must be paid before Navratri; only then will your booking be considered valid.",
+            "2. The rental is valid for one day/night only. Additional charges will apply for extra time.",
+            "3. A security deposit / valid identification is mandatory at the time of booking.",
+            "4. Bookings cannot be cancelled due to rain or any other reason. No refund of any kind will be provided, and the booking cannot be transferred to any other date.",
+            "5. Please inspect the items carefully before taking them. No complaints or disputes will be accepted later.",
+            "6. If the clothes are torn or any ornaments/accessories are lost, the customer will be responsible for paying the full cost of the damage/loss.",
+            "7. After the Garba event, wet clothes must be properly air-dried under a fan before packing them back into the bag.",
+            "8. The return time for Chaniya Choli/Kediya is from 9:00 AM to 12:00 PM, and the collection time for Chaniya Choli/Kediya is from 2:00 PM to 7:00 PM.",
+            "9. The security deposit is refundable."
+        ]
 
     guj_font = "NotoSansGujarati" if "notosansgujarati" in pdf.fonts else "helvetica"
     tc_font_size = 7.5
@@ -1939,10 +1960,12 @@ def download_customer():
     pdf_buffer = io.BytesIO(pdf_bytes)
     pdf_buffer.seek(0)
 
-    filename = f"{customer.get('Name', 'customer')}_Profile.pdf"
+    filename = f"{customer.get('Name', 'customer')}_Sale_Invoice.pdf" if is_sale else f"{customer.get('Name', 'customer')}_Profile.pdf"
 
     try:
-        log_action(customer.get("Name"), customer.get("mobile"), "bill_download", f"Downloaded rental booking bill/invoice: {filename}.")
+        log_type = "sale_bill_download" if is_sale else "bill_download"
+        log_desc = f"Downloaded costume sale invoice: {filename}." if is_sale else f"Downloaded rental booking bill/invoice: {filename}."
+        log_action(customer.get("Name"), customer.get("mobile"), log_type, log_desc)
     except Exception:
         pass
 
@@ -3643,25 +3666,46 @@ def navaratri_sell():
 
     if request.method == "POST":
         data = request.get_json(silent=True) if request.is_json else request.form
-        code = str(data.get("code") or "").strip().upper()
+        name = str(data.get("name") or "").strip()
+        mobile = str(data.get("mobile") or "").strip()
+        address = str(data.get("address") or "").strip()
+        reference = str(data.get("reference") or "").strip()
         password = str(data.get("password") or "").strip()
-        buyer_name = str(data.get("buyer_name") or "").strip() or None
-        buyer_mobile = str(data.get("buyer_mobile") or "").strip() or None
-        price = str(data.get("price") or "").strip() or None
-        notes = str(data.get("notes") or "").strip() or None
+        codes = data.get("codes") or []
+        if not codes and data.get("code"):
+            codes = [data.get("code")]
+        total_price = data.get("total_price", 0)
+        given_price = data.get("given_price", 0)
 
-        success, message, status_code = sell_navaratri_product(
-            code, password, buyer_name=buyer_name, buyer_mobile=buyer_mobile, price=price, notes=notes
+        success, message, sale_id, sale_data, status_code = record_multiple_costume_sale(
+            name=name,
+            mobile=mobile,
+            address=address,
+            reference=reference,
+            codes=codes,
+            total_price=total_price,
+            given_price=given_price,
+            password=password
         )
 
         if request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return jsonify({"success": success, "message": message}), status_code
+            bill_url = url_for('navaratri.download_customer', id=sale_id) if sale_id else ""
+            bill_page_url = url_for('navaratri.download_bill_page', id=sale_id) if sale_id else ""
+            return jsonify({
+                "success": success,
+                "message": message,
+                "customer_id": sale_id,
+                "bill_url": bill_url,
+                "bill_page_url": bill_page_url,
+                "data": sale_data
+            }), status_code
 
-        if success:
+        if success and sale_id:
             flash(f"✅ {message}", "success")
+            return redirect(url_for('navaratri.download_bill_page', id=sale_id))
         else:
             flash(f"❌ {message}", "danger")
-        return redirect(url_for('navaratri.navaratri_sell'))
+            return redirect(url_for('navaratri.navaratri_sell'))
 
     products_list = get_all_navaratri_products()
     total_count = len(products_list)
@@ -3679,6 +3723,47 @@ def navaratri_sell():
         sold_products=sold_products,
         prefill_code=prefill_code
     )
+
+
+@navaratri.route("/api/navaratri/sell-costumes", methods=["POST"])
+def api_sell_costumes():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    data = request.get_json(silent=True) or {}
+    name = str(data.get("name") or "").strip()
+    mobile = str(data.get("mobile") or "").strip()
+    address = str(data.get("address") or "").strip()
+    reference = str(data.get("reference") or "").strip()
+    password = str(data.get("password") or "").strip()
+    codes = data.get("codes") or []
+    if not codes and data.get("code"):
+        codes = [data.get("code")]
+    total_price = data.get("total_price", 0)
+    given_price = data.get("given_price", 0)
+
+    success, message, sale_id, sale_data, status_code = record_multiple_costume_sale(
+        name=name,
+        mobile=mobile,
+        address=address,
+        reference=reference,
+        codes=codes,
+        total_price=total_price,
+        given_price=given_price,
+        password=password
+    )
+
+    bill_url = url_for('navaratri.download_customer', id=sale_id) if sale_id else ""
+    bill_page_url = url_for('navaratri.download_bill_page', id=sale_id) if sale_id else ""
+
+    return jsonify({
+        "success": success,
+        "message": message,
+        "customer_id": sale_id,
+        "bill_url": bill_url,
+        "bill_page_url": bill_page_url,
+        "data": sale_data
+    }), status_code
 
 
 @navaratri.route("/api/navaratri/product-info/<code>", methods=["GET"])
