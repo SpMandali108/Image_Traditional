@@ -599,41 +599,66 @@ def api_check_product():
     if not session.get('logged_in'):
         return jsonify({"available": False, "error": "Unauthorized"}), 401
         
-    product_code = request.args.get('product_code', '').strip().upper()
+    product_code = request.args.get('product_code', '').strip()
     date_input = request.args.get('date', '').strip()
     exclude_mobile = request.args.get('exclude_mobile', '').strip()
     
     if not product_code or not date_input:
         return jsonify({"available": False, "error": "Product code and date are required"}), 400
+
+    norm_code = normalize_product_code(product_code)
+    if not norm_code:
+        return jsonify({
+            "available": False,
+            "error": f"Invalid product code '{product_code}'",
+            "reason": f"Product '{product_code}' not found."
+        }), 400
         
     date_str = date_input
-    for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d-%m-%y"):
+    for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d-%m-%y", "%d/%m/%Y", "%d/%m/%y", "%Y/%m/%d"):
         try:
             date_obj = datetime.strptime(date_input, fmt)
             date_str = date_obj.strftime("%d-%m-%y")
             break
         except ValueError:
             pass
+
+    col_name = "unknown"
+    try:
+        curr_col = get_selected_collection()
+        col_name = getattr(curr_col, 'name', 'unknown')
+    except Exception:
+        pass
         
-    # Check if product is available for rent in MongoDB
-    is_avail, err_reason = is_product_available_for_rent(product_code)
+    # Check if product is available for rent in master catalog
+    is_avail, err_reason = is_product_available_for_rent(norm_code)
     if not is_avail:
+        print(f"[LIVE CHECK] code='{product_code}' normalized='{norm_code}' date='{date_str}' cycle='{col_name}' rentable=False reason='{err_reason}'", flush=True)
         return jsonify({
             "available": False,
             "reason": err_reason,
             "error": err_reason,
-            "customer": "Sold / Not for Rent"
+            "customer": "Sold / Not for Rent",
+            "product_code": norm_code
         })
 
-    has_conflict, conflicts = check_booking_conflict(date_str, [product_code], exclude_mobile=exclude_mobile or None)
+    has_conflict, conflicts = check_booking_conflict(date_str, [norm_code], exclude_mobile=exclude_mobile or None)
     if has_conflict:
         conflict = conflicts[0]
+        cust_name = conflict.get('customer_name', 'Unknown')
+        print(f"[LIVE CHECK] code='{product_code}' normalized='{norm_code}' date='{date_str}' cycle='{col_name}' available=False conflict_customer='{cust_name}'", flush=True)
         return jsonify({
             "available": False,
-            "customer": conflict.get('customer_name', 'Unknown')
+            "customer": cust_name,
+            "reason": f"Booked by {cust_name}",
+            "product_code": norm_code
         })
     else:
-        return jsonify({"available": True})
+        print(f"[LIVE CHECK] code='{product_code}' normalized='{norm_code}' date='{date_str}' cycle='{col_name}' available=True", flush=True)
+        return jsonify({
+            "available": True,
+            "product_code": norm_code
+        })
 
 # ------------------ API: Product Code Suggestion ------------------
 @navaratri.route('/api/suggest-products', methods=['GET'])
@@ -641,12 +666,14 @@ def api_suggest_products():
     if not session.get('logged_in'):
         return jsonify([]), 401
     try:
-        all_products = list(products.find({}, {"_id": 1}))
-        codes = [p["_id"] for p in all_products]
+        nav_prods = list(navaratri_products.find({}, {"code": 1, "_id": 0}))
+        codes = [p["code"] for p in nav_prods if p.get("code")]
         if not codes:
-            # Fallback if Storage collection has no entries yet
+            all_products = list(products.find({}, {"_id": 1}))
+            codes = [p["_id"] for p in all_products if p.get("_id")]
+        if not codes:
             codes = [f'C{i}' for i in range(1, 151)] + [f'K{i}' for i in range(1, 174)]
-        return jsonify(sorted(list(set(codes))))
+        return jsonify(sorted(list(set(codes)), key=natural_sort_key))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

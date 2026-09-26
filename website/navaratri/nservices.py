@@ -303,12 +303,23 @@ def sync_navaratri_products():
 def get_navaratri_product(code):
     """
     Finds a single product document in navaratri_products by code.
+    Normalizes code, handles casing/spacing, and provides safe query handling.
     Returns dict {"code": ..., "image": ..., "on_rent": ...} or None.
     """
     if not code:
         return None
-    code_clean = str(code).strip().upper()
-    return navaratri_products.find_one({"code": code_clean})
+    code_norm = normalize_product_code(code)
+    if not code_norm:
+        return None
+    try:
+        doc = navaratri_products.find_one({"code": code_norm})
+        if doc:
+            return doc
+        # Case-insensitive / regex fallback if not an exact match
+        return navaratri_products.find_one({"code": {"$regex": f"^{re.escape(code_norm)}$", "$options": "i"}})
+    except Exception as e:
+        print(f"[ERROR] get_navaratri_product database query error for '{code_norm}': {e}", flush=True)
+        return None
 
 def is_product_available_for_rent(code):
     """
@@ -320,24 +331,31 @@ def is_product_available_for_rent(code):
     if not code:
         return False, "Product code is required."
 
-    code_clean = str(code).strip().upper()
-    product = get_navaratri_product(code_clean)
+    code_norm = normalize_product_code(code)
+    if not code_norm:
+        return False, f"Invalid product code '{code}'."
 
-    # If product doesn't exist yet in DB, attempt safe sync once
-    if not product:
-        try:
+    # If navaratri_products collection is completely uninitialized, perform one-time sync
+    try:
+        if navaratri_products.estimated_document_count() == 0:
             sync_navaratri_products()
-            product = get_navaratri_product(code_clean)
-        except Exception:
-            pass
+    except Exception as e:
+        print(f"[WARN] Failed checking navaratri_products document count: {e}", flush=True)
+
+    try:
+        product = get_navaratri_product(code_norm)
+    except Exception as e:
+        print(f"[ERROR] DB error during is_product_available_for_rent({code_norm}): {e}", flush=True)
+        return False, "Database error checking product availability. Please try again."
 
     if not product:
-        return False, f"Product '{code_clean}' not found."
+        return False, f"Product '{code_norm}' not found."
 
     if not product.get("on_rent", True):
-        return False, f"This product ({code_clean}) is no longer available for rent. Please select another product."
+        return False, f"This product ({code_norm}) is no longer available for rent. Please select another product."
 
     return True, None
+
 
 def get_all_navaratri_products():
     """

@@ -1830,6 +1830,8 @@
 
   let editModalObj, reassignModalObj, deleteModalObj, deleteCustomerModalObj, bookingSuccessModalObj;
   let checkAvailabilityTimers = {};
+  let checkAvailabilityControllers = {};
+  let checkAvailabilitySeq = {};
   let nextRedirectCustomerId = null;
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -2069,6 +2071,15 @@
   }
 
   function removeModalProductRow(rowId) {
+    if (checkAvailabilityTimers[rowId]) {
+      clearTimeout(checkAvailabilityTimers[rowId]);
+      delete checkAvailabilityTimers[rowId];
+    }
+    if (checkAvailabilityControllers[rowId]) {
+      try { checkAvailabilityControllers[rowId].abort(); } catch(e){}
+      delete checkAvailabilityControllers[rowId];
+    }
+    delete checkAvailabilitySeq[rowId];
     const r = document.getElementById(rowId);
     if (r) r.remove();
   }
@@ -2109,54 +2120,94 @@
     const code = inp.value.trim().toUpperCase();
     const cleanCode = code.replace(/[^A-Z0-9]/g, '');
     const status = document.getElementById(`avail-status-${rowId}`);
-    if (!dateVal || !code) {
+
+    // Cancel any pending debounce timer for this row
+    if (checkAvailabilityTimers[rowId]) {
+      clearTimeout(checkAvailabilityTimers[rowId]);
+      delete checkAvailabilityTimers[rowId];
+    }
+    // Abort any in-flight network request for this row
+    if (checkAvailabilityControllers[rowId]) {
+      try { checkAvailabilityControllers[rowId].abort(); } catch(e){}
+      delete checkAvailabilityControllers[rowId];
+    }
+    // Increment sequence number for this row
+    const seq = (checkAvailabilitySeq[rowId] || 0) + 1;
+    checkAvailabilitySeq[rowId] = seq;
+
+    if (!dateVal || !cleanCode) {
       status.className = 'avail-indicator';
       status.innerHTML = '<span style="color:#b4c6db;font-size:0.82rem;font-weight:600;">Specify date & code</span>';
       inp.classList.remove('input-check-valid', 'input-check-invalid');
       return;
     }
+
+    // Check for duplicate costume on the same date within this modal
     const others = block.querySelectorAll(`.booking-row-item:not(#${rowId})`);
     let isDup = false;
     others.forEach(o => {
-      const val = o.querySelector('.booking-row-product')?.value.trim().toUpperCase() || '';
-      if (cleanCode && val.replace(/[^A-Z0-9]/g, '') === cleanCode) isDup = true;
+      const val = (o.querySelector('.booking-row-product')?.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (val && val === cleanCode) isDup = true;
     });
+
     if (isDup) {
       status.className = 'avail-indicator booked';
       status.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Duplicate on this date';
       inp.classList.add('input-check-invalid'); inp.classList.remove('input-check-valid');
-      if (!skipSiblings) others.forEach(o => triggerAvailabilityCheck(o.id, true));
       return;
     }
+
     status.className = 'avail-indicator checking';
     status.innerHTML = '<div class="spinner-border spinner-border-sm me-1" role="status"></div> Checking…';
-    if (checkAvailabilityTimers[rowId]) clearTimeout(checkAvailabilityTimers[rowId]);
+
     checkAvailabilityTimers[rowId] = setTimeout(() => {
+      delete checkAvailabilityTimers[rowId];
+      const controller = new AbortController();
+      checkAvailabilityControllers[rowId] = controller;
+
       const mobile = document.getElementById('modal-mobile').value.trim();
-      let url = `/api/check-product?product_code=${encodeURIComponent(code)}&date=${encodeURIComponent(dateVal)}`;
+      let url = `/api/check-product?product_code=${encodeURIComponent(cleanCode)}&date=${encodeURIComponent(dateVal)}`;
       if (mobile) url += `&exclude_mobile=${encodeURIComponent(mobile)}`;
-      fetch(url).then(r => r.json()).then(res => {
-        let dup2 = false;
-        block.querySelectorAll(`.booking-row-item:not(#${rowId})`).forEach(o => {
-          const val = o.querySelector('.booking-row-product')?.value.trim().toUpperCase() || '';
-          if (cleanCode && val.replace(/[^A-Z0-9]/g, '') === cleanCode) dup2 = true;
+
+      fetch(url, { signal: controller.signal })
+        .then(r => r.json())
+        .then(res => {
+          // If a newer check has started or row was changed, ignore stale response
+          if (checkAvailabilitySeq[rowId] !== seq) return;
+          const currentVal = (inp.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+          if (currentVal !== cleanCode) return;
+
+          // Double check duplicate in modal
+          let dup2 = false;
+          block.querySelectorAll(`.booking-row-item:not(#${rowId})`).forEach(o => {
+            const val = (o.querySelector('.booking-row-product')?.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (val && val === cleanCode) dup2 = true;
+          });
+          if (dup2) {
+            status.className = 'avail-indicator booked';
+            status.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Duplicate on this date';
+            inp.classList.add('input-check-invalid'); inp.classList.remove('input-check-valid');
+            return;
+          }
+
+          if (res.available) {
+            status.className = 'avail-indicator available';
+            status.innerHTML = '<i class="bi bi-check-circle-fill"></i> Available';
+            inp.classList.add('input-check-valid'); inp.classList.remove('input-check-invalid');
+          } else {
+            status.className = 'avail-indicator booked';
+            const reasonText = res.reason || (res.customer ? `Booked by ${res.customer}` : 'Unavailable');
+            status.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${reasonText}`;
+            inp.classList.add('input-check-invalid'); inp.classList.remove('input-check-valid');
+          }
+        })
+        .catch(err => {
+          if (err.name === 'AbortError') return; // Cancelled intentionally
+          if (checkAvailabilitySeq[rowId] !== seq) return;
+          status.className = 'avail-indicator';
+          status.innerHTML = '<span style="color:#ff8080;font-size:0.82rem;font-weight:600;">Error checking</span>';
         });
-        if (dup2) return;
-        if (res.available) {
-          status.className = 'avail-indicator available';
-          status.innerHTML = '<i class="bi bi-check-circle-fill"></i> Available';
-          inp.classList.add('input-check-valid'); inp.classList.remove('input-check-invalid');
-        } else {
-          status.className = 'avail-indicator booked';
-          status.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${res.reason ? res.reason : ('Booked by ' + (res.customer||'Other'))}`;
-          inp.classList.add('input-check-invalid'); inp.classList.remove('input-check-valid');
-        }
-        if (!skipSiblings) others.forEach(o => triggerAvailabilityCheck(o.id, true));
-      }).catch(() => {
-        status.className = 'avail-indicator';
-        status.innerHTML = '<span style="color:#ff8080;font-size:0.82rem;font-weight:600;">Error checking</span>';
-      });
-    }, 400);
+    }, 350);
   }
 
   // ── MODAL OPENERS ────────────────────────────────────────────────
@@ -2331,15 +2382,19 @@
   }
 
   // ── AVAILABILITY CHECKS ──────────────────────────────────────────
+  let modalCheckController = null;
   function performModalAvailabilityCheck() {
     const date = document.getElementById('modalCheckDate').value.trim();
-    const code = document.getElementById('modalCheckCode').value.trim().toUpperCase();
+    const rawCode = document.getElementById('modalCheckCode').value.trim().toUpperCase();
+    const code = rawCode.replace(/[^A-Z0-9]/g, '');
     const res  = document.getElementById('modalCheckResult');
     if (!date || !code) { showToast("Select a date and enter a costume code.", "error"); return; }
+    if (modalCheckController) { try { modalCheckController.abort(); } catch(e){} }
+    modalCheckController = new AbortController();
     res.className = 'mt-3 p-3 rounded d-block';
     res.style.cssText = 'background:rgba(255,255,255,0.06);color:var(--text-muted);border:1px solid var(--border-color);';
     res.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Checking costume status…';
-    fetch(`/api/check-product?product_code=${encodeURIComponent(code)}&date=${encodeURIComponent(date)}`)
+    fetch(`/api/check-product?product_code=${encodeURIComponent(code)}&date=${encodeURIComponent(date)}`, { signal: modalCheckController.signal })
       .then(r => r.json()).then(data => {
         if (data.available) {
           res.style.cssText = 'background:rgba(16,185,129,0.12);color:var(--accent-success);border:1px solid rgba(16,185,129,0.3);';
@@ -2348,21 +2403,26 @@
           res.style.cssText = 'background:rgba(239,68,68,0.12);color:var(--accent-danger);border:1px solid rgba(239,68,68,0.3);';
           res.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> ${data.reason ? data.reason : "Costume '" + code + "' is BOOKED on " + date + " by " + (data.customer||'another customer') + "."}`;
         }
-      }).catch(() => {
+      }).catch(err => {
+        if (err.name === 'AbortError') return;
         res.style.cssText = 'background:rgba(245,158,11,0.12);color:var(--accent-warning);border:1px solid rgba(245,158,11,0.3);';
         res.innerHTML = `<i class="bi bi-exclamation-circle-fill me-1"></i> Connection error.`;
       });
   }
 
+  let widgetCheckController = null;
   function performWidgetAvailabilityCheck() {
     const date = document.getElementById('widgetCheckDate').value.trim();
-    const code = document.getElementById('widgetCheckCode').value.trim().toUpperCase();
+    const rawCode = document.getElementById('widgetCheckCode').value.trim().toUpperCase();
+    const code = rawCode.replace(/[^A-Z0-9]/g, '');
     const res  = document.getElementById('widgetCheckResult');
     if (!date || !code) { showToast("Select a date and enter a costume code.", "error"); return; }
+    if (widgetCheckController) { try { widgetCheckController.abort(); } catch(e){} }
+    widgetCheckController = new AbortController();
     res.className = 'mt-3 p-3 rounded d-block';
     res.style.cssText = 'background:rgba(255,255,255,0.06);color:var(--text-muted);border:1px solid var(--border-color);';
     res.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Checking costume status…';
-    fetch(`/api/check-product?product_code=${encodeURIComponent(code)}&date=${encodeURIComponent(date)}`)
+    fetch(`/api/check-product?product_code=${encodeURIComponent(code)}&date=${encodeURIComponent(date)}`, { signal: widgetCheckController.signal })
       .then(r => r.json()).then(data => {
         if (data.available) {
           res.style.cssText = 'background:rgba(16,185,129,0.12);color:var(--accent-success);border:1px solid rgba(16,185,129,0.3);';
@@ -2371,7 +2431,8 @@
           res.style.cssText = 'background:rgba(239,68,68,0.12);color:var(--accent-danger);border:1px solid rgba(239,68,68,0.3);';
           res.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> ${data.reason ? data.reason : "Costume '" + code + "' is BOOKED on " + date + " by " + (data.customer||'another customer') + "."}`;
         }
-      }).catch(() => {
+      }).catch(err => {
+        if (err.name === 'AbortError') return;
         res.style.cssText = 'background:rgba(245,158,11,0.12);color:var(--accent-warning);border:1px solid rgba(245,158,11,0.3);';
         res.innerHTML = `<i class="bi bi-exclamation-circle-fill me-1"></i> Connection error.`;
       });
@@ -2397,10 +2458,13 @@
   }
 
   let reassignTimer = null;
+  let reassignController = null;
+  let reassignSeq = 0;
   function checkReassignAvailability() {
     const oldProd  = document.getElementById('reassign-old-product').value.trim().toUpperCase();
     const oldDate  = document.getElementById('reassign-old-date').value.trim();
-    const newProd  = document.getElementById('reassign-new-product').value.trim().toUpperCase();
+    const rawProd  = document.getElementById('reassign-new-product').value.trim().toUpperCase();
+    const newProd  = rawProd.replace(/[^A-Z0-9]/g, '');
     const newDate  = document.getElementById('reassign-new-date').value;
     const status   = document.getElementById('reassign-avail-status');
     const confirmB = document.getElementById('confirmReassignBtn');
@@ -2421,23 +2485,30 @@
     status.className = 'avail-indicator checking';
     status.innerHTML = '<div class="spinner-border spinner-border-sm me-1"></div> Checking…';
     if (reassignTimer) clearTimeout(reassignTimer);
+    if (reassignController) { try { reassignController.abort(); } catch(e){} }
+    const currentSeq = ++reassignSeq;
     reassignTimer = setTimeout(() => {
+      reassignController = new AbortController();
       let url = `/api/check-product?product_code=${encodeURIComponent(newProd)}&date=${encodeURIComponent(newDate)}`;
       if (mobile) url += `&exclude_mobile=${encodeURIComponent(mobile)}`;
-      fetch(url).then(r => r.json()).then(res => {
+      fetch(url, { signal: reassignController.signal }).then(r => r.json()).then(res => {
+        if (reassignSeq !== currentSeq) return;
         if (res.available) {
           status.className = 'avail-indicator available'; status.innerHTML = '<i class="bi bi-check-circle-fill"></i> Available';
           confirmB.disabled = false;
         } else {
           status.className = 'avail-indicator booked';
-          status.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Booked by ${res.customer||'Unknown'}`;
+          const reasonText = res.reason || (res.customer ? `Booked by ${res.customer}` : 'Unavailable');
+          status.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${reasonText}`;
           confirmB.disabled = true;
         }
-      }).catch(() => {
+      }).catch(err => {
+        if (err.name === 'AbortError') return;
+        if (reassignSeq !== currentSeq) return;
         status.className = 'avail-indicator'; status.innerHTML = '<span style="color:var(--text-muted);">Error</span>';
         confirmB.disabled = true;
       });
-    }, 450);
+    }, 350);
   }
 
   function confirmReassign() {

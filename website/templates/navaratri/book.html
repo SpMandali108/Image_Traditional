@@ -339,6 +339,8 @@
 <script>
   let availableProducts = [];
   let checkAvailabilityTimers = {};
+  let checkAvailabilityControllers = {};
+  let checkAvailabilitySeq = {};
 
   document.addEventListener("DOMContentLoaded", function() {
     // Load dynamic autocomplete suggestions
@@ -520,6 +522,15 @@
   function removeProductFromDateBlock(dateBlockId, productRowId) {
     const pContainer = document.getElementById(`products-container-${dateBlockId}`);
     if (pContainer.children.length > 1) {
+      if (checkAvailabilityTimers[productRowId]) {
+        clearTimeout(checkAvailabilityTimers[productRowId]);
+        delete checkAvailabilityTimers[productRowId];
+      }
+      if (checkAvailabilityControllers[productRowId]) {
+        try { checkAvailabilityControllers[productRowId].abort(); } catch(e){}
+        delete checkAvailabilityControllers[productRowId];
+      }
+      delete checkAvailabilitySeq[productRowId];
       const row = document.getElementById(productRowId);
       row.remove();
     } else {
@@ -558,8 +569,20 @@
     
     const dateVal = block.querySelector('.date-picker-input').value;
     const inputEl = row.querySelector('.product-code-input');
-    const prodVal = inputEl.value.trim().toUpperCase();
+    const rawVal = inputEl.value.trim().toUpperCase();
+    const prodVal = rawVal.replace(/[^A-Z0-9]/g, '');
     const statusDiv = document.getElementById(`avail-status-${productRowId}`);
+
+    if (checkAvailabilityTimers[productRowId]) {
+      clearTimeout(checkAvailabilityTimers[productRowId]);
+      delete checkAvailabilityTimers[productRowId];
+    }
+    if (checkAvailabilityControllers[productRowId]) {
+      try { checkAvailabilityControllers[productRowId].abort(); } catch(e){}
+      delete checkAvailabilityControllers[productRowId];
+    }
+    const seq = (checkAvailabilitySeq[productRowId] || 0) + 1;
+    checkAvailabilitySeq[productRowId] = seq;
     
     if (!dateVal || !prodVal) {
       statusDiv.className = 'avail-indicator text-muted';
@@ -571,16 +594,20 @@
     statusDiv.className = 'avail-indicator checking text-secondary';
     statusDiv.innerHTML = '<div class="spinner-border spinner-border-sm text-secondary me-1" role="status"></div> Checking...';
     
-    if (checkAvailabilityTimers[productRowId]) {
-      clearTimeout(checkAvailabilityTimers[productRowId]);
-    }
-    
     checkAvailabilityTimers[productRowId] = setTimeout(() => {
+      delete checkAvailabilityTimers[productRowId];
+      const controller = new AbortController();
+      checkAvailabilityControllers[productRowId] = controller;
+
       const url = `/api/check-product?product_code=${encodeURIComponent(prodVal)}&date=${encodeURIComponent(dateVal)}`;
       
-      fetch(url)
+      fetch(url, { signal: controller.signal })
         .then(res => res.json())
         .then(res => {
+          if (checkAvailabilitySeq[productRowId] !== seq) return;
+          const currentClean = (inputEl.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+          if (currentClean !== prodVal) return;
+
           if (res.available) {
             statusDiv.className = 'avail-indicator available text-success';
             statusDiv.innerHTML = '<i class="bi bi-check-circle-fill"></i> Available';
@@ -588,17 +615,19 @@
             inputEl.classList.remove('input-check-invalid');
           } else {
             statusDiv.className = 'avail-indicator booked text-danger';
-            statusDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Booked by ${res.customer || 'Unknown'}`;
+            const reasonText = res.reason || (res.customer ? `Booked by ${res.customer}` : 'Unavailable');
+            statusDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${reasonText}`;
             inputEl.classList.add('input-check-invalid');
             inputEl.classList.remove('input-check-valid');
           }
         })
         .catch(err => {
-          console.error(err);
+          if (err.name === 'AbortError') return;
+          if (checkAvailabilitySeq[productRowId] !== seq) return;
           statusDiv.className = 'avail-indicator text-muted';
           statusDiv.innerHTML = 'Error checking';
         });
-    }, 400);
+    }, 350);
   }
 
   // Intercept form submit and post JSON payload to unified create endpoint
