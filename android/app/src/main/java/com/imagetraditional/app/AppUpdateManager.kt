@@ -36,7 +36,7 @@ class AppUpdateManager(private val activity: Activity) {
 
     companion object {
         private const val CHECK_INTERVAL_MS = 15 * 60 * 1000 // Check at most once every 15 minutes
-        private const val TIMEOUT_MS = 6000
+        private const val TIMEOUT_MS = 15000 // 15 seconds to safely accommodate cold starts
     }
 
     fun checkForUpdatesSilently(versionApiUrl: String) {
@@ -46,7 +46,6 @@ class AppUpdateManager(private val activity: Activity) {
         }
 
         isChecking = true
-        lastCheckTime = now
 
         thread(name = "AppUpdateChecker") {
             try {
@@ -60,6 +59,7 @@ class AppUpdateManager(private val activity: Activity) {
                 }
 
                 if (conn.responseCode == 200) {
+                    lastCheckTime = System.currentTimeMillis()
                     val responseText = conn.inputStream.bufferedReader().use { it.readText() }
                     val json = JSONObject(responseText)
                     val serverVersionCode = json.optLong("version_code", 0)
@@ -71,7 +71,8 @@ class AppUpdateManager(private val activity: Activity) {
                     // Resolve relative URLs to full base URL
                     if (downloadUrl.startsWith("/")) {
                         val base = Uri.parse(versionApiUrl)
-                        downloadUrl = "${base.scheme}://${base.host}$downloadUrl"
+                        val portPart = if (base.port != -1) ":${base.port}" else ""
+                        downloadUrl = "${base.scheme}://${base.host}$portPart$downloadUrl"
                     }
 
                     val currentVersionCode = getCurrentVersionCode(activity)
@@ -241,6 +242,7 @@ class AppUpdateManager(private val activity: Activity) {
                     data = Uri.parse("package:${activity.packageName}")
                 }
                 activity.startActivity(settingsIntent)
+                return
             }
         }
 
