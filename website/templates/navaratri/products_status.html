@@ -1431,7 +1431,7 @@ body {
             <!-- Bookings List Section -->
             <div class="section-subtitle-bar">
                 <div>
-                    <h3>📅 Costume Booking History</h3>
+                    <h3>📅 Current Cycle Bookings <span id="profCycleTitleBadge" style="font-size: 0.8rem; font-weight: 700; color: #f3d068; background: rgba(212,175,55,0.18); border: 1px solid rgba(212,175,55,0.35); padding: 2px 8px; border-radius: 6px; margin-left: 6px;"></span></h3>
                     <p>Click on any booking below to view customer profile</p>
                 </div>
                 <span class="badge-count" id="profBookingCountBadge" style="font-size: 0.88rem; padding: 4px 12px;"></span>
@@ -1921,6 +1921,11 @@ function renderProductProfile(data) {
     document.getElementById("profTotalBookingsBadge").innerText = totalCountText;
     document.getElementById("profBookingCountBadge").innerText = totalCountText;
 
+    const cycleBadgeEl = document.getElementById("profCycleTitleBadge");
+    if (cycleBadgeEl) {
+        cycleBadgeEl.innerText = data.cycle_name || 'Active Cycle';
+    }
+
     // Action button inside hero
     const actionRow = document.getElementById("profActionRow");
     if (p.on_rent) {
@@ -1940,10 +1945,11 @@ function renderProductProfile(data) {
     // Bookings list
     const listContainer = document.getElementById("profBookingsList");
     if (bookings.length === 0) {
+        const cycleDisplayName = data.cycle_name || 'the current cycle';
         listContainer.innerHTML = `
             <div class="empty-bookings-box">
                 <i class="bi bi-calendar2-check"></i>
-                <p>✨ No bookings recorded for <strong>${p.code}</strong> in the database.</p>
+                <p>✨ No bookings recorded for <strong>${p.code}</strong> in <strong>${escapeHtml(cycleDisplayName)}</strong>.</p>
                 <div style="font-size:0.85rem; color:#8da2bb; margin-top:4px;">This costume is currently unreserved and available for bookings.</div>
             </div>
         `;

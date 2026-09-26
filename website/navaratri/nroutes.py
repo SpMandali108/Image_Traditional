@@ -3701,33 +3701,17 @@ def api_navaratri_product_profile(product_code):
     except Exception:
         pass
 
-    # Bookings search across selected cycle and other cycles
+    # Bookings search across ONLY the current selected cycle
     selected_cycle = get_selected_cycle()
-    selected_cycle_id = str(selected_cycle.get("_id", "")) if selected_cycle else ""
+    selected_cycle_name = selected_cycle.get("name", "Current Cycle") if selected_cycle else "Current Cycle"
+    selected_cname = selected_cycle.get("collection_name") if selected_cycle else None
 
     bookings = []
-    cycles_to_search = []
-    if selected_cycle:
-        cycles_to_search.append(selected_cycle)
-
-    try:
-        all_cycles = get_all_cycles()
-        for cyc in all_cycles:
-            if str(cyc.get("_id")) != selected_cycle_id:
-                cycles_to_search.append(cyc)
-    except Exception:
-        pass
-
     existing_collections = set(db.list_collection_names())
 
-    for cyc in cycles_to_search:
-        cname = cyc.get("collection_name")
-        if not cname or cname not in existing_collections:
-            continue
-        is_current = (str(cyc.get("_id")) == selected_cycle_id)
-        cycle_title = cyc.get("name", "Cycle")
+    if selected_cname and selected_cname in existing_collections:
         try:
-            for doc in db[cname].find():
+            for doc in db[selected_cname].find():
                 cust_bookings = doc.get("bookings", {})
                 if not isinstance(cust_bookings, dict):
                     continue
@@ -3737,8 +3721,8 @@ def api_navaratri_product_profile(product_code):
                         given_p = doc.get("given_price", 0) or 0
                         bookings.append({
                             "date": d_str,
-                            "cycle_name": cycle_title,
-                            "is_current_cycle": is_current,
+                            "cycle_name": selected_cycle_name,
+                            "is_current_cycle": True,
                             "customer_id": str(doc.get("_id", "")),
                             "customer_name": doc.get("Name") or "Unnamed Customer",
                             "customer_mobile": doc.get("mobile") or "",
@@ -3752,16 +3736,16 @@ def api_navaratri_product_profile(product_code):
                             "all_customer_bookings": cust_bookings
                         })
         except Exception as e:
-            current_app.logger.error(f"Error scanning bookings for product {code_clean} in {cname}: {e}")
+            current_app.logger.error(f"Error scanning bookings for product {code_clean} in {selected_cname}: {e}")
 
     def sort_key(b):
         d_str = b.get("date", "")
         for fmt in ("%d-%m-%y", "%d-%m-%Y", "%Y-%m-%d"):
             try:
-                return (0 if b.get("is_current_cycle") else 1, datetime.strptime(d_str, fmt))
+                return datetime.strptime(d_str, fmt)
             except ValueError:
                 pass
-        return (0 if b.get("is_current_cycle") else 1, datetime.min)
+        return datetime.min
 
     bookings.sort(key=sort_key)
 
@@ -3776,6 +3760,7 @@ def api_navaratri_product_profile(product_code):
             "sold_info": product.get("sold_info"),
             "storage": storage_info
         },
+        "cycle_name": selected_cycle_name,
         "bookings": bookings,
         "total_bookings": len(bookings)
     })
