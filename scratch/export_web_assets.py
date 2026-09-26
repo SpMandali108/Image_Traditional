@@ -93,12 +93,17 @@ def build_web_assets():
         src_path = os.path.join(static_src, folder)
         dst_path = os.path.join(static_dst, folder)
         if os.path.exists(src_path):
-            if not os.path.exists(dst_path):
-                print(f"Copying initial heavy folder {folder} to APK assets...")
-                shutil.copytree(src_path, dst_path)
-                print(f"[OK] Copied {folder}.")
-            else:
-                print(f"[OK] Preserved heavy asset folder: {folder}")
+            os.makedirs(dst_path, exist_ok=True)
+            for root, dirs, files in os.walk(src_path):
+                rel_root = os.path.relpath(root, src_path)
+                target_root = os.path.join(dst_path, rel_root)
+                os.makedirs(target_root, exist_ok=True)
+                for f in files:
+                    s_file = os.path.join(root, f)
+                    d_file = os.path.join(target_root, f)
+                    if not os.path.exists(d_file) or os.path.getsize(s_file) != os.path.getsize(d_file):
+                        shutil.copy2(s_file, d_file)
+            print(f"[OK] Synced updated/missing files for {folder}.")
 
     print("\n=== WEB ASSETS EXPORT COMPLETED SUCCESSFULLY! ===")
 
