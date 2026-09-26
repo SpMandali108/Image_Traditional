@@ -6,6 +6,7 @@ collection = LocalProxy(lambda: get_selected_collection())
 
 from datetime import datetime
 import re
+from website.general.utils import get_ist_now
 
 def normalize_product_code(code):
     """Normalize product code by stripping hyphens, spaces, and converting to uppercase."""
@@ -346,7 +347,7 @@ def get_all_navaratri_products():
     if navaratri_products.count_documents({}) == 0:
         sync_navaratri_products()
 
-    prods = list(navaratri_products.find({}, {"_id": 0, "code": 1, "image": 1, "on_rent": 1}))
+    prods = list(navaratri_products.find({}, {"_id": 0, "code": 1, "image": 1, "on_rent": 1, "sold_info": 1}))
     prods.sort(key=lambda x: natural_sort_key(x.get("code", "")))
     return prods
 
@@ -358,7 +359,7 @@ def verify_admin_password(password):
     expected = str(ADMIN_PASS).strip()
     return (entered == expected) or (entered == "212010")
 
-def sell_navaratri_product(code, password):
+def sell_navaratri_product(code, password, buyer_name=None, buyer_mobile=None, price=None, notes=None):
     """
     Marks a product as on_rent = False after verifying admin password.
     Returns (success: bool, message: str, status_code: int).
@@ -384,12 +385,23 @@ def sell_navaratri_product(code, password):
         return False, "This product is already marked as unavailable for rent.", 400
 
     try:
+        update_doc = {"on_rent": False}
+        if buyer_name or buyer_mobile or price or notes:
+            update_doc["sold_info"] = {
+                "buyer_name": str(buyer_name or "").strip(),
+                "buyer_mobile": str(buyer_mobile or "").strip(),
+                "price": str(price or "").strip(),
+                "notes": str(notes or "").strip(),
+                "sold_at": get_ist_now().strftime("%d/%m/%Y %H:%M:%S")
+            }
+
         navaratri_products.update_one(
             {"code": code_clean},
-            {"$set": {"on_rent": False}}
+            {"$set": update_doc}
         )
         try:
-            log_action("Admin", "", "product_sold", f"Marked costume '{code_clean}' as sold / removed from rent.")
+            extra = f" (Buyer: {buyer_name})" if buyer_name else ""
+            log_action("Admin", "", "product_sold", f"Marked costume '{code_clean}' as sold / removed from rent.{extra}")
         except Exception:
             pass
         return True, f"Product '{code_clean}' has been marked as sold and removed from rent.", 200
@@ -416,7 +428,7 @@ def restore_navaratri_product(code, password):
     try:
         navaratri_products.update_one(
             {"code": code_clean},
-            {"$set": {"on_rent": True}}
+            {"$set": {"on_rent": True}, "$unset": {"sold_info": ""}}
         )
         try:
             log_action("Admin", "", "product_restored", f"Restored costume '{code_clean}' back to available for rent.")

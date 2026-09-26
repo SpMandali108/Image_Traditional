@@ -234,9 +234,9 @@
       <p>Reserve products grouped by date. Real-time availability checks and costume photos load instantly.</p>
     </div>
     <div class="d-flex gap-2 align-items-center">
-      <button type="button" class="btn btn-outline-danger btn-sm fw-bold" onclick="document.getElementById('bookSellCode').scrollIntoView({behavior: 'smooth'}); document.getElementById('bookSellCode').focus();">
+      <a href="{{ url_for('navaratri.navaratri_sell') }}" class="btn btn-outline-danger btn-sm fw-bold">
         <i class="bi bi-tag-fill me-1"></i> Sell Form
-      </button>
+      </a>
       <a href="/admin" class="btn btn-outline-light btn-sm fw-bold">
         <i class="bi bi-arrow-left-short"></i> Back to Dashboard
       </a>
@@ -312,35 +312,6 @@
             <input type="text" id="cust-deposit" placeholder="e.g. Cash 2000" class="form-control">
           </div>
         </div>
-      </div>
-    </div>
-    
-    <!-- 4. Sell Costume Section (Sets on_rent = false) -->
-    <div class="premium-card" style="border: 1px solid rgba(220, 38, 38, 0.35); background: #fff5f5;">
-      <div class="card-header-premium d-flex justify-content-between align-items-center" style="background: #fee2e2; border-bottom: 1px solid rgba(220, 38, 38, 0.2);">
-        <h3 style="color: #b91c1c; margin: 0;"><i class="bi bi-tag-fill text-danger me-1"></i> Sell Costume Form (Mark Product as Sold)</h3>
-        <span class="badge bg-danger">Sets on_rent = false</span>
-      </div>
-      <div class="card-body-premium">
-        <p class="text-secondary fs-7 mb-3">
-          Sell a costume directly from this booking screen. Updating status sets <code>on_rent: false</code> in the database, removes it from customer catalogues, and prevents new rentals.
-        </p>
-        <div class="row g-2 align-items-end">
-          <div class="col-md-4 col-sm-6">
-            <label class="form-label fw-semibold fs-7 text-danger">Costume Code *</label>
-            <input type="text" id="bookSellCode" placeholder="e.g. C182, K10" class="form-control text-uppercase fw-bold" style="border-color: rgba(220,38,38,0.3);">
-          </div>
-          <div class="col-md-4 col-sm-6">
-            <label class="form-label fw-semibold fs-7 text-danger">Admin Password *</label>
-            <input type="password" id="bookSellPassword" placeholder="Admin password" class="form-control" style="border-color: rgba(220,38,38,0.3);">
-          </div>
-          <div class="col-md-4 col-12">
-            <button type="button" class="btn btn-danger w-100 fw-bold" id="bookSellBtn" onclick="submitBookSellForm()">
-              <i class="bi bi-tag-fill me-1"></i> Mark as Sold
-            </button>
-          </div>
-        </div>
-        <div id="bookSellFeedback" class="mt-2 d-none p-2 rounded fs-7 fw-bold"></div>
       </div>
     </div>
     
@@ -745,56 +716,6 @@
       document.getElementById("submitBtn").disabled = false;
       showToast("Connection error while submitting booking request.", "error");
     });
-  }
-
-  async function submitBookSellForm() {
-    const codeInp = document.getElementById('bookSellCode');
-    const passInp = document.getElementById('bookSellPassword');
-    const fb = document.getElementById('bookSellFeedback');
-    const btn = document.getElementById('bookSellBtn');
-
-    const code = (codeInp?.value || '').trim().toUpperCase();
-    const password = (passInp?.value || '').trim();
-
-    if (!code) {
-      showToast('Please enter a costume code.', 'error');
-      if (codeInp) codeInp.focus();
-      return;
-    }
-    if (!password) {
-      showToast('Please enter the admin password.', 'error');
-      if (passInp) passInp.focus();
-      return;
-    }
-
-    if (btn) btn.disabled = true;
-    fb.className = 'mt-2 p-2 rounded alert alert-info text-info d-block';
-    fb.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Setting on_rent: false in database...';
-
-    try {
-      const res = await fetch('/api/navaratri/sell-product', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: code, password: password })
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        fb.className = 'mt-2 p-2 rounded alert alert-success text-success d-block';
-        fb.innerHTML = `✅ Product <b>${code}</b> is now SOLD! Database product status updated to <code>on_rent: false</code> and removed from customer catalogue.`;
-        if (codeInp) codeInp.value = '';
-        if (passInp) passInp.value = '';
-        showToast(`Product ${code} marked as SOLD (on_rent: false).`, 'success');
-      } else {
-        fb.className = 'mt-2 p-2 rounded alert alert-danger text-danger d-block';
-        fb.innerHTML = `❌ ${data.message || 'Incorrect password or failed to sell.'}`;
-        showToast(data.message || 'Failed to mark as sold.', 'error');
-      }
-    } catch (err) {
-      fb.className = 'mt-2 p-2 rounded alert alert-danger text-danger d-block';
-      fb.innerHTML = `❌ Error: ${err.message}`;
-    } finally {
-      if (btn) btn.disabled = false;
-    }
   }
 </script>
 {% endblock %}

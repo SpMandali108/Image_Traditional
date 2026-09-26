@@ -1,0 +1,1007 @@
+{% extends "general/base.html" %}
+{% block title %}Sell Costume Form | Image Traditional{% endblock %}
+
+{% block logo_link %}
+<a href="/navaratri_admin" class="logo">
+    <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Image Traditional Logo">
+    <span class="logo-text">Image Traditional</span>
+</a>
+{% endblock %}
+
+{% block robots %}
+<meta name="robots" content="noindex, nofollow" />
+{% endblock %}
+
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap');
+
+:root {
+    --navy-bg:      #0a1628;
+    --surface-bg:   #0f1e32;
+    --card-bg:      #111f33;
+    --card-hover:   #152540;
+    --gold:         #d4af37;
+    --gold-lt:      #f5d580;
+    --gold-dk:      #b8961e;
+    --gold-bg:      rgba(212, 175, 55, 0.08);
+    --gold-bd:      rgba(212, 175, 55, 0.25);
+    --gold-bd-h:    rgba(212, 175, 55, 0.5);
+    --white:        #f8fafc;
+    --text:         #b8c5d4;
+    --muted:        #64748b;
+    --danger:       #ef4444;
+    --danger-bg:    rgba(239, 68, 68, 0.12);
+    --danger-bd:    rgba(239, 68, 68, 0.35);
+    --success:      #10b981;
+    --success-bg:   rgba(16, 185, 129, 0.12);
+    --success-bd:   rgba(16, 185, 129, 0.35);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+}
+
+body {
+    background-color: var(--navy-bg) !important;
+    color: var(--text) !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+}
+
+.sell-container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 24px 16px 80px 16px;
+}
+
+/* ── TOP NAV BAR ── */
+.top-nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: 16px;
+    padding: 16px 22px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.nav-title-group h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--white);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.nav-title-group h1 span { color: var(--gold); }
+.nav-title-group p {
+    margin: 4px 0 0 0;
+    font-size: 0.84rem;
+    color: var(--muted);
+}
+
+.nav-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-nav:hover {
+    background: rgba(212, 175, 55, 0.15);
+    border-color: var(--gold-bd);
+    color: var(--gold-lt);
+    transform: translateY(-1px);
+}
+.btn-nav-primary {
+    background: linear-gradient(135deg, var(--gold-dk) 0%, var(--gold) 100%);
+    border-color: var(--gold);
+    color: #060c17 !important;
+    font-weight: 700;
+}
+.btn-nav-primary:hover {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-lt) 100%);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
+}
+
+/* ── STATS ROW ── */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--surface-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.stat-card .stat-label {
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    font-weight: 700;
+}
+.stat-card .stat-value {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.1;
+}
+.stat-available { border-left: 4px solid var(--success); }
+.stat-sold { border-left: 4px solid var(--danger); }
+.stat-total { border-left: 4px solid var(--gold); }
+
+/* ── MAIN 2-COLUMN GRID ── */
+.sell-layout {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 24px;
+    align-items: start;
+}
+@media (max-width: 991px) {
+    .sell-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── FORM CARD ── */
+.form-card {
+    background: var(--surface-bg);
+    border: 1px solid var(--danger-bd);
+    border-radius: 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+}
+
+.form-card-header {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(212, 175, 55, 0.08) 100%);
+    border-bottom: 1px solid var(--danger-bd);
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.form-card-header h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fca5a5;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.badge-danger-tag {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fecaca;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.form-card-body {
+    padding: 24px;
+}
+
+.info-banner {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 22px;
+    font-size: 0.83rem;
+    color: #cbd5e1;
+    line-height: 1.45;
+}
+.info-banner strong { color: #fca5a5; }
+
+.form-group {
+    margin-bottom: 18px;
+}
+.form-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 6px;
+}
+.form-label .req { color: var(--danger); }
+.form-label .opt { color: var(--muted); font-size: 0.75rem; font-weight: 400; }
+
+.form-control-custom {
+    width: 100%;
+    background: #060c17;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    color: var(--white);
+    padding: 11px 14px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+.form-control-custom:focus {
+    outline: none;
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    background: #091322;
+}
+
+.input-code-group {
+    display: flex;
+    gap: 10px;
+}
+.input-code-group input {
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    font-size: 1.1rem;
+    color: #fff;
+}
+.btn-check-code {
+    padding: 0 18px;
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid var(--gold-bd);
+    border-radius: 10px;
+    color: var(--gold-lt);
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+.btn-check-code:hover {
+    background: rgba(212, 175, 55, 0.3);
+    color: #fff;
+}
+
+/* ── PREVIEW CARD ── */
+.preview-card {
+    background: #081220;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.2s ease;
+}
+.preview-thumb {
+    width: 80px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--gold-bd);
+    background: #000;
+    flex-shrink: 0;
+}
+.preview-details {
+    flex-grow: 1;
+    min-width: 0;
+}
+.preview-code-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--white);
+    margin: 0 0 4px 0;
+}
+.preview-cat {
+    font-size: 0.82rem;
+    color: var(--text);
+    margin-bottom: 6px;
+}
+.preview-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.badge-available {
+    background: var(--success-bg);
+    border: 1px solid var(--success-bd);
+    color: #6ee7b7;
+}
+.badge-sold {
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-bd);
+    color: #fca5a5;
+}
+
+/* ── PASSWORD TOGGLE ── */
+.password-wrap {
+    position: relative;
+}
+.btn-toggle-pw {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 4px 8px;
+}
+.btn-toggle-pw:hover { color: var(--white); }
+
+/* ── SUBMIT BUTTON ── */
+.btn-submit-sell {
+    width: 100%;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.35);
+    transition: all 0.2s ease;
+}
+.btn-submit-sell:hover {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.5);
+    transform: translateY(-1px);
+}
+.btn-submit-sell:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ── FEEDBACK ALERTS ── */
+.alert-feedback {
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 18px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    display: none;
+    line-height: 1.45;
+}
+.alert-feedback.alert-success {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #6ee7b7;
+}
+.alert-feedback.alert-danger {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+.alert-feedback.alert-info {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    color: #93c5fd;
+}
+
+/* ── SIDE PANEL (SOLD COSTUMES) ── */
+.side-card {
+    background: var(--surface-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+}
+.side-card-header {
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.side-card-header h3 {
+    font-size: 1.05rem;
+    color: var(--white);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.side-search-box {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+.sold-list {
+    max-height: 540px;
+    overflow-y: auto;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.sold-item-card {
+    background: #081324;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+.sold-item-card:hover {
+    border-color: rgba(239, 68, 68, 0.5);
+    background: #0c1a30;
+}
+.sold-item-thumb {
+    width: 48px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--gold-bd);
+    background: #000;
+    flex-shrink: 0;
+}
+.sold-item-info {
+    flex-grow: 1;
+    min-width: 0;
+}
+.sold-item-code {
+    font-weight: 800;
+    color: #fff;
+    font-size: 0.95rem;
+}
+.sold-item-cat {
+    font-size: 0.74rem;
+    color: var(--muted);
+}
+.sold-item-meta {
+    font-size: 0.72rem;
+    color: #cbd5e1;
+    margin-top: 2px;
+}
+.btn-restore-item {
+    padding: 6px 12px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid var(--success-bd);
+    border-radius: 8px;
+    color: #6ee7b7;
+    font-size: 0.76rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+.btn-restore-item:hover {
+    background: var(--success);
+    color: #060c17;
+}
+
+/* ── MODAL FOR RESTORE ── */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(6, 12, 23, 0.85);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 16px;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+    background: var(--surface-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 420px;
+    padding: 24px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+}
+</style>
+
+<div class="sell-container">
+
+    <!-- Top Navigation Bar -->
+    <div class="top-nav-bar">
+        <div class="nav-title-group">
+            <h1>🏷️ Sell Costume <span>Form</span></h1>
+            <p>Dedicated management form to sell costumes and update database status (sets <code>on_rent: false</code>).</p>
+        </div>
+        <div class="nav-actions">
+            <a href="{{ url_for('navaratri.navaratri_booking') }}" class="btn-nav">
+                <i class="bi bi-arrow-left"></i> Booking Manager
+            </a>
+            <a href="/navaratri_products" class="btn-nav">
+                <i class="bi bi-table"></i> All Costumes Status
+            </a>
+            <a href="/navaratri_admin" class="btn-nav btn-nav-primary">
+                🪔 Navaratri Admin
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash Messages (if any) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category if category != 'error' else 'danger' }} mb-4" role="alert" style="border-radius: 12px; font-weight: 600;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card stat-total">
+            <span class="stat-label">Total Costumes</span>
+            <span class="stat-value" id="statTotalCount">{{ total_count }}</span>
+        </div>
+        <div class="stat-card stat-available">
+            <span class="stat-label">Active on Rent</span>
+            <span class="stat-value" id="statAvailCount" style="color: #6ee7b7;">{{ available_count }}</span>
+        </div>
+        <div class="stat-card stat-sold">
+            <span class="stat-label">Sold Costumes</span>
+            <span class="stat-value" id="statSoldCount" style="color: #fca5a5;">{{ sold_count }}</span>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="sell-layout">
+
+        <!-- LEFT COLUMN: DEDICATED SELL FORM -->
+        <div class="form-card">
+            <div class="form-card-header">
+                <h2><i class="bi bi-tag-fill text-danger"></i> Dedicated Costume Sell Form</h2>
+                <span class="badge-danger-tag">Sets on_rent = false</span>
+            </div>
+            <div class="form-card-body">
+
+                <div class="info-banner">
+                    <i class="bi bi-shield-lock-fill text-danger me-1"></i>
+                    Selling a costume marks <strong>on_rent: false</strong> in MongoDB, hides it from customer catalogues, and prevents new rental bookings. Admin password required.
+                </div>
+
+                <form id="standaloneSellForm" onsubmit="event.preventDefault(); submitDedicatedSell();">
+                    
+                    <!-- Costume Code Input -->
+                    <div class="form-group">
+                        <label class="form-label" for="sellCostumeCode">
+                            Costume Code <span class="req">*</span>
+                        </label>
+                        <div class="input-code-group">
+                            <input type="text" 
+                                   id="sellCostumeCode" 
+                                   name="code" 
+                                   value="{{ prefill_code }}" 
+                                   placeholder="e.g. C182 or K10" 
+                                   list="costumeDatalist"
+                                   class="form-control-custom" 
+                                   required 
+                                   autocomplete="off"
+                                   oninput="handleCodeInput(this.value)">
+                            <button type="button" class="btn-check-code" onclick="checkCurrentCode()">
+                                <i class="bi bi-search me-1"></i> Verify
+                            </button>
+                        </div>
+                        <datalist id="costumeDatalist">
+                            {% for p in products %}
+                            <option value="{{ p.code }}">{{ p.code }} - {% if p.on_rent %}Available{% else %}Sold{% endif %}</option>
+                            {% endfor %}
+                        </datalist>
+                    </div>
+
+                    <!-- Costume Live Preview Box -->
+                    <div class="preview-card" id="previewCard" style="display: none;">
+                        <img src="" id="previewImg" class="preview-thumb" alt="Costume Preview">
+                        <div class="preview-details">
+                            <h4 class="preview-code-title" id="previewCodeTitle">--</h4>
+                            <div class="preview-cat" id="previewCat">--</div>
+                            <div id="previewStatusBadge" class="preview-status-badge">--</div>
+                        </div>
+                    </div>
+
+                    <!-- Sale Details (Optional Record Keeping) -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label" for="sellPrice">Selling Price (₹) <span class="opt">(Optional)</span></label>
+                            <input type="number" id="sellPrice" name="price" min="0" placeholder="e.g. 1500" class="form-control-custom">
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label" for="sellBuyerName">Buyer Name <span class="opt">(Optional)</span></label>
+                            <input type="text" id="sellBuyerName" name="buyer_name" placeholder="Customer full name" class="form-control-custom">
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label" for="sellBuyerMobile">Buyer Mobile <span class="opt">(Optional)</span></label>
+                            <input type="tel" id="sellBuyerMobile" name="buyer_mobile" maxlength="10" placeholder="10-digit mobile" class="form-control-custom">
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label" for="sellNotes">Sale Remarks <span class="opt">(Optional)</span></label>
+                            <input type="text" id="sellNotes" name="notes" placeholder="e.g. Sold out-of-rent" class="form-control-custom">
+                        </div>
+                    </div>
+
+                    <!-- Admin Password Input -->
+                    <div class="form-group mb-4">
+                        <label class="form-label" for="sellAdminPassword">
+                            Admin Password <span class="req">*</span>
+                        </label>
+                        <div class="password-wrap">
+                            <input type="password" 
+                                   id="sellAdminPassword" 
+                                   name="password" 
+                                   placeholder="Enter Admin Password" 
+                                   class="form-control-custom" 
+                                   required 
+                                   autocomplete="current-password">
+                            <button type="button" class="btn-toggle-pw" onclick="togglePasswordVisibility('sellAdminPassword', this)">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="btnSubmitSell" class="btn-submit-sell">
+                        <i class="bi bi-tag-fill"></i> Confirm &amp; Mark as Sold (on_rent: false)
+                    </button>
+
+                    <!-- Feedback Alert -->
+                    <div id="sellAlertFeedback" class="alert-feedback"></div>
+
+                </form>
+
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: SOLD COSTUMES SUMMARY & QUICK RESTORE -->
+        <div class="side-card">
+            <div class="side-card-header">
+                <h3><i class="bi bi-box-seam text-danger"></i> Sold Costumes</h3>
+                <span class="badge" style="background: rgba(239,68,68,0.2); color:#fca5a5; font-weight:700;" id="soldListCountBadge">
+                    {{ sold_products|length }}
+                </span>
+            </div>
+
+            <div class="side-search-box">
+                <input type="text" 
+                       id="searchSoldInput" 
+                       placeholder="Filter sold costumes..." 
+                       class="form-control-custom" 
+                       style="padding: 8px 12px; font-size: 0.85rem;"
+                       oninput="filterSoldList(this.value)">
+            </div>
+
+            <div class="sold-list" id="soldListContainer">
+                {% if sold_products %}
+                    {% for sp in sold_products %}
+                    {% set is_c = sp.code.startswith('C') %}
+                    {% set cat_name = 'Choli' if is_c else 'Kediya' %}
+                    {% set jpg_dir = 'CholiJpg' if is_c else 'KediyaJpg' %}
+                    <div class="sold-item-card" data-code="{{ sp.code }}">
+                        <img src="/static/{{ jpg_dir }}/{{ sp.code }}.jpg" 
+                             class="sold-item-thumb" 
+                             alt="{{ sp.code }}"
+                             onerror="this.onerror=null; this.src='/static/{{ cat_name }}/{{ sp.image }}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
+                        <div class="sold-item-info">
+                            <div class="sold-item-code">{{ sp.code }}</div>
+                            <div class="sold-item-cat">{{ cat_name }}</div>
+                            {% if sp.sold_info %}
+                                <div class="sold-item-meta">
+                                    {% if sp.sold_info.buyer_name %}👤 {{ sp.sold_info.buyer_name }}{% endif %}
+                                    {% if sp.sold_info.price %} • ₹{{ sp.sold_info.price }}{% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <button type="button" class="btn-restore-item" onclick="openRestorePrompt('{{ sp.code }}')">
+                            🔄 Restore
+                        </button>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div id="noSoldNotice" class="text-center py-4" style="color: var(--muted); font-size: 0.85rem;">
+                        No sold costumes right now. All outfits are available for rent!
+                    </div>
+                {% endif %}
+            </div>
+
+            <div style="padding: 12px 18px; border-top: 1px solid var(--border-subtle); text-align: center;">
+                <a href="/navaratri_products" style="color: var(--gold-lt); font-size: 0.82rem; text-decoration: none; font-weight: 600;">
+                    View Full Inventory Table with Filters →
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- RESTORE PASSWORD PROMPT MODAL -->
+<div class="modal-overlay" id="restoreModal">
+    <div class="modal-box">
+        <h4 style="color: var(--white); font-weight: 700; margin-bottom: 8px;">
+            🔄 Restore Costume to Rent
+        </h4>
+        <p style="color: var(--text); font-size: 0.85rem; margin-bottom: 16px;">
+            Enter admin password to restore costume <strong id="restoreTargetCode" style="color: var(--gold-lt);"></strong> back to active rental status (<code>on_rent: true</code>).
+        </p>
+        <div class="mb-3">
+            <input type="password" id="restorePassword" placeholder="Admin Password" class="form-control-custom">
+        </div>
+        <div id="restoreFeedback" class="mb-3 d-none p-2 rounded" style="font-size: 0.82rem; font-weight: 600;"></div>
+        <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn-nav" onclick="closeRestoreModal()">Cancel</button>
+            <button type="button" class="btn-nav btn-nav-primary" id="btnConfirmRestore" onclick="executeRestore()">
+                Confirm Restore
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let lookupTimer = null;
+let restoreTargetCode = '';
+
+function togglePasswordVisibility(fieldId, btn) {
+    const inp = document.getElementById(fieldId);
+    if (!inp) return;
+    if (inp.type === 'password') {
+        inp.type = 'text';
+        btn.textContent = '🔒';
+    } else {
+        inp.type = 'password';
+        btn.textContent = '👁️';
+    }
+}
+
+function handleCodeInput(val) {
+    clearTimeout(lookupTimer);
+    const code = (val || '').trim().toUpperCase();
+    if (code.length >= 2) {
+        lookupTimer = setTimeout(() => fetchCostumeDetails(code), 350);
+    } else {
+        document.getElementById('previewCard').style.display = 'none';
+    }
+}
+
+function checkCurrentCode() {
+    const code = (document.getElementById('sellCostumeCode')?.value || '').trim().toUpperCase();
+    if (!code) {
+        showFeedback('Please enter a costume code first.', 'danger');
+        return;
+    }
+    fetchCostumeDetails(code);
+}
+
+async function fetchCostumeDetails(code) {
+    try {
+        const res = await fetch(`/api/navaratri/product-info/${encodeURIComponent(code)}`);
+        const data = await res.json();
+        
+        const previewCard = document.getElementById('previewCard');
+        const previewImg = document.getElementById('previewImg');
+        const previewCodeTitle = document.getElementById('previewCodeTitle');
+        const previewCat = document.getElementById('previewCat');
+        const previewStatusBadge = document.getElementById('previewStatusBadge');
+
+        if (res.ok && data.success && data.found) {
+            previewCard.style.display = 'flex';
+            previewCodeTitle.textContent = data.code;
+            previewCat.textContent = data.category === 'Choli' ? '👗 Chaniya Choli' : '🕺 Traditional Kediya';
+            
+            previewImg.src = data.thumb_url;
+            previewImg.onerror = function() {
+                this.onerror = null;
+                this.src = data.orig_url;
+                this.onerror = function() { this.src = '/static/Home_Img/favicon.png'; };
+            };
+
+            if (data.on_rent) {
+                previewStatusBadge.className = 'preview-status-badge badge-available';
+                previewStatusBadge.innerHTML = '● Available on Rent';
+            } else {
+                previewStatusBadge.className = 'preview-status-badge badge-sold';
+                previewStatusBadge.innerHTML = '● Already Marked as Sold';
+            }
+        } else {
+            previewCard.style.display = 'flex';
+            previewCodeTitle.textContent = code;
+            previewCat.textContent = 'Not found in catalogue';
+            previewImg.src = '/static/Home_Img/favicon.png';
+            previewStatusBadge.className = 'preview-status-badge badge-sold';
+            previewStatusBadge.innerHTML = '⚠️ Unrecognized Code';
+        }
+    } catch (e) {
+        console.error('Error fetching costume info:', e);
+    }
+}
+
+async function submitDedicatedSell() {
+    const codeInp = document.getElementById('sellCostumeCode');
+    const passInp = document.getElementById('sellAdminPassword');
+    const priceInp = document.getElementById('sellPrice');
+    const buyerInp = document.getElementById('sellBuyerName');
+    const mobileInp = document.getElementById('sellBuyerMobile');
+    const notesInp = document.getElementById('sellNotes');
+    const btn = document.getElementById('btnSubmitSell');
+
+    const code = (codeInp?.value || '').trim().toUpperCase();
+    const password = (passInp?.value || '').trim();
+    const price = (priceInp?.value || '').trim();
+    const buyer_name = (buyerInp?.value || '').trim();
+    const buyer_mobile = (mobileInp?.value || '').trim();
+    const notes = (notesInp?.value || '').trim();
+
+    if (!code) {
+        showFeedback('Please enter a costume code (e.g. C182 or K10).', 'danger');
+        codeInp.focus();
+        return;
+    }
+    if (!password) {
+        showFeedback('Please enter the admin password.', 'danger');
+        passInp.focus();
+        return;
+    }
+
+    btn.disabled = true;
+    showFeedback('<span class="spinner-border spinner-border-sm me-1"></span> Processing sale and setting on_rent: false...', 'info');
+
+    try {
+        const res = await fetch('/api/navaratri/sell-product', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                code: code,
+                password: password,
+                buyer_name: buyer_name,
+                buyer_mobile: buyer_mobile,
+                price: price,
+                notes: notes
+            })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+            showFeedback(`✅ <b>Success!</b> Costume <b>${code}</b> is now SOLD. Database status set to <code>on_rent: false</code> and removed from customer catalogues.`, 'success');
+            
+            // Clear inputs
+            codeInp.value = '';
+            passInp.value = '';
+            if (priceInp) priceInp.value = '';
+            if (buyerInp) buyerInp.value = '';
+            if (mobileInp) mobileInp.value = '';
+            if (notesInp) notesInp.value = '';
+            document.getElementById('previewCard').style.display = 'none';
+
+            // Refresh sold list and counters without reload
+            setTimeout(() => {
+                window.location.reload();
+            }, 1200);
+        } else {
+            showFeedback(`❌ <b>Failed:</b> ${data.message || 'Incorrect password or costume not found.'}`, 'danger');
+        }
+    } catch (err) {
+        showFeedback(`❌ <b>Error:</b> ${err.message}`, 'danger');
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+function showFeedback(msg, type) {
+    const el = document.getElementById('sellAlertFeedback');
+    if (!el) return;
+    el.style.display = 'block';
+    el.className = `alert-feedback alert-${type}`;
+    el.innerHTML = msg;
+}
+
+// ── RESTORE SYSTEM ──
+function openRestorePrompt(code) {
+    restoreTargetCode = code;
+    document.getElementById('restoreTargetCode').textContent = code;
+    document.getElementById('restorePassword').value = '';
+    const fb = document.getElementById('restoreFeedback');
+    fb.classList.add('d-none');
+    document.getElementById('restoreModal').classList.add('active');
+    setTimeout(() => document.getElementById('restorePassword').focus(), 200);
+}
+
+function closeRestoreModal() {
+    document.getElementById('restoreModal').classList.remove('active');
+}
+
+async function executeRestore() {
+    const pw = (document.getElementById('restorePassword')?.value || '').trim();
+    const fb = document.getElementById('restoreFeedback');
+    const btn = document.getElementById('btnConfirmRestore');
+
+    if (!pw) {
+        fb.className = 'mb-3 p-2 rounded alert alert-danger text-danger d-block';
+        fb.innerHTML = 'Please enter admin password.';
+        return;
+    }
+
+    btn.disabled = true;
+    fb.className = 'mb-3 p-2 rounded alert alert-info text-info d-block';
+    fb.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Restoring costume...';
+
+    try {
+        const res = await fetch('/api/navaratri/restore-product', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: restoreTargetCode, password: pw })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+            fb.className = 'mb-3 p-2 rounded alert alert-success text-success d-block';
+            fb.innerHTML = `✅ ${data.message}`;
+            setTimeout(() => {
+                closeRestoreModal();
+                window.location.reload();
+            }, 800);
+        } else {
+            fb.className = 'mb-3 p-2 rounded alert alert-danger text-danger d-block';
+            fb.innerHTML = `❌ ${data.message || 'Incorrect password.'}`;
+        }
+    } catch (e) {
+        fb.className = 'mb-3 p-2 rounded alert alert-danger text-danger d-block';
+        fb.innerHTML = `❌ Error: ${e.message}`;
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+function filterSoldList(term) {
+    const q = (term || '').trim().toUpperCase();
+    const items = document.querySelectorAll('.sold-item-card');
+    items.forEach(el => {
+        const code = el.getAttribute('data-code') || '';
+        el.style.display = (!q || code.includes(q)) ? 'flex' : 'none';
+    });
+}
+
+// Auto-check if prefilled code is present on load
+document.addEventListener('DOMContentLoaded', () => {
+    const code = (document.getElementById('sellCostumeCode')?.value || '').trim();
+    if (code) {
+        fetchCostumeDetails(code);
+    }
+});
+</script>
+{% endblock %}

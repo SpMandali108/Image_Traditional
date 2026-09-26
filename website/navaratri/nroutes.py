@@ -3634,6 +3634,91 @@ def api_verify_navaratri_password():
         return jsonify({"success": True, "message": "Password verified."})
     return jsonify({"success": False, "message": "Incorrect password."}), 401
 
+@navaratri.route("/sell_product", methods=["GET", "POST"])
+@navaratri.route("/sell_costume", methods=["GET", "POST"])
+@navaratri.route("/navaratri_sell", methods=["GET", "POST"])
+def navaratri_sell():
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    if request.method == "POST":
+        data = request.get_json(silent=True) if request.is_json else request.form
+        code = str(data.get("code") or "").strip().upper()
+        password = str(data.get("password") or "").strip()
+        buyer_name = str(data.get("buyer_name") or "").strip() or None
+        buyer_mobile = str(data.get("buyer_mobile") or "").strip() or None
+        price = str(data.get("price") or "").strip() or None
+        notes = str(data.get("notes") or "").strip() or None
+
+        success, message, status_code = sell_navaratri_product(
+            code, password, buyer_name=buyer_name, buyer_mobile=buyer_mobile, price=price, notes=notes
+        )
+
+        if request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({"success": success, "message": message}), status_code
+
+        if success:
+            flash(f"✅ {message}", "success")
+        else:
+            flash(f"❌ {message}", "danger")
+        return redirect(url_for('navaratri.navaratri_sell'))
+
+    products_list = get_all_navaratri_products()
+    total_count = len(products_list)
+    available_count = sum(1 for p in products_list if p.get('on_rent', True))
+    sold_products = [p for p in products_list if not p.get('on_rent', True)]
+    sold_count = len(sold_products)
+    prefill_code = request.args.get('code', '').strip().upper()
+
+    return render_template(
+        "navaratri/sell_costume.html",
+        products=products_list,
+        total_count=total_count,
+        available_count=available_count,
+        sold_count=sold_count,
+        sold_products=sold_products,
+        prefill_code=prefill_code
+    )
+
+
+@navaratri.route("/api/navaratri/product-info/<code>", methods=["GET"])
+def api_navaratri_product_info(code):
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    code_clean = str(code or "").strip().upper()
+    if not code_clean:
+        return jsonify({"success": False, "message": "Product code is required."}), 400
+
+    product = get_navaratri_product(code_clean)
+    if not product:
+        sync_navaratri_products()
+        product = get_navaratri_product(code_clean)
+
+    if not product:
+        return jsonify({"success": False, "found": False, "message": f"Costume '{code_clean}' not found in database."}), 404
+
+    is_choli = code_clean.startswith('C')
+    category = "Choli" if is_choli else "Kediya"
+    image_filename = product.get("image") or f"{code_clean}.webp"
+
+    jpg_folder = "CholiJpg" if is_choli else "KediyaJpg"
+    thumb_url = f"/static/{jpg_folder}/{code_clean}.jpg"
+    orig_url = f"/static/{category}/{image_filename}"
+
+    return jsonify({
+        "success": True,
+        "found": True,
+        "code": code_clean,
+        "category": category,
+        "image": image_filename,
+        "thumb_url": thumb_url,
+        "orig_url": orig_url,
+        "on_rent": product.get("on_rent", True),
+        "sold_info": product.get("sold_info")
+    })
+
+
 @navaratri.route("/api/navaratri/sell-product", methods=["POST"])
 def api_sell_navaratri_product():
     if not session.get('logged_in'):
@@ -3642,8 +3727,14 @@ def api_sell_navaratri_product():
     data = request.get_json() or {}
     code = str(data.get("code") or "").strip().upper()
     password = str(data.get("password") or "").strip()
+    buyer_name = str(data.get("buyer_name") or "").strip() or None
+    buyer_mobile = str(data.get("buyer_mobile") or "").strip() or None
+    price = str(data.get("price") or "").strip() or None
+    notes = str(data.get("notes") or "").strip() or None
 
-    success, message, status_code = sell_navaratri_product(code, password)
+    success, message, status_code = sell_navaratri_product(
+        code, password, buyer_name=buyer_name, buyer_mobile=buyer_mobile, price=price, notes=notes
+    )
     return jsonify({"success": success, "message": message}), status_code
 
 @navaratri.route("/api/navaratri/restore-product", methods=["POST"])
