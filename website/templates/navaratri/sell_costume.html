@@ -35,9 +35,9 @@
   --gold-light:     #f3d068;
   --gold-glow:      rgba(201, 162, 39, 0.2);
   
-  --text-main:      #f8fafc;
-  --text-body:      #cbd5e1;
-  --text-muted:     #8899ad;
+  --text-main:      #ffffff;
+  --text-body:      #e2e8f0;
+  --text-muted:     #a3b8cc;
   
   --color-success:  #10b981;
   --color-danger:   #ef4444;
@@ -129,11 +129,42 @@ body {
   gap: 28px;
   align-items: start;
 }
-@media (max-width: 1100px) {
+@media (max-width: 1199.98px) {
   .pos-layout {
     grid-template-columns: 1fr;
     padding: 0 20px 50px;
     gap: 24px;
+  }
+  .form-label {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    margin-bottom: 8px !important;
+  }
+  .pos-input, .form-control {
+    font-size: 1.02rem !important;
+    min-height: 50px !important;
+    background-color: #081220 !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
+  }
+  .pos-input::placeholder, .form-control::placeholder {
+    color: #9cb3ce !important;
+    opacity: 1 !important;
+  }
+  .code-entry-input {
+    min-height: 50px !important;
+    font-size: 1.2rem !important;
+  }
+  .btn-add-code {
+    min-height: 50px !important;
+    font-size: 1rem !important;
+  }
+  .selected-item-row {
+    padding: 14px 18px !important;
+  }
+  .btn-generate-bill {
+    height: 58px !important;
+    font-size: 1.18rem !important;
   }
 }
 
@@ -151,64 +182,64 @@ body {
 }
 .pos-card-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.12rem;
-  font-weight: 700;
-  color: var(--text-main);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #ffffff;
   margin: 0 0 18px 0;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 .pos-card-title i {
-  color: var(--gold-primary);
-  font-size: 1.15rem;
+  color: var(--gold-light);
+  font-size: 1.25rem;
 }
 
 /* ─── FORM LABELS & INPUTS ──────────────────────────────────────────── */
 .form-label {
   display: block;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #e2e8f0;
-  margin-bottom: 7px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff !important;
+  margin-bottom: 8px;
 }
 .form-label .req {
   color: var(--color-danger);
   margin-left: 2px;
 }
 .form-label .opt {
-  color: var(--text-muted);
-  font-weight: 400;
-  font-size: 0.78rem;
+  color: #cbd5e1;
+  font-weight: 500;
+  font-size: 0.85rem;
   margin-left: 4px;
 }
 
 .pos-input, .form-control {
   width: 100%;
-  height: 44px;
-  background: var(--bg-input);
-  border: 1px solid var(--border-subtle);
+  min-height: 48px;
+  background: #081220;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
   border-radius: var(--r-input);
-  color: var(--text-main);
+  color: #ffffff !important;
   padding: 10px 14px;
-  font-size: 0.92rem;
+  font-size: 0.98rem;
   font-family: inherit;
   transition: all 0.15s ease-in-out;
 }
 textarea.pos-input, textarea.form-control {
-  height: auto;
-  min-height: 80px;
+  min-height: 88px;
   resize: vertical;
 }
 .pos-input:focus, .form-control:focus {
-  background: var(--bg-input);
-  border-color: var(--gold-primary);
-  color: var(--text-main);
+  background: #081220;
+  border-color: var(--gold-light);
+  color: #ffffff !important;
   box-shadow: 0 0 0 3px var(--gold-glow);
   outline: none;
 }
 .pos-input::placeholder, .form-control::placeholder {
-  color: var(--text-muted);
+  color: #8da2bb !important;
+  opacity: 1;
 }
 
 /* ─── CODE SEARCH & SELECTION ───────────────────────────────────────── */
@@ -219,17 +250,19 @@ textarea.pos-input, textarea.form-control {
 }
 .code-entry-input {
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.05em;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
+  min-height: 48px;
   color: var(--gold-light) !important;
 }
 
 .btn-add-code {
   background: var(--gold-primary);
   color: #060c17;
-  font-weight: 700;
-  font-size: 0.9rem;
+  font-weight: 800;
+  font-size: 0.95rem;
+  min-height: 48px;
   border: none;
   border-radius: var(--r-input);
   padding: 0 24px;
@@ -288,18 +321,19 @@ textarea.pos-input, textarea.form-control {
 }
 .selected-item-code {
   font-weight: 800;
-  font-size: 1rem;
-  color: var(--text-main);
+  font-size: 1.05rem;
+  color: #ffffff;
   font-family: monospace;
 }
 .selected-item-category {
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   color: var(--gold-light);
-  font-weight: 600;
+  font-weight: 700;
 }
 .selected-item-badge {
-  font-size: 0.72rem;
-  color: var(--color-success);
+  font-size: 0.82rem;
+  color: #34d399;
+  font-weight: 700;
   margin-top: 2px;
   display: flex;
   align-items: center;
@@ -307,39 +341,41 @@ textarea.pos-input, textarea.form-control {
 }
 .btn-remove-item {
   background: transparent;
-  color: #94a3b8;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f87171;
+  border: 1.5px solid rgba(239, 68, 68, 0.4);
   border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 0.78rem;
-  font-weight: 600;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
 }
 .btn-remove-item:hover {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(239, 68, 68, 0.2);
   border-color: var(--color-danger);
   color: #ff9090;
 }
 
 /* Empty State */
 .empty-items-notice {
-  padding: 24px 16px;
+  padding: 26px 16px;
   text-align: center;
-  color: var(--text-muted);
+  color: #cbd5e1;
   border-radius: 12px;
-  background: rgba(8, 18, 32, 0.5);
+  background: rgba(8, 18, 32, 0.6);
+  border: 1.5px dashed rgba(255, 255, 255, 0.14);
   margin-top: 14px;
 }
 .empty-items-notice strong {
   display: block;
-  color: #e2e8f0;
-  font-size: 0.95rem;
+  color: #ffffff;
+  font-size: 1.05rem;
   margin-bottom: 4px;
 }
 .empty-items-notice span {
-  font-size: 0.82rem;
+  font-size: 0.88rem;
+  color: #a3b8cc;
 }
 
 /* ─── RIGHT SIDE BILLING PANEL (STICKY ON DESKTOP) ───────────────────── */
@@ -349,7 +385,7 @@ textarea.pos-input, textarea.form-control {
 }
 .billing-card {
   background: var(--bg-card);
-  border: 1px solid var(--border-gold);
+  border: 1.5px solid var(--border-gold);
   border-radius: var(--r-card);
   padding: 24px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
@@ -364,16 +400,16 @@ textarea.pos-input, textarea.form-control {
 }
 .billing-card-header h2 {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-main);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #ffffff;
   margin: 0;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 .billing-card-header h2 i {
-  color: var(--gold-primary);
+  color: var(--gold-light);
 }
 
 .billing-items-summary {
@@ -381,7 +417,7 @@ textarea.pos-input, textarea.form-control {
   border-radius: 10px;
   padding: 12px 14px;
   margin-bottom: 20px;
-  font-size: 0.84rem;
+  font-size: 0.9rem;
   max-height: 160px;
   overflow-y: auto;
 }
@@ -389,11 +425,12 @@ textarea.pos-input, textarea.form-control {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 0;
-  color: var(--text-body);
+  padding: 6px 0;
+  color: #ffffff;
+  font-weight: 600;
 }
 .billing-item-line:not(:last-child) {
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
 /* Financial Rows */
@@ -414,14 +451,14 @@ textarea.pos-input, textarea.form-control {
   margin-bottom: 0;
 }
 .price-label {
-  font-size: 0.88rem;
-  color: var(--text-muted);
-  font-weight: 500;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  font-weight: 600;
 }
 .price-val-large {
-  font-size: 1.55rem;
+  font-size: 1.8rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: var(--gold-light);
   font-family: 'Outfit', sans-serif;
 }
 .price-input-row {
@@ -430,7 +467,7 @@ textarea.pos-input, textarea.form-control {
 
 /* Remaining Balance Highlight */
 .balance-highlight-box {
-  background: rgba(6, 12, 23, 0.6);
+  background: rgba(6, 12, 23, 0.7);
   border: 1.5px solid var(--border-gold);
   border-radius: 12px;
   padding: 14px 18px;
@@ -440,27 +477,27 @@ textarea.pos-input, textarea.form-control {
   margin-bottom: 22px;
 }
 .balance-highlight-box.is-paid {
-  border-color: rgba(16, 185, 129, 0.5);
-  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.6);
+  background: rgba(16, 185, 129, 0.12);
 }
 .balance-title {
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 0.92rem;
+  font-weight: 800;
   color: var(--gold-light);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 .balance-highlight-box.is-paid .balance-title {
-  color: var(--color-success);
+  color: #34d399;
 }
 .balance-amount {
-  font-size: 1.45rem;
+  font-size: 1.6rem;
   font-weight: 800;
   font-family: 'Outfit', sans-serif;
-  color: var(--text-main);
+  color: #ffffff;
 }
 .balance-highlight-box.is-paid .balance-amount {
-  color: var(--color-success);
+  color: #34d399;
 }
 
 /* Password Row */
@@ -472,27 +509,27 @@ textarea.pos-input, textarea.form-control {
 }
 .btn-toggle-eye {
   position: absolute;
-  right: 10px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: #cbd5e1;
   cursor: pointer;
   padding: 4px;
 }
 .btn-toggle-eye:hover {
-  color: var(--text-main);
+  color: #ffffff;
 }
 
 /* ─── PRIMARY ACTION BUTTON ─────────────────────────────────────────── */
 .btn-generate-bill {
   width: 100%;
-  height: 52px;
+  height: 54px;
   background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-light) 100%);
   color: #060c17 !important;
   font-family: 'Outfit', sans-serif;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-weight: 800;
   letter-spacing: 0.03em;
   border: none;
@@ -518,8 +555,8 @@ textarea.pos-input, textarea.form-control {
 }
 .btn-subtext {
   display: block;
-  font-size: 0.76rem;
-  color: var(--text-muted);
+  font-size: 0.85rem;
+  color: #cbd5e1;
   text-align: center;
   margin-top: 8px;
 }
@@ -668,7 +705,7 @@ textarea.pos-input, textarea.form-control {
                    required 
                    autocomplete="tel"
                    oninput="validateMobileInput(this.value)">
-            <div id="mobileErrorMsg" class="d-none mt-1" style="font-size: 0.76rem; color: var(--color-danger);">
+            <div id="mobileErrorMsg" class="d-none mt-1" style="font-size: 0.85rem; font-weight: 600; color: #ff8080;">
               Please enter exactly 10 numeric digits.
             </div>
           </div>
@@ -769,17 +806,17 @@ textarea.pos-input, textarea.form-control {
       <div class="billing-card">
         <div class="billing-card-header">
           <h2><i class="bi bi-receipt"></i> Sale Summary</h2>
-          <span id="billingCounterBadge" style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">
+          <span id="billingCounterBadge" style="font-size: 0.88rem; color: #cbd5e1; font-weight: 700;">
             0 items
           </span>
         </div>
 
         <!-- Items Summary List -->
-        <label class="form-label" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+        <label class="form-label" style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gold-light);">
           Items
         </label>
         <div class="billing-items-summary" id="billingItemsSummary">
-          <div class="text-center text-muted py-2" id="billingEmptyPlaceholder" style="font-size: 0.82rem;">
+          <div class="text-center text-muted py-2" id="billingEmptyPlaceholder" style="font-size: 0.88rem; color: #cbd5e1 !important;">
             No items added yet
           </div>
         </div>
@@ -795,7 +832,7 @@ textarea.pos-input, textarea.form-control {
                  min="0" 
                  value="0" 
                  required 
-                 style="font-size: 1.15rem; font-weight: 800; font-family: 'Outfit', sans-serif;"
+                 style="font-size: 1.25rem; font-weight: 800; font-family: 'Outfit', sans-serif;"
                  oninput="calculateBilling()">
         </div>
 
@@ -810,7 +847,7 @@ textarea.pos-input, textarea.form-control {
                  min="0" 
                  value="0" 
                  required 
-                 style="font-size: 1.15rem; font-weight: 800; font-family: 'Outfit', sans-serif; color: var(--color-success);"
+                 style="font-size: 1.25rem; font-weight: 800; font-family: 'Outfit', sans-serif; color: #34d399;"
                  oninput="calculateBilling()">
         </div>
 
@@ -818,12 +855,12 @@ textarea.pos-input, textarea.form-control {
         <div class="balance-highlight-box" id="balanceHighlightBox">
           <div>
             <div class="balance-title" id="balanceTitleText">Remaining Balance</div>
-            <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 1px;" id="balanceSubtext">Calculated live</div>
+            <div style="font-size: 0.85rem; color: #a3b8cc; margin-top: 2px; font-weight: 600;" id="balanceSubtext">Calculated live</div>
           </div>
           <div class="balance-amount" id="balanceDisplayAmount">₹0</div>
         </div>
 
-        <div id="overpayErrorMsg" class="d-none mb-3" style="font-size: 0.78rem; color: var(--color-danger); font-weight: 600;">
+        <div id="overpayErrorMsg" class="d-none mb-3" style="font-size: 0.88rem; color: #ff8080; font-weight: 700;">
           <i class="bi bi-exclamation-circle-fill me-1"></i> Amount received cannot exceed Total Price.
         </div>
 
@@ -889,18 +926,18 @@ textarea.pos-input, textarea.form-control {
         <!-- QR Code -->
         <div class="p-2 mb-3 rounded d-inline-block shadow-sm" style="background: #ffffff; border: 1.5px solid var(--border-gold);">
           <img id="succQrImg" src="" alt="Bill QR Code" style="width: 160px; height: 160px;" class="img-fluid">
-          <div style="font-size: 0.72rem; color: #1e293b; font-weight: 700; margin-top: 4px;">Scan to View / Download Bill</div>
+          <div style="font-size: 0.85rem; color: #0f172a; font-weight: 700; margin-top: 6px;">Scan to View / Download Bill</div>
         </div>
 
         <!-- Financial Summary -->
-        <div class="p-3 mb-3 rounded text-start" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); font-size: 0.88rem;">
+        <div class="p-3 mb-3 rounded text-start" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); font-size: 0.92rem;">
           <div class="d-flex justify-content-between mb-1">
-            <span class="text-muted">Total Price:</span>
+            <span style="color: #cbd5e1;">Total Price:</span>
             <strong style="color: #ffffff;" id="succTotalPrice">₹0</strong>
           </div>
           <div class="d-flex justify-content-between mb-1">
-            <span class="text-muted">Amount Received:</span>
-            <strong style="color: var(--color-success);" id="succGivenPrice">₹0</strong>
+            <span style="color: #cbd5e1;">Amount Received:</span>
+            <strong style="color: #34d399;" id="succGivenPrice">₹0</strong>
           </div>
           <div class="d-flex justify-content-between border-top border-secondary pt-1 mt-1">
             <strong style="color: var(--gold-light);">Remaining Balance:</strong>

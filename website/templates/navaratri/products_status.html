@@ -22,21 +22,21 @@
     --card-bg:      #111f33;
     --card-hover:   #152540;
     --gold:         #d4af37;
-    --gold-lt:      #f5d580;
+    --gold-lt:      #f3d068;
     --gold-dk:      #b8961e;
-    --gold-bg:      rgba(212, 175, 55, 0.08);
-    --gold-bd:      rgba(212, 175, 55, 0.25);
-    --gold-bd-h:    rgba(212, 175, 55, 0.5);
-    --white:        #f8fafc;
-    --text:         #b8c5d4;
-    --muted:        #64748b;
+    --gold-bg:      rgba(212, 175, 55, 0.12);
+    --gold-bd:      rgba(212, 175, 55, 0.28);
+    --gold-bd-h:    rgba(212, 175, 55, 0.6);
+    --white:        #ffffff;
+    --text:         #cbd5e1;
+    --muted:        #a3b8cc;
     --danger:       #ef4444;
-    --danger-bg:    rgba(239, 68, 68, 0.12);
-    --danger-bd:    rgba(239, 68, 68, 0.3);
+    --danger-bg:    rgba(239, 68, 68, 0.15);
+    --danger-bd:    rgba(239, 68, 68, 0.35);
     --success:      #10b981;
-    --success-bg:   rgba(16, 185, 129, 0.12);
-    --success-bd:   rgba(16, 185, 129, 0.3);
-    --border-subtle: rgba(255, 255, 255, 0.06);
+    --success-bg:   rgba(16, 185, 129, 0.15);
+    --success-bd:   rgba(16, 185, 129, 0.35);
+    --border-subtle: rgba(255, 255, 255, 0.12);
 }
 
 body {
@@ -47,7 +47,7 @@ body {
 }
 
 .products-container {
-    max-width: 1300px;
+    max-width: 1350px;
     margin: 0 auto;
     padding: 24px 16px 80px 16px;
 }
@@ -60,26 +60,29 @@ body {
     background: var(--surface-bg);
     border: 1px solid var(--gold-bd);
     border-radius: 14px;
-    padding: 14px 20px;
+    padding: 16px 22px;
     margin-bottom: 24px;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 14px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .nav-title-group h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
+    font-size: 1.45rem;
+    font-weight: 700;
     color: var(--white);
     margin: 0;
     display: flex;
     align-items: center;
     gap: 8px;
 }
-.nav-title-group h1 span { color: var(--gold); }
+.nav-title-group h1 span { color: var(--gold-lt); }
 .nav-title-group p {
-    margin: 2px 0 0 0;
-    font-size: 0.8rem;
-    color: var(--muted);
+    margin: 3px 0 0 0;
+    font-size: 0.88rem;
+    color: #cbd5e1;
+    font-weight: 500;
 }
 
 .nav-actions {
@@ -93,20 +96,21 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 7px 14px;
+    padding: 8px 16px;
+    min-height: 40px;
     border-radius: 8px;
-    font-size: 0.84rem;
-    font-weight: 600;
+    font-size: 0.88rem;
+    font-weight: 700;
     text-decoration: none;
     cursor: pointer;
     transition: all 0.2s ease;
     border: 1px solid var(--gold-bd);
     background: transparent;
-    color: var(--gold);
+    color: var(--gold-lt);
 }
 .btn-nav:hover {
     background: var(--gold-bg);
-    color: var(--gold-lt);
+    color: #ffffff;
     border-color: var(--gold-bd-h);
 }
 
@@ -119,12 +123,13 @@ body {
 .btn-nav-primary:hover {
     background: linear-gradient(135deg, #f4d360 0%, var(--gold-dk) 100%);
     transform: translateY(-1px);
+    color: #000000 !important;
 }
 
 /* ── SUMMARY STATS ── */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 14px;
     margin-bottom: 24px;
 }
@@ -139,28 +144,30 @@ body {
     gap: 4px;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 .stat-card::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 3px;
+    height: 4px;
     background: var(--gold);
 }
 .stat-card.stat-available::before { background: var(--success); }
 .stat-card.stat-sold::before { background: var(--danger); }
 
 .stat-label {
-    font-size: 0.78rem;
-    font-weight: 600;
+    font-size: 0.82rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--muted);
+    color: var(--gold-lt);
 }
 .stat-value {
-    font-size: 1.8rem;
+    font-size: 1.85rem;
     font-weight: 800;
     color: var(--white);
+    margin-top: 2px;
 }
 .stat-value.text-success { color: var(--success); }
 .stat-value.text-danger { color: var(--danger); }
@@ -168,38 +175,41 @@ body {
 /* ── FILTER CONTROLS BAR ── */
 .filters-bar {
     background: var(--surface-bg);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--gold-bd);
     border-radius: 14px;
-    padding: 16px;
+    padding: 16px 20px;
     margin-bottom: 20px;
     display: flex;
     flex-wrap: wrap;
     gap: 14px;
     align-items: center;
     justify-content: space-between;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .search-box {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: var(--card-bg);
-    border: 1px solid var(--gold-bd);
+    gap: 10px;
+    background: rgba(10, 22, 40, 0.95);
+    border: 1.5px solid var(--gold-bd);
     border-radius: 10px;
-    padding: 8px 14px;
+    padding: 8px 16px;
     flex: 1;
-    min-width: 240px;
-    max-width: 400px;
+    min-width: 250px;
+    max-width: 420px;
+    min-height: 48px;
 }
 .search-box input {
     background: transparent;
     border: none;
     outline: none;
     color: var(--white);
-    font-size: 0.9rem;
+    font-size: 0.98rem;
+    font-weight: 600;
     width: 100%;
 }
-.search-box input::placeholder { color: var(--muted); }
+.search-box input::placeholder { color: #8da2bb !important; opacity: 1; }
 
 .filter-pills-group {
     display: flex;
@@ -209,24 +219,29 @@ body {
 }
 
 .filter-pill {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border-subtle);
-    color: var(--muted);
-    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #cbd5e1;
+    padding: 8px 16px;
+    min-height: 38px;
     border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.88rem;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
 }
 .filter-pill:hover {
     color: var(--white);
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.1);
 }
 .filter-pill.active {
     background: var(--gold-bg);
     border-color: var(--gold);
-    color: var(--gold-lt);
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
 }
 
 /* ── PRODUCTS TABLE ── */
@@ -247,26 +262,27 @@ body {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
-    font-size: 0.88rem;
+    font-size: 0.92rem;
 }
 
 .products-table th {
     background: rgba(10, 22, 40, 0.95);
     color: var(--gold-lt);
-    padding: 14px 16px;
+    padding: 14px 18px;
     font-weight: 700;
-    font-size: 0.78rem;
+    font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-bottom: 1px solid var(--gold-bd);
+    border-bottom: 1.5px solid var(--gold-bd);
     white-space: nowrap;
 }
 
 .products-table td {
-    padding: 12px 16px;
+    padding: 12px 18px;
     border-bottom: 1px solid var(--border-subtle);
     vertical-align: middle;
     color: var(--text);
+    font-size: 0.92rem;
 }
 
 .products-table tbody tr {
@@ -278,12 +294,12 @@ body {
 
 /* Thumbnail */
 .prod-thumb {
-    width: 54px;
-    height: 54px;
+    width: 58px;
+    height: 58px;
     border-radius: 8px;
     object-fit: cover;
     background: #060c16;
-    border: 1px solid var(--gold-bd);
+    border: 1.5px solid var(--gold-bd);
     display: block;
 }
 
@@ -291,11 +307,11 @@ body {
 .prod-code-badge {
     font-family: monospace;
     font-weight: 800;
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     color: var(--gold-lt);
     background: var(--gold-bg);
     border: 1px solid var(--gold-bd);
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 6px;
     display: inline-block;
 }
@@ -305,9 +321,9 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
-    font-size: 0.76rem;
+    font-size: 0.82rem;
     font-weight: 700;
     letter-spacing: 0.3px;
     text-transform: uppercase;
@@ -322,7 +338,7 @@ body {
 .status-sold {
     background: var(--danger-bg);
     border: 1px solid var(--danger-bd);
-    color: var(--danger);
+    color: #fca5a5;
 }
 
 /* Sell and Restore Buttons */
@@ -331,16 +347,17 @@ body {
     color: #fff !important;
     border: none;
     border-radius: 8px;
-    padding: 7px 14px;
-    font-size: 0.8rem;
+    padding: 8px 16px;
+    font-size: 0.86rem;
     font-weight: 700;
+    min-height: 38px;
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
     white-space: nowrap;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 }
 .btn-sell:hover {
     background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
@@ -349,35 +366,37 @@ body {
 }
 
 .btn-disabled-sold {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(239, 68, 68, 0.25);
-    color: var(--danger);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
     border-radius: 8px;
-    padding: 6px 14px;
-    font-size: 0.8rem;
+    padding: 8px 16px;
+    font-size: 0.86rem;
     font-weight: 700;
+    min-height: 38px;
     cursor: not-allowed;
-    opacity: 0.75;
+    opacity: 0.85;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 }
 
 .btn-restore {
     background: transparent;
     border: 1px solid var(--gold-bd);
-    color: var(--gold);
+    color: var(--gold-lt);
     border-radius: 6px;
-    padding: 4px 10px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    padding: 6px 12px;
+    min-height: 34px;
+    font-size: 0.82rem;
+    font-weight: 700;
     cursor: pointer;
     margin-left: 8px;
     transition: all 0.2s ease;
 }
 .btn-restore:hover {
     background: var(--gold-bg);
-    color: var(--gold-lt);
+    color: #ffffff;
     border-color: var(--gold);
 }
 
@@ -435,14 +454,14 @@ body {
 }
 .modal-title {
     font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
+    font-size: 1.35rem;
     font-weight: 700;
     color: var(--white);
     margin-bottom: 6px;
 }
 .modal-subtitle {
-    font-size: 0.86rem;
-    color: var(--muted);
+    font-size: 0.92rem;
+    color: #cbd5e1;
     line-height: 1.5;
     margin-bottom: 20px;
 }
@@ -569,6 +588,20 @@ body {
     z-index: 10000;
     font-size: 0.9rem;
     font-weight: 600;
+}
+
+@media (max-width: 1199.98px) {
+    .products-container { padding: 16px 12px 60px 12px; }
+    .top-nav-bar { padding: 14px 16px; }
+    .search-box { min-height: 50px; font-size: 1.02rem; }
+    .filter-pill { min-height: 42px; font-size: 0.92rem; }
+    .products-table th, .products-table td { padding: 12px 14px; font-size: 0.95rem; }
+    .btn-sell, .btn-disabled-sold { min-height: 42px; font-size: 0.9rem; padding: 9px 18px; }
+}
+
+@media (max-width: 768px) {
+    .filters-bar { flex-direction: column; align-items: stretch; }
+    .search-box { max-width: 100%; }
 }
 </style>
 

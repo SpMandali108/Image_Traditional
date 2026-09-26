@@ -13,14 +13,202 @@
 {% endblock %}
 
 {% block content %}
+<style>
+:root {
+  --navy: #0a1628;
+  --surface: #0f1e32;
+  --card: #111f33;
+  --gold: #d4af37;
+  --gold-lt: #f3d068;
+  --gold-bd: rgba(212, 175, 55, 0.28);
+  --gold-bd-h: rgba(212, 175, 55, 0.6);
+  --white: #ffffff;
+  --text: #cbd5e1;
+  --muted: #a3b8cc;
+  --border: rgba(255, 255, 255, 0.12);
+}
+
+.admin-profile-container {
+  max-width: 900px;
+  margin: 1.5rem auto 4rem;
+  padding: 0 1.25rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text);
+}
+
+.admin-profile-container h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--white);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.info-card, .payment-card, .bookings-card {
+  background: var(--card);
+  border: 1.5px solid var(--gold-bd);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.info-card h2, .payment-card h2, .bookings-card h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gold-lt);
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.6rem;
+}
+
+.form-group-item {
+  margin-bottom: 1rem;
+}
+
+.admin-profile-container label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.45rem;
+  letter-spacing: 0.2px;
+}
+
+.admin-profile-container input[type="text"],
+.admin-profile-container input[type="number"] {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.65rem 1rem;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(10, 22, 40, 0.95);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.admin-profile-container input[type="text"]:focus,
+.admin-profile-container input[type="number"]:focus {
+  border-color: var(--gold-lt);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25);
+}
+
+.admin-profile-container input[readonly] {
+  background: rgba(15, 30, 50, 0.6) !important;
+  color: var(--gold-lt) !important;
+  font-weight: 700;
+  border-color: rgba(212, 175, 55, 0.3) !important;
+}
+
+.booking-entry {
+  background: rgba(10, 22, 40, 0.6);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.booking-entry h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold-lt);
+  margin-top: 0;
+  margin-bottom: 0.65rem;
+}
+
+.booking-item-input {
+  padding: 0.65rem 1rem !important;
+  margin: 0.35rem 0 !important;
+  min-height: 46px !important;
+  font-family: monospace !important;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px;
+}
+
+.actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 1.5rem;
+  align-items: center;
+}
+
+button[name="save"] {
+  min-height: 48px;
+  padding: 0.75rem 1.8rem;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+button[name="save"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.45);
+}
+
+.btn-whatsapp-bill {
+  min-height: 48px;
+  padding: 0.75rem 1.6rem;
+  background: rgba(37, 211, 102, 0.12);
+  color: #25D366;
+  border: 1.5px solid #25D366;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-whatsapp-bill:hover {
+  background: #25D366;
+  color: #0a1628;
+}
+
+.profile-alert {
+  padding: 0.85rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin-bottom: 1.25rem;
+}
+.profile-alert.error { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; }
+.profile-alert.success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; }
+
+@media (max-width: 1199.98px) {
+  .admin-profile-container { padding: 0 1rem; }
+  .admin-profile-container input[type="text"],
+  .admin-profile-container input[type="number"] { min-height: 50px; font-size: 1.02rem; }
+  button[name="save"], .btn-whatsapp-bill { min-height: 50px; font-size: 1rem; }
+}
+</style>
+
 <div class="admin-profile-container">
-  <h1>Admin Customer Profile</h1>
+  <h1>👤 Admin Customer Profile</h1>
 
   {% if error %}
-  <p style="color:red;">{{ error }}</p>
+  <div class="profile-alert error">{{ error }}</div>
   {% endif %}
   {% if success %}
-  <p style="color:green;">{{ success }}</p>
+  <div class="profile-alert success">{{ success }}</div>
   {% endif %}
 
   {% if customer %}
@@ -29,28 +217,46 @@
 
     <div class="info-card">
       <h2>Customer Info</h2>
-      <label>Name:</label>
-      <input type="text" name="Name" value="{{ customer.Name }}" required>
-      <label>Mobile:</label>
-      <input type="text" name="mobile" value="{{ customer.mobile }}" required>
-      <label>Address:</label>
-      <input type="text" name="address" value="{{ customer.address }}">
-      <label>Reference:</label>
-      <input type="text" name="reference" value="{{ customer.reference }}">
-      <label>Group:</label>
-      <input type="text" name="group" value="{{ customer.group }}">
-      <label>Deposit:</label>
-      <input type="number" name="deposit" value="{{ customer.deposit or 0 }}" min="0">
+      <div class="form-group-item">
+        <label>Name:</label>
+        <input type="text" name="Name" value="{{ customer.Name }}" required>
+      </div>
+      <div class="form-group-item">
+        <label>Mobile:</label>
+        <input type="text" name="mobile" value="{{ customer.mobile }}" required>
+      </div>
+      <div class="form-group-item">
+        <label>Address:</label>
+        <input type="text" name="address" value="{{ customer.address }}">
+      </div>
+      <div class="form-group-item">
+        <label>Reference:</label>
+        <input type="text" name="reference" value="{{ customer.reference }}">
+      </div>
+      <div class="form-group-item">
+        <label>Group:</label>
+        <input type="text" name="group" value="{{ customer.group }}">
+      </div>
+      <div class="form-group-item">
+        <label>Deposit:</label>
+        <input type="number" name="deposit" value="{{ customer.deposit or 0 }}" min="0">
+      </div>
     </div>
 
     <div class="payment-card">
       <h2>Payment Summary</h2>
-      <label>Total:</label>
-      <input type="number" name="total_price" value="{{ customer.total_price }}" min="0">
-      <label>Paid:</label>
-      <input type="number" name="given_price" value="{{ customer.given_price }}" min="0">
-      <label>Remaining:</label>
-      <input type="number" value="{{ customer.total_price - customer.given_price }}" readonly>
+      <div class="form-group-item">
+        <label>Total:</label>
+        <input type="number" name="total_price" value="{{ customer.total_price }}" min="0">
+      </div>
+      <div class="form-group-item">
+        <label>Paid:</label>
+        <input type="number" name="given_price" value="{{ customer.given_price }}" min="0">
+      </div>
+      <div class="form-group-item">
+        <label>Remaining:</label>
+        <input type="number" value="{{ customer.total_price - customer.given_price }}" readonly>
+      </div>
     </div>
 
     {% if customer.bookings %}
@@ -58,7 +264,7 @@
       <h2>Bookings</h2>
       {% for date, items in customer.bookings.items() %}
       <div class="booking-entry">
-        <h3>{{ date }}</h3>
+        <h3>📅 {{ date }}</h3>
         {% for item in items %}
         <input type="text" name="bookings[{{ date }}][]" value="{{ item }}" class="booking-item-input" data-date="{{ date }}">
         {% endfor %}
@@ -67,16 +273,19 @@
     </div>
     {% endif %}
 
-    <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:1rem; align-items:center;">
-      <button type="submit" name="save">Save Changes</button>
+    <div class="actions-row">
+      <button type="submit" name="save">💾 Save Changes</button>
       <a href="https://wa.me/91{{ customer.mobile }}?text={{ ('*Image Traditional - Booking Invoice*\n\nDear *' ~ customer.Name ~ '*,\nThank you for your booking at Image Traditional!\n\n💰 *Total Bill:* ₹' ~ customer.total_price ~ '\n✅ *Paid Amount:* ₹' ~ customer.given_price ~ '\n📌 *Balance Due:* ₹' ~ (customer.total_price - customer.given_price) ~ '\n\n📄 *View & Download Digital Bill:* ' ~ url_for('navaratri.download_bill_page', id=customer._id|string, _external=True)) | urlencode }}"
-         target="_blank" style="padding:0.75rem 1.5rem; background:transparent; color:#25D366; border:1px solid #25D366; border-radius:6px; font-weight:bold; text-decoration:none; display:inline-block;">
+         target="_blank" class="btn-whatsapp-bill">
         💬 Send Text Bill Link via WhatsApp
+      </a>
+      <a href="/navaratri_admin" class="btn-whatsapp-bill" style="border-color:var(--gold-bd); color:var(--gold-lt); background:transparent;">
+        ← Back to Navaratri Admin
       </a>
     </div>
   </form>
   {% else %}
-  <p>Customer not found.</p>
+  <p style="color:#ffffff; font-size:1.1rem;">Customer not found.</p>
   {% endif %}
 </div>
 
@@ -98,20 +307,11 @@ document.querySelectorAll('.booking-item-input').forEach(input => {
     })
     .then(res => res.json())
     .then(data => {
-      elem.style.backgroundColor = data.available ? '#b6fcb6' : '#fcb6b6';
+      elem.style.backgroundColor = data.available ? 'rgba(16, 185, 129, 0.35)' : 'rgba(239, 68, 68, 0.35)';
+      elem.style.color = '#ffffff';
     })
     .catch(err => { console.error(err); elem.style.backgroundColor = ''; });
   });
 });
-
-
 </script>
-
-<style>
-.admin-profile-container { max-width:800px; margin:auto; padding:2rem; font-family:sans-serif; }
-.info-card, .payment-card, .bookings-card { border:1px solid #ccc; padding:1rem; margin-bottom:1rem; border-radius:8px; }
-.booking-item-input { padding:0.5rem; margin:0.25rem 0; border:1px solid #ccc; border-radius:4px; width:100%; }
-button[name="save"] { padding:0.75rem 1.5rem; background:#10b981; color:white; border:none; border-radius:6px; cursor:pointer; }
-button[name="save"]:hover { background:#059669; }
-</style>
 {% endblock %}
