@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Image Traditional</string>
-    <string name="app_url">https://image-traditional.onrender.com/app</string>
+    <string name="app_url">https://image-traditional.onrender.com/</string>
     <string name="offline_title">Internet Connection Required</string>
     <string name="offline_admin_msg">Internet connection required for Admin Panel.</string>
     <string name="offline_retry">Retry Connection</string>

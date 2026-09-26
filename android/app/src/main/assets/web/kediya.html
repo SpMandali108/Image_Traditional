@@ -9,13 +9,8 @@
   <meta name="google-site-verification" content="rblFv2qDddK7ALu3uQhHjVXBk0ucyy6hkBWO735_ZUw" />
   <meta name="google-site-verification" content="e7akNJ_R_ulf6WM24z7vIhQFphN3IrS-EYve6iyAYmg" />
 
-  <!-- Progressive Web App (PWA) Configuration -->
-  <link rel="manifest" href="/manifest.json">
+  <!-- Web Application Icons & Colors -->
   <meta name="theme-color" content="#050D1F">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Image Traditional">
   <link rel="apple-touch-icon" href="/static/Icons/apple-touch-icon.png">
   <link rel="apple-touch-icon" sizes="192x192" href="/static/Icons/icon-192x192.png">
   <link rel="apple-touch-icon" sizes="512x512" href="/static/Icons/icon-512x512.png">
@@ -64,15 +59,10 @@
 
     <div class="header-controls">
 
-      <!-- PWA Network Status Indicator -->
-      <div id="pwaNetworkBadge" class="pwa-status-badge online" aria-live="polite" title="Network connectivity status">
-        <span class="pwa-dot"></span>
-        <span class="pwa-status-text">Online</span>
-      </div>
 
       <!-- Contact Dropdown -->
       <div class="contact-dropdown">
-        <button class="contact-btn" id="contactToggle" aria-expanded="false">
+        <button class="contact-btn" id="contactToggle" aria-expanded="false" title="Contact Us" aria-label="Contact Us">
           <span class="icon">📞</span>
           <span class="btn-text">Contact</span>
         </button>
@@ -109,30 +99,6 @@
   </div>
 </header>
 
-<!-- PWA Update Notification Banner -->
-<div id="pwaUpdateToast" class="pwa-update-toast" style="display: none;" role="alert">
-  <div class="pwa-update-content">
-    <span class="pwa-update-icon">✨</span>
-    <span class="pwa-update-text">An update to Image Traditional is ready!</span>
-  </div>
-  <button type="button" id="pwaUpdateBtn" class="pwa-update-btn">Update Now</button>
-</div>
-
-<!-- Offline Action Interception Modal -->
-<div id="offlineModal" class="pwa-modal-backdrop" style="display: none;">
-  <div class="pwa-modal-card">
-    <div class="modal-icon">⚠️</div>
-    <h3>Live Connection Required</h3>
-    <p id="offlineModalMsg">You are browsing the saved offline catalogue. Live availability checks and booking inquiries require an active internet connection.</p>
-    <div class="modal-actions">
-      <a href="tel:+919428610384" class="modal-btn-call">📞 Call +91-9428610384</a>
-      <button type="button" class="modal-btn-close" onclick="document.getElementById('offlineModal').style.display='none'">Dismiss</button>
-    </div>
-  </div>
-</div>
-
-
-
 <!-- Flash Messages -->
 
   
@@ -159,7 +125,8 @@
             <button class="filter-btn active" id="rangeBtnAll" onclick="filterRange('all')">Show All</button>
             <button class="filter-btn" id="rangeBtn1" onclick="filterRange(1, 50)">K1 - K50</button>
             <button class="filter-btn" id="rangeBtn2" onclick="filterRange(51, 100)">K51 - K100</button>
-            <button class="filter-btn" id="rangeBtn3" onclick="filterRange(101, 173)">K101 - K173</button>
+            <button class="filter-btn" id="rangeBtn3" onclick="filterRange(101, 150)">K101 - K150</button>
+            <button class="filter-btn" id="rangeBtn4" onclick="filterRange(151, 188)">K151 - K188</button>
         </div>
     </div>
 
@@ -2230,6 +2197,198 @@
             </div>
         </div>
         
+        <div class="product-card" data-code="K173" data-index="172" onclick="openLightbox(172)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K173.webp" alt="K173" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K173.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K173</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K174" data-index="173" onclick="openLightbox(173)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K174.webp" alt="K174" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K174.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K174</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K175" data-index="174" onclick="openLightbox(174)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K175.webp" alt="K175" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K175.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K175</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K176" data-index="175" onclick="openLightbox(175)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K176.webp" alt="K176" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K176.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K176</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K177" data-index="176" onclick="openLightbox(176)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K177.webp" alt="K177" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K177.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K177</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K178" data-index="177" onclick="openLightbox(177)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K178.webp" alt="K178" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K178.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K178</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K179" data-index="178" onclick="openLightbox(178)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K179.webp" alt="K179" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K179.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K179</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K180" data-index="179" onclick="openLightbox(179)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K180.webp" alt="K180" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K180.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K180</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K181" data-index="180" onclick="openLightbox(180)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K181.webp" alt="K181" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K181.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K181</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K182" data-index="181" onclick="openLightbox(181)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K182.webp" alt="K182" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K182.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K182</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K183" data-index="182" onclick="openLightbox(182)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K183.webp" alt="K183" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K183.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K183</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K184" data-index="183" onclick="openLightbox(183)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K184.webp" alt="K184" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K184.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K184</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K185" data-index="184" onclick="openLightbox(184)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K185.webp" alt="K185" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K185.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K185</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K186" data-index="185" onclick="openLightbox(185)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K186.webp" alt="K186" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K186.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K186</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K187" data-index="186" onclick="openLightbox(186)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K187.webp" alt="K187" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K187.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K187</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="K188" data-index="187" onclick="openLightbox(187)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Kediya/K188.webp" alt="K188" loading="lazy" onerror="this.onerror=null; this.src='/static/KediyaJpg/K188.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">K188</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
     </div>
 </div>
 
@@ -2271,7 +2430,7 @@
         <!-- Bottom Nav Arrow Controls -->
         <div class="lightbox-nav-row">
             <button class="nav-arrow-btn" onclick="navigateLightbox(-1)">◀ Previous</button>
-            <span class="nav-indicator" id="lightboxIndicator">1 / 173</span>
+            <span class="nav-indicator" id="lightboxIndicator">1 / 188</span>
             <button class="nav-arrow-btn" onclick="navigateLightbox(1)">Next ▶</button>
         </div>
     </div>
@@ -2872,7 +3031,7 @@
 <!-- Live Interactive Script -->
 <script>
     // Safe injection of all items from Flask jinja Context
-    const productsList = [{"image": "K1.webp", "name": "K1"}, {"image": "K2.webp", "name": "K2"}, {"image": "K3.webp", "name": "K3"}, {"image": "K4.webp", "name": "K4"}, {"image": "K5.webp", "name": "K5"}, {"image": "K6.webp", "name": "K6"}, {"image": "K7.webp", "name": "K7"}, {"image": "K8.webp", "name": "K8"}, {"image": "K9.webp", "name": "K9"}, {"image": "K10.webp", "name": "K10"}, {"image": "K11.webp", "name": "K11"}, {"image": "K12.webp", "name": "K12"}, {"image": "K13.webp", "name": "K13"}, {"image": "K14.webp", "name": "K14"}, {"image": "K15.webp", "name": "K15"}, {"image": "K16.webp", "name": "K16"}, {"image": "K17.webp", "name": "K17"}, {"image": "K18.webp", "name": "K18"}, {"image": "K19.webp", "name": "K19"}, {"image": "K20.webp", "name": "K20"}, {"image": "K21.webp", "name": "K21"}, {"image": "K22.webp", "name": "K22"}, {"image": "K23.webp", "name": "K23"}, {"image": "K24.webp", "name": "K24"}, {"image": "K25.webp", "name": "K25"}, {"image": "K26.webp", "name": "K26"}, {"image": "K27.webp", "name": "K27"}, {"image": "K28.webp", "name": "K28"}, {"image": "K29.webp", "name": "K29"}, {"image": "K30.webp", "name": "K30"}, {"image": "K31.webp", "name": "K31"}, {"image": "K32.webp", "name": "K32"}, {"image": "K33.webp", "name": "K33"}, {"image": "K34.webp", "name": "K34"}, {"image": "K35.webp", "name": "K35"}, {"image": "K36.webp", "name": "K36"}, {"image": "K37.webp", "name": "K37"}, {"image": "K38.webp", "name": "K38"}, {"image": "K39.webp", "name": "K39"}, {"image": "K40.webp", "name": "K40"}, {"image": "K41.webp", "name": "K41"}, {"image": "K42.webp", "name": "K42"}, {"image": "K43.webp", "name": "K43"}, {"image": "K44.webp", "name": "K44"}, {"image": "K45.webp", "name": "K45"}, {"image": "K46.webp", "name": "K46"}, {"image": "K47.webp", "name": "K47"}, {"image": "K48.webp", "name": "K48"}, {"image": "K49.webp", "name": "K49"}, {"image": "K50.webp", "name": "K50"}, {"image": "K51.webp", "name": "K51"}, {"image": "K52.webp", "name": "K52"}, {"image": "K53.webp", "name": "K53"}, {"image": "K54.webp", "name": "K54"}, {"image": "K55.webp", "name": "K55"}, {"image": "K56.webp", "name": "K56"}, {"image": "K57.webp", "name": "K57"}, {"image": "K58.webp", "name": "K58"}, {"image": "K59.webp", "name": "K59"}, {"image": "K60.webp", "name": "K60"}, {"image": "K61.webp", "name": "K61"}, {"image": "K62.webp", "name": "K62"}, {"image": "K63.webp", "name": "K63"}, {"image": "K64.webp", "name": "K64"}, {"image": "K65.webp", "name": "K65"}, {"image": "K66.webp", "name": "K66"}, {"image": "K67.webp", "name": "K67"}, {"image": "K68.webp", "name": "K68"}, {"image": "K69.webp", "name": "K69"}, {"image": "K70.webp", "name": "K70"}, {"image": "K71.webp", "name": "K71"}, {"image": "K72.webp", "name": "K72"}, {"image": "K73.webp", "name": "K73"}, {"image": "K74.webp", "name": "K74"}, {"image": "K75.webp", "name": "K75"}, {"image": "K76.webp", "name": "K76"}, {"image": "K77.webp", "name": "K77"}, {"image": "K78.webp", "name": "K78"}, {"image": "K79.webp", "name": "K79"}, {"image": "K80.webp", "name": "K80"}, {"image": "K81.webp", "name": "K81"}, {"image": "K82.webp", "name": "K82"}, {"image": "K83.webp", "name": "K83"}, {"image": "K84.webp", "name": "K84"}, {"image": "K85.webp", "name": "K85"}, {"image": "K86.webp", "name": "K86"}, {"image": "K87.webp", "name": "K87"}, {"image": "K88.webp", "name": "K88"}, {"image": "K89.webp", "name": "K89"}, {"image": "K90.webp", "name": "K90"}, {"image": "K91.webp", "name": "K91"}, {"image": "K92.webp", "name": "K92"}, {"image": "K93.webp", "name": "K93"}, {"image": "K94.webp", "name": "K94"}, {"image": "K95.webp", "name": "K95"}, {"image": "K96.webp", "name": "K96"}, {"image": "K97.webp", "name": "K97"}, {"image": "K98.webp", "name": "K98"}, {"image": "K99.webp", "name": "K99"}, {"image": "K100.webp", "name": "K100"}, {"image": "K101.webp", "name": "K101"}, {"image": "K102.webp", "name": "K102"}, {"image": "K103.webp", "name": "K103"}, {"image": "K104.webp", "name": "K104"}, {"image": "K105.webp", "name": "K105"}, {"image": "K106.webp", "name": "K106"}, {"image": "K107.webp", "name": "K107"}, {"image": "K108.webp", "name": "K108"}, {"image": "K109.webp", "name": "K109"}, {"image": "K110.webp", "name": "K110"}, {"image": "K111.webp", "name": "K111"}, {"image": "K112.webp", "name": "K112"}, {"image": "K113.webp", "name": "K113"}, {"image": "K114.webp", "name": "K114"}, {"image": "K115.webp", "name": "K115"}, {"image": "K116.webp", "name": "K116"}, {"image": "K117.webp", "name": "K117"}, {"image": "K118.webp", "name": "K118"}, {"image": "K119.webp", "name": "K119"}, {"image": "K120.webp", "name": "K120"}, {"image": "K121.webp", "name": "K121"}, {"image": "K122.webp", "name": "K122"}, {"image": "K123.webp", "name": "K123"}, {"image": "K124.webp", "name": "K124"}, {"image": "K125.webp", "name": "K125"}, {"image": "K126.webp", "name": "K126"}, {"image": "K127.webp", "name": "K127"}, {"image": "K128.webp", "name": "K128"}, {"image": "K129.webp", "name": "K129"}, {"image": "K130.webp", "name": "K130"}, {"image": "K131.webp", "name": "K131"}, {"image": "K132.webp", "name": "K132"}, {"image": "K133.webp", "name": "K133"}, {"image": "K134.webp", "name": "K134"}, {"image": "K135.webp", "name": "K135"}, {"image": "K136.webp", "name": "K136"}, {"image": "K137.webp", "name": "K137"}, {"image": "K138.webp", "name": "K138"}, {"image": "K139.webp", "name": "K139"}, {"image": "K140.webp", "name": "K140"}, {"image": "K141.webp", "name": "K141"}, {"image": "K142.webp", "name": "K142"}, {"image": "K143.webp", "name": "K143"}, {"image": "K144.webp", "name": "K144"}, {"image": "K145.webp", "name": "K145"}, {"image": "K146.webp", "name": "K146"}, {"image": "K147.webp", "name": "K147"}, {"image": "K148.webp", "name": "K148"}, {"image": "K149.webp", "name": "K149"}, {"image": "K150.webp", "name": "K150"}, {"image": "K151.webp", "name": "K151"}, {"image": "K152.webp", "name": "K152"}, {"image": "K153.webp", "name": "K153"}, {"image": "K154.webp", "name": "K154"}, {"image": "K155.webp", "name": "K155"}, {"image": "K156.webp", "name": "K156"}, {"image": "K157.webp", "name": "K157"}, {"image": "K158.webp", "name": "K158"}, {"image": "K159.webp", "name": "K159"}, {"image": "K160.webp", "name": "K160"}, {"image": "K161.webp", "name": "K161"}, {"image": "K162.webp", "name": "K162"}, {"image": "K163.webp", "name": "K163"}, {"image": "K164.webp", "name": "K164"}, {"image": "K165.webp", "name": "K165"}, {"image": "K166.webp", "name": "K166"}, {"image": "K167.webp", "name": "K167"}, {"image": "K168.webp", "name": "K168"}, {"image": "K169.webp", "name": "K169"}, {"image": "K170.webp", "name": "K170"}, {"image": "K171.webp", "name": "K171"}, {"image": "K172.webp", "name": "K172"}];
+    const productsList = [{"image": "K1.webp", "name": "K1"}, {"image": "K2.webp", "name": "K2"}, {"image": "K3.webp", "name": "K3"}, {"image": "K4.webp", "name": "K4"}, {"image": "K5.webp", "name": "K5"}, {"image": "K6.webp", "name": "K6"}, {"image": "K7.webp", "name": "K7"}, {"image": "K8.webp", "name": "K8"}, {"image": "K9.webp", "name": "K9"}, {"image": "K10.webp", "name": "K10"}, {"image": "K11.webp", "name": "K11"}, {"image": "K12.webp", "name": "K12"}, {"image": "K13.webp", "name": "K13"}, {"image": "K14.webp", "name": "K14"}, {"image": "K15.webp", "name": "K15"}, {"image": "K16.webp", "name": "K16"}, {"image": "K17.webp", "name": "K17"}, {"image": "K18.webp", "name": "K18"}, {"image": "K19.webp", "name": "K19"}, {"image": "K20.webp", "name": "K20"}, {"image": "K21.webp", "name": "K21"}, {"image": "K22.webp", "name": "K22"}, {"image": "K23.webp", "name": "K23"}, {"image": "K24.webp", "name": "K24"}, {"image": "K25.webp", "name": "K25"}, {"image": "K26.webp", "name": "K26"}, {"image": "K27.webp", "name": "K27"}, {"image": "K28.webp", "name": "K28"}, {"image": "K29.webp", "name": "K29"}, {"image": "K30.webp", "name": "K30"}, {"image": "K31.webp", "name": "K31"}, {"image": "K32.webp", "name": "K32"}, {"image": "K33.webp", "name": "K33"}, {"image": "K34.webp", "name": "K34"}, {"image": "K35.webp", "name": "K35"}, {"image": "K36.webp", "name": "K36"}, {"image": "K37.webp", "name": "K37"}, {"image": "K38.webp", "name": "K38"}, {"image": "K39.webp", "name": "K39"}, {"image": "K40.webp", "name": "K40"}, {"image": "K41.webp", "name": "K41"}, {"image": "K42.webp", "name": "K42"}, {"image": "K43.webp", "name": "K43"}, {"image": "K44.webp", "name": "K44"}, {"image": "K45.webp", "name": "K45"}, {"image": "K46.webp", "name": "K46"}, {"image": "K47.webp", "name": "K47"}, {"image": "K48.webp", "name": "K48"}, {"image": "K49.webp", "name": "K49"}, {"image": "K50.webp", "name": "K50"}, {"image": "K51.webp", "name": "K51"}, {"image": "K52.webp", "name": "K52"}, {"image": "K53.webp", "name": "K53"}, {"image": "K54.webp", "name": "K54"}, {"image": "K55.webp", "name": "K55"}, {"image": "K56.webp", "name": "K56"}, {"image": "K57.webp", "name": "K57"}, {"image": "K58.webp", "name": "K58"}, {"image": "K59.webp", "name": "K59"}, {"image": "K60.webp", "name": "K60"}, {"image": "K61.webp", "name": "K61"}, {"image": "K62.webp", "name": "K62"}, {"image": "K63.webp", "name": "K63"}, {"image": "K64.webp", "name": "K64"}, {"image": "K65.webp", "name": "K65"}, {"image": "K66.webp", "name": "K66"}, {"image": "K67.webp", "name": "K67"}, {"image": "K68.webp", "name": "K68"}, {"image": "K69.webp", "name": "K69"}, {"image": "K70.webp", "name": "K70"}, {"image": "K71.webp", "name": "K71"}, {"image": "K72.webp", "name": "K72"}, {"image": "K73.webp", "name": "K73"}, {"image": "K74.webp", "name": "K74"}, {"image": "K75.webp", "name": "K75"}, {"image": "K76.webp", "name": "K76"}, {"image": "K77.webp", "name": "K77"}, {"image": "K78.webp", "name": "K78"}, {"image": "K79.webp", "name": "K79"}, {"image": "K80.webp", "name": "K80"}, {"image": "K81.webp", "name": "K81"}, {"image": "K82.webp", "name": "K82"}, {"image": "K83.webp", "name": "K83"}, {"image": "K84.webp", "name": "K84"}, {"image": "K85.webp", "name": "K85"}, {"image": "K86.webp", "name": "K86"}, {"image": "K87.webp", "name": "K87"}, {"image": "K88.webp", "name": "K88"}, {"image": "K89.webp", "name": "K89"}, {"image": "K90.webp", "name": "K90"}, {"image": "K91.webp", "name": "K91"}, {"image": "K92.webp", "name": "K92"}, {"image": "K93.webp", "name": "K93"}, {"image": "K94.webp", "name": "K94"}, {"image": "K95.webp", "name": "K95"}, {"image": "K96.webp", "name": "K96"}, {"image": "K97.webp", "name": "K97"}, {"image": "K98.webp", "name": "K98"}, {"image": "K99.webp", "name": "K99"}, {"image": "K100.webp", "name": "K100"}, {"image": "K101.webp", "name": "K101"}, {"image": "K102.webp", "name": "K102"}, {"image": "K103.webp", "name": "K103"}, {"image": "K104.webp", "name": "K104"}, {"image": "K105.webp", "name": "K105"}, {"image": "K106.webp", "name": "K106"}, {"image": "K107.webp", "name": "K107"}, {"image": "K108.webp", "name": "K108"}, {"image": "K109.webp", "name": "K109"}, {"image": "K110.webp", "name": "K110"}, {"image": "K111.webp", "name": "K111"}, {"image": "K112.webp", "name": "K112"}, {"image": "K113.webp", "name": "K113"}, {"image": "K114.webp", "name": "K114"}, {"image": "K115.webp", "name": "K115"}, {"image": "K116.webp", "name": "K116"}, {"image": "K117.webp", "name": "K117"}, {"image": "K118.webp", "name": "K118"}, {"image": "K119.webp", "name": "K119"}, {"image": "K120.webp", "name": "K120"}, {"image": "K121.webp", "name": "K121"}, {"image": "K122.webp", "name": "K122"}, {"image": "K123.webp", "name": "K123"}, {"image": "K124.webp", "name": "K124"}, {"image": "K125.webp", "name": "K125"}, {"image": "K126.webp", "name": "K126"}, {"image": "K127.webp", "name": "K127"}, {"image": "K128.webp", "name": "K128"}, {"image": "K129.webp", "name": "K129"}, {"image": "K130.webp", "name": "K130"}, {"image": "K131.webp", "name": "K131"}, {"image": "K132.webp", "name": "K132"}, {"image": "K133.webp", "name": "K133"}, {"image": "K134.webp", "name": "K134"}, {"image": "K135.webp", "name": "K135"}, {"image": "K136.webp", "name": "K136"}, {"image": "K137.webp", "name": "K137"}, {"image": "K138.webp", "name": "K138"}, {"image": "K139.webp", "name": "K139"}, {"image": "K140.webp", "name": "K140"}, {"image": "K141.webp", "name": "K141"}, {"image": "K142.webp", "name": "K142"}, {"image": "K143.webp", "name": "K143"}, {"image": "K144.webp", "name": "K144"}, {"image": "K145.webp", "name": "K145"}, {"image": "K146.webp", "name": "K146"}, {"image": "K147.webp", "name": "K147"}, {"image": "K148.webp", "name": "K148"}, {"image": "K149.webp", "name": "K149"}, {"image": "K150.webp", "name": "K150"}, {"image": "K151.webp", "name": "K151"}, {"image": "K152.webp", "name": "K152"}, {"image": "K153.webp", "name": "K153"}, {"image": "K154.webp", "name": "K154"}, {"image": "K155.webp", "name": "K155"}, {"image": "K156.webp", "name": "K156"}, {"image": "K157.webp", "name": "K157"}, {"image": "K158.webp", "name": "K158"}, {"image": "K159.webp", "name": "K159"}, {"image": "K160.webp", "name": "K160"}, {"image": "K161.webp", "name": "K161"}, {"image": "K162.webp", "name": "K162"}, {"image": "K163.webp", "name": "K163"}, {"image": "K164.webp", "name": "K164"}, {"image": "K165.webp", "name": "K165"}, {"image": "K166.webp", "name": "K166"}, {"image": "K167.webp", "name": "K167"}, {"image": "K168.webp", "name": "K168"}, {"image": "K169.webp", "name": "K169"}, {"image": "K170.webp", "name": "K170"}, {"image": "K171.webp", "name": "K171"}, {"image": "K172.webp", "name": "K172"}, {"image": "K173.webp", "name": "K173"}, {"image": "K174.webp", "name": "K174"}, {"image": "K175.webp", "name": "K175"}, {"image": "K176.webp", "name": "K176"}, {"image": "K177.webp", "name": "K177"}, {"image": "K178.webp", "name": "K178"}, {"image": "K179.webp", "name": "K179"}, {"image": "K180.webp", "name": "K180"}, {"image": "K181.webp", "name": "K181"}, {"image": "K182.webp", "name": "K182"}, {"image": "K183.webp", "name": "K183"}, {"image": "K184.webp", "name": "K184"}, {"image": "K185.webp", "name": "K185"}, {"image": "K186.webp", "name": "K186"}, {"image": "K187.webp", "name": "K187"}, {"image": "K188.webp", "name": "K188"}];
     let currentActiveIndex = 0;
 
     // ── Live Filtering Logic ──
@@ -2912,9 +3071,10 @@
         }
 
         // Highlight selected range button
-        if (start === 1) document.getElementById("rangeBtn1").classList.add("active");
-        if (start === 51) document.getElementById("rangeBtn2").classList.add("active");
-        if (start === 101) document.getElementById("rangeBtn3").classList.add("active");
+        if (start === 1) document.getElementById("rangeBtn1")?.classList.add("active");
+        if (start === 51) document.getElementById("rangeBtn2")?.classList.add("active");
+        if (start === 101) document.getElementById("rangeBtn3")?.classList.add("active");
+        if (start === 151) document.getElementById("rangeBtn4")?.classList.add("active");
 
         document.querySelectorAll(".product-card").forEach(card => {
             const code = card.getAttribute("data-code");
@@ -3079,7 +3239,24 @@
 
 <!-- JS -->
 <script src="/static/JS/base.js" defer></script>
-<script src="/static/JS/pwa-manager.js" defer></script>
+
+<!-- Clean up legacy service worker & PWA cache -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for (var i = 0; i < registrations.length; i++) {
+        registrations[i].unregister();
+      }
+    });
+  }
+  if ('caches' in window) {
+    caches.keys().then(function(names) {
+      for (var j = 0; j < names.length; j++) {
+        caches.delete(names[j]);
+      }
+    });
+  }
+</script>
 
 
 

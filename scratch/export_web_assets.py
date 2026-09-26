@@ -62,6 +62,10 @@ def build_web_assets():
                 sub_file = os.path.join(fancy_sub_dir, f"{sub}.html")
                 with open(sub_file, 'wb') as f:
                     f.write(r.data)
+                if ' ' in sub:
+                    sub_file_underscore = os.path.join(fancy_sub_dir, f"{sub.replace(' ', '_')}.html")
+                    with open(sub_file_underscore, 'wb') as f:
+                        f.write(r.data)
                 print(f"[OK] Rendered Fancy Subcategory '{sub}' ({len(r.data)} bytes)")
             else:
                 print(f"[WARN] Could not render subcategory '{sub}': status {r.status_code}")
@@ -71,27 +75,30 @@ def build_web_assets():
     static_dst = os.path.join(base_assets_dir, 'static')
     os.makedirs(static_dst, exist_ok=True)
 
-    folders_to_copy = [
-        'Home_Img',
-        'Icons',
-        'CSS',
-        'JS',
-        'Kediya',
-        'Choli',
-        os.path.join('Products', 'Fancy')
-    ]
-
-    for folder in folders_to_copy:
+    fast_folders = ['Home_Img', 'Icons', 'CSS', 'JS']
+    for folder in fast_folders:
         src_path = os.path.join(static_src, folder)
         dst_path = os.path.join(static_dst, folder)
         if os.path.exists(src_path):
-            print(f"Copying {folder} to APK assets...")
+            print(f"Syncing {folder} to APK assets...")
             if os.path.exists(dst_path):
                 shutil.rmtree(dst_path)
             shutil.copytree(src_path, dst_path)
             print(f"[OK] Copied {folder} successfully.")
         else:
             print(f"[WARN] Folder not found: {src_path}")
+
+    heavy_folders = ['Kediya', 'Choli', os.path.join('Products', 'Fancy')]
+    for folder in heavy_folders:
+        src_path = os.path.join(static_src, folder)
+        dst_path = os.path.join(static_dst, folder)
+        if os.path.exists(src_path):
+            if not os.path.exists(dst_path):
+                print(f"Copying initial heavy folder {folder} to APK assets...")
+                shutil.copytree(src_path, dst_path)
+                print(f"[OK] Copied {folder}.")
+            else:
+                print(f"[OK] Preserved heavy asset folder: {folder}")
 
     print("\n=== WEB ASSETS EXPORT COMPLETED SUCCESSFULLY! ===")
 

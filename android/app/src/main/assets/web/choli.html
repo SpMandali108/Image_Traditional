@@ -9,13 +9,8 @@
   <meta name="google-site-verification" content="rblFv2qDddK7ALu3uQhHjVXBk0ucyy6hkBWO735_ZUw" />
   <meta name="google-site-verification" content="e7akNJ_R_ulf6WM24z7vIhQFphN3IrS-EYve6iyAYmg" />
 
-  <!-- Progressive Web App (PWA) Configuration -->
-  <link rel="manifest" href="/manifest.json">
+  <!-- Web Application Icons & Colors -->
   <meta name="theme-color" content="#050D1F">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Image Traditional">
   <link rel="apple-touch-icon" href="/static/Icons/apple-touch-icon.png">
   <link rel="apple-touch-icon" sizes="192x192" href="/static/Icons/icon-192x192.png">
   <link rel="apple-touch-icon" sizes="512x512" href="/static/Icons/icon-512x512.png">
@@ -64,15 +59,10 @@
 
     <div class="header-controls">
 
-      <!-- PWA Network Status Indicator -->
-      <div id="pwaNetworkBadge" class="pwa-status-badge online" aria-live="polite" title="Network connectivity status">
-        <span class="pwa-dot"></span>
-        <span class="pwa-status-text">Online</span>
-      </div>
 
       <!-- Contact Dropdown -->
       <div class="contact-dropdown">
-        <button class="contact-btn" id="contactToggle" aria-expanded="false">
+        <button class="contact-btn" id="contactToggle" aria-expanded="false" title="Contact Us" aria-label="Contact Us">
           <span class="icon">📞</span>
           <span class="btn-text">Contact</span>
         </button>
@@ -109,30 +99,6 @@
   </div>
 </header>
 
-<!-- PWA Update Notification Banner -->
-<div id="pwaUpdateToast" class="pwa-update-toast" style="display: none;" role="alert">
-  <div class="pwa-update-content">
-    <span class="pwa-update-icon">✨</span>
-    <span class="pwa-update-text">An update to Image Traditional is ready!</span>
-  </div>
-  <button type="button" id="pwaUpdateBtn" class="pwa-update-btn">Update Now</button>
-</div>
-
-<!-- Offline Action Interception Modal -->
-<div id="offlineModal" class="pwa-modal-backdrop" style="display: none;">
-  <div class="pwa-modal-card">
-    <div class="modal-icon">⚠️</div>
-    <h3>Live Connection Required</h3>
-    <p id="offlineModalMsg">You are browsing the saved offline catalogue. Live availability checks and booking inquiries require an active internet connection.</p>
-    <div class="modal-actions">
-      <a href="tel:+919428610384" class="modal-btn-call">📞 Call +91-9428610384</a>
-      <button type="button" class="modal-btn-close" onclick="document.getElementById('offlineModal').style.display='none'">Dismiss</button>
-    </div>
-  </div>
-</div>
-
-
-
 <!-- Flash Messages -->
 
   
@@ -160,6 +126,7 @@
             <button class="filter-btn" id="rangeBtn1" onclick="filterRange(1, 50)">C1 - C50</button>
             <button class="filter-btn" id="rangeBtn2" onclick="filterRange(51, 100)">C51 - C100</button>
             <button class="filter-btn" id="rangeBtn3" onclick="filterRange(101, 150)">C101 - C150</button>
+            <button class="filter-btn" id="rangeBtn4" onclick="filterRange(151, 182)">C151 - C182</button>
         </div>
     </div>
 
@@ -1966,6 +1933,390 @@
             </div>
         </div>
         
+        <div class="product-card" data-code="C151" data-index="150" onclick="openLightbox(150)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C151.webp" alt="C151" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C151.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C151</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C152" data-index="151" onclick="openLightbox(151)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C152.webp" alt="C152" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C152.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C152</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C153" data-index="152" onclick="openLightbox(152)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C153.webp" alt="C153" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C153.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C153</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C154" data-index="153" onclick="openLightbox(153)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C154.webp" alt="C154" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C154.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C154</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C155" data-index="154" onclick="openLightbox(154)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C155.webp" alt="C155" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C155.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C155</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C156" data-index="155" onclick="openLightbox(155)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C156.webp" alt="C156" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C156.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C156</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C157" data-index="156" onclick="openLightbox(156)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C157.webp" alt="C157" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C157.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C157</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C158" data-index="157" onclick="openLightbox(157)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C158.webp" alt="C158" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C158.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C158</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C159" data-index="158" onclick="openLightbox(158)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C159.webp" alt="C159" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C159.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C159</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C160" data-index="159" onclick="openLightbox(159)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C160.webp" alt="C160" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C160.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C160</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C161" data-index="160" onclick="openLightbox(160)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C161.webp" alt="C161" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C161.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C161</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C162" data-index="161" onclick="openLightbox(161)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C162.webp" alt="C162" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C162.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C162</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C163" data-index="162" onclick="openLightbox(162)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C163.webp" alt="C163" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C163.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C163</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C164" data-index="163" onclick="openLightbox(163)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C164.webp" alt="C164" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C164.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C164</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C165" data-index="164" onclick="openLightbox(164)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C165.webp" alt="C165" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C165.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C165</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C166" data-index="165" onclick="openLightbox(165)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C166.webp" alt="C166" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C166.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C166</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C167" data-index="166" onclick="openLightbox(166)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C167.webp" alt="C167" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C167.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C167</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C168" data-index="167" onclick="openLightbox(167)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C168.webp" alt="C168" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C168.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C168</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C169" data-index="168" onclick="openLightbox(168)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C169.webp" alt="C169" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C169.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C169</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C170" data-index="169" onclick="openLightbox(169)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C170.webp" alt="C170" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C170.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C170</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C171" data-index="170" onclick="openLightbox(170)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C171.webp" alt="C171" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C171.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C171</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C172" data-index="171" onclick="openLightbox(171)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C172.webp" alt="C172" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C172.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C172</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C173" data-index="172" onclick="openLightbox(172)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C173.webp" alt="C173" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C173.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C173</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C174" data-index="173" onclick="openLightbox(173)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C174.webp" alt="C174" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C174.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C174</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C175" data-index="174" onclick="openLightbox(174)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C175.webp" alt="C175" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C175.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C175</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C176" data-index="175" onclick="openLightbox(175)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C176.webp" alt="C176" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C176.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C176</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C177" data-index="176" onclick="openLightbox(176)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C177.webp" alt="C177" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C177.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C177</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C178" data-index="177" onclick="openLightbox(177)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C178.webp" alt="C178" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C178.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C178</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C179" data-index="178" onclick="openLightbox(178)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C179.webp" alt="C179" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C179.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C179</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C180" data-index="179" onclick="openLightbox(179)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C180.webp" alt="C180" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C180.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C180</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C181" data-index="180" onclick="openLightbox(180)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C181.webp" alt="C181" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C181.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C181</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
+        <div class="product-card" data-code="C182" data-index="181" onclick="openLightbox(181)">
+            <div class="card-gold-stitch"></div>
+            <div class="card-image-wrapper">
+                <img src="/static/Choli/C182.webp" alt="C182" loading="lazy" onerror="this.onerror=null; this.src='/static/CholiJpg/C182.jpg';">
+                <div class="card-mirror-accent">🔆</div>
+            </div>
+            <div class="card-details">
+                <span class="card-code">C182</span>
+                <span class="card-inspect-btn">Quick View</span>
+            </div>
+        </div>
+        
     </div>
 </div>
 
@@ -2007,7 +2358,7 @@
         <!-- Bottom Nav Arrow Controls -->
         <div class="lightbox-nav-row">
             <button class="nav-arrow-btn" onclick="navigateLightbox(-1)">◀ Previous</button>
-            <span class="nav-indicator" id="lightboxIndicator">1 / 150</span>
+            <span class="nav-indicator" id="lightboxIndicator">1 / 182</span>
             <button class="nav-arrow-btn" onclick="navigateLightbox(1)">Next ▶</button>
         </div>
     </div>
@@ -2608,7 +2959,7 @@
 <!-- Live Interactive Script -->
 <script>
     // Safe injection of all items from Flask jinja Context
-    const productsList = [{"image": "C1.webp", "name": "C1"}, {"image": "C2.webp", "name": "C2"}, {"image": "C3.webp", "name": "C3"}, {"image": "C4.webp", "name": "C4"}, {"image": "C5.webp", "name": "C5"}, {"image": "C6.webp", "name": "C6"}, {"image": "C7.webp", "name": "C7"}, {"image": "C8.webp", "name": "C8"}, {"image": "C9.webp", "name": "C9"}, {"image": "C10.webp", "name": "C10"}, {"image": "C11.webp", "name": "C11"}, {"image": "C12.webp", "name": "C12"}, {"image": "C13.webp", "name": "C13"}, {"image": "C14.webp", "name": "C14"}, {"image": "C15.webp", "name": "C15"}, {"image": "C16.webp", "name": "C16"}, {"image": "C17.webp", "name": "C17"}, {"image": "C18.webp", "name": "C18"}, {"image": "C19.webp", "name": "C19"}, {"image": "C20.webp", "name": "C20"}, {"image": "C21.webp", "name": "C21"}, {"image": "C22.webp", "name": "C22"}, {"image": "C23.webp", "name": "C23"}, {"image": "C24.webp", "name": "C24"}, {"image": "C25.webp", "name": "C25"}, {"image": "C26.webp", "name": "C26"}, {"image": "C27.webp", "name": "C27"}, {"image": "C28.webp", "name": "C28"}, {"image": "C29.webp", "name": "C29"}, {"image": "C30.webp", "name": "C30"}, {"image": "C31.webp", "name": "C31"}, {"image": "C32.webp", "name": "C32"}, {"image": "C33.webp", "name": "C33"}, {"image": "C34.webp", "name": "C34"}, {"image": "C35.webp", "name": "C35"}, {"image": "C36.webp", "name": "C36"}, {"image": "C37.webp", "name": "C37"}, {"image": "C38.webp", "name": "C38"}, {"image": "C39.webp", "name": "C39"}, {"image": "C40.webp", "name": "C40"}, {"image": "C41.webp", "name": "C41"}, {"image": "C42.webp", "name": "C42"}, {"image": "C43.webp", "name": "C43"}, {"image": "C44.webp", "name": "C44"}, {"image": "C45.webp", "name": "C45"}, {"image": "C46.webp", "name": "C46"}, {"image": "C47.webp", "name": "C47"}, {"image": "C48.webp", "name": "C48"}, {"image": "C49.webp", "name": "C49"}, {"image": "C50.webp", "name": "C50"}, {"image": "C51.webp", "name": "C51"}, {"image": "C52.webp", "name": "C52"}, {"image": "C53.webp", "name": "C53"}, {"image": "C54.webp", "name": "C54"}, {"image": "C55.webp", "name": "C55"}, {"image": "C56.webp", "name": "C56"}, {"image": "C57.webp", "name": "C57"}, {"image": "C58.webp", "name": "C58"}, {"image": "C59.webp", "name": "C59"}, {"image": "C60.webp", "name": "C60"}, {"image": "C61.webp", "name": "C61"}, {"image": "C62.webp", "name": "C62"}, {"image": "C63.webp", "name": "C63"}, {"image": "C64.webp", "name": "C64"}, {"image": "C65.webp", "name": "C65"}, {"image": "C66.webp", "name": "C66"}, {"image": "C67.webp", "name": "C67"}, {"image": "C68.webp", "name": "C68"}, {"image": "C69.webp", "name": "C69"}, {"image": "C70.webp", "name": "C70"}, {"image": "C71.webp", "name": "C71"}, {"image": "C72.webp", "name": "C72"}, {"image": "C73.webp", "name": "C73"}, {"image": "C74.webp", "name": "C74"}, {"image": "C75.webp", "name": "C75"}, {"image": "C76.webp", "name": "C76"}, {"image": "C77.webp", "name": "C77"}, {"image": "C78.webp", "name": "C78"}, {"image": "C79.webp", "name": "C79"}, {"image": "C80.webp", "name": "C80"}, {"image": "C81.webp", "name": "C81"}, {"image": "C82.webp", "name": "C82"}, {"image": "C83.webp", "name": "C83"}, {"image": "C84.webp", "name": "C84"}, {"image": "C85.webp", "name": "C85"}, {"image": "C86.webp", "name": "C86"}, {"image": "C87.webp", "name": "C87"}, {"image": "C88.webp", "name": "C88"}, {"image": "C89.webp", "name": "C89"}, {"image": "C90.webp", "name": "C90"}, {"image": "C91.webp", "name": "C91"}, {"image": "C92.webp", "name": "C92"}, {"image": "C93.webp", "name": "C93"}, {"image": "C94.webp", "name": "C94"}, {"image": "C95.webp", "name": "C95"}, {"image": "C96.webp", "name": "C96"}, {"image": "C97.webp", "name": "C97"}, {"image": "C98.webp", "name": "C98"}, {"image": "C99.webp", "name": "C99"}, {"image": "C100.webp", "name": "C100"}, {"image": "C101.webp", "name": "C101"}, {"image": "C102.webp", "name": "C102"}, {"image": "C103.webp", "name": "C103"}, {"image": "C104.webp", "name": "C104"}, {"image": "C105.webp", "name": "C105"}, {"image": "C106.webp", "name": "C106"}, {"image": "C107.webp", "name": "C107"}, {"image": "C108.webp", "name": "C108"}, {"image": "C109.webp", "name": "C109"}, {"image": "C110.webp", "name": "C110"}, {"image": "C111.webp", "name": "C111"}, {"image": "C112.webp", "name": "C112"}, {"image": "C113.webp", "name": "C113"}, {"image": "C114.webp", "name": "C114"}, {"image": "C115.webp", "name": "C115"}, {"image": "C116.webp", "name": "C116"}, {"image": "C117.webp", "name": "C117"}, {"image": "C118.webp", "name": "C118"}, {"image": "C119.webp", "name": "C119"}, {"image": "C120.webp", "name": "C120"}, {"image": "C121.webp", "name": "C121"}, {"image": "C122.webp", "name": "C122"}, {"image": "C123.webp", "name": "C123"}, {"image": "C124.webp", "name": "C124"}, {"image": "C125.webp", "name": "C125"}, {"image": "C126.webp", "name": "C126"}, {"image": "C127.webp", "name": "C127"}, {"image": "C128.webp", "name": "C128"}, {"image": "C129.webp", "name": "C129"}, {"image": "C130.webp", "name": "C130"}, {"image": "C131.webp", "name": "C131"}, {"image": "C132.webp", "name": "C132"}, {"image": "C133.webp", "name": "C133"}, {"image": "C134.webp", "name": "C134"}, {"image": "C135.webp", "name": "C135"}, {"image": "C136.webp", "name": "C136"}, {"image": "C137.webp", "name": "C137"}, {"image": "C138.webp", "name": "C138"}, {"image": "C139.webp", "name": "C139"}, {"image": "C140.webp", "name": "C140"}, {"image": "C141.webp", "name": "C141"}, {"image": "C142.webp", "name": "C142"}, {"image": "C143.webp", "name": "C143"}, {"image": "C144.webp", "name": "C144"}, {"image": "C145.webp", "name": "C145"}, {"image": "C146.webp", "name": "C146"}, {"image": "C147.webp", "name": "C147"}, {"image": "C148.webp", "name": "C148"}, {"image": "C149.webp", "name": "C149"}, {"image": "C150.webp", "name": "C150"}];
+    const productsList = [{"image": "C1.webp", "name": "C1"}, {"image": "C2.webp", "name": "C2"}, {"image": "C3.webp", "name": "C3"}, {"image": "C4.webp", "name": "C4"}, {"image": "C5.webp", "name": "C5"}, {"image": "C6.webp", "name": "C6"}, {"image": "C7.webp", "name": "C7"}, {"image": "C8.webp", "name": "C8"}, {"image": "C9.webp", "name": "C9"}, {"image": "C10.webp", "name": "C10"}, {"image": "C11.webp", "name": "C11"}, {"image": "C12.webp", "name": "C12"}, {"image": "C13.webp", "name": "C13"}, {"image": "C14.webp", "name": "C14"}, {"image": "C15.webp", "name": "C15"}, {"image": "C16.webp", "name": "C16"}, {"image": "C17.webp", "name": "C17"}, {"image": "C18.webp", "name": "C18"}, {"image": "C19.webp", "name": "C19"}, {"image": "C20.webp", "name": "C20"}, {"image": "C21.webp", "name": "C21"}, {"image": "C22.webp", "name": "C22"}, {"image": "C23.webp", "name": "C23"}, {"image": "C24.webp", "name": "C24"}, {"image": "C25.webp", "name": "C25"}, {"image": "C26.webp", "name": "C26"}, {"image": "C27.webp", "name": "C27"}, {"image": "C28.webp", "name": "C28"}, {"image": "C29.webp", "name": "C29"}, {"image": "C30.webp", "name": "C30"}, {"image": "C31.webp", "name": "C31"}, {"image": "C32.webp", "name": "C32"}, {"image": "C33.webp", "name": "C33"}, {"image": "C34.webp", "name": "C34"}, {"image": "C35.webp", "name": "C35"}, {"image": "C36.webp", "name": "C36"}, {"image": "C37.webp", "name": "C37"}, {"image": "C38.webp", "name": "C38"}, {"image": "C39.webp", "name": "C39"}, {"image": "C40.webp", "name": "C40"}, {"image": "C41.webp", "name": "C41"}, {"image": "C42.webp", "name": "C42"}, {"image": "C43.webp", "name": "C43"}, {"image": "C44.webp", "name": "C44"}, {"image": "C45.webp", "name": "C45"}, {"image": "C46.webp", "name": "C46"}, {"image": "C47.webp", "name": "C47"}, {"image": "C48.webp", "name": "C48"}, {"image": "C49.webp", "name": "C49"}, {"image": "C50.webp", "name": "C50"}, {"image": "C51.webp", "name": "C51"}, {"image": "C52.webp", "name": "C52"}, {"image": "C53.webp", "name": "C53"}, {"image": "C54.webp", "name": "C54"}, {"image": "C55.webp", "name": "C55"}, {"image": "C56.webp", "name": "C56"}, {"image": "C57.webp", "name": "C57"}, {"image": "C58.webp", "name": "C58"}, {"image": "C59.webp", "name": "C59"}, {"image": "C60.webp", "name": "C60"}, {"image": "C61.webp", "name": "C61"}, {"image": "C62.webp", "name": "C62"}, {"image": "C63.webp", "name": "C63"}, {"image": "C64.webp", "name": "C64"}, {"image": "C65.webp", "name": "C65"}, {"image": "C66.webp", "name": "C66"}, {"image": "C67.webp", "name": "C67"}, {"image": "C68.webp", "name": "C68"}, {"image": "C69.webp", "name": "C69"}, {"image": "C70.webp", "name": "C70"}, {"image": "C71.webp", "name": "C71"}, {"image": "C72.webp", "name": "C72"}, {"image": "C73.webp", "name": "C73"}, {"image": "C74.webp", "name": "C74"}, {"image": "C75.webp", "name": "C75"}, {"image": "C76.webp", "name": "C76"}, {"image": "C77.webp", "name": "C77"}, {"image": "C78.webp", "name": "C78"}, {"image": "C79.webp", "name": "C79"}, {"image": "C80.webp", "name": "C80"}, {"image": "C81.webp", "name": "C81"}, {"image": "C82.webp", "name": "C82"}, {"image": "C83.webp", "name": "C83"}, {"image": "C84.webp", "name": "C84"}, {"image": "C85.webp", "name": "C85"}, {"image": "C86.webp", "name": "C86"}, {"image": "C87.webp", "name": "C87"}, {"image": "C88.webp", "name": "C88"}, {"image": "C89.webp", "name": "C89"}, {"image": "C90.webp", "name": "C90"}, {"image": "C91.webp", "name": "C91"}, {"image": "C92.webp", "name": "C92"}, {"image": "C93.webp", "name": "C93"}, {"image": "C94.webp", "name": "C94"}, {"image": "C95.webp", "name": "C95"}, {"image": "C96.webp", "name": "C96"}, {"image": "C97.webp", "name": "C97"}, {"image": "C98.webp", "name": "C98"}, {"image": "C99.webp", "name": "C99"}, {"image": "C100.webp", "name": "C100"}, {"image": "C101.webp", "name": "C101"}, {"image": "C102.webp", "name": "C102"}, {"image": "C103.webp", "name": "C103"}, {"image": "C104.webp", "name": "C104"}, {"image": "C105.webp", "name": "C105"}, {"image": "C106.webp", "name": "C106"}, {"image": "C107.webp", "name": "C107"}, {"image": "C108.webp", "name": "C108"}, {"image": "C109.webp", "name": "C109"}, {"image": "C110.webp", "name": "C110"}, {"image": "C111.webp", "name": "C111"}, {"image": "C112.webp", "name": "C112"}, {"image": "C113.webp", "name": "C113"}, {"image": "C114.webp", "name": "C114"}, {"image": "C115.webp", "name": "C115"}, {"image": "C116.webp", "name": "C116"}, {"image": "C117.webp", "name": "C117"}, {"image": "C118.webp", "name": "C118"}, {"image": "C119.webp", "name": "C119"}, {"image": "C120.webp", "name": "C120"}, {"image": "C121.webp", "name": "C121"}, {"image": "C122.webp", "name": "C122"}, {"image": "C123.webp", "name": "C123"}, {"image": "C124.webp", "name": "C124"}, {"image": "C125.webp", "name": "C125"}, {"image": "C126.webp", "name": "C126"}, {"image": "C127.webp", "name": "C127"}, {"image": "C128.webp", "name": "C128"}, {"image": "C129.webp", "name": "C129"}, {"image": "C130.webp", "name": "C130"}, {"image": "C131.webp", "name": "C131"}, {"image": "C132.webp", "name": "C132"}, {"image": "C133.webp", "name": "C133"}, {"image": "C134.webp", "name": "C134"}, {"image": "C135.webp", "name": "C135"}, {"image": "C136.webp", "name": "C136"}, {"image": "C137.webp", "name": "C137"}, {"image": "C138.webp", "name": "C138"}, {"image": "C139.webp", "name": "C139"}, {"image": "C140.webp", "name": "C140"}, {"image": "C141.webp", "name": "C141"}, {"image": "C142.webp", "name": "C142"}, {"image": "C143.webp", "name": "C143"}, {"image": "C144.webp", "name": "C144"}, {"image": "C145.webp", "name": "C145"}, {"image": "C146.webp", "name": "C146"}, {"image": "C147.webp", "name": "C147"}, {"image": "C148.webp", "name": "C148"}, {"image": "C149.webp", "name": "C149"}, {"image": "C150.webp", "name": "C150"}, {"image": "C151.webp", "name": "C151"}, {"image": "C152.webp", "name": "C152"}, {"image": "C153.webp", "name": "C153"}, {"image": "C154.webp", "name": "C154"}, {"image": "C155.webp", "name": "C155"}, {"image": "C156.webp", "name": "C156"}, {"image": "C157.webp", "name": "C157"}, {"image": "C158.webp", "name": "C158"}, {"image": "C159.webp", "name": "C159"}, {"image": "C160.webp", "name": "C160"}, {"image": "C161.webp", "name": "C161"}, {"image": "C162.webp", "name": "C162"}, {"image": "C163.webp", "name": "C163"}, {"image": "C164.webp", "name": "C164"}, {"image": "C165.webp", "name": "C165"}, {"image": "C166.webp", "name": "C166"}, {"image": "C167.webp", "name": "C167"}, {"image": "C168.webp", "name": "C168"}, {"image": "C169.webp", "name": "C169"}, {"image": "C170.webp", "name": "C170"}, {"image": "C171.webp", "name": "C171"}, {"image": "C172.webp", "name": "C172"}, {"image": "C173.webp", "name": "C173"}, {"image": "C174.webp", "name": "C174"}, {"image": "C175.webp", "name": "C175"}, {"image": "C176.webp", "name": "C176"}, {"image": "C177.webp", "name": "C177"}, {"image": "C178.webp", "name": "C178"}, {"image": "C179.webp", "name": "C179"}, {"image": "C180.webp", "name": "C180"}, {"image": "C181.webp", "name": "C181"}, {"image": "C182.webp", "name": "C182"}];
     let currentActiveIndex = 0;
 
     // ── Live Filtering Logic ──
@@ -2648,9 +2999,10 @@
         }
 
         // Highlight selected range button
-        if (start === 1) document.getElementById("rangeBtn1").classList.add("active");
-        if (start === 51) document.getElementById("rangeBtn2").classList.add("active");
-        if (start === 101) document.getElementById("rangeBtn3").classList.add("active");
+        if (start === 1) document.getElementById("rangeBtn1")?.classList.add("active");
+        if (start === 51) document.getElementById("rangeBtn2")?.classList.add("active");
+        if (start === 101) document.getElementById("rangeBtn3")?.classList.add("active");
+        if (start === 151) document.getElementById("rangeBtn4")?.classList.add("active");
 
         document.querySelectorAll(".product-card").forEach(card => {
             const code = card.getAttribute("data-code");
@@ -2814,7 +3166,24 @@
 
 <!-- JS -->
 <script src="/static/JS/base.js" defer></script>
-<script src="/static/JS/pwa-manager.js" defer></script>
+
+<!-- Clean up legacy service worker & PWA cache -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for (var i = 0; i < registrations.length; i++) {
+        registrations[i].unregister();
+      }
+    });
+  }
+  if ('caches' in window) {
+    caches.keys().then(function(names) {
+      for (var j = 0; j < names.length; j++) {
+        caches.delete(names[j]);
+      }
+    });
+  }
+</script>
 
 
 

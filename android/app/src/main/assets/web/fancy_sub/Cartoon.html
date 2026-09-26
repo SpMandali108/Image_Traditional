@@ -11,13 +11,8 @@ Browse our Cartoon Fancy Dress collection.
   <meta name="google-site-verification" content="rblFv2qDddK7ALu3uQhHjVXBk0ucyy6hkBWO735_ZUw" />
   <meta name="google-site-verification" content="e7akNJ_R_ulf6WM24z7vIhQFphN3IrS-EYve6iyAYmg" />
 
-  <!-- Progressive Web App (PWA) Configuration -->
-  <link rel="manifest" href="/manifest.json">
+  <!-- Web Application Icons & Colors -->
   <meta name="theme-color" content="#050D1F">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Image Traditional">
   <link rel="apple-touch-icon" href="/static/Icons/apple-touch-icon.png">
   <link rel="apple-touch-icon" sizes="192x192" href="/static/Icons/icon-192x192.png">
   <link rel="apple-touch-icon" sizes="512x512" href="/static/Icons/icon-512x512.png">
@@ -66,15 +61,10 @@ Browse our Cartoon Fancy Dress collection.
 
     <div class="header-controls">
 
-      <!-- PWA Network Status Indicator -->
-      <div id="pwaNetworkBadge" class="pwa-status-badge online" aria-live="polite" title="Network connectivity status">
-        <span class="pwa-dot"></span>
-        <span class="pwa-status-text">Online</span>
-      </div>
 
       <!-- Contact Dropdown -->
       <div class="contact-dropdown">
-        <button class="contact-btn" id="contactToggle" aria-expanded="false">
+        <button class="contact-btn" id="contactToggle" aria-expanded="false" title="Contact Us" aria-label="Contact Us">
           <span class="icon">📞</span>
           <span class="btn-text">Contact</span>
         </button>
@@ -110,30 +100,6 @@ Browse our Cartoon Fancy Dress collection.
     </div>
   </div>
 </header>
-
-<!-- PWA Update Notification Banner -->
-<div id="pwaUpdateToast" class="pwa-update-toast" style="display: none;" role="alert">
-  <div class="pwa-update-content">
-    <span class="pwa-update-icon">✨</span>
-    <span class="pwa-update-text">An update to Image Traditional is ready!</span>
-  </div>
-  <button type="button" id="pwaUpdateBtn" class="pwa-update-btn">Update Now</button>
-</div>
-
-<!-- Offline Action Interception Modal -->
-<div id="offlineModal" class="pwa-modal-backdrop" style="display: none;">
-  <div class="pwa-modal-card">
-    <div class="modal-icon">⚠️</div>
-    <h3>Live Connection Required</h3>
-    <p id="offlineModalMsg">You are browsing the saved offline catalogue. Live availability checks and booking inquiries require an active internet connection.</p>
-    <div class="modal-actions">
-      <a href="tel:+919428610384" class="modal-btn-call">📞 Call +91-9428610384</a>
-      <button type="button" class="modal-btn-close" onclick="document.getElementById('offlineModal').style.display='none'">Dismiss</button>
-    </div>
-  </div>
-</div>
-
-
 
 <!-- Flash Messages -->
 
@@ -1648,7 +1614,24 @@ Browse our Cartoon Fancy Dress collection.
 
 <!-- JS -->
 <script src="/static/JS/base.js" defer></script>
-<script src="/static/JS/pwa-manager.js" defer></script>
+
+<!-- Clean up legacy service worker & PWA cache -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for (var i = 0; i < registrations.length; i++) {
+        registrations[i].unregister();
+      }
+    });
+  }
+  if ('caches' in window) {
+    caches.keys().then(function(names) {
+      for (var j = 0; j < names.length; j++) {
+        caches.delete(names[j]);
+      }
+    });
+  }
+</script>
 
 
 

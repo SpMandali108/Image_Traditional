@@ -191,6 +191,7 @@ class MainActivity : AppCompatActivity() {
         settings.setSupportZoom(true)
         settings.builtInZoomControls = true
         settings.displayZoomControls = false
+        settings.textZoom = 100
 
         // 3. Security Settings (Strict HTTPS)
         settings.allowFileAccess = false
@@ -310,14 +311,19 @@ class MainActivity : AppCompatActivity() {
                     val decodedPath = Uri.decode(path)
                     val assetPath = "web" + decodedPath
 
-                    val stream = openAssetStream(assetPath)
-                    if (stream != null) {
-                        val mimeType = getMimeType(assetPath)
-                        val headers = mapOf(
-                            "Access-Control-Allow-Origin" to "*",
-                            "Cache-Control" to "public, max-age=31536000"
-                        )
-                        return WebResourceResponse(mimeType, "UTF-8", 200, "OK", headers, stream)
+                    // When online, let CSS and JS load dynamically from network so live styles stay in sync,
+                    // but continue to intercept heavy media (images, fonts, icons) from APK for instant performance.
+                    val isStyleOrScript = decodedPath.startsWith("/CSS/") || decodedPath.startsWith("/JS/")
+                    if (!isNetworkAvailable() || !isStyleOrScript) {
+                        val stream = openAssetStream(assetPath)
+                        if (stream != null) {
+                            val mimeType = getMimeType(assetPath)
+                            val headers = mapOf(
+                                "Access-Control-Allow-Origin" to "*",
+                                "Cache-Control" to "public, max-age=31536000"
+                            )
+                            return WebResourceResponse(mimeType, "UTF-8", 200, "OK", headers, stream)
+                        }
                     }
                 }
 
