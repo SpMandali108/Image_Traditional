@@ -1,0 +1,1124 @@
+{% extends "general/base.html" %}
+{% block title %}Costume Rental Status & Inventory | Image Traditional{% endblock %}
+
+{% block logo_link %}
+<a href="/navaratri_admin" class="logo">
+    <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Image Traditional Logo">
+    <span class="logo-text">Image Traditional</span>
+</a>
+{% endblock %}
+
+{% block robots %}
+<meta name="robots" content="noindex, nofollow" />
+{% endblock %}
+
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+:root {
+    --navy-bg:      #0a1628;
+    --surface-bg:   #0f1e32;
+    --card-bg:      #111f33;
+    --card-hover:   #152540;
+    --gold:         #d4af37;
+    --gold-lt:      #f5d580;
+    --gold-dk:      #b8961e;
+    --gold-bg:      rgba(212, 175, 55, 0.08);
+    --gold-bd:      rgba(212, 175, 55, 0.25);
+    --gold-bd-h:    rgba(212, 175, 55, 0.5);
+    --white:        #f8fafc;
+    --text:         #b8c5d4;
+    --muted:        #64748b;
+    --danger:       #ef4444;
+    --danger-bg:    rgba(239, 68, 68, 0.12);
+    --danger-bd:    rgba(239, 68, 68, 0.3);
+    --success:      #10b981;
+    --success-bg:   rgba(16, 185, 129, 0.12);
+    --success-bd:   rgba(16, 185, 129, 0.3);
+    --border-subtle: rgba(255, 255, 255, 0.06);
+}
+
+body {
+    background-color: var(--navy-bg) !important;
+    color: var(--text) !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+}
+
+.products-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 24px 16px 80px 16px;
+}
+
+/* ── TOP NAV HEADER ── */
+.top-nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: 14px;
+    padding: 14px 20px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.nav-title-group h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--white);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.nav-title-group h1 span { color: var(--gold); }
+.nav-title-group p {
+    margin: 2px 0 0 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.nav-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid var(--gold-bd);
+    background: transparent;
+    color: var(--gold);
+}
+.btn-nav:hover {
+    background: var(--gold-bg);
+    color: var(--gold-lt);
+    border-color: var(--gold-bd-h);
+}
+
+.btn-nav-primary {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dk) 100%);
+    color: #0a1120 !important;
+    border: none;
+    font-weight: 700;
+}
+.btn-nav-primary:hover {
+    background: linear-gradient(135deg, #f4d360 0%, var(--gold-dk) 100%);
+    transform: translateY(-1px);
+}
+
+/* ── SUMMARY STATS ── */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+    overflow: hidden;
+}
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gold);
+}
+.stat-card.stat-available::before { background: var(--success); }
+.stat-card.stat-sold::before { background: var(--danger); }
+
+.stat-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+}
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--white);
+}
+.stat-value.text-success { color: var(--success); }
+.stat-value.text-danger { color: var(--danger); }
+
+/* ── FILTER CONTROLS BAR ── */
+.filters-bar {
+    background: var(--surface-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: 10px;
+    padding: 8px 14px;
+    flex: 1;
+    min-width: 240px;
+    max-width: 400px;
+}
+.search-box input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--white);
+    font-size: 0.9rem;
+    width: 100%;
+}
+.search-box input::placeholder { color: var(--muted); }
+
+.filter-pills-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filter-pill {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.filter-pill:hover {
+    color: var(--white);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+.filter-pill.active {
+    background: var(--gold-bg);
+    border-color: var(--gold);
+    color: var(--gold-lt);
+}
+
+/* ── PRODUCTS TABLE ── */
+.table-card {
+    background: var(--card-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.table-responsive {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.products-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.88rem;
+}
+
+.products-table th {
+    background: rgba(10, 22, 40, 0.95);
+    color: var(--gold-lt);
+    padding: 14px 16px;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--gold-bd);
+    white-space: nowrap;
+}
+
+.products-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+    color: var(--text);
+}
+
+.products-table tbody tr {
+    transition: background 0.15s ease;
+}
+.products-table tbody tr:hover {
+    background: var(--card-hover);
+}
+
+/* Thumbnail */
+.prod-thumb {
+    width: 54px;
+    height: 54px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #060c16;
+    border: 1px solid var(--gold-bd);
+    display: block;
+}
+
+/* Code */
+.prod-code-badge {
+    font-family: monospace;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--gold-lt);
+    background: var(--gold-bg);
+    border: 1px solid var(--gold-bd);
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+/* Status Badges */
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.status-rentable {
+    background: var(--success-bg);
+    border: 1px solid var(--success-bd);
+    color: var(--success);
+}
+
+.status-sold {
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-bd);
+    color: var(--danger);
+}
+
+/* Sell and Restore Buttons */
+.btn-sell {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #fff !important;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.btn-sell:hover {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.45);
+}
+
+.btn-disabled-sold {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: var(--danger);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: not-allowed;
+    opacity: 0.75;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-restore {
+    background: transparent;
+    border: 1px solid var(--gold-bd);
+    color: var(--gold);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: all 0.2s ease;
+}
+.btn-restore:hover {
+    background: var(--gold-bg);
+    color: var(--gold-lt);
+    border-color: var(--gold);
+}
+
+/* ── INTERACTIVE PASSWORD & CONFIRMATION MODAL ── */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(5, 13, 31, 0.85);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
+}
+.modal-overlay.active { display: flex; }
+
+.modal-dialog-box {
+    background: linear-gradient(145deg, #101c30 0%, #0c1524 100%);
+    border: 2px solid var(--gold-bd);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 480px;
+    padding: 28px;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.15);
+    animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--muted);
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+.modal-close-btn:hover { background: var(--danger); color: white; border-color: var(--danger); }
+
+.modal-header-icon {
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+}
+.modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 6px;
+}
+.modal-subtitle {
+    font-size: 0.86rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.password-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+.password-input-group label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--gold-lt);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.password-input-group input {
+    background: rgba(6, 12, 23, 0.8);
+    border: 1px solid var(--gold-bd);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    letter-spacing: 2px;
+}
+.password-input-group input:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
+
+.error-banner {
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-bd);
+    color: #fca5a5;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    margin-bottom: 16px;
+    display: none;
+}
+
+.confirmation-card {
+    background: rgba(6, 12, 23, 0.6);
+    border: 1px solid var(--gold-bd);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 22px;
+    text-align: left;
+    font-size: 0.88rem;
+    color: #e2e8f0;
+}
+.confirmation-card ul {
+    margin: 10px 0 0 18px;
+    padding: 0;
+    color: var(--muted);
+    font-size: 0.82rem;
+    line-height: 1.6;
+}
+.confirmation-card li { margin-bottom: 4px; }
+.confirmation-card strong { color: var(--gold-lt); }
+
+.modal-actions-row {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+.btn-modal-cancel {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--text);
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: all 0.2s;
+}
+.btn-modal-cancel:hover { background: rgba(255, 255, 255, 0.1); }
+
+.btn-modal-confirm {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.88rem;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+    transition: all 0.2s;
+}
+.btn-modal-confirm:hover {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    transform: translateY(-1px);
+}
+
+.btn-modal-verify {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dk) 100%);
+    color: #0a1120;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.88rem;
+    transition: all 0.2s;
+}
+.btn-modal-verify:hover {
+    background: linear-gradient(135deg, #f4d360 0%, var(--gold-dk) 100%);
+}
+
+/* Toast */
+.action-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #0f1e32;
+    border: 1px solid var(--gold);
+    color: var(--white);
+    padding: 14px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    display: none;
+    z-index: 10000;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+</style>
+
+<div class="products-container">
+
+    <!-- Top Navigation Bar -->
+    <div class="top-nav-bar">
+        <div class="nav-title-group">
+            <h1>🏷️ Costume <span>Rental Status</span></h1>
+            <p>Database-driven rental availability &amp; sale management for Kediya &amp; Choli</p>
+        </div>
+        <div class="nav-actions">
+            <button type="button" class="btn-nav" onclick="syncProducts()">🔄 Sync Catalog</button>
+            <a href="/kediya" target="_blank" class="btn-nav">🕺 View Kediya</a>
+            <a href="/choli" target="_blank" class="btn-nav">👗 View Choli</a>
+            <a href="/navaratri_admin" class="btn-nav btn-nav-primary">🪔 Navaratri Admin</a>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">Total Costumes</span>
+            <span class="stat-value" id="statTotal">{{ total_count }}</span>
+        </div>
+        <div class="stat-card stat-available">
+            <span class="stat-label">Available for Rent</span>
+            <span class="stat-value text-success" id="statAvailable">{{ available_count }}</span>
+        </div>
+        <div class="stat-card stat-sold">
+            <span class="stat-label">Sold / Not for Rent</span>
+            <span class="stat-value text-danger" id="statSold">{{ sold_count }}</span>
+        </div>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="filters-bar">
+        <div class="search-box">
+            <span>🔍</span>
+            <input type="text" id="searchInput" placeholder="Search costume code (e.g. C10, K15)..." onkeyup="filterProductsTable()">
+        </div>
+        
+        <div class="filter-pills-group">
+            <span style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; font-weight: 700; margin-right: 4px;">Category:</span>
+            <button class="filter-pill active" id="catAll" onclick="setCategoryFilter('all')">All</button>
+            <button class="filter-pill" id="catKediya" onclick="setCategoryFilter('K')">🕺 Kediya</button>
+            <button class="filter-pill" id="catCholi" onclick="setCategoryFilter('C')">👗 Choli</button>
+
+            <span style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; font-weight: 700; margin-left: 10px; margin-right: 4px;">Status:</span>
+            <button class="filter-pill active" id="statusAll" onclick="setStatusFilter('all')">All Status</button>
+            <button class="filter-pill" id="statusAvail" onclick="setStatusFilter('available')">🟢 Available</button>
+            <button class="filter-pill" id="statusSold" onclick="setStatusFilter('sold')">🔴 Sold</button>
+        </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="table-card">
+        <div class="table-responsive">
+            <table class="products-table" id="productsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">Preview</th>
+                        <th style="width: 130px;">Code</th>
+                        <th style="width: 160px;">Category</th>
+                        <th style="width: 220px;">Rental Status</th>
+                        <th>Admin Action</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                    {% for p in products %}
+                    {% set is_choli = p.code.startswith('C') %}
+                    {% set cat_type = 'C' if is_choli else ('K' if p.code.startswith('K') else 'OTHER') %}
+                    {% set is_rent = p.on_rent %}
+                    
+                    <tr class="product-row" 
+                        id="row-{{ p.code }}"
+                        data-code="{{ p.code }}" 
+                        data-category="{{ cat_type }}" 
+                        data-status="{% if is_rent %}available{% else %}sold{% endif %}">
+                        
+                        <!-- Thumbnail -->
+                        <td>
+                            {% if is_choli %}
+                                <img src="{{ url_for('static', filename='CholiJpg/' ~ p.code ~ '.jpg') }}" 
+                                     alt="{{ p.code }}" 
+                                     class="prod-thumb" 
+                                     loading="lazy" 
+                                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='Choli/' ~ p.image) }}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='KediyaJpg/' ~ p.code ~ '.jpg') }}" 
+                                     alt="{{ p.code }}" 
+                                     class="prod-thumb" 
+                                     loading="lazy" 
+                                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='Kediya/' ~ p.image) }}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
+                            {% endif %}
+                        </td>
+
+                        <!-- Code -->
+                        <td>
+                            <span class="prod-code-badge">{{ p.code }}</span>
+                        </td>
+
+                        <!-- Category -->
+                        <td>
+                            <span style="font-weight: 600; color: #e2e8f0;">
+                                {% if is_choli %}👗 Chaniya Choli{% else %}🕺 Traditional Kediya{% endif %}
+                            </span>
+                        </td>
+
+                        <!-- Rental Status Badge -->
+                        <td id="status-cell-{{ p.code }}">
+                            {% if is_rent %}
+                                <span class="badge-status status-rentable">
+                                    <span style="font-size: 0.6rem;">●</span> Available for Rent
+                                </span>
+                            {% else %}
+                                <span class="badge-status status-sold">
+                                    <span style="font-size: 0.6rem;">●</span> Sold / Not for Rent
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Action Button -->
+                        <td id="action-cell-{{ p.code }}">
+                            {% if is_rent %}
+                                <button type="button" class="btn-sell" onclick="initiateSell('{{ p.code }}')">
+                                    🏷️ Sell / Remove From Rent
+                                </button>
+                            {% else %}
+                                <span class="btn-disabled-sold" title="This product has already been sold">
+                                    🔒 Sold
+                                </span>
+                                <button type="button" class="btn-restore" onclick="initiateRestore('{{ p.code }}')" title="Restore back to available rentals">
+                                    ↩ Restore
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================================== -->
+<!-- 🔒 SECURE SELL CONFIRMATION MODAL -->
+<!-- ============================================================================== -->
+<div class="modal-overlay" id="sellModal">
+    <div class="modal-dialog-box">
+        <button type="button" class="modal-close-btn" onclick="closeSellModal()">✕</button>
+
+        <!-- STEP 1: PASSWORD VALIDATION DIALOG -->
+        <div id="modalStep1">
+            <div class="modal-header-icon">🔒</div>
+            <h2 class="modal-title">Admin Password Required</h2>
+            <p class="modal-subtitle">
+                Enter your administrative password to proceed with marking costume 
+                <strong style="color: var(--gold-lt);" id="modalCodeText1"></strong> as sold.
+            </p>
+
+            <div class="error-banner" id="passwordErrorBanner"></div>
+
+            <form onsubmit="handlePasswordSubmit(event)">
+                <div class="password-input-group">
+                    <label for="adminPassword">Admin Password</label>
+                    <input type="password" id="adminPassword" autocomplete="current-password" placeholder="••••••" required autofocus>
+                </div>
+
+                <div class="modal-actions-row">
+                    <button type="button" class="btn-modal-cancel" onclick="closeSellModal()">Cancel</button>
+                    <button type="submit" class="btn-modal-verify" id="btnVerifyPassword">Verify Password →</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- STEP 2: CONFIRMATION DIALOG -->
+        <div id="modalStep2" style="display: none;">
+            <div class="modal-header-icon" style="color: var(--danger);">⚠️</div>
+            <h2 class="modal-title">Confirm Product Removal</h2>
+            <p class="modal-subtitle">Please review carefully before confirming the status change.</p>
+
+            <div class="confirmation-card">
+                Are you sure you want to mark <strong id="modalCodeText2"></strong> as <strong>no longer available for rent</strong>?
+                <ul>
+                    <li><strong>Remove it from the catalogue</strong> (immediately hidden from customers)</li>
+                    <li><strong>Prevent future bookings</strong> (rejected at backend validation)</li>
+                    <li><strong>Keep the existing image</strong> (file stays completely intact)</li>
+                    <li><strong>Keep historical booking records</strong> (all existing bookings preserved)</li>
+                </ul>
+            </div>
+
+            <div class="error-banner" id="confirmErrorBanner"></div>
+
+            <div class="modal-actions-row">
+                <button type="button" class="btn-modal-cancel" onclick="closeSellModal()">Cancel</button>
+                <button type="button" class="btn-modal-confirm" id="btnConfirmSell" onclick="executeSell()">
+                    ✓ Confirm &amp; Mark as Sold
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ============================================================================== -->
+<!-- ↩ RESTORE CONFIRMATION MODAL -->
+<!-- ============================================================================== -->
+<div class="modal-overlay" id="restoreModal">
+    <div class="modal-dialog-box">
+        <button type="button" class="modal-close-btn" onclick="closeRestoreModal()">✕</button>
+
+        <div class="modal-header-icon">↩️</div>
+        <h2 class="modal-title">Restore Product to Rental</h2>
+        <p class="modal-subtitle">
+            Enter your admin password to make costume 
+            <strong style="color: var(--gold-lt);" id="restoreModalCodeText"></strong> available for rent again.
+        </p>
+
+        <div class="error-banner" id="restoreErrorBanner"></div>
+
+        <form onsubmit="handleRestoreSubmit(event)">
+            <div class="password-input-group">
+                <label for="restoreAdminPassword">Admin Password</label>
+                <input type="password" id="restoreAdminPassword" autocomplete="current-password" placeholder="••••••" required>
+            </div>
+
+            <div class="modal-actions-row">
+                <button type="button" class="btn-modal-cancel" onclick="closeRestoreModal()">Cancel</button>
+                <button type="submit" class="btn-modal-verify" id="btnConfirmRestore">Restore Product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Action Toast -->
+<div class="action-toast" id="actionToast"></div>
+
+<script>
+let currentTargetCode = null;
+let validatedPassword = null;
+let currentCategoryFilter = 'all';
+let currentStatusFilter = 'all';
+
+// ── Search & Filter Logic ──
+function filterProductsTable() {
+    const searchVal = document.getElementById("searchInput").value.trim().toUpperCase();
+    const rows = document.querySelectorAll(".product-row");
+
+    rows.forEach(row => {
+        const code = row.getAttribute("data-code").toUpperCase();
+        const cat = row.getAttribute("data-category");
+        const status = row.getAttribute("data-status");
+
+        const matchesSearch = !searchVal || code.includes(searchVal);
+        const matchesCat = (currentCategoryFilter === 'all') || (cat === currentCategoryFilter);
+        const matchesStatus = (currentStatusFilter === 'all') || (status === currentStatusFilter);
+
+        if (matchesSearch && matchesCat && matchesStatus) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+
+function setCategoryFilter(cat) {
+    currentCategoryFilter = cat;
+    document.querySelectorAll(".filter-pills-group .filter-pill").forEach(p => {
+        if (p.id.startsWith("cat")) p.classList.remove("active");
+    });
+    if (cat === 'all') document.getElementById("catAll").classList.add("active");
+    if (cat === 'K') document.getElementById("catKediya").classList.add("active");
+    if (cat === 'C') document.getElementById("catCholi").classList.add("active");
+    filterProductsTable();
+}
+
+function setStatusFilter(status) {
+    currentStatusFilter = status;
+    document.querySelectorAll(".filter-pills-group .filter-pill").forEach(p => {
+        if (p.id.startsWith("status")) p.classList.remove("active");
+    });
+    if (status === 'all') document.getElementById("statusAll").classList.add("active");
+    if (status === 'available') document.getElementById("statusAvail").classList.add("active");
+    if (status === 'sold') document.getElementById("statusSold").classList.add("active");
+    filterProductsTable();
+}
+
+// ── Sell Modal Orchestration ──
+function initiateSell(code) {
+    currentTargetCode = code;
+    validatedPassword = null;
+
+    document.getElementById("modalCodeText1").innerText = code;
+    document.getElementById("modalCodeText2").innerText = code;
+    document.getElementById("adminPassword").value = "";
+    document.getElementById("passwordErrorBanner").style.display = "none";
+    document.getElementById("confirmErrorBanner").style.display = "none";
+
+    document.getElementById("modalStep1").style.display = "block";
+    document.getElementById("modalStep2").style.display = "none";
+
+    document.getElementById("sellModal").classList.add("active");
+    setTimeout(() => {
+        document.getElementById("adminPassword").focus();
+    }, 100);
+}
+
+function closeSellModal() {
+    document.getElementById("sellModal").classList.remove("active");
+    currentTargetCode = null;
+    validatedPassword = null;
+}
+
+async function handlePasswordSubmit(e) {
+    e.preventDefault();
+    const passwordInput = document.getElementById("adminPassword");
+    const password = passwordInput.value.trim();
+    const errorBanner = document.getElementById("passwordErrorBanner");
+    const btn = document.getElementById("btnVerifyPassword");
+
+    if (!password) return;
+
+    btn.disabled = true;
+    btn.innerText = "Verifying...";
+    errorBanner.style.display = "none";
+
+    try {
+        const resp = await fetch("/api/navaratri/verify-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password: password })
+        });
+        const data = await resp.json();
+
+        if (resp.ok && data.success) {
+            // Password verified server-side! Transition to Confirmation Step 2
+            validatedPassword = password;
+            document.getElementById("modalStep1").style.display = "none";
+            document.getElementById("modalStep2").style.display = "block";
+        } else {
+            errorBanner.innerText = data.message || "Incorrect password.";
+            errorBanner.style.display = "block";
+            passwordInput.value = "";
+            passwordInput.focus();
+        }
+    } catch (err) {
+        errorBanner.innerText = "Server error. Please try again.";
+        errorBanner.style.display = "block";
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Verify Password →";
+    }
+}
+
+async function executeSell() {
+    if (!currentTargetCode || !validatedPassword) return;
+
+    const btn = document.getElementById("btnConfirmSell");
+    const errorBanner = document.getElementById("confirmErrorBanner");
+
+    btn.disabled = true;
+    btn.innerText = "Updating Database...";
+    errorBanner.style.display = "none";
+
+    try {
+        const resp = await fetch("/api/navaratri/sell-product", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                code: currentTargetCode,
+                password: validatedPassword
+            })
+        });
+        const data = await resp.json();
+
+        if (resp.ok && data.success) {
+            // Success! Update row in table immediately
+            updateRowToSold(currentTargetCode);
+            showToast(`✅ ${data.message}`);
+            closeSellModal();
+        } else {
+            errorBanner.innerText = data.message || "Failed to update product status.";
+            errorBanner.style.display = "block";
+        }
+    } catch (err) {
+        errorBanner.innerText = "Network or server error.";
+        errorBanner.style.display = "block";
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "✓ Confirm & Mark as Sold";
+    }
+}
+
+function updateRowToSold(code) {
+    const row = document.getElementById(`row-${code}`);
+    if (row) {
+        row.setAttribute("data-status", "sold");
+        
+        // Update status badge
+        const statusCell = document.getElementById(`status-cell-${code}`);
+        if (statusCell) {
+            statusCell.innerHTML = `
+                <span class="badge-status status-sold">
+                    <span style="font-size: 0.6rem;">●</span> Sold / Not for Rent
+                </span>
+            `;
+        }
+
+        // Update action cell to disabled sold button + optional restore
+        const actionCell = document.getElementById(`action-cell-${code}`);
+        if (actionCell) {
+            actionCell.innerHTML = `
+                <span class="btn-disabled-sold" title="This product has already been sold">
+                    🔒 Sold
+                </span>
+                <button type="button" class="btn-restore" onclick="initiateRestore('${code}')" title="Restore back to available rentals">
+                    ↩ Restore
+                </button>
+            `;
+        }
+    }
+
+    // Update stats counters
+    const availEl = document.getElementById("statAvailable");
+    const soldEl = document.getElementById("statSold");
+    if (availEl && soldEl) {
+        availEl.innerText = Math.max(0, parseInt(availEl.innerText || "0", 10) - 1);
+        soldEl.innerText = parseInt(soldEl.innerText || "0", 10) + 1;
+    }
+}
+
+// ── Restore Flow ──
+let restoreTargetCode = null;
+
+function initiateRestore(code) {
+    restoreTargetCode = code;
+    document.getElementById("restoreModalCodeText").innerText = code;
+    document.getElementById("restoreAdminPassword").value = "";
+    document.getElementById("restoreErrorBanner").style.display = "none";
+    document.getElementById("restoreModal").classList.add("active");
+    setTimeout(() => {
+        document.getElementById("restoreAdminPassword").focus();
+    }, 100);
+}
+
+function closeRestoreModal() {
+    document.getElementById("restoreModal").classList.remove("active");
+    restoreTargetCode = null;
+}
+
+async function handleRestoreSubmit(e) {
+    e.preventDefault();
+    if (!restoreTargetCode) return;
+
+    const passwordInput = document.getElementById("restoreAdminPassword");
+    const password = passwordInput.value.trim();
+    const errorBanner = document.getElementById("restoreErrorBanner");
+    const btn = document.getElementById("btnConfirmRestore");
+
+    if (!password) return;
+
+    btn.disabled = true;
+    btn.innerText = "Restoring...";
+    errorBanner.style.display = "none";
+
+    try {
+        const resp = await fetch("/api/navaratri/restore-product", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: restoreTargetCode, password: password })
+        });
+        const data = await resp.json();
+
+        if (resp.ok && data.success) {
+            updateRowToAvailable(restoreTargetCode);
+            showToast(`✅ ${data.message}`);
+            closeRestoreModal();
+        } else {
+            errorBanner.innerText = data.message || "Incorrect password.";
+            errorBanner.style.display = "block";
+        }
+    } catch (err) {
+        errorBanner.innerText = "Server error. Please try again.";
+        errorBanner.style.display = "block";
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Restore Product";
+    }
+}
+
+function updateRowToAvailable(code) {
+    const row = document.getElementById(`row-${code}`);
+    if (row) {
+        row.setAttribute("data-status", "available");
+        
+        const statusCell = document.getElementById(`status-cell-${code}`);
+        if (statusCell) {
+            statusCell.innerHTML = `
+                <span class="badge-status status-rentable">
+                    <span style="font-size: 0.6rem;">●</span> Available for Rent
+                </span>
+            `;
+        }
+
+        const actionCell = document.getElementById(`action-cell-${code}`);
+        if (actionCell) {
+            actionCell.innerHTML = `
+                <button type="button" class="btn-sell" onclick="initiateSell('${code}')">
+                    🏷️ Sell / Remove From Rent
+                </button>
+            `;
+        }
+    }
+
+    const availEl = document.getElementById("statAvailable");
+    const soldEl = document.getElementById("statSold");
+    if (availEl && soldEl) {
+        availEl.innerText = parseInt(availEl.innerText || "0", 10) + 1;
+        soldEl.innerText = Math.max(0, parseInt(soldEl.innerText || "0", 10) - 1);
+    }
+}
+
+// ── Sync Catalog with Files ──
+async function syncProducts() {
+    showToast("🔄 Synchronizing catalog with database...");
+    try {
+        const resp = await fetch("/api/navaratri/sync-products", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+            showToast(data.message);
+            setTimeout(() => window.location.reload(), 1200);
+        } else {
+            showToast("❌ Failed to synchronize catalog.");
+        }
+    } catch (err) {
+        showToast("❌ Network error during sync.");
+    }
+}
+
+function showToast(msg) {
+    const toast = document.getElementById("actionToast");
+    toast.innerText = msg;
+    toast.style.display = "block";
+    setTimeout(() => {
+        toast.style.display = "none";
+    }, 3500);
+}
+</script>
+{% endblock %}

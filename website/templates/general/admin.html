@@ -111,23 +111,19 @@
 
         </div>
 
-        <!-- Private Admin PWA Installation Card (Shown only to authenticated admin on installable devices) -->
-        <div class="admin-pwa-install-banner" id="adminPwaInstallSection">
+        <!-- Private Admin Android App Card -->
+        <div class="admin-pwa-install-banner">
             <div class="admin-pwa-card-inner">
-                <div class="admin-pwa-badge">📱 Private Android App</div>
+                <div class="admin-app-badge" style="position: absolute; top: -12px; left: 24px; background: #b8961e; color: #050d1f; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 2px 10px; border-radius: 10px;">📱 Private Android App</div>
                 <div class="admin-pwa-content">
                     <h3 class="admin-pwa-heading">Image Traditional Android App</h3>
-                    <p class="admin-pwa-subtext">Download the official private Android APK or install the app directly on your phone or tablet for fast 1-tap admin access directly from your home screen.</p>
+                    <p class="admin-pwa-subtext">Download the official private Android APK for fast 1-tap admin access directly from your phone or tablet.</p>
                 </div>
-                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                <div>
                     <a href="{{ url_for('views.download_apk') }}" class="admin-pwa-cta-btn" id="adminDownloadApkBtn" download>
                         <span class="icon">📥</span>
                         <span>Download Image Traditional App</span>
                     </a>
-                    <button type="button" class="admin-pwa-cta-btn" id="adminInstallActionBtn" style="background: rgba(255,255,255,0.08); border-color: rgba(212,175,55,0.4); color: #f5d580;">
-                        <span class="icon">📲</span>
-                        <span>Install App</span>
-                    </button>
                 </div>
             </div>
         </div>

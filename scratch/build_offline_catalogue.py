@@ -479,8 +479,8 @@ def generate_offline_catalogue_html():
 
     <!-- Tabs -->
     <div class="tabs-bar">
-      <button class="tab-btn active" id="tabKediya" onclick="switchTab('kediya')">🕺 Kediya (172)</button>
-      <button class="tab-btn" id="tabCholi" onclick="switchTab('choli')">👗 Choli (150)</button>
+      <button class="tab-btn active" id="tabKediya" onclick="switchTab('kediya')">🕺 Kediya ({len(kediya_items)})</button>
+      <button class="tab-btn" id="tabCholi" onclick="switchTab('choli')">👗 Choli ({len(choli_items)})</button>
       <button class="tab-btn" id="tabFancy" onclick="switchTab('fancy')">🎭 Fancy Dress (20 Categories)</button>
     </div>
 
@@ -621,10 +621,11 @@ def generate_offline_catalogue_html():
 
       if (activeTab === 'kediya') {{
         const ranges = [
-          {{ id: 'all', label: 'Show All (172)' }},
+          {{ id: 'all', label: 'Show All ({len(kediya_items)})' }},
           {{ id: 'k1-50', label: 'K1 - K50' }},
           {{ id: 'k51-100', label: 'K51 - K100' }},
-          {{ id: 'k101-173', label: 'K101 - K173' }}
+          {{ id: 'k101-150', label: 'K101 - K150' }},
+          {{ id: 'k151-188', label: 'K151 - K188' }}
         ];
         ranges.forEach(r => {{
           const btn = document.createElement('button');
@@ -635,10 +636,11 @@ def generate_offline_catalogue_html():
         }});
       }} else if (activeTab === 'choli') {{
         const ranges = [
-          {{ id: 'all', label: 'Show All (150)' }},
+          {{ id: 'all', label: 'Show All ({len(choli_items)})' }},
           {{ id: 'c1-50', label: 'C1 - C50' }},
           {{ id: 'c51-100', label: 'C51 - C100' }},
-          {{ id: 'c101-150', label: 'C101 - C150' }}
+          {{ id: 'c101-150', label: 'C101 - C150' }},
+          {{ id: 'c151-182', label: 'C151 - C182' }}
         ];
         ranges.forEach(r => {{
           const btn = document.createElement('button');
@@ -678,11 +680,13 @@ def generate_offline_catalogue_html():
       if (activeTab === 'kediya') {{
         if (currentFilter === 'k1-50') items = items.filter(it => getNum(it.code) >= 1 && getNum(it.code) <= 50);
         else if (currentFilter === 'k51-100') items = items.filter(it => getNum(it.code) >= 51 && getNum(it.code) <= 100);
-        else if (currentFilter === 'k101-173') items = items.filter(it => getNum(it.code) >= 101 && getNum(it.code) <= 173);
+        else if (currentFilter === 'k101-150') items = items.filter(it => getNum(it.code) >= 101 && getNum(it.code) <= 150);
+        else if (currentFilter === 'k151-188') items = items.filter(it => getNum(it.code) >= 151 && getNum(it.code) <= 188);
       }} else if (activeTab === 'choli') {{
         if (currentFilter === 'c1-50') items = items.filter(it => getNum(it.code) >= 1 && getNum(it.code) <= 50);
         else if (currentFilter === 'c51-100') items = items.filter(it => getNum(it.code) >= 51 && getNum(it.code) <= 100);
         else if (currentFilter === 'c101-150') items = items.filter(it => getNum(it.code) >= 101 && getNum(it.code) <= 150);
+        else if (currentFilter === 'c151-182') items = items.filter(it => getNum(it.code) >= 151 && getNum(it.code) <= 182);
       }} else if (activeTab === 'fancy') {{
         if (currentFilter !== 'all') items = items.filter(it => it.subcat === currentFilter);
       }}

@@ -22,15 +22,33 @@ general = Blueprint('general',__name__)
 
 @general.route("/choli")
 def choli():
-    with open('choli.json') as f:
+    with open('choli.json', 'r', encoding='utf-8') as f:
         products = json.load(f)
-    return render_template("general/choli.html", products=products)
+
+    from website.general.db import navaratri_products
+    unavailable_codes = set(
+        p["code"].upper() for p in navaratri_products.find({"on_rent": False}, {"code": 1})
+    )
+    visible_products = [
+        p for p in products
+        if (p.get("name") or p.get("code") or "").strip().upper() not in unavailable_codes
+    ]
+    return render_template("general/choli.html", products=visible_products)
 
 @general.route("/kediya")
 def kediya():
-    with open('kediya.json') as f:
+    with open('kediya.json', 'r', encoding='utf-8') as f:
         products = json.load(f)
-    return render_template("general/kediya.html", products=products)
+
+    from website.general.db import navaratri_products
+    unavailable_codes = set(
+        p["code"].upper() for p in navaratri_products.find({"on_rent": False}, {"code": 1})
+    )
+    visible_products = [
+        p for p in products
+        if (p.get("name") or p.get("code") or "").strip().upper() not in unavailable_codes
+    ]
+    return render_template("general/kediya.html", products=visible_products)
 
 @general.route("/sitemap.xml")
 def sitemap():
@@ -448,6 +466,23 @@ def catalogue_sync():
                     break
                 except Exception:
                     pass
+
+        # Filter out products that are no longer available for rent
+        from website.general.db import navaratri_products
+        try:
+            unavailable_codes = set(
+                p["code"].upper() for p in navaratri_products.find({"on_rent": False}, {"code": 1})
+            )
+            kediya_products = [
+                p for p in kediya_products 
+                if (p.get("name") or p.get("code") or "").strip().upper() not in unavailable_codes
+            ]
+            choli_products = [
+                p for p in choli_products 
+                if (p.get("name") or p.get("code") or "").strip().upper() not in unavailable_codes
+            ]
+        except Exception:
+            pass
 
         # 3. Fancy categories & items
         icon_map = {

@@ -73,6 +73,14 @@ def book():
                 formatted_date = date
             bookings_data.append({"date": formatted_date, "products": prod_list})
 
+        # -------------------- Rental Status Validation --------------------
+        for booking in bookings_data:
+            for p in booking['products']:
+                is_avail, err_reason = is_product_available_for_rent(p)
+                if not is_avail:
+                    flash(f"❌ Booking Failed! {err_reason}", "error")
+                    return redirect(url_for('navaratri.book'))
+
         # -------------------- Conflict check --------------------
         for booking in bookings_data:
             date = booking['date']
@@ -328,6 +336,12 @@ def modify():
             return redirect(url_for('navaratri.modify'))
 
         if new_products:
+            for p in new_products:
+                is_avail, err_reason = is_product_available_for_rent(p)
+                if not is_avail:
+                    flash(f"❌ Cannot update: {err_reason}", "error")
+                    return redirect(url_for('navaratri.modify'))
+
             has_conflict, conflicts = check_booking_conflict(date, new_products, exclude_mobile=mobile)
             if has_conflict:
                 conflict_msg = f"❌ Cannot update! These products are already booked on {date}:\n"
@@ -601,6 +615,15 @@ def api_check_product():
         except ValueError:
             pass
         
+    # Check if product is available for rent in MongoDB
+    is_avail, err_reason = is_product_available_for_rent(product_code)
+    if not is_avail:
+        return jsonify({
+            "available": False,
+            "error": err_reason,
+            "customer": "Sold / Not for Rent"
+        })
+
     has_conflict, conflicts = check_booking_conflict(date_str, [product_code], exclude_mobile=exclude_mobile or None)
     if has_conflict:
         conflict = conflicts[0]
@@ -700,6 +723,13 @@ def profile_update():
                 formatted_bookings[formatted_date] = list(set(formatted_bookings[formatted_date] + prods))
             else:
                 formatted_bookings[formatted_date] = prods
+
+    # Validate rental status for all booked products
+    for date_str, products_list in formatted_bookings.items():
+        for p in products_list:
+            is_avail, err_reason = is_product_available_for_rent(p)
+            if not is_avail:
+                return jsonify({"success": False, "message": f"❌ Booking Rejected: {err_reason}"}), 400
 
     # Run conflict checks for the bookings (excluding this customer)
     for date_str, products_list in formatted_bookings.items():
@@ -916,7 +946,11 @@ def profile_reassign():
     
     if old_date_formatted not in bookings or old_product not in bookings[old_date_formatted]:
         return jsonify({"success": False, "message": f"Product '{old_product}' not found in bookings on {old_date_formatted}"}), 400
-        
+
+    is_avail, err_reason = is_product_available_for_rent(new_product)
+    if not is_avail:
+        return jsonify({"success": False, "message": f"❌ Cannot reassign: {err_reason}"}), 400
+
     has_conflict, conflicts = check_booking_conflict(new_date_formatted, [new_product], exclude_mobile=customer.get('mobile'))
     if has_conflict:
         conflict = conflicts[0]
@@ -975,7 +1009,11 @@ def profile_add_booking():
     customer = collection.find_one({"_id": ObjectId(customer_id)})
     if not customer:
         return jsonify({"success": False, "message": "Customer not found"}), 404
-        
+
+    is_avail, err_reason = is_product_available_for_rent(product)
+    if not is_avail:
+        return jsonify({"success": False, "message": f"❌ Cannot book: {err_reason}"}), 400
+
     has_conflict, conflicts = check_booking_conflict(date_formatted, [product], exclude_mobile=customer.get('mobile'))
     if has_conflict:
         conflict = conflicts[0]
@@ -1131,6 +1169,12 @@ def check():
             formatted_date = date
 
         current_app.logger.debug(f"DEBUG check: input = {date} formatted = {formatted_date}")
+
+        # Check rental status
+        is_avail, err_reason = is_product_available_for_rent(product)
+        if not is_avail:
+            flash(f"❌ {err_reason}", "error")
+            return redirect(url_for('navaratri.check'))
 
         # ✅ Pass converted date to your conflict checker
         has_conflict, conflicts = check_booking_conflict(formatted_date, [product])
@@ -3553,3 +3597,77 @@ def clear_navaratri_logs():
         pass
 
     return jsonify({"success": True, "message": "✅ All action logs cleared successfully!"})
+
+
+# ==============================================================================
+# 🏷️ ADMIN: COSTUME RENTAL STATUS & SELL MANAGEMENT
+# ==============================================================================
+@navaratri.route("/navaratri_products", methods=["GET"])
+@navaratri.route("/navaratri/products", methods=["GET"])
+def admin_navaratri_products():
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login'))
+
+    products_list = get_all_navaratri_products()
+    total_count = len(products_list)
+    available_count = sum(1 for p in products_list if p.get('on_rent', True))
+    sold_count = total_count - available_count
+
+    return render_template(
+        "navaratri/products_status.html",
+        products=products_list,
+        total_count=total_count,
+        available_count=available_count,
+        sold_count=sold_count
+    )
+
+@navaratri.route("/api/navaratri/verify-password", methods=["POST"])
+def api_verify_navaratri_password():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    data = request.get_json() or {}
+    password = str(data.get("password") or "").strip()
+
+    if verify_admin_password(password):
+        return jsonify({"success": True, "message": "Password verified."})
+    return jsonify({"success": False, "message": "Incorrect password."}), 401
+
+@navaratri.route("/api/navaratri/sell-product", methods=["POST"])
+def api_sell_navaratri_product():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    data = request.get_json() or {}
+    code = str(data.get("code") or "").strip().upper()
+    password = str(data.get("password") or "").strip()
+
+    success, message, status_code = sell_navaratri_product(code, password)
+    return jsonify({"success": success, "message": message}), status_code
+
+@navaratri.route("/api/navaratri/restore-product", methods=["POST"])
+def api_restore_navaratri_product():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    data = request.get_json() or {}
+    code = str(data.get("code") or "").strip().upper()
+    password = str(data.get("password") or "").strip()
+
+    success, message, status_code = restore_navaratri_product(code, password)
+    return jsonify({"success": success, "message": message}), status_code
+
+@navaratri.route("/api/navaratri/sync-products", methods=["POST"])
+def api_sync_navaratri_products():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    try:
+        total, inserted = sync_navaratri_products()
+        return jsonify({
+            "success": True,
+            "message": f"Successfully synchronized {total} products ({inserted} newly added)."
+        })
+    except Exception as e:
+        return jsonify({"success": False, "message": "Failed to synchronize products."}), 500
+

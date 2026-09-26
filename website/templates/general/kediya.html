@@ -40,7 +40,8 @@
             <button class="filter-btn active" id="rangeBtnAll" onclick="filterRange('all')">Show All</button>
             <button class="filter-btn" id="rangeBtn1" onclick="filterRange(1, 50)">K1 - K50</button>
             <button class="filter-btn" id="rangeBtn2" onclick="filterRange(51, 100)">K51 - K100</button>
-            <button class="filter-btn" id="rangeBtn3" onclick="filterRange(101, 173)">K101 - K173</button>
+            <button class="filter-btn" id="rangeBtn3" onclick="filterRange(101, 150)">K101 - K150</button>
+            <button class="filter-btn" id="rangeBtn4" onclick="filterRange(151, 188)">K151 - K188</button>
         </div>
     </div>
 
@@ -100,7 +101,7 @@
         <!-- Bottom Nav Arrow Controls -->
         <div class="lightbox-nav-row">
             <button class="nav-arrow-btn" onclick="navigateLightbox(-1)">◀ Previous</button>
-            <span class="nav-indicator" id="lightboxIndicator">1 / 173</span>
+            <span class="nav-indicator" id="lightboxIndicator">1 / {{ products|length }}</span>
             <button class="nav-arrow-btn" onclick="navigateLightbox(1)">Next ▶</button>
         </div>
     </div>
@@ -741,9 +742,10 @@
         }
 
         // Highlight selected range button
-        if (start === 1) document.getElementById("rangeBtn1").classList.add("active");
-        if (start === 51) document.getElementById("rangeBtn2").classList.add("active");
-        if (start === 101) document.getElementById("rangeBtn3").classList.add("active");
+        if (start === 1) document.getElementById("rangeBtn1")?.classList.add("active");
+        if (start === 51) document.getElementById("rangeBtn2")?.classList.add("active");
+        if (start === 101) document.getElementById("rangeBtn3")?.classList.add("active");
+        if (start === 151) document.getElementById("rangeBtn4")?.classList.add("active");
 
         document.querySelectorAll(".product-card").forEach(card => {
             const code = card.getAttribute("data-code");

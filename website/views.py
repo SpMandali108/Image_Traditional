@@ -9,10 +9,10 @@ def home():
     return render_template("general/home.html")
 
 @views.route('/app')
-def pwa_app_launcher():
+def native_app_launcher():
     """
-    Dedicated authentication-aware app entry launcher.
-    Manifest start_url points here.
+    Dedicated authentication-aware native app entry launcher.
+    Used by the native Android APK shell.
     If authenticated -> redirect('/admin')
     If unauthenticated -> redirect('/login')
     """
@@ -35,10 +35,8 @@ def service_worker():
 
 @views.route('/manifest.json')
 def manifest():
-    static_dir = os.path.join(current_app.root_path, 'static')
-    response = send_from_directory(static_dir, 'manifest.json', mimetype='application/manifest+json')
-    response.headers['Cache-Control'] = 'public, max-age=3600'
-    return response
+    # PWA retired: return 404 so browsers do not trigger PWA installation prompts
+    return jsonify({}), 404
 
 @views.route('/offline.html')
 def offline():
