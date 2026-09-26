@@ -620,6 +620,7 @@ def api_check_product():
     if not is_avail:
         return jsonify({
             "available": False,
+            "reason": err_reason,
             "error": err_reason,
             "customer": "Sold / Not for Rent"
         })

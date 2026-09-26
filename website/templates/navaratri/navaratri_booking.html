@@ -968,10 +968,13 @@
         <button class="btn btn-ghost-light btn-sm d-xl-none" type="button"
                 data-bs-toggle="offcanvas" data-bs-target="#customerOffcanvas" aria-controls="customerOffcanvas">
           <i class="bi bi-people-fill me-1"></i> Customers
-          <span class="badge-gold ms-1">{{ bookings|length }}</span>
+          <span class="badge-gold ms-1" id="mobileCustomerCountBadge">{{ bookings|length }}</span>
         </button>
         <button class="btn btn-ghost-gold btn-sm" onclick="openWidgetAvailabilityModal()">
           <i class="bi bi-calendar-check-fill me-1"></i> Live Availability
+        </button>
+        <button class="btn btn-outline-danger btn-sm fw-bold" onclick="openDedicatedSellModal()" title="Sell costume and remove from rental">
+          <i class="bi bi-tag-fill me-1"></i> Sell Form
         </button>
         <button class="btn btn-gold btn-sm" onclick="openNewCustomerModal()">
           <i class="bi bi-person-plus-fill me-1"></i> New Booking
@@ -1427,6 +1430,41 @@
   </div>
 </div>
 
+<!-- Dedicated Sell Costume Modal -->
+<div class="modal fade" id="dedicatedSellModal" tabindex="-1">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content" style="background: #0f1e32; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <h5 class="modal-title text-danger"><i class="bi bi-tag-fill me-2"></i>Sell Costume Form</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="alert alert-danger" style="background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.3); color: #fca5a5; font-size: 0.85rem;">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i>
+          Selling a costume sets <strong>on_rent: false</strong> in the database, removes it immediately from customer catalogues, and prevents future bookings.
+        </div>
+        <form id="dedicatedSellForm" onsubmit="event.preventDefault(); submitDedicatedSellForm();">
+          <div class="mb-3">
+            <label class="form-label text-light fw-semibold">Costume Code *</label>
+            <input type="text" id="dedicatedSellCode" placeholder="Enter code (e.g. C182 or K188)" class="form-control text-uppercase" required style="background: #060c17; border-color: rgba(239,68,68,0.4); color: #fff; font-weight: 700;">
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-light fw-semibold">Admin Password *</label>
+            <input type="password" id="dedicatedSellPassword" placeholder="Enter Admin Password" class="form-control" required style="background: #060c17; border-color: rgba(255,255,255,0.15); color: #fff;">
+          </div>
+          <div id="dedicatedSellFeedback" class="mb-3 d-none p-2 rounded" style="font-size: 0.85rem; font-weight: 600;"></div>
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-ghost-light" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger fw-bold px-4" id="dedicatedSellBtn">
+              <i class="bi bi-tag-fill me-1"></i> Confirm Sale (Set on_rent: false)
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Edit / New Booking Modal -->
 <div class="modal fade" id="editCustomerModal" tabindex="-1" data-bs-backdrop="static">
   <div class="modal-dialog modal-xl modal-dialog-scrollable modal-fullscreen-md-down">
@@ -1484,6 +1522,37 @@
             <div class="col-md-4">
               <label class="form-label">Security Deposit</label>
               <input type="text" id="modal-deposit" placeholder="e.g. Cash ₹2000 or Aadhar" class="form-control">
+            </div>
+          </div>
+
+          <!-- Sell Costume (Set Rental Status to False) Form Section -->
+          <div class="card mb-4" style="background: rgba(239, 68, 68, 0.07); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 14px; box-shadow: 0 4px 15px rgba(239,68,68,0.1);">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background: rgba(239, 68, 68, 0.15); border-bottom: 1px solid rgba(239, 68, 68, 0.25); padding: 10px 16px; border-radius: 14px 14px 0 0;">
+              <div class="fw-bold d-flex align-items-center gap-2" style="color: #fca5a5; font-size: 0.92rem;">
+                <i class="bi bi-tag-fill text-danger fs-6"></i> Sell Costume Form (Mark Product as Sold)
+              </div>
+              <span class="badge" style="background: rgba(239, 68, 68, 0.25); color: #fecaca; font-size: 0.72rem; border: 1px solid rgba(239,68,68,0.4);">Sets on_rent = false</span>
+            </div>
+            <div class="card-body p-3">
+              <p style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 12px; line-height: 1.4;">
+                Sell a costume directly from this booking form. Updating status sets <code>on_rent: false</code> in the database, removes it from customer catalogues, and prevents new bookings.
+              </p>
+              <div class="row g-2 align-items-end">
+                <div class="col-md-4 col-sm-6">
+                  <label class="form-label mb-1" style="font-size: 0.78rem; color: #fca5a5; font-weight: 600;">Costume Code *</label>
+                  <input type="text" id="bookingSellCode" placeholder="e.g. C182, K10" class="form-control text-uppercase" style="background: var(--bg-input); border-color: rgba(239, 68, 68, 0.35); color: #fff; font-weight: 700;">
+                </div>
+                <div class="col-md-4 col-sm-6">
+                  <label class="form-label mb-1" style="font-size: 0.78rem; color: #fca5a5; font-weight: 600;">Admin Password *</label>
+                  <input type="password" id="bookingSellPassword" placeholder="Admin password" class="form-control" style="background: var(--bg-input); border-color: rgba(239, 68, 68, 0.35); color: #fff;">
+                </div>
+                <div class="col-md-4 col-12">
+                  <button type="button" class="btn btn-danger w-100 fw-bold" id="bookingSellBtn" onclick="submitBookingSellForm()">
+                    <i class="bi bi-tag-fill me-1"></i> Mark as Sold
+                  </button>
+                </div>
+              </div>
+              <div id="bookingSellFeedback" class="mt-2 d-none p-2 rounded" style="font-size: 0.85rem; font-weight: 600;"></div>
             </div>
           </div>
 
@@ -1695,6 +1764,7 @@
   <div class="offcanvas-header border-bottom border-secondary">
     <h5 class="roster-head-title m-0" id="customerOffcanvasLabel">
       <i class="bi bi-person-lines-fill"></i> Customer Register
+      <span class="badge-gold ms-2" id="offcanvasCustomerCountBadge">{{ bookings|length }}</span>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
@@ -1706,7 +1776,7 @@
           <input type="text" id="mobileCustomerSearchInput" class="customer-search-input" placeholder="Name, mobile, group…">
         </div>
       </div>
-      <div class="ledger-list">
+      <div class="ledger-list" id="mobileCustomerListContainer">
         {% for cust in bookings|sort(attribute='Name') %}
           <a href="{{ url_for('navaratri.navaratri_booking', customer_id=cust._id|string) }}"
              class="ledger-entry {% if customer and customer._id|string == cust._id|string %}active{% endif %}"
@@ -2082,7 +2152,7 @@
           inp.classList.add('input-check-valid'); inp.classList.remove('input-check-invalid');
         } else {
           status.className = 'avail-indicator booked';
-          status.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Booked by ${res.customer||'Other'}`;
+          status.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${res.reason ? res.reason : ('Booked by ' + (res.customer||'Other'))}`;
           inp.classList.add('input-check-invalid'); inp.classList.remove('input-check-valid');
         }
         if (!skipSiblings) others.forEach(o => triggerAvailabilityCheck(o.id, true));
@@ -2264,6 +2334,94 @@
     });
   }
 
+  // ── SELL COSTUME SYSTEM (Set on_rent: false) ────────────────────
+  let dedicatedSellModalObj = null;
+
+  function openDedicatedSellModal(prefillCode = '') {
+    const el = document.getElementById('dedicatedSellModal');
+    if (!el) return;
+    if (!dedicatedSellModalObj) {
+      dedicatedSellModalObj = new bootstrap.Modal(el);
+    }
+    const codeInput = document.getElementById('dedicatedSellCode');
+    const passInput = document.getElementById('dedicatedSellPassword');
+    const fb = document.getElementById('dedicatedSellFeedback');
+    if (codeInput) codeInput.value = prefillCode;
+    if (passInput) passInput.value = '';
+    if (fb) fb.classList.add('d-none');
+    dedicatedSellModalObj.show();
+    if (codeInput) setTimeout(() => codeInput.focus(), 300);
+  }
+
+  function submitBookingSellForm() {
+    executeSellProduct('bookingSellCode', 'bookingSellPassword', 'bookingSellFeedback', 'bookingSellBtn');
+  }
+
+  function submitDedicatedSellForm() {
+    executeSellProduct('dedicatedSellCode', 'dedicatedSellPassword', 'dedicatedSellFeedback', 'dedicatedSellBtn');
+  }
+
+  async function executeSellProduct(codeId, passId, feedbackId, btnId) {
+    const codeInp = document.getElementById(codeId);
+    const passInp = document.getElementById(passId);
+    const fb = document.getElementById(feedbackId);
+    const btn = btnId ? document.getElementById(btnId) : null;
+
+    const code = (codeInp?.value || '').trim().toUpperCase();
+    const password = (passInp?.value || '').trim();
+
+    if (!code) {
+      renderSellFeedback(fb, 'Please enter a costume code (e.g. C182 or K188).', 'error');
+      if (codeInp) codeInp.focus();
+      return;
+    }
+    if (!password) {
+      renderSellFeedback(fb, 'Please enter the admin password.', 'error');
+      if (passInp) passInp.focus();
+      return;
+    }
+
+    if (btn) btn.disabled = true;
+    renderSellFeedback(fb, '<div class="spinner-border spinner-border-sm me-1" role="status"></div> Updating database (setting on_rent: false)...', 'info');
+
+    try {
+      const response = await fetch('/api/navaratri/sell-product', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code, password: password })
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        renderSellFeedback(fb, `✅ <b>Success:</b> Product <b>${code}</b> is now SOLD! Database product status updated to <code>on_rent: false</code> and hidden from customer catalogues.`, 'success');
+        if (codeInp) codeInp.value = '';
+        if (passInp) passInp.value = '';
+        if (typeof showToast === 'function') {
+          showToast(`Product ${code} marked as SOLD (on_rent: false).`, 'success');
+        }
+      } else {
+        renderSellFeedback(fb, `❌ <b>Failed:</b> ${data.message || 'Incorrect password or product not found.'}`, 'error');
+      }
+    } catch (err) {
+      renderSellFeedback(fb, `❌ <b>Error:</b> ${err.message}`, 'error');
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  function renderSellFeedback(el, msg, type) {
+    if (!el) return;
+    el.classList.remove('d-none');
+    if (type === 'success') {
+      el.style.cssText = 'background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #6ee7b7; padding: 10px; border-radius: 8px;';
+    } else if (type === 'info') {
+      el.style.cssText = 'background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.35); color: #93c5fd; padding: 10px; border-radius: 8px;';
+    } else {
+      el.style.cssText = 'background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; padding: 10px; border-radius: 8px;';
+    }
+    el.innerHTML = msg;
+  }
+
   // ── AVAILABILITY CHECKS ──────────────────────────────────────────
   function performModalAvailabilityCheck() {
     const date = document.getElementById('modalCheckDate').value.trim();
@@ -2280,7 +2438,7 @@
           res.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> Costume '${code}' is AVAILABLE on ${date}.`;
         } else {
           res.style.cssText = 'background:rgba(239,68,68,0.12);color:var(--accent-danger);border:1px solid rgba(239,68,68,0.3);';
-          res.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> Costume '${code}' is BOOKED on ${date} by ${data.customer||'another customer'}.`;
+          res.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> ${data.reason ? data.reason : "Costume '" + code + "' is BOOKED on " + date + " by " + (data.customer||'another customer') + "."}`;
         }
       }).catch(() => {
         res.style.cssText = 'background:rgba(245,158,11,0.12);color:var(--accent-warning);border:1px solid rgba(245,158,11,0.3);';
@@ -2303,7 +2461,7 @@
           res.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> Costume '${code}' is AVAILABLE on ${date}.`;
         } else {
           res.style.cssText = 'background:rgba(239,68,68,0.12);color:var(--accent-danger);border:1px solid rgba(239,68,68,0.3);';
-          res.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> Costume '${code}' is BOOKED on ${date} by ${data.customer||'another customer'}.`;
+          res.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> ${data.reason ? data.reason : "Costume '" + code + "' is BOOKED on " + date + " by " + (data.customer||'another customer') + "."}`;
         }
       }).catch(() => {
         res.style.cssText = 'background:rgba(245,158,11,0.12);color:var(--accent-warning);border:1px solid rgba(245,158,11,0.3);';
@@ -2530,8 +2688,10 @@
       sessionStorage.setItem('it_groups', JSON.stringify(selGroups));
       sessionStorage.setItem('it_refs',   JSON.stringify(selRefs));
 
+      // Filter desktop ledger entries and calculate exact unique visible count
       let vis = 0;
-      document.querySelectorAll('.ledger-entry').forEach(item => {
+      const desktopEntries = document.querySelectorAll('#customerListContainer .ledger-entry');
+      desktopEntries.forEach(item => {
         const nm  = (item.dataset.name      || '').toLowerCase();
         const mob = (item.dataset.mobile    || '').toLowerCase();
         const grp = (item.dataset.group     || '').toLowerCase();
@@ -2542,11 +2702,31 @@
         item.style.setProperty('display', ok ? '' : 'none', 'important');
         if (ok) vis++;
       });
+
+      // Synchronize mobile offcanvas drawer list entries
+      const mobileEntries = document.querySelectorAll('#mobileCustomerListContainer .ledger-entry');
+      mobileEntries.forEach(item => {
+        const nm  = (item.dataset.name      || '').toLowerCase();
+        const mob = (item.dataset.mobile    || '').toLowerCase();
+        const grp = (item.dataset.group     || '').toLowerCase();
+        const ref = (item.dataset.reference || '').toLowerCase();
+        const ok  = (q === '' || nm.includes(q) || mob.includes(q) || grp.includes(q) || ref.includes(q))
+                 && (selGroups.length === 0 || selGroups.map(g=>g.toLowerCase()).includes(grp))
+                 && (selRefs.length   === 0 || selRefs.map(r=>r.toLowerCase()).includes(ref));
+        item.style.setProperty('display', ok ? '' : 'none', 'important');
+      });
+
+      const total = desktopEntries.length || mobileEntries.length;
+      const countText = (q || selGroups.length || selRefs.length) ? `${vis} / ${total}` : total;
+
       const badge = document.getElementById('customerCountBadge');
-      if (badge) {
-        const total = document.querySelectorAll('.ledger-entry').length;
-        badge.textContent = (q || selGroups.length || selRefs.length) ? `${vis} / ${total}` : total;
-      }
+      if (badge) badge.textContent = countText;
+
+      const mobileBadge = document.getElementById('mobileCustomerCountBadge');
+      if (mobileBadge) mobileBadge.textContent = countText;
+
+      const offcanvasBadge = document.getElementById('offcanvasCustomerCountBadge');
+      if (offcanvasBadge) offcanvasBadge.textContent = countText;
 
       let visB = 0;
       document.querySelectorAll('.booking-row').forEach(row => {
