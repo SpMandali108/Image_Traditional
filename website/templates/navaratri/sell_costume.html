@@ -1037,6 +1037,8 @@ textarea.pos-input, textarea.form-control {
 
 <script>
 // State
+// Set of all valid costume codes currently in the Navaratri database collection
+const VALID_NAVARATRI_CODES = new Set({{ products|map(attribute='code')|list|tojson }});
 let selectedCostumes = [];
 let restoreTargetCode = '';
 let prefillCode = "{{ prefill_code|default('') }}".trim().toUpperCase();
@@ -1066,6 +1068,12 @@ function addCostumeFromInput() {
 async function addCostumeByCode(code) {
   hideCodeAlert();
 
+  // Strictly check that the code exists in the Navaratri database collection
+  if (VALID_NAVARATRI_CODES.size > 0 && !VALID_NAVARATRI_CODES.has(code)) {
+    showCodeAlert(`❌ <b>Not Allowed:</b> Costume code <b>"${code}"</b> does not exist in the Navaratri database collection.`, 'danger');
+    return;
+  }
+
   // Prevent duplicate codes
   if (selectedCostumes.some(c => c.code === code)) {
     showCodeAlert(`Costume <b>${code}</b> is already in the selected list.`, 'warning');
@@ -1077,7 +1085,7 @@ async function addCostumeByCode(code) {
     const data = await res.json();
 
     if (!res.ok || !data.found) {
-      showCodeAlert(`Costume code <b>${code}</b> not found in database.`, 'danger');
+      showCodeAlert(`❌ <b>Not Allowed:</b> Costume code <b>"${code}"</b> does not exist in the Navaratri database collection.`, 'danger');
       return;
     }
 
@@ -1274,9 +1282,30 @@ async function submitSaleTransaction() {
     return;
   }
   if (selectedCostumes.length === 0) {
-    showGeneralAlert('Please add at least one costume to this sale.', 'danger');
+    const pendingCode = (document.getElementById('costumeCodeInput')?.value || '').trim().toUpperCase();
+    if (pendingCode) {
+      if (VALID_NAVARATRI_CODES.size > 0 && !VALID_NAVARATRI_CODES.has(pendingCode)) {
+        showCodeAlert(`❌ <b>Not Allowed:</b> Costume code <b>"${pendingCode}"</b> does not exist in the Navaratri database collection.`, 'danger');
+        showGeneralAlert(`Costume code "${pendingCode}" does not exist in the Navaratri collection.`, 'danger');
+        document.getElementById('costumeCodeInput').focus();
+        return;
+      }
+      await addCostumeByCode(pendingCode);
+    }
+  }
+
+  if (selectedCostumes.length === 0) {
+    showGeneralAlert('Please add at least one valid costume code from the Navaratri collection.', 'danger');
     document.getElementById('costumeCodeInput').focus();
     return;
+  }
+
+  // Strictly verify all selected costumes exist in the Navaratri collection
+  for (const item of selectedCostumes) {
+    if (VALID_NAVARATRI_CODES.size > 0 && !VALID_NAVARATRI_CODES.has(item.code)) {
+      showGeneralAlert(`❌ Costume code "${item.code}" does not exist in the Navaratri database collection.`, 'danger');
+      return;
+    }
   }
   if (isNaN(total_price) || total_price < 0) {
     showGeneralAlert('Total Price must be a valid non-negative number.', 'danger');

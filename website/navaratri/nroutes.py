@@ -3777,11 +3777,11 @@ def api_navaratri_product_info(code):
 
     product = get_navaratri_product(code_clean)
     if not product:
-        sync_navaratri_products()
-        product = get_navaratri_product(code_clean)
-
-    if not product:
-        return jsonify({"success": False, "found": False, "message": f"Costume '{code_clean}' not found in database."}), 404
+        return jsonify({
+            "success": False,
+            "found": False,
+            "message": f"Costume code '{code_clean}' does not exist in the Navaratri collection."
+        }), 404
 
     is_choli = code_clean.startswith('C')
     category = "Choli" if is_choli else "Kediya"

@@ -374,12 +374,7 @@ def sell_navaratri_product(code, password, buyer_name=None, buyer_mobile=None, p
     product = get_navaratri_product(code_clean)
 
     if not product:
-        # Check if it exists in files and auto-sync
-        sync_navaratri_products()
-        product = get_navaratri_product(code_clean)
-
-    if not product:
-        return False, "Product not found.", 404
+        return False, f"Product code '{code_clean}' does not exist in the Navaratri collection.", 400
 
     if product.get("on_rent") is False:
         return False, "This product is already marked as unavailable for rent.", 400
@@ -509,18 +504,14 @@ def record_multiple_costume_sale(name, mobile, address, reference, codes, total_
     if given_price > total_price:
         return False, f"Given Price (₹{given_price}) cannot exceed Total Price (₹{total_price}).", None, {}, 400
 
-    # Verify each costume exists and is rentable
+    # Verify each costume exists in Navaratri collection and is rentable
     for code in cleaned_codes:
         prod = get_navaratri_product(code)
         if not prod:
-            sync_navaratri_products()
-            prod = get_navaratri_product(code)
-
-        if not prod:
-            return False, f"Costume code '{code}' not found in database.", None, {}, 404
+            return False, f"Costume code '{code}' does not exist in the Navaratri collection. Only registered Navaratri costumes can be sold.", None, {}, 400
 
         if prod.get("on_rent") is False:
-            return False, f"Costume '{code}' is already sold and unavailable for rent.", None, {}, 400
+            return False, f"Costume '{code}' is already marked as sold and unavailable for rent.", None, {}, 400
 
     now = get_ist_now()
     today_str = now.strftime("%d-%m-%y")
