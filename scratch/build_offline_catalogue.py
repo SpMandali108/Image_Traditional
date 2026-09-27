@@ -316,7 +316,9 @@ def generate_offline_catalogue_html():
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: top center;
       transition: transform 0.3s ease;
+      transform-origin: center top;
     }}
     .product-card:hover .img-wrap img {{
       transform: scale(1.04);

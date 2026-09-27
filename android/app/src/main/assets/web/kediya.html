@@ -2601,7 +2601,8 @@
     .card-image-wrapper {
         position: relative;
         width: 100%;
-        height: 250px;
+        aspect-ratio: 1 / 1;
+        height: auto;
         border-radius: 10px;
         overflow: hidden;
         background: rgba(0, 0, 0, 0.2);
@@ -2611,13 +2612,15 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+        object-position: top center;
         transition: transform 0.5s ease;
         will-change: transform;
         transform: translate3d(0, 0, 0);
+        transform-origin: center top;
     }
 
     .product-card:hover .card-image-wrapper img {
-        transform: scale(1.08) translate3d(0, 0, 0);
+        transform: scale(1.06) translate3d(0, 0, 0);
     }
 
     .card-mirror-accent {
@@ -2819,11 +2822,27 @@
             gap: 12px;
         }
         .product-card {
-            padding: 8px;
-            border-radius: 12px;
+            padding: 10px;
+            border-radius: 14px;
+        }
+        .card-gold-stitch {
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border-radius: 10px;
         }
         .card-image-wrapper {
-            height: 170px;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            border-radius: 8px;
+        }
+        .card-mirror-accent {
+            top: 7px;
+            right: 7px;
+            width: 18px;
+            height: 18px;
+            font-size: 0.45rem;
         }
         .card-code {
             font-size: 0.82rem;
