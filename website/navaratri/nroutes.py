@@ -1604,6 +1604,25 @@ def dashboard_summary():
         )
     
     
+def parse_booking_date(date_str):
+    if not date_str:
+        return datetime.max
+    clean_str = str(date_str).split('[')[0].strip()
+    for fmt in (
+        "%d-%m-%y", "%d-%m-%Y", "%Y-%m-%d", "%d/%m/%Y", "%d/%m/%y",
+        "%d-%b-%Y", "%d-%b-%y", "%d %b %Y", "%d %B %Y"
+    ):
+        try:
+            return datetime.strptime(clean_str, fmt)
+        except ValueError:
+            pass
+    try:
+        from dateutil import parser
+        return parser.parse(clean_str, dayfirst=True)
+    except Exception:
+        return datetime.max
+
+
 @navaratri.route('/download-customer', methods=['GET', 'POST'])
 def download_customer():
     cust_id = request.form.get('id') or request.args.get('id')
@@ -1724,26 +1743,45 @@ def download_customer():
 
     # ------- Two-Column Customer Details Grid -------
     def render_row(label1, val1, label2, val2):
-        y = pdf.get_y()
-        # Col 1 Label
-        pdf.set_xy(15, y)
+        y_start = pdf.get_y()
+        val_font = 'helvetica'
+        val_font_size = 9.5
+        line_h = 4.6
+
+        # Col 1: X from 15 to 110 (width 95)
+        pdf.set_xy(15, y_start)
         pdf.set_font('helvetica', 'B', 9)
         pdf.set_text_color(100, 116, 139)  # Muted slate
-        pdf.cell(32, 6, sanitize_latin1(label1) + ":", border=0)
-        # Col 1 Value
-        pdf.set_font('helvetica', '', 9.5)
+        lbl1_str = str(label1).strip() + ":"
+        lbl1_w = 32
+        pdf.cell(lbl1_w, line_h, sanitize_latin1(lbl1_str), border=0)
+
+        v1_x = 15 + lbl1_w
+        v1_w = 110 - v1_x  # 63 mm
+        pdf.set_xy(v1_x, y_start)
+        pdf.set_font(val_font, '', val_font_size)
         pdf.set_text_color(15, 23, 42)
-        pdf.cell(63, 6, sanitize_latin1(str(val1)), border=0)
-        
-        # Col 2 Label
+        pdf.multi_cell(v1_w, line_h, sanitize_latin1(str(val1)), border=0, align='L')
+        col1_bottom = pdf.get_y()
+
+        # Col 2: X from 110 to 195 (width 85)
+        pdf.set_xy(110, y_start)
         pdf.set_font('helvetica', 'B', 9)
         pdf.set_text_color(100, 116, 139)
-        pdf.cell(28, 6, sanitize_latin1(label2) + ":", border=0)
-        # Col 2 Value
-        pdf.set_font('helvetica', '', 9.5)
+        lbl2_str = str(label2).strip() + ":"
+        lbl2_w = 22
+        pdf.cell(lbl2_w, line_h, sanitize_latin1(lbl2_str), border=0)
+
+        v2_x = 110 + lbl2_w
+        v2_w = 195 - v2_x  # 63 mm
+        pdf.set_xy(v2_x, y_start)
+        pdf.set_font(val_font, '', val_font_size)
         pdf.set_text_color(15, 23, 42)
-        pdf.cell(57, 6, sanitize_latin1(str(val2)), border=0)
-        pdf.ln(7.5)
+        pdf.multi_cell(v2_w, line_h, sanitize_latin1(str(val2)), border=0, align='L')
+        col2_bottom = pdf.get_y()
+
+        next_y = max(col1_bottom, col2_bottom) + 1.8
+        pdf.set_y(next_y)
 
     if is_sale:
         render_row("Customer Name", customer.get("Name", "N/A"), "Reference", customer.get("reference") or "Direct Sale")
@@ -1754,7 +1792,19 @@ def download_customer():
         render_row("Mobile Number", customer.get("mobile", "N/A"), "Reference", customer.get("reference", "N/A"))
         render_row("Security Deposit", customer.get('deposit', 'N/A'), "Address", customer.get("address", "N/A"))
     
-    pdf.ln(2)
+    pdf.ln(1.5)
+
+    def print_table_header():
+        pdf.set_font('helvetica', 'B', 10)
+        pdf.set_text_color(255, 255, 255)  # White
+        pdf.set_fill_color(10, 17, 32)      # Navy
+        pdf.set_draw_color(10, 17, 32)      # Navy
+        pdf.set_x(15)
+        pdf.cell(15, 9, "Sr.", border=1, align="C", fill=True)
+        pdf.cell(50, 9, "Product Code", border=1, align="C", fill=True)
+        pdf.cell(60, 9, "Product Preview", border=1, align="C", fill=True)
+        pdf.cell(55, 9, "Sale Date" if is_sale else "Booking Date", border=1, align="C", fill=True)
+        pdf.ln()
 
     # ------- Items Table Heading -------
     pdf.set_font('helvetica', 'B', 11)
@@ -1764,20 +1814,9 @@ def download_customer():
     # Gold separator line
     pdf.set_draw_color(212, 175, 55)
     pdf.line(15, pdf.get_y(), 195, pdf.get_y())
-    pdf.ln(4)
+    pdf.ln(3.5)
 
-    # ------- Table Header -------
-    pdf.set_font('helvetica', 'B', 10)
-    pdf.set_text_color(255, 255, 255)  # White
-    pdf.set_fill_color(10, 17, 32)      # Navy
-    pdf.set_draw_color(10, 17, 32)      # Navy
-    
-    pdf.set_x(15)
-    pdf.cell(15, 9, "Sr.", border=1, align="C", fill=True)
-    pdf.cell(50, 9, "Product Code", border=1, align="C", fill=True)
-    pdf.cell(60, 9, "Product Preview", border=1, align="C", fill=True)
-    pdf.cell(55, 9, "Sale Date" if is_sale else "Booking Date", border=1, align="C", fill=True)
-    pdf.ln()
+    print_table_header()
 
     # ------- Table Rows -------
     pdf.set_font("helvetica", "", 10)
@@ -1790,8 +1829,19 @@ def download_customer():
         s_date = customer.get("date") or datetime.now().strftime("%d-%m-%y")
         bookings = {s_date: customer.get("sold_products", [])}
 
-    for date, codes in bookings.items():
+    # Show bookings in ascending order of date (earliest date first)
+    sorted_bookings = sorted(bookings.items(), key=lambda item: parse_booking_date(item[0]))
+
+    for date, codes in sorted_bookings:
         for code in codes:
+            if pdf.get_y() + 25 > 272:
+                pdf.add_page()
+                pdf.set_y(48)
+                print_table_header()
+                pdf.set_font("helvetica", "", 10)
+                pdf.set_text_color(15, 23, 42)
+                pdf.set_draw_color(226, 232, 240)
+
             pdf.set_x(15)
             # Row height 25 to fit image
             pdf.cell(15, 25, str(sr), border=1, align="C")
@@ -1823,13 +1873,17 @@ def download_customer():
                 pdf.set_text_color(15, 23, 42)
                 pdf.set_xy(x + 60, y)
 
-            pdf.cell(55, 25, date, border=1, align="C")
+            pdf.cell(55, 25, str(date), border=1, align="C")
             pdf.ln()
 
             sr += 1
 
     # ------- Totals Card Section -------
-    pdf.ln(5)
+    if pdf.get_y() + 28 > 272:
+        pdf.add_page()
+        pdf.set_y(48)
+
+    pdf.ln(4)
     totals_start_x = 115
     
     total_price = customer.get("total_price", 0)
@@ -1840,24 +1894,24 @@ def download_customer():
     pdf.set_x(totals_start_x)
     pdf.set_font("helvetica", "B", 9.5)
     pdf.set_text_color(100, 116, 139)
-    pdf.cell(45, 6, "Total Amount:", align="R")
+    pdf.cell(45, 5.5, "Total Amount:", align="R")
     pdf.set_font("helvetica", "B", 10.5)
     pdf.set_text_color(15, 23, 42)
-    pdf.cell(35, 6, f"Rs. {total_price}", align="R", ln=1)
+    pdf.cell(35, 5.5, f"Rs. {total_price}", align="R", ln=1)
 
     # Row: Given Price
     pdf.set_x(totals_start_x)
     pdf.set_font("helvetica", "B", 9.5)
     pdf.set_text_color(100, 116, 139)
-    pdf.cell(45, 6, "Amount Paid:", align="R")
+    pdf.cell(45, 5.5, "Amount Paid:", align="R")
     pdf.set_font("helvetica", "B", 10.5)
     pdf.set_text_color(16, 185, 129)  # Success Green
-    pdf.cell(35, 6, f"Rs. {given_price}", align="R", ln=1)
+    pdf.cell(35, 5.5, f"Rs. {given_price}", align="R", ln=1)
 
     # Divider line
     pdf.set_draw_color(226, 232, 240)
     pdf.line(totals_start_x, pdf.get_y() + 1, 195, pdf.get_y() + 1)
-    pdf.ln(2.5)
+    pdf.ln(2.0)
 
     # Row: Remaining (Balance Due Box)
     pdf.set_x(totals_start_x)
@@ -1870,16 +1924,17 @@ def download_customer():
         pdf.set_draw_color(16, 185, 129)   # Green border
         pdf.set_text_color(13, 148, 136)   # Teal text
 
-    y = pdf.get_y()
-    pdf.rect(totals_start_x, y, 80, 8.5, 'DF')
-    pdf.set_xy(totals_start_x, y + 1.25)
+    card_y = pdf.get_y()
+    pdf.rect(totals_start_x, card_y, 80, 8.0, 'DF')
+    pdf.set_xy(totals_start_x, card_y + 1.0)
     pdf.set_font("helvetica", "B", 9.5)
     pdf.cell(45, 6, "Balance Due:", align="R")
     pdf.set_font("helvetica", "B", 11.5)
     pdf.cell(30, 6, f"Rs. {remaining}", align="R")
+
     # ------- Terms & Conditions (Bilingual) -------
-    gap_after_payment = 10.0
-    candidate_tc_y = y + 8.5 + gap_after_payment
+    gap_after_payment = 6.0
+    candidate_tc_y = card_y + 8.0 + gap_after_payment
 
     if is_sale:
         guj_terms = [
@@ -1918,64 +1973,66 @@ def download_customer():
 
     guj_font = "NotoSansGujarati" if "notosansgujarati" in pdf.fonts else "helvetica"
     tc_font_size = 7.5
-    line_h = 3.6
-    point_gap = 1.2
-    sec_gap = 7.0
+    line_h = 3.5
+    point_gap = 1.0
+    safe_bottom = 273.0
+
+    col_w = 87.0
+    col1_x = 15.0
+    col2_x = 108.0
 
     # Calculate required height for complete T&C
     pdf.set_font(guj_font, "", tc_font_size)
-    guj_h = 7.0
-    for pt in guj_terms:
-        lines = pdf.multi_cell(180, line_h, pt, dry_run=True, output="LINES")
-        guj_h += len(lines) * line_h + point_gap
+    guj_lines = sum(len(pdf.multi_cell(col_w, line_h, pt, dry_run=True, output="LINES")) for pt in guj_terms)
+    guj_req_h = 6.0 + (guj_lines * line_h) + (len(guj_terms) * point_gap)
 
     pdf.set_font("helvetica", "", tc_font_size)
-    eng_h = 7.0
-    for pt in eng_terms:
-        lines = pdf.multi_cell(180, line_h, pt, dry_run=True, output="LINES")
-        eng_h += len(lines) * line_h + point_gap
+    eng_lines = sum(len(pdf.multi_cell(col_w, line_h, pt, dry_run=True, output="LINES")) for pt in eng_terms)
+    eng_req_h = 6.0 + (eng_lines * line_h) + (len(eng_terms) * point_gap)
 
-    total_tc_h = guj_h + sec_gap + eng_h
+    req_tc_height = max(guj_req_h, eng_req_h)
+    remaining_height = safe_bottom - candidate_tc_y
 
-    # Page break rule: if complete T&C cannot comfortably fit on current page, move to new page
-    if candidate_tc_y + total_tc_h > 272:
+    # Decision logic:
+    # calculate remaining page height -> remaining_height
+    # calculate required T&C height   -> req_tc_height
+    # required height <= remaining height?
+    #   YES -> T&C on current page
+    #   NO  -> new page -> T&C
+    if req_tc_height <= remaining_height:
+        tc_y = candidate_tc_y
+    else:
         pdf.add_page()
         tc_y = 48.0
-    else:
-        tc_y = candidate_tc_y
 
-    pdf.set_y(tc_y)
-
-    # 1. Gujarati Section
-    pdf.set_x(15)
+    # Render Two-Column Bilingual Terms & Conditions
+    # 1. Column 1: Gujarati
+    pdf.set_xy(col1_x, tc_y)
     pdf.set_font(guj_font, "B", 9)
     pdf.set_text_color(15, 23, 42)
-    pdf.cell(180, 5.5, "નિયમો અને શરતો :-")
-    pdf.ln(7.0)
+    pdf.cell(col_w, 5.0, "નિયમો અને શરતો :-")
 
+    curr_guj_y = tc_y + 6.0
     pdf.set_font(guj_font, "", tc_font_size)
     pdf.set_text_color(51, 65, 85)
     for pt in guj_terms:
-        pdf.set_x(15)
-        pdf.multi_cell(180, line_h, pt, align="L")
-        pdf.ln(point_gap)
+        pdf.set_xy(col1_x, curr_guj_y)
+        pdf.multi_cell(col_w, line_h, pt, align="L")
+        curr_guj_y = pdf.get_y() + point_gap
 
-    # Spacing between Gujarati and English sections
-    pdf.ln(sec_gap)
-
-    # 2. English Section
-    pdf.set_x(15)
+    # 2. Column 2: English
+    pdf.set_xy(col2_x, tc_y)
     pdf.set_font("helvetica", "B", 9)
     pdf.set_text_color(15, 23, 42)
-    pdf.cell(180, 5.5, "Terms & Conditions")
-    pdf.ln(7.0)
+    pdf.cell(col_w, 5.0, "Terms & Conditions")
 
+    curr_eng_y = tc_y + 6.0
     pdf.set_font("helvetica", "", tc_font_size)
     pdf.set_text_color(51, 65, 85)
     for pt in eng_terms:
-        pdf.set_x(15)
-        pdf.multi_cell(180, line_h, pt, align="L")
-        pdf.ln(point_gap)
+        pdf.set_xy(col2_x, curr_eng_y)
+        pdf.multi_cell(col_w, line_h, pt, align="L")
+        curr_eng_y = pdf.get_y() + point_gap
 
     # Output PDF as bytes
     pdf_output = pdf.output()
@@ -2571,6 +2628,8 @@ def download_bill_page():
             customer = collection.find_one({"_id": ObjectId(cust_id)})
             if customer:
                 mobile = customer.get("mobile", "")
+                if isinstance(customer.get("bookings"), dict):
+                    customer["bookings"] = dict(sorted(customer["bookings"].items(), key=lambda item: parse_booking_date(item[0])))
         except Exception:
             pass
             
