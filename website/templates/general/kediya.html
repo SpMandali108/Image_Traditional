@@ -90,10 +90,10 @@
                 
 
                 <div class="inquiry-box">
-                    <p style="font-size: 0.8rem; color: #94a3b8; margin: 0 0 10px 0; font-weight: 600;">💬 DIRECT BOOKING INQUIRY</p>
-                    <a id="whatsappInquiryBtn" href="" target="_blank" class="action-btn-whatsapp">
-                        💬 Inquire on WhatsApp
-                    </a>
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin: 0 0 10px 0; font-weight: 600;">⚡ LIVE AVAILABILITY CHECK</p>
+                    <button type="button" id="checkAvailabilityBtn" class="action-btn-check-avail">
+                        🔍 Check Availability
+                    </button>
                 </div>
             </div>
         </div>
@@ -686,6 +686,34 @@
         color: white;
     }
 
+    /* Check Availability Button styling */
+    .action-btn-check-avail {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        background: linear-gradient(135deg, #d4af37 0%, #b8961e 100%);
+        color: #050d1f;
+        text-decoration: none;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.25);
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .action-btn-check-avail:hover {
+        background: linear-gradient(135deg, #f4d35e 0%, #d4af37 100%);
+        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.45);
+        transform: translateY(-2px);
+        color: #050d1f;
+    }
+
     /* Lightbox nav arrows */
     .lightbox-nav-row {
         display: flex;
@@ -827,9 +855,28 @@
             descText.innerText = "An exquisite masterpiece of traditional craftsmanship, meticulously designed to radiate elegance and grace. Handcrafted by master artisans, this exclusive attire features rich, intricate embroidery and mirror embellishments, capturing the true heritage of festive luxury.";
         }
 
-        if (waBtn) {
-            const message = encodeURIComponent(`Hi! I am interested in renting the traditional Kediya costume with code: ${activeProduct.name}. Is it available?`);
-            waBtn.href = `https://wa.me/919428610384?text=${message}`;
+        const checkBtn = document.getElementById("checkAvailabilityBtn") || document.getElementById("whatsappInquiryBtn");
+        if (checkBtn) {
+            const productCode = activeProduct.product_code || activeProduct.code || activeProduct.name;
+            const productPrice = activeProduct.price || activeProduct.rent_price || '';
+            const imgElem = document.getElementById("lightboxImg");
+            const costumeImgUrl = (imgElem && imgElem.src && !imgElem.src.includes('favicon.png'))
+                ? imgElem.src
+                : `${window.location.origin}/static/Kediya/${activeProduct.image}`;
+
+            checkBtn.onclick = function(e) {
+                if (e) e.preventDefault();
+                if (window.openRentalDatePicker) {
+                    window.openRentalDatePicker({
+                        mode: 'check_availability',
+                        costumeName: `Kediya Outfit - Design ${productCode}`,
+                        costumeCode: productCode,
+                        costumePrice: productPrice,
+                        costumeImage: costumeImgUrl,
+                        category: 'Kediya'
+                    });
+                }
+            };
         }
     }
 
@@ -917,6 +964,8 @@
         // Keyboard navigation bindings (Left, Right, Escape)
         document.addEventListener("keydown", function(e) {
             if (!lightbox || lightbox.style.display !== "flex") return;
+            const dateModal = document.getElementById("itDatePickerModal");
+            if (dateModal && dateModal.classList.contains("is-active")) return;
             
             if (e.key === "Escape") closeLightbox();
             if (e.key === "ArrowLeft") navigateLightbox(-1);

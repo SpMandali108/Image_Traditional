@@ -996,7 +996,7 @@ Browse our {{ sub }} Fancy Dress collection.
                 </div>
 
                 <div class="inquiry-box">
-                    <a id="whatsappInquiryBtn" href="" target="_blank" class="action-btn-whatsapp">
+                    <a id="whatsappInquiryBtn" href="javascript:void(0)" class="action-btn-whatsapp">
                         💬 Inquire on WhatsApp
                     </a>
                 </div>
@@ -1110,8 +1110,18 @@ Browse our {{ sub }} Fancy Dress collection.
         if (container) container.scrollTop = 0;
 
         if (waBtn) {
-            const message = encodeURIComponent(`Hi! I am interested in renting the Fancy Dress costume "${activeProduct.name}" (Design Code: ${code}) from category "${category}". Is it available?`);
-            waBtn.href = `https://wa.me/919428610384?text=${message}`;
+            waBtn.onclick = function(e) {
+                if (e) e.preventDefault();
+                if (window.openRentalDatePicker) {
+                    window.openRentalDatePicker({
+                        costumeName: activeProduct.name,
+                        costumeCode: code,
+                        category: 'Fancy',
+                        subcategory: category,
+                        phone: '919428610384'
+                    });
+                }
+            };
         }
     }
 
@@ -1200,6 +1210,8 @@ Browse our {{ sub }} Fancy Dress collection.
         document.addEventListener("keydown", function(e) {
             const lightbox = document.getElementById("galleryLightbox");
             if (!lightbox || !lightbox.classList.contains("active")) return;
+            const dateModal = document.getElementById("itDatePickerModal");
+            if (dateModal && dateModal.classList.contains("is-active")) return;
             
             if (e.key === "Escape") closeLightbox();
             if (e.key === "ArrowLeft") navigateLightbox(-1);

@@ -19,15 +19,22 @@ def create_app():
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max payload
+
     from .views import views
     from .auth import auth  
+    from .general.security import apply_security_headers, apply_cors_headers
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
-    app.register_blueprint(fancy,url_prefix='/')
-    app.register_blueprint(navaratri,url_prefix='/')
-    app.register_blueprint(general,url_prefix='/')
+    app.register_blueprint(fancy, url_prefix='/')
+    app.register_blueprint(navaratri, url_prefix='/')
+    app.register_blueprint(general, url_prefix='/')
 
+    @app.after_request
+    def security_middleware(response):
+        response = apply_security_headers(response)
+        response = apply_cors_headers(response)
+        return response
 
-   
     return app

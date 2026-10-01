@@ -1,0 +1,589 @@
+/* ==========================================================================
+   Image Traditional - Festive Date Picker & Availability Modal Styling
+   Theme: Deep Royal Navy (#050D1F / #0E172A) & Luxury Artisan Gold (#D4AF37)
+   ========================================================================== */
+
+/* Modal Backdrop Overlay */
+.it-datepicker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  background: rgba(3, 7, 18, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.25s;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.it-datepicker-overlay.is-active {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+/* Modal Card */
+.it-datepicker-card {
+  position: relative;
+  width: 100%;
+  max-width: 410px;
+  background: linear-gradient(165deg, #0e172a 0%, #0a1122 55%, #101e38 100%);
+  border: 1px solid rgba(212, 175, 55, 0.32);
+  border-radius: 22px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 
+              0 0 35px rgba(212, 175, 55, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 24px 22px 20px 22px;
+  box-sizing: border-box;
+  color: #f8fafc;
+  transform: scale(0.92) translateY(12px);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: 'Plus Jakarta Sans', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  max-height: 94dvh;
+  overflow-y: auto;
+}
+
+.it-datepicker-overlay.is-active .it-datepicker-card {
+  transform: scale(1) translateY(0);
+}
+
+/* Close Button (✕) */
+.it-datepicker-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: #cbd5e1;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.it-datepicker-close:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: #d4af37;
+  color: #ffffff;
+  transform: rotate(90deg);
+}
+
+/* Header Section */
+.it-datepicker-header {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.it-modal-sparkle {
+  font-size: 1.1rem;
+  color: #d4af37;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.7);
+  margin-bottom: 2px;
+}
+
+.it-datepicker-title {
+  margin: 0 0 4px 0;
+  font-family: 'Cinzel', 'Poppins', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffffff 0%, #f4d35e 50%, #d4af37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.5px;
+}
+
+.it-datepicker-subtitle {
+  margin: 0 0 10px 0;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+/* Costume Info Badge */
+.it-costume-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 5px 12px;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  color: #e2e8f0;
+  box-sizing: border-box;
+}
+
+.it-badge-icon {
+  font-size: 0.9rem;
+}
+
+.it-badge-text {
+  font-weight: 600;
+  color: #f1f5f9;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Month Navigation */
+.it-calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.it-nav-arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  color: #e2e8f0;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.it-nav-arrow:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: #d4af37;
+  color: #ffffff;
+  transform: scale(1.06);
+}
+
+.it-nav-arrow:disabled,
+.it-nav-arrow.disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.it-calendar-month-year {
+  font-family: 'Cinzel', 'Poppins', sans-serif;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #f4d35e;
+  letter-spacing: 0.5px;
+}
+
+/* Weekday Labels */
+.it-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.it-calendar-weekdays span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 0;
+}
+
+/* Calendar Days Grid */
+.it-calendar-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+.it-day-cell {
+  aspect-ratio: 1;
+  min-height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.86rem;
+  font-weight: 500;
+  background: transparent;
+  color: #f1f5f9;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  user-select: none;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.it-day-cell.is-empty {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Disabled/Past Date */
+.it-day-cell.is-disabled {
+  color: #475569;
+  cursor: not-allowed;
+  opacity: 0.32;
+  pointer-events: none;
+}
+
+/* Today's Date */
+.it-day-cell.is-today {
+  border-color: rgba(212, 175, 55, 0.6);
+  color: #f4d35e;
+  font-weight: 700;
+  background: rgba(212, 175, 55, 0.08);
+}
+
+/* Hover on Selectable Date */
+.it-day-cell:not(.is-disabled):not(.is-empty):hover {
+  background: rgba(212, 175, 55, 0.18);
+  border-color: rgba(212, 175, 55, 0.45);
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+/* Selected Date */
+.it-day-cell.is-selected {
+  background: linear-gradient(135deg, #d4af37 0%, #f4d35e 100%) !important;
+  color: #050d1f !important;
+  font-weight: 800 !important;
+  border-color: #d4af37 !important;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.5) !important;
+  transform: scale(1.08);
+}
+
+/* Selection Preview Card */
+.it-selection-preview {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px dashed rgba(212, 175, 55, 0.3);
+  border-radius: 10px;
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin-bottom: 14px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.it-selection-preview.has-selection {
+  background: rgba(212, 175, 55, 0.1);
+  border-style: solid;
+  border-color: rgba(212, 175, 55, 0.55);
+  color: #f8fafc;
+}
+
+.it-preview-icon {
+  font-size: 0.95rem;
+}
+
+/* ==========================================================================
+   Live Availability Result Cards
+   ========================================================================== */
+.it-avail-result-container {
+  margin-bottom: 16px;
+  animation: fadeInDown 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.it-avail-card {
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Available State (Emerald Green) */
+.it-avail-card.is-available {
+  background: linear-gradient(145deg, rgba(6, 78, 59, 0.45) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border: 1.5px solid #22c55e;
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.25);
+}
+
+/* Not Available State (Coral Red) */
+.it-avail-card.is-unavailable {
+  background: linear-gradient(145deg, rgba(127, 29, 29, 0.45) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border: 1.5px solid #ef4444;
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.25);
+}
+
+/* Loading State (Pulsing Navy-Gold) */
+.it-avail-card.is-loading {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: #f4d35e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+}
+
+.it-avail-status {
+  font-family: 'Cinzel', 'Poppins', serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.is-available .it-avail-status {
+  color: #4ade80;
+  text-shadow: 0 0 12px rgba(74, 222, 128, 0.4);
+}
+
+.is-unavailable .it-avail-status {
+  color: #f87171;
+  text-shadow: 0 0 12px rgba(248, 113, 113, 0.4);
+}
+
+.it-avail-meta-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 6px 0;
+}
+
+.it-avail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.it-avail-row-label {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.it-avail-row-val {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.it-avail-reason {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: #fca5a5;
+  font-weight: 500;
+}
+
+.it-avail-success-hint {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: #86efac;
+  font-weight: 500;
+}
+
+.it-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(212, 175, 55, 0.25);
+  border-top-color: #d4af37;
+  border-radius: 50%;
+  animation: itSpin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes itSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* In-Card WhatsApp Inquiry Action Button */
+.it-avail-wa-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 16px;
+  border-radius: 9px;
+  border: none;
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
+  transition: all 0.25s ease;
+}
+
+.it-avail-wa-btn:hover {
+  background: linear-gradient(135deg, #2ae06e 0%, #0f7a6e 100%);
+  box-shadow: 0 6px 22px rgba(37, 211, 102, 0.55);
+  transform: translateY(-1px);
+}
+
+/* Modal Action Buttons */
+.it-datepicker-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.it-btn-cancel {
+  flex: 1 1 80px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #cbd5e1;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  text-align: center;
+}
+
+.it-btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Continue / Action Button */
+.it-btn-continue {
+  flex: 1.5 1 130px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: none;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.25s ease;
+  font-family: inherit;
+  text-align: center;
+}
+
+/* Default / Check Availability Style (Gold Festive) */
+.it-btn-continue.btn-gold-theme {
+  background: linear-gradient(135deg, #d4af37 0%, #b8961e 100%);
+  color: #050d1f;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+}
+
+.it-btn-continue.btn-gold-theme:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f4d35e 0%, #d4af37 100%);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.45);
+  transform: translateY(-1px);
+}
+
+/* WhatsApp Theme Style */
+.it-btn-continue.btn-whatsapp-theme {
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.25);
+}
+
+.it-btn-continue.btn-whatsapp-theme:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2ae06e 0%, #0f7a6e 100%);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+  transform: translateY(-1px);
+}
+
+.it-btn-continue.btn-whatsapp-theme.is-active-wa {
+  opacity: 1 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  box-shadow: 0 4px 18px rgba(37, 211, 102, 0.4) !important;
+  animation: pulseWaGlow 2s infinite;
+}
+
+@keyframes pulseWaGlow {
+  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+.it-btn-continue:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.it-btn-arrow {
+  font-size: 0.9rem;
+  transition: transform 0.2s ease;
+}
+
+.it-btn-continue:hover:not(:disabled) .it-btn-arrow {
+  transform: translateX(3px);
+}
+
+/* Responsive tweaks for smaller screens */
+@media (max-width: 480px) {
+  .it-datepicker-card {
+    padding: 20px 16px 16px 16px;
+    max-width: 360px;
+    border-radius: 18px;
+  }
+  
+  .it-datepicker-title {
+    font-size: 1.15rem;
+  }
+  
+  .it-day-cell {
+    min-height: 32px;
+    font-size: 0.82rem;
+  }
+
+  .it-datepicker-actions {
+    flex-direction: column;
+  }
+
+  .it-datepicker-actions button {
+    width: 100%;
+  }
+}

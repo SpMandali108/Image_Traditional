@@ -29,10 +29,26 @@ def choli():
     unavailable_codes = set(
         p["code"].upper() for p in navaratri_products.find({"on_rent": False}, {"code": 1})
     )
-    visible_products = [
-        p for p in products
-        if (p.get("name") or p.get("code") or "").strip().upper() not in unavailable_codes
-    ]
+    db_price_map = {}
+    try:
+        for p_doc in navaratri_products.find({"$or": [{"price": {"$exists": True}}, {"rent_price": {"$exists": True}}]}, {"code": 1, "price": 1, "rent_price": 1}):
+            c = (p_doc.get("code") or "").strip().upper()
+            if c:
+                db_price_map[c] = p_doc.get("price") or p_doc.get("rent_price")
+    except Exception:
+        pass
+
+    visible_products = []
+    for p in products:
+        code_val = (p.get("product_code") or p.get("code") or p.get("name") or "").strip()
+        if code_val.upper() not in unavailable_codes:
+            item = dict(p)
+            item["product_code"] = code_val
+            item["code"] = code_val
+            price_val = p.get("price") or p.get("rent_price") or db_price_map.get(code_val.upper())
+            if price_val:
+                item["price"] = price_val
+            visible_products.append(item)
     return render_template("general/choli.html", products=visible_products)
 
 @general.route("/kediya")
@@ -44,10 +60,26 @@ def kediya():
     unavailable_codes = set(
         p["code"].upper() for p in navaratri_products.find({"on_rent": False}, {"code": 1})
     )
-    visible_products = [
-        p for p in products
-        if (p.get("name") or p.get("code") or "").strip().upper() not in unavailable_codes
-    ]
+    db_price_map = {}
+    try:
+        for p_doc in navaratri_products.find({"$or": [{"price": {"$exists": True}}, {"rent_price": {"$exists": True}}]}, {"code": 1, "price": 1, "rent_price": 1}):
+            c = (p_doc.get("code") or "").strip().upper()
+            if c:
+                db_price_map[c] = p_doc.get("price") or p_doc.get("rent_price")
+    except Exception:
+        pass
+
+    visible_products = []
+    for p in products:
+        code_val = (p.get("product_code") or p.get("code") or p.get("name") or "").strip()
+        if code_val.upper() not in unavailable_codes:
+            item = dict(p)
+            item["product_code"] = code_val
+            item["code"] = code_val
+            price_val = p.get("price") or p.get("rent_price") or db_price_map.get(code_val.upper())
+            if price_val:
+                item["price"] = price_val
+            visible_products.append(item)
     return render_template("general/kediya.html", products=visible_products)
 
 @general.route("/sitemap.xml")
@@ -386,7 +418,8 @@ def update_customer_address():
             "address": final_street_addr
         })
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        current_app.logger.error(f"Error in update_customer_address: {e}", exc_info=True)
+        return jsonify({"status": "error", "message": "Failed to update address. Please try again."}), 500
 
 
 @general.route("/api/add_custom_locality", methods=["POST"])
@@ -423,7 +456,8 @@ def add_custom_locality():
             "locality": {"name": name, "lat": lat, "lng": lng}
         })
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        current_app.logger.error(f"Error in add_custom_locality: {e}", exc_info=True)
+        return jsonify({"status": "error", "message": "Failed to add custom locality. Please try again."}), 500
 
 
 # ------------------ PWA Catalogue Synchronization API ------------------
@@ -577,4 +611,5 @@ def catalogue_sync():
             }
         })
     except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        current_app.logger.error(f"Error in catalogue_sync: {e}", exc_info=True)
+        return jsonify({'status': 'error', 'message': 'Failed to synchronize catalogue data.'}), 500

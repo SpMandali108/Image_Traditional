@@ -1,0 +1,75 @@
+<!-- Elegant Theme-Matching Date Picker & Availability Modal -->
+<div id="itDatePickerModal" class="it-datepicker-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="itDatepickerTitle">
+  <div class="it-datepicker-card">
+    <button type="button" class="it-datepicker-close" onclick="closeRentalDatePicker()" aria-label="Close Date Picker">✕</button>
+
+    <div class="it-datepicker-header">
+      <div class="it-modal-sparkle">✦</div>
+      <h3 id="itDatepickerTitle" class="it-datepicker-title">Select Rental Date</h3>
+      <p class="it-datepicker-subtitle" id="itDatepickerSubtitle">Choose the required date to inquire about costume availability</p>
+      
+      <!-- Costume Info Badge -->
+      <div class="it-costume-badge" id="itCostumeBadgeWrapper">
+        <span class="it-badge-icon" id="itBadgeIcon">👘</span>
+        <span class="it-badge-text" id="itCostumeBadgeText">Costume Name</span>
+      </div>
+    </div>
+
+    <!-- Calendar Month Navigation -->
+    <div class="it-calendar-nav">
+      <button type="button" class="it-nav-arrow" id="itPrevMonthBtn" onclick="navigateCalendarMonth(-1)" aria-label="Previous Month">
+        &#10094;
+      </button>
+      <div class="it-calendar-month-year" id="itMonthYearDisplay">October 2026</div>
+      <button type="button" class="it-nav-arrow" id="itNextMonthBtn" onclick="navigateCalendarMonth(1)" aria-label="Next Month">
+        &#10095;
+      </button>
+    </div>
+
+    <!-- Calendar Weekday Headers -->
+    <div class="it-calendar-weekdays">
+      <span>Sun</span>
+      <span>Mon</span>
+      <span>Tue</span>
+      <span>Wed</span>
+      <span>Thu</span>
+      <span>Fri</span>
+      <span>Sat</span>
+    </div>
+
+    <!-- Calendar Days Grid -->
+    <div class="it-calendar-days-grid" id="itDaysGrid">
+      <!-- Generated dynamically by inquiry_date_modal.js -->
+    </div>
+
+    <!-- Selected Date Feedback Card -->
+    <div class="it-selection-preview" id="itSelectionPreview">
+      <span class="it-preview-icon" id="itPreviewIcon">📅</span>
+      <span class="it-preview-text" id="itPreviewText">Please tap a date for your rental</span>
+    </div>
+
+    <!-- Dynamic Live Availability Result Card (for Check Availability mode) -->
+    <div class="it-avail-result-container" id="itAvailabilityResult" style="display: none;">
+      <!-- Populated dynamically:
+           Available / Not Available
+           Kediya Code: K-102 / Choli Code: C-10
+           Date: 12-10-2026
+      -->
+    </div>
+
+    <!-- Modal Actions -->
+    <div class="it-datepicker-actions" id="itDatepickerActions">
+      <button type="button" class="it-btn-cancel" onclick="closeRentalDatePicker()">
+        Close
+      </button>
+      <button type="button" class="it-btn-continue" id="itContinueWaBtn" onclick="handlePrimaryModalAction()" disabled>
+        <span id="itBtnActionText">Check Availability</span>
+        <span class="it-btn-arrow" id="itBtnActionArrow">🔍</span>
+      </button>
+      <button type="button" class="it-btn-continue btn-whatsapp-theme" id="itWhatsAppInquiryBtn" onclick="triggerWhatsAppInquiry()" disabled style="display: none;">
+        <span id="itWaActionText">Inquire on WhatsApp</span>
+        <span class="it-btn-arrow">💬</span>
+      </button>
+    </div>
+  </div>
+</div>

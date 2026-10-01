@@ -38,6 +38,7 @@
 
   <!-- ✅ NORMAL CSS (IMPORTANT: no glitch) -->
   <link rel="stylesheet" href="{{ url_for('static', filename='CSS/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/inquiry_date_modal.css') }}">
 
   <!-- Favicon -->
   <link rel="icon" href="{{ url_for('static', filename='Home_Img/favicon.png') }}?v=5">
@@ -162,6 +163,10 @@
     });
   }
 </script>
+
+<!-- Festive Date Picker Modal for WhatsApp Inquiry -->
+{% include "general/inquiry_date_modal.html" %}
+<script src="{{ url_for('static', filename='JS/inquiry_date_modal.js') }}"></script>
 
 {% block scripts %}{% endblock %}
 

@@ -6,7 +6,11 @@ load_dotenv()
 
 mongo_url = os.environ.get("client")
 
-client = MongoClient(mongo_url, tls=True, tlsAllowInvalidCertificates=True)
+try:
+    import certifi
+    client = MongoClient(mongo_url, tls=True, tlsCAFile=certifi.where())
+except Exception:
+    client = MongoClient(mongo_url, tls=True, tlsAllowInvalidCertificates=True)
 
 db = client["Image_Traditional"]
 

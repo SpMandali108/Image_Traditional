@@ -593,72 +593,129 @@ def profile(customer_id=None):
         return redirect(url_for('navaratri.navaratri_booking', mobile=mobile))
     return redirect(url_for('navaratri.navaratri_booking'))
 
-# ------------------ API: Live Availability Check ------------------
-@navaratri.route('/api/check-product', methods=['GET'])
+# ------------------ API: Live Availability Check (Harden Protected) ------------------
+@navaratri.route('/api/check-product', methods=['GET', 'POST'])
+@navaratri.route('/api/check-availability', methods=['GET', 'POST'])
 def api_check_product():
-    if not session.get('logged_in'):
-        return jsonify({"available": False, "error": "Unauthorized"}), 401
-        
-    product_code = request.args.get('product_code', '').strip()
-    date_input = request.args.get('date', '').strip()
-    exclude_mobile = request.args.get('exclude_mobile', '').strip()
+    # 1. Thread-safe sliding window rate limiting (40 req/min per IP)
+    from website.general.security import (
+        validate_product_code, 
+        validate_booking_date, 
+        availability_rate_limiter, 
+        get_client_ip
+    )
     
-    if not product_code or not date_input:
-        return jsonify({"available": False, "error": "Product code and date are required"}), 400
+    client_ip = get_client_ip(request)
+    allowed, remaining, retry_after = availability_rate_limiter.is_allowed(client_ip)
+    if not allowed:
+        current_app.logger.warning(f"[SECURITY ALERT] Rate limit exceeded on availability API by IP {client_ip}")
+        resp = jsonify({
+            "available": False, 
+            "error": "Too many requests. Please wait a moment before checking again."
+        })
+        resp.headers["Retry-After"] = str(retry_after)
+        return resp, 429
 
+    # 2. Request payload size protection (Max 10 KB)
+    if request.content_length and request.content_length > 10 * 1024:
+        return jsonify({"available": False, "error": "Request payload exceeds allowed limit."}), 413
+
+    # 3. Parameter extraction and strict schema verification
+    is_admin = bool(session.get('logged_in'))
+    raw_product_code = None
+    raw_date = None
+    raw_exclude_mobile = None
+
+    if request.method == 'POST':
+        if not request.is_json:
+            return jsonify({"available": False, "error": "Request body must be valid application/json."}), 400
+        
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            return jsonify({"available": False, "error": "JSON payload must be an object."}), 400
+
+        # Whitelist permitted keys - reject unexpected/NoSQL operator keys
+        allowed_keys = {"product_code", "date"}
+        if is_admin:
+            allowed_keys.add("exclude_mobile")
+        extra_keys = set(data.keys()) - allowed_keys
+        if extra_keys:
+            current_app.logger.warning(f"[SECURITY ALERT] Unexpected payload keys {extra_keys} from IP {client_ip}")
+            return jsonify({"available": False, "error": "Unexpected fields present in request payload."}), 400
+
+        raw_product_code = data.get("product_code")
+        raw_date = data.get("date")
+        raw_exclude_mobile = data.get("exclude_mobile") if is_admin else None
+    else:
+        # GET request: extract from query string
+        raw_product_code = request.args.get("product_code")
+        raw_date = request.args.get("date")
+        raw_exclude_mobile = request.args.get("exclude_mobile") if is_admin else None
+
+    # 4. Strict Type, Length, Format & Injection Validation
+    val_code_ok, product_code, err_code = validate_product_code(raw_product_code)
+    if not val_code_ok:
+        return jsonify({"available": False, "error": err_code}), 400
+
+    val_date_ok, dt_obj, norm_date_yyyy, date_str, err_date = validate_booking_date(raw_date)
+    if not val_date_ok:
+        return jsonify({"available": False, "error": err_date}), 400
+
+    # 5. Safe Normalized Server-Side Query Construction
     norm_code = normalize_product_code(product_code)
     if not norm_code:
-        return jsonify({
-            "available": False,
-            "error": f"Invalid product code '{product_code}'",
-            "reason": f"Product '{product_code}' not found."
-        }), 400
-        
-    date_str = date_input
-    for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d-%m-%y", "%d/%m/%Y", "%d/%m/%y", "%Y/%m/%d"):
-        try:
-            date_obj = datetime.strptime(date_input, fmt)
-            date_str = date_obj.strftime("%d-%m-%y")
-            break
-        except ValueError:
-            pass
+        return jsonify({"available": False, "error": f"Invalid product code '{product_code}'"}), 400
 
-    col_name = "unknown"
     try:
-        curr_col = get_selected_collection()
-        col_name = getattr(curr_col, 'name', 'unknown')
-    except Exception:
-        pass
+        # Check master catalogue rental status
+        is_avail, err_reason = is_product_available_for_rent(norm_code)
         
-    # Check if product is available for rent in master catalog
-    is_avail, err_reason = is_product_available_for_rent(norm_code)
-    if not is_avail:
-        print(f"[LIVE CHECK] code='{product_code}' normalized='{norm_code}' date='{date_str}' cycle='{col_name}' rentable=False reason='{err_reason}'", flush=True)
-        return jsonify({
-            "available": False,
-            "reason": err_reason,
-            "error": err_reason,
-            "customer": "Sold / Not for Rent",
-            "product_code": norm_code
-        })
+        prod_doc = get_navaratri_product(norm_code)
+        prod_img = prod_doc.get("image") if prod_doc else None
 
-    has_conflict, conflicts = check_booking_conflict(date_str, [norm_code], exclude_mobile=exclude_mobile or None)
-    if has_conflict:
-        conflict = conflicts[0]
-        cust_name = conflict.get('customer_name', 'Unknown')
-        print(f"[LIVE CHECK] code='{product_code}' normalized='{norm_code}' date='{date_str}' cycle='{col_name}' available=False conflict_customer='{cust_name}'", flush=True)
+        if not is_avail:
+            resp = {
+                "available": False,
+                "reason": err_reason or "Not available for rent",
+                "product_code": norm_code
+            }
+            if is_admin:
+                resp["customer"] = "Sold / Not for Rent"
+                resp["error"] = err_reason
+            return jsonify(resp)
+
+        has_conflict, conflicts = check_booking_conflict(
+            date_str, 
+            [norm_code], 
+            exclude_mobile=raw_exclude_mobile if is_admin else None
+        )
+        if has_conflict:
+            conflict = conflicts[0]
+            cust_name = conflict.get('customer_name', 'Unknown')
+            resp = {
+                "available": False,
+                "reason": f"Booked by {cust_name}" if is_admin else "Already booked for this date",
+                "product_code": norm_code
+            }
+            if is_admin:
+                resp["customer"] = cust_name
+            return jsonify(resp)
+        else:
+            resp = {
+                "available": True,
+                "product_code": norm_code,
+                "reason": "Available for rent"
+            }
+            if prod_img:
+                resp["image"] = prod_img
+            return jsonify(resp)
+
+    except Exception as e:
+        current_app.logger.error(f"[SECURITY/ERROR] Error checking product availability for '{norm_code}' on '{date_str}': {e}", exc_info=True)
         return jsonify({
             "available": False,
-            "customer": cust_name,
-            "reason": f"Booked by {cust_name}",
-            "product_code": norm_code
-        })
-    else:
-        print(f"[LIVE CHECK] code='{product_code}' normalized='{norm_code}' date='{date_str}' cycle='{col_name}' available=True", flush=True)
-        return jsonify({
-            "available": True,
-            "product_code": norm_code
-        })
+            "error": "A temporary service error occurred while checking availability. Please try again."
+        }), 500
 
 # ------------------ API: Product Code Suggestion ------------------
 @navaratri.route('/api/suggest-products', methods=['GET'])
@@ -675,7 +732,8 @@ def api_suggest_products():
             codes = [f'C{i}' for i in range(1, 151)] + [f'K{i}' for i in range(1, 174)]
         return jsonify(sorted(list(set(codes)), key=natural_sort_key))
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        current_app.logger.error(f"Error in api_suggest_products: {e}", exc_info=True)
+        return jsonify({"error": "Failed to load product suggestions."}), 500
 
 # ------------------ API: Unified Save/Update Profile ------------------
 @navaratri.route('/navaratri_booking/update', methods=['POST'])
@@ -934,7 +992,8 @@ def profile_add_payment():
             "new_remaining": total_price - new_given_price
         })
     except Exception as e:
-        return jsonify({"success": False, "message": f"Error updating payment: {str(e)}"}), 500
+        current_app.logger.error(f"Error updating payment for customer {customer_id}: {e}", exc_info=True)
+        return jsonify({"success": False, "message": "A database error occurred while updating payment. Please try again."}), 500
 
 # ------------------ API: Product Reassignment ------------------
 @navaratri.route('/navaratri_booking/reassign', methods=['POST'])
