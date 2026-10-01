@@ -15,6 +15,55 @@
 (function () {
   'use strict';
 
+  // Shared Reference-Counting Background Scroll Locker (iOS Safari safe)
+  const ModalScrollLock = {
+    activeCount: 0,
+    savedScrollY: 0,
+    lock: function () {
+      this.activeCount++;
+      if (this.activeCount === 1) {
+        this.savedScrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${this.savedScrollY}px`;
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+        document.body.style.overflow = 'hidden';
+        document.documentElement.classList.add('it-modal-locked');
+      }
+    },
+    unlock: function () {
+      this.activeCount = Math.max(0, this.activeCount - 1);
+      if (this.activeCount === 0) {
+        const topVal = document.body.style.top;
+        const scrollY = topVal ? Math.abs(parseInt(topVal, 10)) : this.savedScrollY;
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+        document.documentElement.classList.remove('it-modal-locked');
+        window.scrollTo(0, scrollY);
+      }
+    },
+    forceUnlock: function () {
+      this.activeCount = 0;
+      const topVal = document.body.style.top;
+      const scrollY = topVal ? Math.abs(parseInt(topVal, 10)) : this.savedScrollY;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      document.documentElement.classList.remove('it-modal-locked');
+      window.scrollTo(0, scrollY);
+    }
+  };
+
+  window.ModalScrollLock = ModalScrollLock;
+
   // In-memory ephemeral state (NEVER persisted)
   let activeInquiry = null; // { mode, costumeName, costumeCode, costumePrice, costumeImage, category, subcategory, phone }
   let selectedRentalDate = null; // { year, month, day }
@@ -213,6 +262,7 @@
     const previewBox = document.getElementById('itSelectionPreview');
     const previewText = document.getElementById('itPreviewText');
     const actionBtn = document.getElementById('itContinueWaBtn');
+    const waBtn = document.getElementById('itWhatsAppInquiryBtn');
 
     if (selectedRentalDate) {
       const formatted = formatAsDDMMYYYY(selectedRentalDate);
@@ -222,8 +272,21 @@
       if (previewBox) {
         previewBox.classList.add('has-selection');
       }
-      if (actionBtn && !isChecking) {
-        actionBtn.disabled = false;
+
+      if (activeInquiry && activeInquiry.mode === 'whatsapp') {
+        if (waBtn) {
+          waBtn.disabled = false;
+          waBtn.classList.add('is-active-wa');
+        }
+      } else {
+        if (actionBtn && !isChecking) {
+          actionBtn.disabled = false;
+        }
+        // In check_availability mode, WhatsApp button stays disabled until check succeeds
+        if (waBtn && (!lastAvailabilityResult || lastAvailabilityResult.available !== true)) {
+          waBtn.disabled = true;
+          waBtn.classList.remove('is-active-wa');
+        }
       }
     } else {
       if (previewText) {
@@ -234,6 +297,10 @@
       }
       if (actionBtn) {
         actionBtn.disabled = true;
+      }
+      if (waBtn) {
+        waBtn.disabled = true;
+        waBtn.classList.remove('is-active-wa');
       }
     }
   }
@@ -315,7 +382,7 @@
       if (btnText) btnText.textContent = 'Check Availability';
       if (btnArrow) btnArrow.textContent = '🔍';
 
-      // WhatsApp button in popup: disabled until availability is confirmed
+      // WhatsApp button in popup: visible from start, neutral disabled until availability is confirmed
       if (waInquiryBtn) {
         waInquiryBtn.style.display = 'inline-flex';
         waInquiryBtn.disabled = true;
@@ -333,16 +400,13 @@
         badgeText.textContent = label;
       }
       if (actionBtn) {
-        actionBtn.className = 'it-btn-continue btn-whatsapp-theme';
-        actionBtn.disabled = true;
-        actionBtn.style.display = '';
+        actionBtn.style.display = 'none';
       }
-      if (btnText) btnText.textContent = 'Continue to WhatsApp';
-      if (btnArrow) btnArrow.textContent = '➔';
 
-      // Hide extra check availability buttons
       if (waInquiryBtn) {
-        waInquiryBtn.style.display = 'none';
+        waInquiryBtn.style.display = 'inline-flex';
+        waInquiryBtn.disabled = true;
+        waInquiryBtn.classList.remove('is-active-wa');
       }
     }
 
@@ -353,6 +417,9 @@
       modal.classList.add('is-active');
       modal.setAttribute('aria-hidden', 'false');
     }
+
+    // Lock background webpage scroll
+    ModalScrollLock.lock();
   }
 
   /**
@@ -366,6 +433,9 @@
       modal.setAttribute('aria-hidden', 'true');
     }
 
+    // Unlock background webpage scroll
+    ModalScrollLock.unlock();
+
     const resultContainer = document.getElementById('itAvailabilityResult');
     if (resultContainer) {
       resultContainer.style.display = 'none';
@@ -374,6 +444,7 @@
 
     const waBtn = document.getElementById('itWhatsAppInquiryBtn');
     if (waBtn) {
+      waBtn.style.display = 'none';
       waBtn.disabled = true;
       waBtn.classList.remove('is-active-wa');
     }
@@ -417,8 +488,9 @@
     if (actionBtn) actionBtn.disabled = true;
     if (btnText) btnText.textContent = 'Checking...';
 
-    // Keep WhatsApp button disabled while checking
+    // Keep bottom action WhatsApp button strictly hidden (WhatsApp CTA is rendered cleanly inside the result card)
     if (waBtn) {
+      waBtn.style.display = 'none';
       waBtn.disabled = true;
       waBtn.classList.remove('is-active-wa');
     }
@@ -467,15 +539,13 @@
                   <span class="it-avail-row-val">${formattedDate}</span>
                 </div>
               </div>
-              <button type="button" class="it-avail-wa-btn" onclick="triggerWhatsAppInquiry()">
-                <span>Inquire on WhatsApp</span>
-                <span class="it-btn-arrow">💬</span>
-              </button>
+              <div class="it-avail-success-hint">Costume is available! Tap "Inquire on WhatsApp" below to book.</div>
             </div>
           `;
 
           // Activate the modal's WhatsApp inquiry button
           if (waBtn) {
+            waBtn.style.display = 'inline-flex';
             waBtn.disabled = false;
             waBtn.classList.add('is-active-wa');
           }
@@ -497,8 +567,9 @@
             </div>
           `;
 
-          // Keep WhatsApp button disabled / hidden
+          // Keep WhatsApp button disabled & neutral
           if (waBtn) {
+            waBtn.style.display = 'inline-flex';
             waBtn.disabled = true;
             waBtn.classList.remove('is-active-wa');
           }
@@ -513,6 +584,7 @@
         if (btnText) btnText.textContent = 'Check Availability';
 
         if (waBtn) {
+          waBtn.style.display = 'inline-flex';
           waBtn.disabled = true;
           waBtn.classList.remove('is-active-wa');
         }
@@ -602,12 +674,27 @@
     closeRentalDatePicker();
   }
 
+  /**
+   * Universal WhatsApp button click handler inside modal
+   * In whatsapp mode -> sends inquiry message
+   * In check_availability mode -> sends verified availability inquiry
+   */
+  function handleWhatsAppBtnClick() {
+    if (!activeInquiry || !selectedRentalDate) return;
+    if (activeInquiry.mode === 'whatsapp') {
+      confirmRentalDateAndOpenWhatsApp();
+    } else {
+      triggerWhatsAppInquiry();
+    }
+  }
+
   // Expose to window for inline onclick handlers and parent scripts
   window.openRentalDatePicker = openRentalDatePicker;
   window.closeRentalDatePicker = closeRentalDatePicker;
   window.handlePrimaryModalAction = handlePrimaryModalAction;
   window.triggerWhatsAppInquiry = triggerWhatsAppInquiry;
   window.confirmRentalDateAndOpenWhatsApp = confirmRentalDateAndOpenWhatsApp;
+  window.handleWhatsAppBtnClick = handleWhatsAppBtnClick;
   window.navigateCalendarMonth = navigateCalendarMonth;
 
   // Keyboard and Backdrop Event Listeners

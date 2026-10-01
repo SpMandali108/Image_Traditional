@@ -1025,7 +1025,11 @@ Browse our {{ sub }} Fancy Dress collection.
         updateLightboxDetails();
 
         lightbox.classList.add("active");
-        document.body.style.overflow = "hidden"; // lock background scroll while modal is open
+        if (window.ModalScrollLock) {
+            window.ModalScrollLock.lock();
+        } else {
+            document.body.style.overflow = "hidden";
+        }
     }
 
     function closeLightbox() {
@@ -1033,7 +1037,11 @@ Browse our {{ sub }} Fancy Dress collection.
         if (!lightbox) return;
 
         lightbox.classList.remove("active");
-        document.body.style.overflow = "";
+        if (window.ModalScrollLock) {
+            window.ModalScrollLock.unlock();
+        } else {
+            document.body.style.overflow = "";
+        }
         const container = lightbox.querySelector(".lightbox-container");
         if (container) container.scrollTop = 0; // reset scroll for next open
     }

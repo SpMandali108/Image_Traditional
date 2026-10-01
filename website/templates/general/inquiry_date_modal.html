@@ -59,14 +59,16 @@
 
     <!-- Modal Actions -->
     <div class="it-datepicker-actions" id="itDatepickerActions">
-      <button type="button" class="it-btn-cancel" onclick="closeRentalDatePicker()">
-        Close
-      </button>
-      <button type="button" class="it-btn-continue" id="itContinueWaBtn" onclick="handlePrimaryModalAction()" disabled>
-        <span id="itBtnActionText">Check Availability</span>
-        <span class="it-btn-arrow" id="itBtnActionArrow">🔍</span>
-      </button>
-      <button type="button" class="it-btn-continue btn-whatsapp-theme" id="itWhatsAppInquiryBtn" onclick="triggerWhatsAppInquiry()" disabled style="display: none;">
+      <div class="it-actions-row">
+        <button type="button" class="it-btn-cancel" onclick="closeRentalDatePicker()">
+          Close
+        </button>
+        <button type="button" class="it-btn-continue" id="itContinueWaBtn" onclick="handlePrimaryModalAction()" disabled>
+          <span id="itBtnActionText">Check Availability</span>
+          <span class="it-btn-arrow" id="itBtnActionArrow">🔍</span>
+        </button>
+      </div>
+      <button type="button" class="it-btn-wa" id="itWhatsAppInquiryBtn" onclick="handleWhatsAppBtnClick()" disabled>
         <span id="itWaActionText">Inquire on WhatsApp</span>
         <span class="it-btn-arrow">💬</span>
       </button>

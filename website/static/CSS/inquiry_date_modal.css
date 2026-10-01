@@ -3,17 +3,25 @@
    Theme: Deep Royal Navy (#050D1F / #0E172A) & Luxury Artisan Gold (#D4AF37)
    ========================================================================== */
 
+/* Body scroll-lock state */
+html.it-modal-locked,
+body.it-modal-locked {
+  overflow: hidden !important;
+  touch-action: none;
+  -webkit-overflow-scrolling: auto;
+}
+
 /* Modal Backdrop Overlay */
 .it-datepicker-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   height: 100dvh;
-  background: rgba(3, 7, 18, 0.82);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(3, 7, 18, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,7 +30,7 @@
   pointer-events: none;
   visibility: hidden;
   transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.25s;
-  padding: 16px;
+  padding: max(10px, env(safe-area-inset-top, 10px)) max(10px, env(safe-area-inset-right, 10px)) max(10px, env(safe-area-inset-bottom, 10px)) max(10px, env(safe-area-inset-left, 10px));
   box-sizing: border-box;
 }
 
@@ -35,22 +43,24 @@
 /* Modal Card */
 .it-datepicker-card {
   position: relative;
-  width: 100%;
-  max-width: 410px;
+  width: min(94vw, 380px);
+  max-width: 380px;
   background: linear-gradient(165deg, #0e172a 0%, #0a1122 55%, #101e38 100%);
   border: 1px solid rgba(212, 175, 55, 0.32);
-  border-radius: 22px;
+  border-radius: 20px;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 
               0 0 35px rgba(212, 175, 55, 0.15),
               inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  padding: 24px 22px 20px 22px;
+  padding: 18px 16px 14px 16px;
   box-sizing: border-box;
   color: #f8fafc;
-  transform: scale(0.92) translateY(12px);
+  transform: scale(0.95) translateY(8px);
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   font-family: 'Plus Jakarta Sans', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  max-height: 94dvh;
+  max-height: calc(100dvh - 20px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .it-datepicker-overlay.is-active .it-datepicker-card {
@@ -88,32 +98,33 @@
 /* Header Section */
 .it-datepicker-header {
   text-align: center;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 
 .it-modal-sparkle {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   color: #d4af37;
   text-shadow: 0 0 10px rgba(212, 175, 55, 0.7);
-  margin-bottom: 2px;
+  margin-bottom: 1px;
+  line-height: 1;
 }
 
 .it-datepicker-title {
-  margin: 0 0 4px 0;
+  margin: 0 0 2px 0;
   font-family: 'Cinzel', 'Poppins', serif;
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 700;
   background: linear-gradient(135deg, #ffffff 0%, #f4d35e 50%, #d4af37 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 .it-datepicker-subtitle {
-  margin: 0 0 10px 0;
-  font-size: 0.8rem;
+  margin: 0 0 6px 0;
+  font-size: 0.74rem;
   color: #94a3b8;
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 /* Costume Info Badge */
@@ -121,19 +132,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 6px;
   max-width: 100%;
-  padding: 5px 12px;
+  padding: 3px 10px;
   background: rgba(212, 175, 55, 0.08);
   border: 1px solid rgba(212, 175, 55, 0.22);
-  border-radius: 20px;
-  font-size: 0.8rem;
+  border-radius: 16px;
+  font-size: 0.74rem;
   color: #e2e8f0;
   box-sizing: border-box;
 }
 
 .it-badge-icon {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .it-badge-text {
@@ -149,18 +160,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
-  padding: 0 4px;
+  margin-bottom: 8px;
+  padding: 0 2px;
 }
 
 .it-nav-arrow {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
   background: rgba(30, 41, 59, 0.6);
   border: 1px solid rgba(212, 175, 55, 0.25);
   color: #e2e8f0;
-  font-size: 12px;
+  font-size: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -185,46 +196,47 @@
 
 .it-calendar-month-year {
   font-family: 'Cinzel', 'Poppins', sans-serif;
-  font-size: 1.02rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #f4d35e;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 /* Weekday Labels */
 .it-calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  margin-bottom: 8px;
+  gap: 2px;
+  margin-bottom: 4px;
   text-align: center;
 }
 
 .it-calendar-weekdays span {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 4px 0;
+  letter-spacing: 0.3px;
+  padding: 2px 0;
 }
 
 /* Calendar Days Grid */
 .it-calendar-days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-  margin-bottom: 14px;
+  gap: 3px;
+  margin-bottom: 8px;
 }
 
 .it-day-cell {
   aspect-ratio: 1;
-  min-height: 36px;
-  border-radius: 8px;
+  min-height: 28px;
+  max-height: 35px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.86rem;
+  font-size: 0.8rem;
   font-weight: 500;
   background: transparent;
   color: #f1f5f9;
@@ -279,15 +291,15 @@
 .it-selection-preview {
   background: rgba(15, 23, 42, 0.6);
   border: 1px dashed rgba(212, 175, 55, 0.3);
-  border-radius: 10px;
-  padding: 9px 12px;
+  border-radius: 8px;
+  padding: 6px 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  font-size: 0.82rem;
+  gap: 6px;
+  font-size: 0.78rem;
   color: #94a3b8;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   text-align: center;
   transition: all 0.2s ease;
 }
@@ -300,7 +312,7 @@
 }
 
 .it-preview-icon {
-  font-size: 0.95rem;
+  font-size: 0.88rem;
 }
 
 /* ==========================================================================
@@ -463,23 +475,37 @@
 /* Modal Action Buttons */
 .it-datepicker-actions {
   display: flex;
+  flex-direction: column;
   gap: 8px;
-  flex-wrap: wrap;
+  width: 100%;
+}
+
+.it-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
 }
 
 .it-btn-cancel {
-  flex: 1 1 80px;
-  padding: 11px 12px;
+  flex: 0 0 76px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 10px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: #cbd5e1;
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .it-btn-cancel:hover {
@@ -490,11 +516,13 @@
 
 /* Continue / Action Button */
 .it-btn-continue {
-  flex: 1.5 1 130px;
-  padding: 11px 14px;
+  flex: 1;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 14px;
   border-radius: 10px;
   border: none;
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -504,6 +532,7 @@
   transition: all 0.25s ease;
   font-family: inherit;
   text-align: center;
+  box-sizing: border-box;
 }
 
 /* Default / Check Availability Style (Gold Festive) */
@@ -517,33 +546,6 @@
   background: linear-gradient(135deg, #f4d35e 0%, #d4af37 100%);
   box-shadow: 0 6px 20px rgba(212, 175, 55, 0.45);
   transform: translateY(-1px);
-}
-
-/* WhatsApp Theme Style */
-.it-btn-continue.btn-whatsapp-theme {
-  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.25);
-}
-
-.it-btn-continue.btn-whatsapp-theme:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2ae06e 0%, #0f7a6e 100%);
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
-  transform: translateY(-1px);
-}
-
-.it-btn-continue.btn-whatsapp-theme.is-active-wa {
-  opacity: 1 !important;
-  cursor: pointer !important;
-  pointer-events: auto !important;
-  box-shadow: 0 4px 18px rgba(37, 211, 102, 0.4) !important;
-  animation: pulseWaGlow 2s infinite;
-}
-
-@keyframes pulseWaGlow {
-  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
-  70% { box-shadow: 0 0 0 8px rgba(37, 211, 102, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
 }
 
 .it-btn-continue:disabled {
@@ -562,28 +564,147 @@
   transform: translateX(3px);
 }
 
+/* WhatsApp Inquiry Action Button inside Modal */
+.it-btn-wa {
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Disabled State: Neutral dark glass card - STRICTLY NO GREEN LEAKAGE */
+.it-btn-wa:disabled {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #64748b;
+  box-shadow: none;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Active State: Vibrant Emerald WhatsApp Green when availability is confirmed */
+.it-btn-wa:not(:disabled),
+.it-btn-wa.is-active-wa {
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  border: 1px solid #22c55e;
+  color: #ffffff;
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 1;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
+  animation: pulseWaGlow 2.2s infinite;
+}
+
+.it-btn-wa:not(:disabled):hover {
+  background: linear-gradient(135deg, #2ae06e 0%, #0f7a6e 100%);
+  box-shadow: 0 6px 22px rgba(37, 211, 102, 0.55);
+  transform: translateY(-1px);
+}
+
+@keyframes pulseWaGlow {
+  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
 /* Responsive tweaks for smaller screens */
 @media (max-width: 480px) {
   .it-datepicker-card {
-    padding: 20px 16px 16px 16px;
-    max-width: 360px;
-    border-radius: 18px;
+    padding: 16px 14px 14px 14px;
+    width: min(95vw, 360px);
+    border-radius: 16px;
   }
   
   .it-datepicker-title {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
   }
   
   .it-day-cell {
-    min-height: 32px;
-    font-size: 0.82rem;
+    min-height: 28px;
+    font-size: 0.78rem;
   }
 
   .it-datepicker-actions {
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
   }
 
-  .it-datepicker-actions button {
-    width: 100%;
+  .it-btn-cancel {
+    flex: 0 0 72px;
+    height: 44px;
+    min-height: 44px;
+  }
+
+  .it-btn-continue {
+    flex: 1;
+    height: 44px;
+    min-height: 44px;
+    font-size: 0.86rem;
+  }
+}
+
+/* Compact rules for ultra-short mobile viewports (e.g. landscape or small phones) */
+@media (max-height: 640px) {
+  .it-datepicker-card {
+    padding: 10px 12px 10px 12px;
+    border-radius: 14px;
+  }
+  .it-modal-sparkle {
+    display: none;
+  }
+  .it-datepicker-header {
+    margin-bottom: 4px;
+  }
+  .it-datepicker-title {
+    font-size: 1.02rem;
+    margin-bottom: 1px;
+  }
+  .it-datepicker-subtitle {
+    display: none;
+  }
+  .it-costume-badge {
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    margin-bottom: 2px;
+  }
+  .it-calendar-nav {
+    margin-bottom: 4px;
+  }
+  .it-calendar-weekdays {
+    margin-bottom: 2px;
+  }
+  .it-calendar-days-grid {
+    gap: 2px;
+    margin-bottom: 6px;
+  }
+  .it-day-cell {
+    min-height: 24px;
+    max-height: 30px;
+    font-size: 0.74rem;
+  }
+  .it-selection-preview {
+    padding: 4px 8px;
+    margin-bottom: 6px;
+    font-size: 0.72rem;
+  }
+  .it-btn-cancel,
+  .it-btn-continue,
+  .it-btn-wa {
+    height: 38px;
+    min-height: 38px;
+    font-size: 0.82rem;
   }
 }
