@@ -700,10 +700,10 @@
         </div>
         <div style="display: flex; gap: 0.5rem;">
           <button class="action-btn" id="switcherCholiBtn" onclick="toggleMatrixType('Choli')" style="background: rgba(124, 58, 237, 0.15); color: #c084fc; border-color: rgba(124, 58, 237, 0.3); font-size: 0.8rem; padding: 0.4rem 0.8rem;">
-            👗 Cholis (C1-C150)
+            👗 Cholis ({% if utilization and utilization.total_choli_stock %}C1-C{{ utilization.total_choli_stock }}{% else %}Choli{% endif %})
           </button>
           <button class="action-btn" id="switcherKediyaBtn" onclick="toggleMatrixType('Kediya')" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
-            🕺 Kediyas (K1-K173)
+            🕺 Kediyas ({% if utilization and utilization.total_kediya_stock %}K1-K{{ utilization.total_kediya_stock }}{% else %}Kediya{% endif %})
           </button>
         </div>
       </div>
@@ -1377,11 +1377,17 @@
       choliBtn.style.borderColor = "rgba(255, 255, 255, 0.08)";
     }
     
-    const countLimit = type === 'Choli' ? 150 : 173;
-    const prefix = type === 'Choli' ? 'C' : 'K';
+    const codes = (type === 'Choli' ? utilData.choli_codes : utilData.kediya_codes) || [];
     
-    for (let i = 1; i <= countLimit; i++) {
-      const code = `${prefix}${i}`;
+    // Fallback if list is empty
+    const codeList = (codes && codes.length > 0) ? codes : [];
+    if (codeList.length === 0) {
+      const countLimit = type === 'Choli' ? 150 : 173;
+      const prefix = type === 'Choli' ? 'C' : 'K';
+      for (let i = 1; i <= countLimit; i++) codeList.push(`${prefix}${i}`);
+    }
+    
+    codeList.forEach(code => {
       const count = (utilData.product_counts && utilData.product_counts[code]) || 0;
       
       const chip = document.createElement("div");
@@ -1405,7 +1411,7 @@
       
       chip.onclick = () => selectProductChip(code, count, type, chip);
       container.appendChild(chip);
-    }
+    });
   }
   
   function toggleMatrixType(type) {
@@ -1447,17 +1453,10 @@
     
     // Update image
     const imgElement = document.getElementById("previewImage");
-    imgElement.src = `/static/${type}/${code}.webp`;
+    imgElement.src = `/navaratri/product-image/${code}`;
     imgElement.onerror = function() {
       this.onerror = null;
-      // Try JPG fallback
-      const folderJpg = type === 'Choli' ? 'CholiJpg' : 'KediyaJpg';
-      this.src = `/static/${folderJpg}/${code}.jpg`;
-      this.onerror = function() {
-        this.onerror = null;
-        // Final fallback to blank canvas / icon placeholder
-        this.src = '/static/Home_Img/favicon.png';
-      }
+      this.src = '/static/Home_Img/favicon.png';
     };
     
     // Update rental count
@@ -1699,8 +1698,11 @@
     });
 
     // E. Utilization vs Capacity Chart
-    const choliRented = Math.round((utilData.choli_pct / 100) * 150);
-    const kediyaRented = Math.round((utilData.kediya_pct / 100) * 173);
+    const totalCholiStock = utilData.total_choli_stock || 150;
+    const totalKediyaStock = utilData.total_kediya_stock || 173;
+    const totalStock = utilData.total_stock || (totalCholiStock + totalKediyaStock);
+    const choliRented = Math.round((utilData.choli_pct / 100) * totalCholiStock);
+    const kediyaRented = Math.round((utilData.kediya_pct / 100) * totalKediyaStock);
 
     new Chart(document.getElementById('utilizationCapacityChart').getContext('2d'), {
       type: 'bar',
@@ -1709,7 +1711,7 @@
         datasets: [
           {
             label: 'Total Unique Stock size',
-            data: [150, 173, 323],
+            data: [totalCholiStock, totalKediyaStock, totalStock],
             backgroundColor: 'rgba(255, 255, 255, 0.06)',
             borderColor: 'rgba(255, 255, 255, 0.15)',
             borderWidth: 1.5,

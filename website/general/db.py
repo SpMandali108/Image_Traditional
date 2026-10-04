@@ -25,6 +25,9 @@ finventory = db["Fancy_Inventory"]
 ncustomers = db["Navaratri_Customers"]
 custom_localities = db["Custom_Localities"]
 navaratri_products = db["navaratri_products"]
+costume_groups = db["costume_groups"]
+costumes = db["navaratri_products"]
+
 
 raw_id = os.environ.get("ADMIN_ID")
 raw_pass = os.environ.get("ADMIN_PASS")

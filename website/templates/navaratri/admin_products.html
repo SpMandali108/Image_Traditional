@@ -1,0 +1,1236 @@
+{% extends "general/base.html" %}
+{% block title %}Add Navaratri Products | Image Traditional{% endblock %}
+
+{% block logo_link %}
+<a href="/navaratri_admin" class="logo">
+    <img src="{{ url_for('static', filename='Home_Img/favicon.png') }}" alt="Image Traditional Logo">
+    <span class="logo-text">Image Traditional</span>
+</a>
+{% endblock %}
+
+{% block robots %}
+<meta name="robots" content="noindex, nofollow" />
+{% endblock %}
+
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap');
+
+:root {
+    --navy-bg:      #0a1628;
+    --surface-bg:   #0f1e32;
+    --card-bg:      #111f33;
+    --card-hover:   #152540;
+    --gold:         #d4af37;
+    --gold-lt:      #f3d068;
+    --gold-dk:      #b8961e;
+    --gold-bg:      rgba(212, 175, 55, 0.12);
+    --gold-bd:      rgba(212, 175, 55, 0.28);
+    --gold-bd-h:    rgba(212, 175, 55, 0.6);
+    --white:        #ffffff;
+    --text:         #cbd5e1;
+    --muted:        #8da2bb;
+    --danger:       #ef4444;
+    --danger-bg:    rgba(239, 68, 68, 0.15);
+    --danger-bd:    rgba(239, 68, 68, 0.35);
+    --success:      #10b981;
+    --success-bg:   rgba(16, 185, 129, 0.15);
+    --success-bd:   rgba(16, 185, 129, 0.35);
+    --border-subtle: rgba(255, 255, 255, 0.12);
+}
+
+body {
+    background-color: var(--navy-bg) !important;
+    color: var(--text) !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+}
+
+.admin-prod-container {
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: 24px 16px 80px 16px;
+}
+
+/* Header Navigation Bar */
+.top-nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: 14px;
+    padding: 16px 22px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 14px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.nav-title-group h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--white);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.nav-title-group h1 span { color: var(--gold-lt); }
+.nav-title-group p {
+    margin: 4px 0 0 0;
+    font-size: 0.88rem;
+    color: var(--muted);
+}
+
+.nav-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+.btn-nav-primary {
+    background: linear-gradient(135deg, var(--gold-dk) 0%, var(--gold) 100%);
+    color: #0b1523 !important;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+.btn-nav-primary:hover {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-lt) 100%);
+    transform: translateY(-1px);
+}
+.btn-nav-ghost {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text) !important;
+    border-color: var(--border-subtle);
+}
+.btn-nav-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--white) !important;
+}
+
+/* Tab Switcher */
+.tab-switcher-wrapper {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 12px;
+    flex-wrap: wrap;
+}
+.tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-bg);
+    color: var(--muted);
+    transition: all 0.25s ease;
+}
+.tab-btn.active {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.08) 100%);
+    border-color: var(--gold);
+    color: var(--gold-lt);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+}
+.tab-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--white);
+}
+
+/* Cards & Content */
+.panel-card {
+    background: var(--surface-bg);
+    border: 1px solid var(--gold-bd);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+.panel-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.panel-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--white);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Callout Notice */
+.info-callout {
+    background: rgba(212, 175, 55, 0.08);
+    border-left: 4px solid var(--gold);
+    padding: 14px 18px;
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #e2e8f0;
+}
+.info-callout strong { color: var(--gold-lt); }
+
+/* Dropzone */
+.dropzone-box {
+    border: 2px dashed var(--gold-bd);
+    border-radius: 14px;
+    padding: 40px 20px;
+    text-align: center;
+    background: rgba(17, 31, 51, 0.6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 24px;
+}
+.dropzone-box:hover, .dropzone-box.dragover {
+    border-color: var(--gold);
+    background: rgba(212, 175, 55, 0.08);
+    transform: scale(1.01);
+}
+.dropzone-icon {
+    font-size: 2.8rem;
+    margin-bottom: 12px;
+}
+.dropzone-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 6px;
+}
+.dropzone-sub {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+/* Preview Table */
+.preview-table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+    margin-bottom: 20px;
+}
+.preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+.preview-table th {
+    background: #0d1a2c;
+    color: var(--gold-lt);
+    padding: 12px 14px;
+    font-weight: 700;
+    text-align: left;
+    border-bottom: 1px solid var(--gold-bd);
+    white-space: nowrap;
+}
+.preview-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    vertical-align: middle;
+}
+.preview-table tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+.preview-table tr.row-invalid {
+    background: rgba(239, 68, 68, 0.08);
+}
+.preview-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--border-subtle);
+}
+.badge-type {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.badge-choli {
+    background: rgba(236, 72, 153, 0.18);
+    color: #f472b6;
+    border: 1px solid rgba(236, 72, 153, 0.35);
+}
+.badge-kediya {
+    background: rgba(59, 130, 246, 0.18);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.35);
+}
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+.badge-status-valid {
+    background: var(--success-bg);
+    color: #34d399;
+    border: 1px solid var(--success-bd);
+}
+.badge-status-invalid {
+    background: var(--danger-bg);
+    color: #f87171;
+    border: 1px solid var(--danger-bd);
+}
+
+/* Alert Boxes */
+.alert-banner {
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+.alert-banner-error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid var(--danger);
+    color: #fca5a5;
+}
+.alert-banner-success {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid var(--success);
+    color: #6ee7b7;
+}
+
+/* Group Builder Cards */
+.group-card {
+    background: #0d1a2c;
+    border: 1px solid var(--gold-bd);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+.group-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 10px;
+}
+.group-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gold-lt);
+    margin: 0;
+}
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+}
+.form-label span.req { color: var(--danger); }
+.form-input, .form-select {
+    background: #111f33;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    color: var(--white);
+    padding: 9px 12px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+.form-input:focus, .form-select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+}
+
+/* Pill Toggle for Type */
+.type-pills {
+    display: flex;
+    gap: 10px;
+}
+.type-pill-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #111f33;
+    border: 1px solid var(--border-subtle);
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+.type-pill-btn.active.choli-pill {
+    background: rgba(236, 72, 153, 0.2);
+    border-color: #ec4899;
+    color: #f472b6;
+}
+.type-pill-btn.active.kediya-pill {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3b82f6;
+    color: #60a5fa;
+}
+
+/* Sizes Table in Group */
+.sizes-subtable {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 10px;
+    margin-bottom: 12px;
+}
+.sizes-subtable th {
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--gold-lt);
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    text-align: left;
+}
+.sizes-subtable td {
+    padding: 8px 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Buttons */
+.btn-action-main {
+    background: linear-gradient(135deg, var(--gold-dk) 0%, var(--gold) 100%);
+    color: #0b1523;
+    font-weight: 800;
+    font-size: 1rem;
+    padding: 12px 28px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-action-main:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-lt) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(212, 175, 55, 0.45);
+}
+.btn-action-main:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-secondary-action {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-secondary-action:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--white);
+}
+
+/* Spinner Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10, 22, 40, 0.85);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(212, 175, 55, 0.2);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+
+<div class="admin-prod-container">
+    
+    <!-- Top Nav Header -->
+    <div class="top-nav-bar">
+        <div class="nav-title-group">
+            <h1>🪔 Add Navaratri <span>Products</span></h1>
+            <p>Database-driven inventory management for Individual and Group costumes</p>
+        </div>
+        <div class="nav-actions">
+            <a href="/navaratri_products" class="btn-nav btn-nav-primary">
+                🏷️ Costume Manager
+            </a>
+            <a href="/navaratri_admin" class="btn-nav btn-nav-ghost">
+                ← Admin Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Tab Navigation Switcher -->
+    <div class="tab-switcher-wrapper">
+        <button type="button" class="tab-btn active" id="tabBtnIndividual" onclick="switchTab('individual')">
+            <span>👗</span> Individual Products (Bulk Upload)
+        </button>
+        <button type="button" class="tab-btn" id="tabBtnGroup" onclick="switchTab('group')">
+            <span>👥</span> Product Groups (Costume Groups)
+        </button>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: INDIVIDUAL PRODUCTS (BULK UPLOAD)                                -->
+    <!-- ===================================================================== -->
+    <div id="tabContentIndividual">
+        <div class="panel-card">
+            <div class="panel-card-header">
+                <h2 class="panel-title">⚡ Bulk Image Upload &amp; Automatic Categorization</h2>
+                <span class="badge-status badge-status-valid" id="batchCountBadge" style="display:none;">0 Files Selected</span>
+            </div>
+
+            <div class="info-callout">
+                <strong>Automatic Categorization Rule:</strong> The filename without extension determines the product code and category.
+                <br>• Filenames starting with <strong>C</strong> (e.g. <code>C101.webp</code>) are registered as <strong>Choli</strong>.
+                <br>• Filenames starting with <strong>K</strong> (e.g. <code>K102.webp</code>) are registered as <strong>Kediya</strong>.
+                <br>• <strong>Strict All-or-Nothing Rule:</strong> Every image is pre-validated against the database. If any code already exists or is invalid, the entire batch is rejected to prevent partial/corrupted imports.
+            </div>
+
+            <!-- Drag & Drop Zone -->
+            <div class="dropzone-box" id="dropzoneBox" onclick="document.getElementById('fileInputIndividual').click()">
+                <div class="dropzone-icon">📁</div>
+                <div class="dropzone-title">Click to Select Images or Drag &amp; Drop here</div>
+                <div class="dropzone-sub">Supports .webp, .jpg, .jpeg, .png (Max 16MB per image) • Select multiple files at once</div>
+                <input type="file" id="fileInputIndividual" multiple accept=".webp,.jpg,.jpeg,.png" style="display: none;" onchange="handleIndividualFileSelect(this.files)">
+            </div>
+
+            <!-- Dynamic Error Banner -->
+            <div id="individualErrorBanner" class="alert-banner alert-banner-error" style="display: none;">
+                <span style="font-size: 1.4rem;">⚠️</span>
+                <div id="individualErrorMessage"></div>
+            </div>
+
+            <!-- Success Banner -->
+            <div id="individualSuccessBanner" class="alert-banner alert-banner-success" style="display: none;">
+                <span style="font-size: 1.4rem;">✓</span>
+                <div id="individualSuccessMessage"></div>
+            </div>
+
+            <!-- Preview Table Area -->
+            <div id="previewAreaIndividual" style="display: none;">
+                <div class="preview-table-wrapper">
+                    <table class="preview-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Filename</th>
+                                <th>Code</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewTbodyIndividual">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-top: 16px;">
+                    <button type="button" class="btn-secondary-action" onclick="clearIndividualFiles()">
+                        ✕ Clear Selection
+                    </button>
+                    <button type="button" class="btn-action-main" id="btnUploadIndividual" onclick="submitIndividualBulkUpload()">
+                        <span>🚀</span> Upload Products
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: PRODUCT GROUPS (MULTI-GROUP CREATION)                          -->
+    <!-- ===================================================================== -->
+    <div id="tabContentGroup" style="display: none;">
+        <div class="panel-card">
+            <div class="panel-card-header">
+                <h2 class="panel-title">👥 Group Costume Management</h2>
+            </div>
+
+            <div class="info-callout">
+                <strong>About Costume Groups:</strong> A Group represents a shared design style where multiple pieces exist across various sizes.
+                <br>• Group codes must start with <strong>G</strong> followed by numbers (e.g. <code>G4</code>, <code>G10</code>).
+                <br>• Select the category: <strong>Choli</strong> or <strong>Kediya</strong> to determine which catalogue the group appears in.
+                <br>• Add available sizes and positive integer piece counts. The booking system dynamically validates available inventory on requested dates.
+            </div>
+
+            <!-- Group Form Error Banner -->
+            <div id="groupErrorBanner" class="alert-banner alert-banner-error" style="display: none;">
+                <span style="font-size: 1.4rem;">⚠️</span>
+                <div id="groupErrorMessage"></div>
+            </div>
+
+            <!-- Group Success Banner -->
+            <div id="groupSuccessBanner" class="alert-banner alert-banner-success" style="display: none;">
+                <span style="font-size: 1.4rem;">✓</span>
+                <div id="groupSuccessMessage"></div>
+            </div>
+
+            <form id="groupsMultiForm" onsubmit="submitGroupsForm(event)">
+                <div id="groupsContainer">
+                    <!-- Groups injected dynamically -->
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-top: 24px; border-top: 1px solid var(--border-subtle); padding-top: 20px;">
+                    <button type="button" class="btn-secondary-action" onclick="addNewGroupCard()">
+                        + Add Another Group
+                    </button>
+                    <button type="submit" class="btn-action-main" id="btnCreateGroups">
+                        <span>✨</span> Create Product Groups
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<!-- Loading Spinner Overlay -->
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="spinner"></div>
+    <div style="color: var(--gold-lt); font-weight: 700; font-size: 1.1rem;" id="loadingText">Processing...</div>
+</div>
+
+<script>
+// ==============================================================================
+// 1. TAB SWITCHING
+// ==============================================================================
+function switchTab(tab) {
+    const tabInd = document.getElementById('tabBtnIndividual');
+    const tabGrp = document.getElementById('tabBtnGroup');
+    const contentInd = document.getElementById('tabContentIndividual');
+    const contentGrp = document.getElementById('tabContentGroup');
+
+    if (tab === 'individual') {
+        tabInd.classList.add('active');
+        tabGrp.classList.remove('active');
+        contentInd.style.display = 'block';
+        contentGrp.style.display = 'none';
+    } else {
+        tabGrp.classList.add('active');
+        tabInd.classList.remove('active');
+        contentGrp.style.display = 'block';
+        contentInd.style.display = 'none';
+        // Initialize at least 1 group card if empty
+        if (document.querySelectorAll('.group-card').length === 0) {
+            addNewGroupCard();
+        }
+    }
+}
+
+// ==============================================================================
+// 2. INDIVIDUAL PRODUCTS BULK UPLOADER
+// ==============================================================================
+let selectedFilesList = []; // Array of File objects
+
+// Setup Drag and Drop
+const dropzone = document.getElementById('dropzoneBox');
+['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add('dragover');
+    }, false);
+});
+['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove('dragover');
+    }, false);
+});
+dropzone.addEventListener('drop', (e) => {
+    if (e.dataTransfer && e.dataTransfer.files) {
+        handleIndividualFileSelect(e.dataTransfer.files);
+    }
+});
+
+function handleIndividualFileSelect(fileList) {
+    hideIndividualAlerts();
+    if (!fileList || fileList.length === 0) return;
+
+    // Append new files without duplicate File references
+    for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        if (!selectedFilesList.some(f => f.name === file.name && f.size === file.size)) {
+            selectedFilesList.push(file);
+        }
+    }
+
+    renderIndividualPreview();
+}
+
+function removeIndividualFile(index) {
+    if (index >= 0 && index < selectedFilesList.length) {
+        selectedFilesList.splice(index, 1);
+        renderIndividualPreview();
+    }
+}
+
+function clearIndividualFiles() {
+    selectedFilesList = [];
+    document.getElementById('fileInputIndividual').value = '';
+    renderIndividualPreview();
+    hideIndividualAlerts();
+}
+
+function hideIndividualAlerts() {
+    document.getElementById('individualErrorBanner').style.display = 'none';
+    document.getElementById('individualSuccessBanner').style.display = 'none';
+}
+
+function renderIndividualPreview() {
+    const previewArea = document.getElementById('previewAreaIndividual');
+    const tbody = document.getElementById('previewTbodyIndividual');
+    const badge = document.getElementById('batchCountBadge');
+
+    if (selectedFilesList.length === 0) {
+        previewArea.style.display = 'none';
+        badge.style.display = 'none';
+        tbody.innerHTML = '';
+        return;
+    }
+
+    previewArea.style.display = 'block';
+    badge.style.display = 'inline-flex';
+    badge.textContent = `${selectedFilesList.length} Files Selected`;
+
+    tbody.innerHTML = '';
+    const seenCodes = new Set();
+
+    selectedFilesList.forEach((file, index) => {
+        const filename = file.name;
+        const lastDot = filename.lastIndexOf('.');
+        const baseName = lastDot > -1 ? filename.substring(0, lastDot).trim().toUpperCase() : filename.trim().toUpperCase();
+        const ext = lastDot > -1 ? filename.substring(lastDot).toLowerCase() : '';
+
+        let ptype = 'Unknown';
+        let isValidFormat = false;
+        let errorMsg = null;
+
+        // Code format checking
+        if (/^C\d+$/.test(baseName)) {
+            ptype = 'Choli';
+            isValidFormat = true;
+        } else if (/^K\d+$/.test(baseName)) {
+            ptype = 'Kediya';
+            isValidFormat = true;
+        } else {
+            errorMsg = "Code must start with C or K followed by numbers (e.g. C101, K102)";
+        }
+
+        // Extension check
+        if (!['.webp', '.jpg', '.jpeg', '.png'].includes(ext)) {
+            isValidFormat = false;
+            errorMsg = `Unsupported format '${ext}'. Only .webp, .jpg, .png allowed.`;
+        }
+
+        // Batch duplicate check
+        if (isValidFormat) {
+            if (seenCodes.has(baseName)) {
+                isValidFormat = false;
+                errorMsg = `Duplicate code '${baseName}' in current selection.`;
+            } else {
+                seenCodes.add(baseName);
+            }
+        }
+
+        const thumbUrl = URL.createObjectURL(file);
+
+        const tr = document.createElement('tr');
+        tr.id = `preview-row-${index}`;
+        if (!isValidFormat) tr.classList.add('row-invalid');
+
+        tr.innerHTML = `
+            <td>
+                <img src="${thumbUrl}" class="preview-thumb" alt="${baseName}" onerror="this.src='/static/Home_Img/favicon.png';">
+            </td>
+            <td>
+                <div style="font-weight: 600; color: #fff;">${escapeHtml(filename)}</div>
+                <div style="font-size: 0.75rem; color: #8da2bb;">${(file.size / 1024).toFixed(1)} KB</div>
+            </td>
+            <td>
+                <strong style="color: var(--gold-lt); font-size: 0.95rem;">${escapeHtml(baseName)}</strong>
+            </td>
+            <td>
+                ${ptype === 'Choli' 
+                    ? '<span class="badge-type badge-choli">👗 Choli</span>' 
+                    : (ptype === 'Kediya' 
+                        ? '<span class="badge-type badge-kediya">🕺 Kediya</span>' 
+                        : '<span class="badge-type" style="background: rgba(255,255,255,0.1); color: #ccc;">Unknown</span>')}
+            </td>
+            <td id="status-cell-${index}">
+                ${isValidFormat 
+                    ? '<span class="badge-status badge-status-valid">✓ Valid Format</span>' 
+                    : `<span class="badge-status badge-status-invalid" title="${escapeHtml(errorMsg)}">✕ ${escapeHtml(errorMsg)}</span>`}
+            </td>
+            <td style="text-align: right;">
+                <button type="button" class="btn-nav btn-nav-ghost" style="padding: 4px 8px; color: #f87171 !important;" onclick="removeIndividualFile(${index})">
+                    ✕
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function submitIndividualBulkUpload() {
+    hideIndividualAlerts();
+    if (selectedFilesList.length === 0) {
+        showIndividualError("Please select at least one image file to upload.");
+        return;
+    }
+
+    const btnUpload = document.getElementById('btnUploadIndividual');
+    btnUpload.disabled = true;
+    showLoading("Pre-validating entire bulk batch with database...");
+
+    const formData = new FormData();
+    selectedFilesList.forEach(file => {
+        formData.append('images', file);
+    });
+
+    try {
+        const response = await fetch('/api/navaratri/admin/upload-individual', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        hideLoading();
+        btnUpload.disabled = false;
+
+        if (response.ok && data.success) {
+            // Success: All items uploaded
+            showIndividualSuccess(`🎉 ${data.message}`);
+            selectedFilesList = [];
+            renderIndividualPreview();
+        } else {
+            // Failed: One or more failed pre-validation
+            showIndividualError(data.message || "Bulk upload failed validation. Zero items were uploaded.");
+            
+            // Mark items in preview table with detailed error from backend
+            if (data.items && Array.isArray(data.items)) {
+                data.items.forEach((item, idx) => {
+                    const row = document.getElementById(`preview-row-${idx}`);
+                    const statusCell = document.getElementById(`status-cell-${idx}`);
+                    if (row && statusCell) {
+                        if (!item.valid) {
+                            row.classList.add('row-invalid');
+                            statusCell.innerHTML = `<span class="badge-status badge-status-invalid">✕ ${escapeHtml(item.error || 'Already exists')}</span>`;
+                        } else {
+                            statusCell.innerHTML = `<span class="badge-status badge-status-valid">✓ Valid</span>`;
+                        }
+                    }
+                });
+            }
+        }
+    } catch (err) {
+        hideLoading();
+        btnUpload.disabled = false;
+        showIndividualError("Network or server error while uploading. Please check connection.");
+        console.error(err);
+    }
+}
+
+function showIndividualError(msg) {
+    const banner = document.getElementById('individualErrorBanner');
+    const msgEl = document.getElementById('individualErrorMessage');
+    msgEl.innerHTML = `<strong>Upload Cannot Continue:</strong> ${msg}`;
+    banner.style.display = 'flex';
+    banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function showIndividualSuccess(msg) {
+    const banner = document.getElementById('individualSuccessBanner');
+    const msgEl = document.getElementById('individualSuccessMessage');
+    msgEl.innerHTML = `<strong>Success:</strong> ${msg}`;
+    banner.style.display = 'flex';
+    banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ==============================================================================
+// 3. PRODUCT GROUPS CREATION
+// ==============================================================================
+let groupCount = 0;
+
+function addNewGroupCard() {
+    groupCount++;
+    const container = document.getElementById('groupsContainer');
+    const groupId = `group-card-${groupCount}`;
+
+    const card = document.createElement('div');
+    card.className = 'group-card';
+    card.id = groupId;
+    card.dataset.groupId = groupCount;
+
+    card.innerHTML = `
+        <div class="group-card-header">
+            <h3 class="group-card-title">👥 Group #${groupCount}</h3>
+            ${groupCount > 1 ? `<button type="button" class="btn-nav btn-nav-ghost" style="padding: 4px 10px; color: #f87171 !important;" onclick="removeGroupCard('${groupId}')">✕ Remove Group</button>` : ''}
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Costume Category <span class="req">*</span></label>
+                <div class="type-pills">
+                    <button type="button" class="type-pill-btn active choli-pill" onclick="selectGroupType(${groupCount}, 'choli')">👗 Choli Group</button>
+                    <button type="button" class="type-pill-btn kediya-pill" onclick="selectGroupType(${groupCount}, 'kediya')">🕺 Kediya Group</button>
+                </div>
+                <input type="hidden" id="group-type-${groupCount}" value="choli">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Group Code (Starts with G) <span class="req">*</span></label>
+                <input type="text" class="form-input text-uppercase" id="group-code-${groupCount}" placeholder="e.g. G4, G12" required pattern="^[Gg]\\d+$" oninput="this.value = this.value.toUpperCase()">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Style Design Image <span class="req">*</span></label>
+                <input type="file" class="form-input" id="group-image-${groupCount}" accept=".webp,.jpg,.jpeg,.png" required onchange="previewGroupImage(this, ${groupCount})">
+            </div>
+
+            <div class="form-group" style="align-items: center; justify-content: center;">
+                <img id="group-img-preview-${groupCount}" class="preview-thumb" style="width: 58px; height: 58px; display: none;" alt="Preview">
+            </div>
+        </div>
+
+        <!-- Sizes Inventory Table -->
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                <label class="form-label">📏 Size Inventory &amp; Quantities <span class="req">*</span></label>
+                <span class="badge-status badge-status-valid" id="group-total-pieces-${groupCount}">Total: 0 Pieces</span>
+            </div>
+
+            <table class="sizes-subtable">
+                <thead>
+                    <tr>
+                        <th style="width: 45%;">Size Label (e.g. 32, 36, 42)</th>
+                        <th style="width: 40%;">Physical Quantity (Pieces)</th>
+                        <th style="width: 15%; text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="sizes-tbody-${groupCount}">
+                    <!-- Size rows injected here -->
+                </tbody>
+            </table>
+
+            <button type="button" class="btn-nav btn-nav-ghost" style="font-size: 0.82rem; padding: 6px 12px;" onclick="addSizeRow(${groupCount})">
+                + Add Size
+            </button>
+        </div>
+    `;
+
+    container.appendChild(card);
+
+    // Add initial default sizes (e.g. 32, 36)
+    addSizeRow(groupCount, "32", 1);
+    addSizeRow(groupCount, "36", 1);
+}
+
+function removeGroupCard(groupId) {
+    const card = document.getElementById(groupId);
+    if (card) card.remove();
+}
+
+function selectGroupType(groupNum, type) {
+    const card = document.getElementById(`group-card-${groupNum}`);
+    const input = document.getElementById(`group-type-${groupNum}`);
+    input.value = type;
+
+    const choliBtn = card.querySelector('.choli-pill');
+    const kediyaBtn = card.querySelector('.kediya-pill');
+
+    if (type === 'choli') {
+        choliBtn.classList.add('active');
+        kediyaBtn.classList.remove('active');
+    } else {
+        kediyaBtn.classList.add('active');
+        choliBtn.classList.remove('active');
+    }
+}
+
+function previewGroupImage(input, groupNum) {
+    const preview = document.getElementById(`group-img-preview-${groupNum}`);
+    if (input.files && input.files[0]) {
+        preview.src = URL.createObjectURL(input.files[0]);
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+    }
+}
+
+function addSizeRow(groupNum, defaultSize = "", defaultQty = 1) {
+    const tbody = document.getElementById(`sizes-tbody-${groupNum}`);
+    const rowId = `size-row-${groupNum}-${Date.now()}-${Math.floor(Math.random()*1000)}`;
+
+    const tr = document.createElement('tr');
+    tr.id = rowId;
+    tr.className = 'size-entry-row';
+
+    tr.innerHTML = `
+        <td>
+            <input type="text" class="form-input size-input" style="padding: 6px 10px;" required placeholder="e.g. 32, 36" value="${defaultSize}" oninput="updateGroupPieces(${groupNum})">
+        </td>
+        <td>
+            <input type="number" class="form-input qty-input" style="padding: 6px 10px;" required min="1" step="1" value="${defaultQty}" oninput="updateGroupPieces(${groupNum})">
+        </td>
+        <td style="text-align: right;">
+            <button type="button" class="btn-nav btn-nav-ghost" style="padding: 3px 8px; color: #f87171 !important;" onclick="removeSizeRow('${rowId}', ${groupNum})">
+                ✕
+            </button>
+        </td>
+    `;
+    tbody.appendChild(tr);
+    updateGroupPieces(groupNum);
+}
+
+function removeSizeRow(rowId, groupNum) {
+    const tbody = document.getElementById(`sizes-tbody-${groupNum}`);
+    if (tbody.children.length > 1) {
+        const row = document.getElementById(rowId);
+        if (row) row.remove();
+        updateGroupPieces(groupNum);
+    } else {
+        alert("Each group requires at least one size.");
+    }
+}
+
+function updateGroupPieces(groupNum) {
+    const tbody = document.getElementById(`sizes-tbody-${groupNum}`);
+    if (!tbody) return;
+
+    let total = 0;
+    const qtyInputs = tbody.querySelectorAll('.qty-input');
+    qtyInputs.forEach(input => {
+        const v = parseInt(input.value) || 0;
+        total += Math.max(0, v);
+    });
+
+    const badge = document.getElementById(`group-total-pieces-${groupNum}`);
+    if (badge) {
+        badge.textContent = `Total: ${total} Piece${total !== 1 ? 's' : ''}`;
+    }
+}
+
+async function submitGroupsForm(event) {
+    event.preventDefault();
+    hideGroupAlerts();
+
+    const groupCards = document.querySelectorAll('.group-card');
+    if (groupCards.length === 0) {
+        showGroupError("Please configure at least one product group.");
+        return;
+    }
+
+    const formData = new FormData();
+    const groupsPayload = [];
+    const seenCodes = new Set();
+
+    let clientError = null;
+
+    groupCards.forEach(card => {
+        if (clientError) return;
+        const gNum = card.dataset.groupId;
+        const codeInput = document.getElementById(`group-code-${gNum}`);
+        const typeInput = document.getElementById(`group-type-${gNum}`);
+        const imgInput = document.getElementById(`group-image-${gNum}`);
+        const tbody = document.getElementById(`sizes-tbody-${gNum}`);
+
+        const code = (codeInput.value || '').trim().toUpperCase();
+        const type = (typeInput.value || '').trim().toLowerCase();
+
+        if (!/^G\d+$/.test(code)) {
+            clientError = `Invalid Group Code '${code}'. Must be 'G' followed by numbers (e.g. G4, G12).`;
+            codeInput.focus();
+            return;
+        }
+
+        if (seenCodes.has(code)) {
+            clientError = `Duplicate group code '${code}' in this submission.`;
+            codeInput.focus();
+            return;
+        }
+        seenCodes.add(code);
+
+        if (!imgInput.files || !imgInput.files[0]) {
+            clientError = `Style image is required for group '${code}'.`;
+            return;
+        }
+
+        // Collect sizes
+        const sizeRows = tbody.querySelectorAll('.size-entry-row');
+        if (sizeRows.length === 0) {
+            clientError = `At least one size is required for group '${code}'.`;
+            return;
+        }
+
+        const sizesObj = {};
+        sizeRows.forEach(row => {
+            const sz = row.querySelector('.size-input').value.trim();
+            const qty = parseInt(row.querySelector('.qty-input').value) || 0;
+            if (!sz) {
+                clientError = `Size label cannot be empty in group '${code}'.`;
+                return;
+            }
+            if (qty <= 0) {
+                clientError = `Quantity for size '${sz}' in group '${code}' must be at least 1.`;
+                return;
+            }
+            if (sizesObj[sz]) {
+                clientError = `Duplicate size '${sz}' entered in group '${code}'.`;
+                return;
+            }
+            sizesObj[sz] = qty;
+        });
+
+        const imageKey = `image_${code}`;
+        formData.append(imageKey, imgInput.files[0]);
+
+        groupsPayload.push({
+            code: code,
+            type: type,
+            image_key: imageKey,
+            sizes: sizesObj
+        });
+    });
+
+    if (clientError) {
+        showGroupError(clientError);
+        return;
+    }
+
+    formData.append('groups_data', JSON.stringify(groupsPayload));
+
+    const btnSubmit = document.getElementById('btnCreateGroups');
+    btnSubmit.disabled = true;
+    showLoading("Pre-validating and creating costume groups...");
+
+    try {
+        const response = await fetch('/api/navaratri/admin/create-groups', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        hideLoading();
+        btnSubmit.disabled = false;
+
+        if (response.ok && data.success) {
+            showGroupSuccess(`🎉 ${data.message}`);
+            // Reset form
+            document.getElementById('groupsContainer').innerHTML = '';
+            groupCount = 0;
+            addNewGroupCard();
+        } else {
+            let errMsg = data.message || "Failed to create groups.";
+            if (data.errors && Array.isArray(data.errors)) {
+                errMsg += "<br>" + data.errors.map(e => `• <strong>${escapeHtml(e.group)}:</strong> ${escapeHtml(e.errors ? e.errors.join(', ') : e)}`).join('<br>');
+            }
+            showGroupError(errMsg);
+        }
+    } catch (err) {
+        hideLoading();
+        btnSubmit.disabled = false;
+        showGroupError("Network or server error while creating groups.");
+        console.error(err);
+    }
+}
+
+function showGroupError(msg) {
+    const banner = document.getElementById('groupErrorBanner');
+    const msgEl = document.getElementById('groupErrorMessage');
+    msgEl.innerHTML = `<strong>Creation Cannot Continue:</strong> ${msg}`;
+    banner.style.display = 'flex';
+    banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function showGroupSuccess(msg) {
+    const banner = document.getElementById('groupSuccessBanner');
+    const msgEl = document.getElementById('groupSuccessMessage');
+    msgEl.innerHTML = `<strong>Success:</strong> ${msg}`;
+    banner.style.display = 'flex';
+    banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function hideGroupAlerts() {
+    document.getElementById('groupErrorBanner').style.display = 'none';
+    document.getElementById('groupSuccessBanner').style.display = 'none';
+}
+
+function showLoading(msg) {
+    document.getElementById('loadingText').textContent = msg || "Processing...";
+    document.getElementById('loadingOverlay').style.display = 'flex';
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return text.toString().replace(/[&<>"']/g, m => map[m]);
+}
+</script>
+{% endblock %}

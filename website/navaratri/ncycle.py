@@ -170,7 +170,11 @@ def get_selected_cycle():
     Returns selected cycle
     """
 
-    cycle_id = session.get("navaratri_cycle_id")
+    cycle_id = None
+    try:
+        cycle_id = session.get("navaratri_cycle_id")
+    except Exception:
+        cycle_id = None
 
     # If a specific cycle is selected
     if cycle_id and cycle_id != "default":

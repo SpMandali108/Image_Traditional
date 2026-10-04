@@ -91,12 +91,16 @@ with app.app_context(), app.test_client() as client:
     assert f'data-code="{test_code}"'.encode() in res_restored.data
     print('RESTORE PASSED: C182 restored and visible again in /choli.')
 
-    print('\n--- Admin page test: /navaratri_products ---')
+    print('\n--- Admin page test: /navaratri_products and /navaratri/costume-manager ---')
     res_admin = client.get('/navaratri_products')
     assert res_admin.status_code == 200
-    assert b'Costume Rental Status' in res_admin.data
+    assert b'Costume Manager' in res_admin.data
     assert b'C182' in res_admin.data
     assert b'K188' in res_admin.data
+
+    res_alias = client.get('/navaratri/costume-manager')
+    assert res_alias.status_code == 200
+    assert b'Costume Manager' in res_alias.data
 
     # Log out and test security
     with client.session_transaction() as sess:

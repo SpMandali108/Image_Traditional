@@ -22,65 +22,90 @@ general = Blueprint('general',__name__)
 
 @general.route("/choli")
 def choli():
-    with open('choli.json', 'r', encoding='utf-8') as f:
-        products = json.load(f)
+    from website.navaratri.nservices import get_active_individual_products, get_active_group_products, natural_sort_key
+    
+    ind_prods = get_active_individual_products("choli")
+    grp_prods = get_active_group_products("choli")
 
-    from website.general.db import navaratri_products
-    unavailable_codes = set(
-        p["code"].upper() for p in navaratri_products.find({"on_rent": False}, {"code": 1})
-    )
-    db_price_map = {}
-    try:
-        for p_doc in navaratri_products.find({"$or": [{"price": {"$exists": True}}, {"rent_price": {"$exists": True}}]}, {"code": 1, "price": 1, "rent_price": 1}):
-            c = (p_doc.get("code") or "").strip().upper()
-            if c:
-                db_price_map[c] = p_doc.get("price") or p_doc.get("rent_price")
-    except Exception:
-        pass
+    combined = []
+    for p in ind_prods:
+        code_val = str(p.get("code") or "").strip().upper()
+        img_val = str(p.get("image") or f"{code_val}.webp").strip()
+        combined.append({
+            "name": code_val,
+            "code": code_val,
+            "product_code": code_val,
+            "image": img_val,
+            "is_group": False,
+            "price": p.get("price") or p.get("rent_price") or ""
+        })
 
-    visible_products = []
-    for p in products:
-        code_val = (p.get("product_code") or p.get("code") or p.get("name") or "").strip()
-        if code_val.upper() not in unavailable_codes:
-            item = dict(p)
-            item["product_code"] = code_val
-            item["code"] = code_val
-            price_val = p.get("price") or p.get("rent_price") or db_price_map.get(code_val.upper())
-            if price_val:
-                item["price"] = price_val
-            visible_products.append(item)
-    return render_template("general/choli.html", products=visible_products)
+    for g in grp_prods:
+        code_val = str(g.get("code") or "").strip().upper()
+        img_val = str(g.get("image") or f"{code_val}.webp").strip()
+        sizes = g.get("sizes", {})
+        active_sizes = [str(sz) for sz, sinfo in sizes.items() if sinfo.get("active", True)]
+        try:
+            active_sizes.sort(key=lambda s: int(s) if s.isdigit() else s)
+        except Exception:
+            pass
+        combined.append({
+            "name": code_val,
+            "code": code_val,
+            "product_code": code_val,
+            "image": img_val,
+            "is_group": True,
+            "sizes": active_sizes,
+            "sizes_label": ", ".join(active_sizes) if active_sizes else "Standard",
+            "price": g.get("price") or g.get("rent_price") or ""
+        })
+
+    combined.sort(key=lambda x: natural_sort_key(x["code"]))
+    return render_template("general/choli.html", products=combined)
 
 @general.route("/kediya")
 def kediya():
-    with open('kediya.json', 'r', encoding='utf-8') as f:
-        products = json.load(f)
+    from website.navaratri.nservices import get_active_individual_products, get_active_group_products, natural_sort_key
+    
+    ind_prods = get_active_individual_products("kediya")
+    grp_prods = get_active_group_products("kediya")
 
-    from website.general.db import navaratri_products
-    unavailable_codes = set(
-        p["code"].upper() for p in navaratri_products.find({"on_rent": False}, {"code": 1})
-    )
-    db_price_map = {}
-    try:
-        for p_doc in navaratri_products.find({"$or": [{"price": {"$exists": True}}, {"rent_price": {"$exists": True}}]}, {"code": 1, "price": 1, "rent_price": 1}):
-            c = (p_doc.get("code") or "").strip().upper()
-            if c:
-                db_price_map[c] = p_doc.get("price") or p_doc.get("rent_price")
-    except Exception:
-        pass
+    combined = []
+    for p in ind_prods:
+        code_val = str(p.get("code") or "").strip().upper()
+        img_val = str(p.get("image") or f"{code_val}.webp").strip()
+        combined.append({
+            "name": code_val,
+            "code": code_val,
+            "product_code": code_val,
+            "image": img_val,
+            "is_group": False,
+            "price": p.get("price") or p.get("rent_price") or ""
+        })
 
-    visible_products = []
-    for p in products:
-        code_val = (p.get("product_code") or p.get("code") or p.get("name") or "").strip()
-        if code_val.upper() not in unavailable_codes:
-            item = dict(p)
-            item["product_code"] = code_val
-            item["code"] = code_val
-            price_val = p.get("price") or p.get("rent_price") or db_price_map.get(code_val.upper())
-            if price_val:
-                item["price"] = price_val
-            visible_products.append(item)
-    return render_template("general/kediya.html", products=visible_products)
+    for g in grp_prods:
+        code_val = str(g.get("code") or "").strip().upper()
+        img_val = str(g.get("image") or f"{code_val}.webp").strip()
+        sizes = g.get("sizes", {})
+        active_sizes = [str(sz) for sz, sinfo in sizes.items() if sinfo.get("active", True)]
+        try:
+            active_sizes.sort(key=lambda s: int(s) if s.isdigit() else s)
+        except Exception:
+            pass
+        combined.append({
+            "name": code_val,
+            "code": code_val,
+            "product_code": code_val,
+            "image": img_val,
+            "is_group": True,
+            "sizes": active_sizes,
+            "sizes_label": ", ".join(active_sizes) if active_sizes else "Standard",
+            "price": g.get("price") or g.get("rent_price") or ""
+        })
+
+    combined.sort(key=lambda x: natural_sort_key(x["code"]))
+    return render_template("general/kediya.html", products=combined)
+
 
 @general.route("/sitemap.xml")
 def sitemap():
@@ -469,54 +494,35 @@ def catalogue_sync():
     Contains NO administrative, user, or session data.
     """
     try:
-        # 1. Kediya products
-        kediya_products = []
-        kediya_candidates = [
-            os.path.join(current_app.root_path, '..', 'kediya.json'),
-            os.path.join(os.getcwd(), 'kediya.json'),
-            'kediya.json'
+        # 1. Kediya products (Database driven)
+        from website.navaratri.nservices import get_active_individual_products, get_active_group_products
+        kediya_ind = get_active_individual_products("kediya")
+        kediya_grp = get_active_group_products("kediya")
+        kediya_products = [
+            {
+                "code": p["code"],
+                "name": p["code"],
+                "image": p.get("image", f"{p['code']}.webp"),
+                "img_url": f"/navaratri/product-image/{p['code']}",
+                "price": p.get("price") or p.get("rent_price") or ""
+            }
+            for p in (kediya_ind + kediya_grp)
         ]
-        for kp in kediya_candidates:
-            if os.path.exists(kp):
-                try:
-                    with open(kp, 'r', encoding='utf-8') as f:
-                        kediya_products = json.load(f)
-                    break
-                except Exception:
-                    pass
 
-        # 2. Choli products
-        choli_products = []
-        choli_candidates = [
-            os.path.join(current_app.root_path, '..', 'choli.json'),
-            os.path.join(os.getcwd(), 'choli.json'),
-            'choli.json'
+        # 2. Choli products (Database driven)
+        choli_ind = get_active_individual_products("choli")
+        choli_grp = get_active_group_products("choli")
+        choli_products = [
+            {
+                "code": p["code"],
+                "name": p["code"],
+                "image": p.get("image", f"{p['code']}.webp"),
+                "img_url": f"/navaratri/product-image/{p['code']}",
+                "price": p.get("price") or p.get("rent_price") or ""
+            }
+            for p in (choli_ind + choli_grp)
         ]
-        for cp in choli_candidates:
-            if os.path.exists(cp):
-                try:
-                    with open(cp, 'r', encoding='utf-8') as f:
-                        choli_products = json.load(f)
-                    break
-                except Exception:
-                    pass
 
-        # Filter out products that are no longer available for rent
-        from website.general.db import navaratri_products
-        try:
-            unavailable_codes = set(
-                p["code"].upper() for p in navaratri_products.find({"on_rent": False}, {"code": 1})
-            )
-            kediya_products = [
-                p for p in kediya_products 
-                if (p.get("name") or p.get("code") or "").strip().upper() not in unavailable_codes
-            ]
-            choli_products = [
-                p for p in choli_products 
-                if (p.get("name") or p.get("code") or "").strip().upper() not in unavailable_codes
-            ]
-        except Exception:
-            pass
 
         # 3. Fancy categories & items
         icon_map = {
