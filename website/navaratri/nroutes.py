@@ -73,72 +73,94 @@ def book():
                 formatted_date = date
             bookings_data.append({"date": formatted_date, "products": prod_list})
 
-        # -------------------- Rental Status Validation --------------------
-        for booking in bookings_data:
-            for p in booking['products']:
-                is_avail, err_reason = is_product_available_for_rent(p)
-                if not is_avail:
-                    flash(f"❌ Booking Failed! {err_reason}", "error")
+        with booking_lock:
+            # -------------------- Rental Status Validation --------------------
+            for booking in bookings_data:
+                for p in booking['products']:
+                    base_code, size, qty = parse_product_item(p)
+                    is_avail, err_reason = is_product_available_for_rent(
+                        code=base_code, size=size, requested_qty=qty, date=booking['date']
+                    )
+                    if not is_avail:
+                        flash(f"❌ Booking Failed! {err_reason}", "error")
+                        return redirect(url_for('navaratri.book'))
+
+            # -------------------- Conflict check --------------------
+            for booking in bookings_data:
+                date = booking['date']
+                has_conflict, conflicts = check_booking_conflict(date, booking['products'])
+
+                if has_conflict:
+                    conflict_msg = f"❌ Booking Failed! Conflict on {date}:\n"
+                    for conflict in conflicts:
+                        reason = conflict.get('reason')
+                        if reason:
+                            conflict_msg += f"• {conflict['product']}: {reason}\n"
+                        else:
+                            conflict_msg += f"• '{conflict['product']}' by {conflict['customer_name']} ({conflict['customer_mobile']})\n"
+                    flash(conflict_msg, "error")
                     return redirect(url_for('navaratri.book'))
 
-        # -------------------- Conflict check --------------------
-        for booking in bookings_data:
-            date = booking['date']
-            has_conflict, conflicts = check_booking_conflict(date, booking['products'])
+            # -------------------- Insert / Update customer --------------------
+            customer = collection.find_one({"mobile": mobile})
 
-            if has_conflict:
-                conflict_msg = f"❌ Booking Failed! These products are already booked on {date}:\n"
-                for conflict in conflicts:
-                    conflict_msg += f"• '{conflict['product']}' by {conflict['customer_name']} ({conflict['customer_mobile']})\n"
-                flash(conflict_msg, "error")
-                return redirect(url_for('navaratri.book'))
+            if customer:
+                # Existing customer → merge bookings
+                bookings = customer.get('bookings', {})
+                for booking_item in bookings_data:
+                    date = booking_item['date']
+                    new_prods = booking_item['products']
+                    curr = list(bookings.get(date, []))
+                    for np in new_prods:
+                        base_c, size, _ = parse_product_item(np)
+                        grp = get_group(base_c) if is_group_code(base_c) else None
+                        if grp and size:
+                            curr.append(np)
+                        else:
+                            norm_np = normalize_product_code(np)
+                            if not any(normalize_product_code(x) == norm_np for x in curr):
+                                curr.append(np)
+                    bookings[date] = curr
 
-        # -------------------- Insert / Update customer --------------------
-        customer = collection.find_one({"mobile": mobile})
+                updated_total = customer.get('total_price', 0) + total_price
+                updated_given = customer.get('given_price', 0) + given_price_val
 
-        if customer:
-            # Existing customer → merge bookings
-            bookings = customer.get('bookings', {})
-            for booking_item in bookings_data:
-                date = booking_item['date']
-                new_prods = booking_item['products']
-                if date in bookings:
-                    bookings[date] = list(set(bookings[date] + new_prods))
-                else:
-                    bookings[date] = new_prods
-
-            updated_total = customer.get('total_price', 0) + total_price
-            updated_given = customer.get('given_price', 0) + given_price_val
-
-            collection.update_one(
-                {"_id": customer['_id']},
-                {"$set": {
+                collection.update_one(
+                    {"_id": customer['_id']},
+                    {"$set": {
+                        "bookings": bookings,
+                        "total_price": updated_total,
+                        "given_price": updated_given,
+                    }}
+                )
+            else:
+                # New customer
+                bookings = {}
+                for b in bookings_data:
+                    date = b['date']
+                    curr = list(bookings.get(date, []))
+                    for np in b['products']:
+                        base_c, size, _ = parse_product_item(np)
+                        grp = get_group(base_c) if is_group_code(base_c) else None
+                        if grp and size:
+                            curr.append(np)
+                        else:
+                            norm_np = normalize_product_code(np)
+                            if not any(normalize_product_code(x) == norm_np for x in curr):
+                                curr.append(np)
+                    bookings[date] = curr
+                new_customer = {
+                    "Name": Name,
+                    "mobile": mobile,
+                    "address": address,
+                    "deposit": deposit,
+                    "group": group,
+                    "reference": reference,
                     "bookings": bookings,
-                    "total_price": updated_total,
-                    "given_price": updated_given,
-                }}
-            )
-        else:
-            # New customer
-            bookings = {}
-            for b in bookings_data:
-                date = b['date']
-                if date in bookings:
-                    bookings[date] = list(set(bookings[date] + b['products']))
-                else:
-                    bookings[date] = b['products']
-            new_customer = {
-                "Name": Name,
-                "mobile": mobile,
-                "address": address,
-                "deposit": deposit,
-                "group": group,
-                "reference": reference,
-                "bookings": bookings,
-                "given_price": given_price_val,
-                "total_price": total_price
-            }
-            collection.insert_one(new_customer)
+                    "given_price": given_price_val,
+                    "total_price": total_price
+                }
+                collection.insert_one(new_customer)
 
         # Upsert customer record into Navaratri_Customers collection
         ncustomers.update_one(
@@ -662,56 +684,122 @@ def api_check_product():
         return jsonify({"available": False, "error": err_date}), 400
 
     # 5. Safe Normalized Server-Side Query Construction
-    norm_code = normalize_product_code(product_code)
-    if not norm_code:
+    base_code, embedded_size, _ = parse_product_item(product_code)
+    req_size = request.args.get('size') or embedded_size
+    norm_base = normalize_product_code(base_code)
+    if not norm_base:
         return jsonify({"available": False, "error": f"Invalid product code '{product_code}'"}), 400
 
     try:
-        # Check master catalogue rental status
-        is_avail, err_reason = is_product_available_for_rent(norm_code)
-        
-        prod_doc = get_navaratri_product(norm_code)
-        prod_img = prod_doc.get("image") if prod_doc else None
+        group = get_group(norm_base) if is_group_code(norm_base) else None
+        if group:
+            if not group.get("on_rent", True):
+                return jsonify({
+                    "available": False,
+                    "is_group": True,
+                    "product_code": norm_base,
+                    "reason": f"Group '{norm_base}' is currently not taking new bookings."
+                })
 
-        if not is_avail:
-            resp = {
-                "available": False,
-                "reason": err_reason or "Not available for rent",
-                "product_code": norm_code
-            }
-            if is_admin:
-                resp["customer"] = "Sold / Not for Rent"
-                resp["error"] = err_reason
-            return jsonify(resp)
-
-        has_conflict, conflicts = check_booking_conflict(
-            date_str, 
-            [norm_code], 
-            exclude_mobile=raw_exclude_mobile if is_admin else None
-        )
-        if has_conflict:
-            conflict = conflicts[0]
-            cust_name = conflict.get('customer_name', 'Unknown')
-            resp = {
-                "available": False,
-                "reason": f"Booked by {cust_name}" if is_admin else "Already booked for this date",
-                "product_code": norm_code
-            }
-            if is_admin:
-                resp["customer"] = cust_name
-            return jsonify(resp)
+            if req_size:
+                sz_str = str(req_size).strip()
+                sizes = group.get("sizes", {})
+                if sz_str not in sizes or not sizes[sz_str].get("active", True):
+                    return jsonify({
+                        "available": False,
+                        "is_group": True,
+                        "product_code": norm_base,
+                        "size": sz_str,
+                        "reason": f"Size '{sz_str}' is currently not available for group '{norm_base}'."
+                    })
+                
+                avail_qty, master_qty, booked_qty = get_available_group_quantity(
+                    norm_base, sz_str, date_str, exclude_mobile=raw_exclude_mobile if is_admin else None
+                )
+                if avail_qty <= 0:
+                    return jsonify({
+                        "available": False,
+                        "is_group": True,
+                        "product_code": norm_base,
+                        "size": sz_str,
+                        "available_quantity": 0,
+                        "master_quantity": master_qty,
+                        "booked_quantity": booked_qty,
+                        "reason": f"Size {sz_str} is fully booked on {date_str} (0/{master_qty} available)."
+                    })
+                else:
+                    return jsonify({
+                        "available": True,
+                        "is_group": True,
+                        "product_code": norm_base,
+                        "size": sz_str,
+                        "available_quantity": avail_qty,
+                        "master_quantity": master_qty,
+                        "booked_quantity": booked_qty,
+                        "reason": f"{avail_qty} piece(s) available on {date_str}."
+                    })
+            else:
+                # No specific size passed -> return full breakdown for the date
+                sizes_breakdown = get_group_size_availability(
+                    norm_base, date=date_str, exclude_mobile=raw_exclude_mobile if is_admin else None
+                )
+                has_any_avail = any(s["available"] > 0 for s in sizes_breakdown.values() if s.get("active"))
+                return jsonify({
+                    "available": has_any_avail,
+                    "is_group": True,
+                    "product_code": norm_base,
+                    "type": group.get("type", "choli"),
+                    "sizes": sizes_breakdown,
+                    "reason": "Available for rent" if has_any_avail else f"All sizes booked on {date_str}"
+                })
         else:
-            resp = {
-                "available": True,
-                "product_code": norm_code,
-                "reason": "Available for rent"
-            }
-            if prod_img:
-                resp["image"] = prod_img
-            return jsonify(resp)
+            # Individual product check
+            is_avail, err_reason = is_product_available_for_rent(norm_base, date=date_str)
+            prod_doc = get_navaratri_product(norm_base)
+            prod_img = prod_doc.get("image") if prod_doc else None
+
+            if not is_avail:
+                resp = {
+                    "available": False,
+                    "is_group": False,
+                    "reason": err_reason or "Not available for rent",
+                    "product_code": norm_base
+                }
+                if is_admin:
+                    resp["customer"] = "Sold / Not for Rent"
+                    resp["error"] = err_reason
+                return jsonify(resp)
+
+            has_conflict, conflicts = check_booking_conflict(
+                date_str, 
+                [norm_base], 
+                exclude_mobile=raw_exclude_mobile if is_admin else None
+            )
+            if has_conflict:
+                conflict = conflicts[0]
+                cust_name = conflict.get('customer_name', 'Unknown')
+                resp = {
+                    "available": False,
+                    "is_group": False,
+                    "reason": f"Booked by {cust_name}" if is_admin else "Already booked for this date",
+                    "product_code": norm_base
+                }
+                if is_admin:
+                    resp["customer"] = cust_name
+                return jsonify(resp)
+            else:
+                resp = {
+                    "available": True,
+                    "is_group": False,
+                    "product_code": norm_base,
+                    "reason": "Available for rent"
+                }
+                if prod_img:
+                    resp["image"] = prod_img
+                return jsonify(resp)
 
     except Exception as e:
-        current_app.logger.error(f"[SECURITY/ERROR] Error checking product availability for '{norm_code}' on '{date_str}': {e}", exc_info=True)
+        current_app.logger.error(f"[SECURITY/ERROR] Error checking product availability for '{norm_base}' on '{date_str}': {e}", exc_info=True)
         return jsonify({
             "available": False,
             "error": "A temporary service error occurred while checking availability. Please try again."
@@ -723,14 +811,16 @@ def api_suggest_products():
     if not session.get('logged_in'):
         return jsonify([]), 401
     try:
-        nav_prods = list(navaratri_products.find({}, {"code": 1, "_id": 0}))
-        codes = [p["code"] for p in nav_prods if p.get("code")]
-        if not codes:
-            all_products = list(products.find({}, {"_id": 1}))
-            codes = [p["_id"] for p in all_products if p.get("_id")]
-        if not codes:
-            codes = [f'C{i}' for i in range(1, 151)] + [f'K{i}' for i in range(1, 174)]
-        return jsonify(sorted(list(set(codes)), key=natural_sort_key))
+        # Load active individual products
+        nav_prods = list(navaratri_products.find({"on_rent": True}, {"code": 1, "_id": 0}))
+        ind_codes = [p["code"] for p in nav_prods if p.get("code")]
+        
+        # Load active groups
+        group_prods = list(costume_groups.find({"on_rent": True}, {"code": 1, "_id": 0}))
+        grp_codes = [g["code"] for g in group_prods if g.get("code")]
+
+        all_codes = sorted(list(set(ind_codes + grp_codes)), key=natural_sort_key)
+        return jsonify(all_codes)
     except Exception as e:
         current_app.logger.error(f"Error in api_suggest_products: {e}", exc_info=True)
         return jsonify({"error": "Failed to load product suggestions."}), 500
@@ -805,65 +895,80 @@ def profile_update():
             except ValueError:
                 formatted_date = date
                 
-            if formatted_date in formatted_bookings:
-                formatted_bookings[formatted_date] = list(set(formatted_bookings[formatted_date] + prods))
-            else:
-                formatted_bookings[formatted_date] = prods
+            curr = list(formatted_bookings.get(formatted_date, []))
+            for np in prods:
+                base_c, size, _ = parse_product_item(np)
+                grp = get_group(base_c) if is_group_code(base_c) else None
+                if grp and size:
+                    curr.append(np)
+                else:
+                    norm_np = normalize_product_code(np)
+                    if not any(normalize_product_code(x) == norm_np for x in curr):
+                        curr.append(np)
+            formatted_bookings[formatted_date] = curr
 
-    # Validate rental status for all booked products
-    for date_str, products_list in formatted_bookings.items():
-        for p in products_list:
-            is_avail, err_reason = is_product_available_for_rent(p)
-            if not is_avail:
-                return jsonify({"success": False, "message": f"❌ Booking Rejected: {err_reason}"}), 400
+    with booking_lock:
+        # Validate rental status for all booked products
+        for date_str, products_list in formatted_bookings.items():
+            for p in products_list:
+                base_c, size, qty = parse_product_item(p)
+                is_avail, err_reason = is_product_available_for_rent(
+                    code=base_c, size=size, requested_qty=qty, date=date_str
+                )
+                if not is_avail:
+                    return jsonify({"success": False, "message": f"❌ Booking Rejected: {err_reason}"}), 400
 
-    # Run conflict checks for the bookings (excluding this customer)
-    for date_str, products_list in formatted_bookings.items():
-        has_conflict, conflicts = check_booking_conflict(date_str, products_list, exclude_mobile=mobile)
-        if has_conflict:
-            conflict_msg = f"❌ Conflict: Following product(s) are already booked on {date_str}:<br>"
-            for conflict in conflicts:
-                conflict_msg += f"• '{conflict['product']}' by {conflict['customer_name']} ({conflict['customer_mobile']})<br>"
-            return jsonify({"success": False, "message": conflict_msg}), 400
+        # Run conflict checks for the bookings (excluding this customer)
+        for date_str, products_list in formatted_bookings.items():
+            has_conflict, conflicts = check_booking_conflict(date_str, products_list, exclude_mobile=mobile)
+            if has_conflict:
+                conflict_msg = f"❌ Conflict: Following product(s) are already booked on {date_str}:<br>"
+                for conflict in conflicts:
+                    reason = conflict.get('reason')
+                    if reason:
+                        conflict_msg += f"• {conflict['product']}: {reason}<br>"
+                    else:
+                        conflict_msg += f"• '{conflict['product']}' by {conflict['customer_name']} ({conflict['customer_mobile']})<br>"
+                return jsonify({"success": False, "message": conflict_msg}), 400
 
-    if customer_id and customer_id != 'new':
-        ret_id = customer_id
-    else:
-        ret_id = str(ObjectId())
+        if customer_id and customer_id != 'new':
+            ret_id = customer_id
+        else:
+            ret_id = str(ObjectId())
 
-    qr_url = url_for('navaratri.download_bill_page', id=ret_id, _external=True)
-    
-    customer_data = {
-        "Name": name,
-        "mobile": mobile,
-        "address": address,
-        "deposit": deposit,
-        "group": group,
-        "reference": reference,
-        "bookings": formatted_bookings,
-        "given_price": given_price,
-        "total_price": total_price,
-        "qr_url": qr_url
-    }
-    
-    existing_cust = None
-    if customer_id and customer_id != 'new':
-        try:
-            existing_cust = collection.find_one({"_id": ObjectId(customer_id)})
-        except:
-            pass
+        qr_url = url_for('navaratri.download_bill_page', id=ret_id, _external=True)
+        
+        customer_data = {
+            "Name": name,
+            "mobile": mobile,
+            "address": address,
+            "deposit": deposit,
+            "group": group,
+            "reference": reference,
+            "bookings": formatted_bookings,
+            "given_price": given_price,
+            "total_price": total_price,
+            "qr_url": qr_url
+        }
+        
+        existing_cust = None
+        if customer_id and customer_id != 'new':
+            try:
+                existing_cust = collection.find_one({"_id": ObjectId(customer_id)})
+            except:
+                pass
 
-    if customer_id and customer_id != 'new':
-        collection.update_one(
-            {"_id": ObjectId(customer_id)},
-            {"$set": customer_data}
-        )
-        message = "✅ Customer profile updated successfully!"
-    else:
-        customer_data["_id"] = ObjectId(ret_id)
-        collection.insert_one(customer_data)
-        message = "✅ Customer profile created successfully!"
-        ret_id = str(ret_id)
+        if customer_id and customer_id != 'new':
+            collection.update_one(
+                {"_id": ObjectId(customer_id)},
+                {"$set": customer_data}
+            )
+            message = "✅ Customer profile updated successfully!"
+        else:
+            customer_data["_id"] = ObjectId(ret_id)
+            collection.insert_one(customer_data)
+            message = "✅ Customer profile created successfully!"
+            ret_id = str(ret_id)
 
     # Upsert customer record into Navaratri_Customers collection
     ncustomers.update_one(
@@ -1422,8 +1527,12 @@ def get_navaratri_analytics(traditional_data):
 
     # ── Product-Centric Analytical AI ──
     # A. Stock Utilization & Capacity Analytics
-    total_choli_stock = 150
-    total_kediya_stock = 173
+    db_cholis = get_active_individual_products("choli")
+    db_kediyas = get_active_individual_products("kediya")
+    choli_all_set = {p["code"] for p in db_cholis}
+    kediya_all_set = {p["code"] for p in db_kediyas}
+    total_choli_stock = len(choli_all_set) if choli_all_set else 150
+    total_kediya_stock = len(kediya_all_set) if kediya_all_set else 173
     total_stock = total_choli_stock + total_kediya_stock
     
     rented_codes = set(product_counts.keys())
@@ -1472,8 +1581,6 @@ def get_navaratri_analytics(traditional_data):
         })
 
     # D. Catalog Showcase Rotations (Identify idle unique garments)
-    choli_all_set = {f"C{i}" for i in range(1, 151)}
-    kediya_all_set = {f"K{i}" for i in range(1, 174)}
     unbooked_cholis = list(choli_all_set - rented_cholis)
     unbooked_kediyas = list(kediya_all_set - rented_kediyas)
     unbooked_cholis.sort(key=lambda x: int(x[1:]) if x[1:].isdigit() else 0)
@@ -1525,6 +1632,10 @@ def get_navaratri_analytics(traditional_data):
             "kediya_pct": utilization_kediya_pct,
             "overall_pct": overall_utilization_pct,
             "total_stock": total_stock,
+            "total_choli_stock": total_choli_stock,
+            "total_kediya_stock": total_kediya_stock,
+            "choli_codes": sorted(list(choli_all_set), key=lambda x: int(x[1:]) if x[1:].isdigit() else 0),
+            "kediya_codes": sorted(list(kediya_all_set), key=lambda x: int(x[1:]) if x[1:].isdigit() else 0),
             "rented_unique": len(rented_codes),
             "product_counts": product_counts
         },
@@ -2832,7 +2943,7 @@ def code_detail(code):
             "bookingsArr": {"$objectToArray": "$bookings"}  # convert object to array
         }},
         {"$unwind": "$bookingsArr"},
-        {"$match": {"bookingsArr.v": {"$in": [code]}}}, 
+        {"$match": {"bookingsArr.v": {"$regex": f"^{re.escape(code.strip().upper())}(\\b|\\-|$)", "$options": "i"}}}, 
         {"$project": {
             "dateStr": "$bookingsArr.k",
             "day": {"$toInt": {"$substr": ["$bookingsArr.k", 0, 2]}},
@@ -2871,11 +2982,14 @@ def code_detail(code):
     # Prepare for template
     bookings_by_date = [{"date": r["_id"], "bookings": r["bookings"]} for r in results]
 
-    # build image path (static/images/c1.jpg, k1.jpg etc.)
-    if code.startswith("K"):
-        image_url = url_for("static", filename=f"Kediya/{code}.webp")
-    elif code.startswith("C"):
-        image_url = url_for("static", filename=f"Choli/{code}.webp")
+    # build image path dynamically
+    code_upper = code.strip().upper()
+    if code_upper.startswith("K"):
+        image_url = url_for("static", filename=f"Kediya/{code_upper}.webp")
+    elif code_upper.startswith("C"):
+        image_url = url_for("static", filename=f"Choli/{code_upper}.webp")
+    elif code_upper.startswith("G"):
+        image_url = url_for("static", filename=f"Group/{code_upper}.webp")
     else:
         image_url = None
 
@@ -2909,10 +3023,10 @@ def dashboard_listing():
         b['remaining'] = b.get('total_price', 0) - b.get('given_price', 0)
 
     return render_template("navaratri/dashboard_listing.html", bookings=bookings)
-# Add/replace this route in your blueprint (navaratri)
+
+# ------------------ AVAILABLE PRODUCTS (Database-Driven) ------------------
 @navaratri.route('/available', methods=['GET', 'POST'])
 def available():
-    # require login (same pattern as your other routes)
     if not session.get('logged_in'):
         return redirect(url_for('navaratri.login'))
 
@@ -2920,32 +3034,32 @@ def available():
     filter_val = "all"   # default filter
     remaining_c = []
     remaining_k = []
+    remaining_g = []
 
-    # Generate inventory codes (no image filenames here; template builds .webp path)
-    all_c = [{"code": f"C{i}"} for i in range(1, 151)]
-    all_k = [{"code": f"K{i}"} for i in range(1, 174)]
+    # Dynamically fetch active products from database
+    active_c = get_active_individual_products("choli")
+    active_k = get_active_individual_products("kediya")
+    active_g = get_active_group_products()
 
     if request.method == 'POST':
         date = request.form.get('date')              # YYYY-MM-DD from form
         filter_val = request.form.get('filter', 'all')
 
         if date:
-            # convert date to your DB key format (DD-MM-YY). fallback to raw if parse fails
             try:
                 date_obj = datetime.strptime(date, "%Y-%m-%d")
                 formatted_date = date_obj.strftime("%d-%m-%y")
             except Exception:
                 formatted_date = date
 
-            # Collect booked codes for that date (safe check, handles list or comma-string)
-            booked = set()
+            # Collect booked individual codes for that date
+            booked_ind = set()
             for doc in collection.find({}):
                 bookings = doc.get("bookings", {})
                 if not isinstance(bookings, dict):
                     continue
                 if formatted_date in bookings:
                     value = bookings.get(formatted_date, [])
-                    # normalize: could be list or string like "C1,C2"
                     if isinstance(value, str):
                         items = [p.strip() for p in value.split(',') if p.strip()]
                     elif isinstance(value, list):
@@ -2956,21 +3070,29 @@ def available():
                     for p in items:
                         if not isinstance(p, str):
                             continue
-                        booked.add(p.strip().upper())
+                        base_c = parse_product_item(p)[0]
+                        if not is_group_code(base_c):
+                            booked_ind.add(normalize_product_code(base_c))
 
-            # Debug prints (check server console)
-            current_app.logger.debug(f"[DEBUG] Booked on {formatted_date} => {len(booked)} items: {sorted(booked)[:50]}")
+            remaining_c = [p for p in active_c if normalize_product_code(p.get("code", "")) not in booked_ind]
+            remaining_k = [p for p in active_k if normalize_product_code(p.get("code", "")) not in booked_ind]
 
-            # Build remaining lists (exclude booked codes)
-            remaining_c = [p for p in all_c if p["code"].upper() not in booked]
-            remaining_k = [p for p in all_k if p["code"].upper() not in booked]
+            # Calculate date-specific group availability
+            for grp in active_g:
+                g_code = grp["code"]
+                sizes_avail = get_group_size_availability(g_code, date=formatted_date)
+                has_avail = any(s["available"] > 0 for s in sizes_avail.values() if s.get("active"))
+                if has_avail:
+                    grp_copy = dict(grp)
+                    grp_copy["size_info"] = sizes_avail
+                    remaining_g.append(grp_copy)
 
-    # Render template and pass filter to make radio sticky
     return render_template(
         "navaratri/available.html",
         date=date,
         remaining_c=remaining_c,
         remaining_k=remaining_k,
+        remaining_g=remaining_g,
         filter=filter_val
     )
 
@@ -3144,7 +3266,11 @@ def Storage():
     all_bags = list(bags.find())
 
     # Generate available codes (for checkboxes)
-    all_codes = [f'C{i}' for i in range(1, 151)] + [f'K{i}' for i in range(1, 174)]
+    db_ind_codes = [p["code"] for p in costumes.find({}, {"code": 1})]
+    db_grp_codes = [g["code"] for g in costume_groups.find({}, {"code": 1})]
+    all_codes = sorted(db_ind_codes + db_grp_codes, key=lambda x: (x[0], int(x[1:]) if x[1:].isdigit() else 9999))
+    if not all_codes:
+        all_codes = [f'C{i}' for i in range(1, 151)] + [f'K{i}' for i in range(1, 174)]
     used_codes = [p['_id'] for p in products.find({}, {"_id": 1})]
     available_codes = [c for c in all_codes if c not in used_codes]
 
@@ -3769,25 +3895,40 @@ def clear_navaratri_logs():
 
 
 # ==============================================================================
-# 🏷️ ADMIN: COSTUME RENTAL STATUS & SELL MANAGEMENT
+# 🏷️ ADMIN: COSTUME MANAGER (INVENTORY, GROUPS & RENTAL AVAILABILITY)
 # ==============================================================================
 @navaratri.route("/navaratri_products", methods=["GET"])
 @navaratri.route("/navaratri/products", methods=["GET"])
+@navaratri.route("/navaratri/costume-manager", methods=["GET"])
+@navaratri.route("/costume_manager", methods=["GET"])
+@navaratri.route("/costume-manager", methods=["GET"])
 def admin_navaratri_products():
     if not session.get('logged_in'):
         return redirect(url_for('auth.login'))
 
     products_list = get_all_navaratri_products()
+    groups_list = get_all_costume_groups()
+
     total_count = len(products_list)
+    choli_count = sum(1 for p in products_list if p.get('code', '').upper().startswith('C'))
+    kediya_count = sum(1 for p in products_list if p.get('code', '').upper().startswith('K'))
     available_count = sum(1 for p in products_list if p.get('on_rent', True))
     sold_count = total_count - available_count
+
+    group_total_count = len(groups_list)
+    group_active_count = sum(1 for g in groups_list if g.get('on_rent', True))
 
     return render_template(
         "navaratri/products_status.html",
         products=products_list,
+        groups=groups_list,
         total_count=total_count,
+        choli_count=choli_count,
+        kediya_count=kediya_count,
         available_count=available_count,
-        sold_count=sold_count
+        sold_count=sold_count,
+        group_total_count=group_total_count,
+        group_active_count=group_active_count
     )
 
 @navaratri.route("/api/navaratri/verify-password", methods=["POST"])
@@ -3808,28 +3949,46 @@ def api_navaratri_product_profile(product_code):
         return jsonify({"success": False, "message": "Unauthorized"}), 401
 
     code_clean = str(product_code).strip().upper()
-    product = get_navaratri_product(code_clean)
-    if not product:
-        try:
-            sync_navaratri_products()
-            product = get_navaratri_product(code_clean)
-        except Exception:
-            pass
+    is_group = is_group_code(code_clean)
 
-    if not product:
-        return jsonify({"success": False, "message": f"Product '{code_clean}' not found in catalog."}), 404
-
-    is_choli = code_clean.startswith('C')
-    category_label = "Chaniya Choli" if is_choli else ("Traditional Kediya" if code_clean.startswith('K') else "Costume")
-
-    # Image URLs
-    image_name = product.get("image", "")
-    if is_choli:
-        image_url = url_for('static', filename=f'CholiJpg/{code_clean}.jpg')
-        fallback_url = url_for('static', filename=f'Choli/{image_name}') if image_name else '/static/Home_Img/favicon.png'
+    if is_group:
+        group_doc = get_group(code_clean)
+        if not group_doc:
+            return jsonify({"success": False, "message": f"Costume group '{code_clean}' not found in catalog."}), 404
+        is_choli = group_doc.get("type") == "choli"
+        category_label = f"Group {'Chaniya Choli' if is_choli else 'Traditional Kediya'}"
+        image_name = group_doc.get("image", f"{code_clean}.webp")
+        image_url = url_for('static', filename=f'GroupJpg/{code_clean}.jpg')
+        fallback_url = url_for('static', filename=f'Group/{image_name}')
+        on_rent = bool(group_doc.get("on_rent", True))
+        sold_info = None
+        sizes_data = group_doc.get("sizes", {})
     else:
-        image_url = url_for('static', filename=f'KediyaJpg/{code_clean}.jpg')
-        fallback_url = url_for('static', filename=f'Kediya/{image_name}') if image_name else '/static/Home_Img/favicon.png'
+        product = get_navaratri_product(code_clean)
+        if not product:
+            try:
+                sync_navaratri_products()
+                product = get_navaratri_product(code_clean)
+            except Exception:
+                pass
+
+        if not product:
+            return jsonify({"success": False, "message": f"Product '{code_clean}' not found in catalog."}), 404
+
+        is_choli = code_clean.startswith('C')
+        category_label = "Chaniya Choli" if is_choli else ("Traditional Kediya" if code_clean.startswith('K') else "Costume")
+
+        # Image URLs
+        image_name = product.get("image", "")
+        if is_choli:
+            image_url = url_for('static', filename=f'CholiJpg/{code_clean}.jpg')
+            fallback_url = url_for('static', filename=f'Choli/{image_name}') if image_name else '/static/Home_Img/favicon.png'
+        else:
+            image_url = url_for('static', filename=f'KediyaJpg/{code_clean}.jpg')
+            fallback_url = url_for('static', filename=f'Kediya/{image_name}') if image_name else '/static/Home_Img/favicon.png'
+        on_rent = bool(product.get("on_rent", True))
+        sold_info = product.get("sold_info")
+        sizes_data = None
 
     # Storage Info
     storage_info = None
@@ -3861,7 +4020,15 @@ def api_navaratri_product_profile(product_code):
                 if not isinstance(cust_bookings, dict):
                     continue
                 for d_str, prods in cust_bookings.items():
-                    if isinstance(prods, list) and code_clean in prods:
+                    matched = False
+                    matched_items = []
+                    if isinstance(prods, list):
+                        for p in prods:
+                            base_c, sz, q = parse_product_item(p)
+                            if normalize_product_code(base_c) == normalize_product_code(code_clean):
+                                matched = True
+                                matched_items.append(p)
+                    if matched:
                         total_p = doc.get("total_price", 0) or 0
                         given_p = doc.get("given_price", 0) or 0
                         bookings.append({
@@ -3878,6 +4045,7 @@ def api_navaratri_product_profile(product_code):
                             "customer_total_price": total_p,
                             "customer_given_price": given_p,
                             "customer_remaining": total_p - given_p,
+                            "booked_items": matched_items,
                             "all_customer_bookings": cust_bookings
                         })
         except Exception as e:
@@ -3898,11 +4066,13 @@ def api_navaratri_product_profile(product_code):
         "success": True,
         "product": {
             "code": code_clean,
+            "is_group": is_group,
             "image_url": image_url,
             "fallback_url": fallback_url,
             "category": category_label,
-            "on_rent": bool(product.get("on_rent", True)),
-            "sold_info": product.get("sold_info"),
+            "on_rent": on_rent,
+            "sold_info": sold_info,
+            "sizes": sizes_data,
             "storage": storage_info
         },
         "cycle_name": selected_cycle_name,
@@ -4101,4 +4271,160 @@ def api_sync_navaratri_products():
         })
     except Exception as e:
         return jsonify({"success": False, "message": "Failed to synchronize products."}), 500
+
+
+# ==============================================================================
+# 🛍️ ADMIN: NAVARATRI PRODUCT MANAGEMENT (INDIVIDUAL BULK & GROUPS)
+# ==============================================================================
+@navaratri.route("/navaratri/admin/products", methods=["GET"])
+@navaratri.route("/navaratri_admin/products", methods=["GET"])
+def navaratri_admin_products_page():
+    if not session.get('logged_in'):
+        return redirect(url_for('navaratri.login'))
+    return render_template("navaratri/admin_products.html")
+
+
+@navaratri.route("/api/navaratri/admin/upload-individual", methods=["POST"])
+def api_navaratri_admin_upload_individual():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    files = request.files.getlist("images")
+    if not files:
+        files = request.files.getlist("files")
+    if not files:
+        files = [f for f in request.files.values()]
+
+    if not files or all(not f.filename for f in files):
+        return jsonify({"success": False, "message": "No files received for bulk upload."}), 400
+
+    success, message, results, status_code = save_individual_bulk_upload(files)
+    return jsonify({
+        "success": success,
+        "message": message,
+        "results": results
+    }), status_code
+
+
+@navaratri.route("/api/navaratri/admin/create-groups", methods=["POST"])
+def api_navaratri_admin_create_groups():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    import json
+    try:
+        groups_raw = request.form.get("groups")
+        if not groups_raw:
+            return jsonify({"success": False, "message": "No group payload received."}), 400
+
+        try:
+            groups_list = json.loads(groups_raw)
+        except Exception as e:
+            return jsonify({"success": False, "message": f"Malformed group JSON payload: {str(e)}"}), 400
+
+        files_dict = request.files.to_dict()
+        success, message, results, status_code = validate_and_create_groups(groups_list, files_dict)
+        return jsonify({
+            "success": success,
+            "message": message,
+            "results": results
+        }), status_code
+
+    except Exception as e:
+        current_app.logger.error(f"Error in api_navaratri_admin_create_groups: {e}", exc_info=True)
+        return jsonify({"success": False, "message": f"Server error: {str(e)}"}), 500
+
+
+@navaratri.route("/api/navaratri/group/<group_code>/add-size", methods=["POST"])
+def api_navaratri_group_add_size(group_code):
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    data = request.get_json() or {}
+    size = data.get("size")
+    quantity = data.get("quantity")
+    success, message, status_code = add_group_size(group_code, size, quantity)
+    return jsonify({"success": success, "message": message}), status_code
+
+
+@navaratri.route("/api/navaratri/group/<group_code>/update-size", methods=["POST"])
+def api_navaratri_group_update_size(group_code):
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    data = request.get_json() or {}
+    size = data.get("size")
+    quantity = data.get("quantity")
+    success, message, status_code = update_group_size_quantity(group_code, size, quantity)
+    return jsonify({"success": success, "message": message}), status_code
+
+
+@navaratri.route("/api/navaratri/group/<group_code>/toggle-size", methods=["POST"])
+def api_navaratri_group_toggle_size(group_code):
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    data = request.get_json() or {}
+    size = data.get("size")
+    active = data.get("active")
+    success, message, status_code = toggle_group_size_active(group_code, size, active)
+    return jsonify({"success": success, "message": message}), status_code
+
+
+@navaratri.route("/api/navaratri/group/<group_code>/delete-size", methods=["POST"])
+def api_navaratri_group_delete_size(group_code):
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    data = request.get_json() or {}
+    size = data.get("size")
+    success, message, status_code = delete_or_disable_group_size(group_code, size)
+    return jsonify({"success": success, "message": message}), status_code
+
+
+@navaratri.route("/api/navaratri/toggle-status", methods=["POST"])
+def api_navaratri_toggle_status():
+    if not session.get('logged_in'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+    data = request.get_json() or {}
+    code = data.get("code")
+    on_rent = data.get("on_rent")
+    success, message, status_code = toggle_product_status(code, on_rent)
+    return jsonify({"success": success, "message": message}), status_code
+
+
+@navaratri.route("/navaratri/product-image/<code>", methods=["GET"])
+@navaratri.route("/product-image/<code>", methods=["GET"])
+def serve_navaratri_product_image(code):
+    base_code, _, _ = parse_product_item(code)
+    clean_code = normalize_product_code(base_code)
+    prefer_jpg = request.args.get("format") == "jpg"
+
+    static_dir = current_app.static_folder or os.path.join(os.getcwd(), 'website', 'static')
+
+    if clean_code.startswith("G"):
+        subdirs = ["GroupJpg", "Group"] if prefer_jpg else ["Group", "GroupJpg"]
+    elif clean_code.startswith("C"):
+        subdirs = ["CholiJpg", "Choli"] if prefer_jpg else ["Choli", "CholiJpg"]
+    elif clean_code.startswith("K"):
+        subdirs = ["KediyaJpg", "Kediya"] if prefer_jpg else ["Kediya", "KediyaJpg"]
+    else:
+        subdirs = ["Choli", "Kediya", "Group", "CholiJpg", "KediyaJpg", "GroupJpg"]
+
+    extensions = [".jpg", ".jpeg", ".webp", ".png"] if prefer_jpg else [".webp", ".jpg", ".jpeg", ".png"]
+
+    for sub in subdirs:
+        for ext in extensions:
+            target = os.path.join(static_dir, sub, f"{clean_code}{ext}")
+            if os.path.exists(target):
+                mimetype = "image/jpeg" if ext in [".jpg", ".jpeg"] else ("image/webp" if ext == ".webp" else "image/png")
+                return send_file(target, mimetype=mimetype, max_age=86400)
+
+    # Fallback to favicon / placeholder
+    fallback = os.path.join(static_dir, "Home_Img", "favicon.png")
+    if os.path.exists(fallback):
+        return send_file(fallback, mimetype="image/png", max_age=86400)
+
+    return Response("Image not found", status=404)
 

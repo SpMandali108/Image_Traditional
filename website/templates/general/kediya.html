@@ -38,10 +38,11 @@
         </div>
         <div class="range-controls">
             <button class="filter-btn active" id="rangeBtnAll" onclick="filterRange('all')">Show All</button>
+            <button class="filter-btn" id="rangeBtnGroups" onclick="filterRange('groups')">👥 Groups (G)</button>
             <button class="filter-btn" id="rangeBtn1" onclick="filterRange(1, 50)">K1 - K50</button>
             <button class="filter-btn" id="rangeBtn2" onclick="filterRange(51, 100)">K51 - K100</button>
             <button class="filter-btn" id="rangeBtn3" onclick="filterRange(101, 150)">K101 - K150</button>
-            <button class="filter-btn" id="rangeBtn4" onclick="filterRange(151, 188)">K151 - K188</button>
+            <button class="filter-btn" id="rangeBtn4" onclick="filterRange(151, 999)">K151+</button>
         </div>
     </div>
 
@@ -51,11 +52,14 @@
         <div class="product-card" data-code="{{ product.name }}" data-index="{{ loop.index0 }}" onclick="openLightbox({{ loop.index0 }})">
             <div class="card-gold-stitch"></div>
             <div class="card-image-wrapper">
-                <img src="{{ url_for('static', filename='Kediya/' ~ product.image) }}" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{{ url_for('static', filename='KediyaJpg/' ~ product.name ~ '.jpg') }}';">
+                <img src="/navaratri/product-image/{{ product.name }}" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='/static/Home_Img/favicon.png';">
                 <div class="card-mirror-accent">🔆</div>
             </div>
             <div class="card-details">
                 <span class="card-code">{{ product.name }}</span>
+                {% if product.is_group %}
+                    <span class="badge" style="background: rgba(212,175,55,0.25); border: 1px solid #f3d068; color: #f3d068; font-size: 0.72rem; padding: 2px 6px; border-radius: 4px;">Group ({{ product.sizes_label }})</span>
+                {% endif %}
                 <span class="card-inspect-btn">Quick View</span>
             </div>
         </div>
@@ -930,6 +934,19 @@
             return;
         }
 
+        if (start === 'groups') {
+            document.getElementById("rangeBtnGroups")?.classList.add("active");
+            document.querySelectorAll(".product-card").forEach(card => {
+                const code = card.getAttribute("data-code").toUpperCase();
+                if (code.startsWith("G")) {
+                    card.style.display = "flex";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+            return;
+        }
+
         // Highlight selected range button
         if (start === 1) document.getElementById("rangeBtn1")?.classList.add("active");
         if (start === 51) document.getElementById("rangeBtn2")?.classList.add("active");
@@ -937,7 +954,11 @@
         if (start === 151) document.getElementById("rangeBtn4")?.classList.add("active");
 
         document.querySelectorAll(".product-card").forEach(card => {
-            const code = card.getAttribute("data-code");
+            const code = card.getAttribute("data-code").toUpperCase();
+            if (code.startsWith("G")) {
+                card.style.display = "none";
+                return;
+            }
             const numericPart = parseInt(code.replace(/\D/g, ""), 10);
             
             if (numericPart >= start && numericPart <= end) {
@@ -990,20 +1011,22 @@
         const descText = document.getElementById("sidebarDesc");
         const waBtn = document.getElementById("whatsappInquiryBtn");
 
-        // Set static paths
-        img.src = `/static/Kediya/${activeProduct.image}`;
+        // Set dynamic image path
+        img.src = `/navaratri/product-image/${activeProduct.name}`;
         img.onerror = function() {
             this.onerror = null;
-            this.src = `/static/KediyaJpg/${activeProduct.name}.jpg`;
-            this.onerror = function() {
-                this.onerror = null;
-                this.src = '/static/Home_Img/favicon.png';
-            }
+            this.src = '/static/Home_Img/favicon.png';
         };
 
-        title.innerText = `Kediya Outfit - Design ${activeProduct.name}`;
+        const isGroup = activeProduct.is_group || activeProduct.name.startsWith("G");
+        title.innerText = isGroup ? `Kediya Group - Style ${activeProduct.name}` : `Kediya Outfit - Design ${activeProduct.name}`;
         codeText.innerText = activeProduct.name;
         indicator.innerText = `${currentActiveIndex + 1} / ${productsList.length}`;
+
+        const statusBadge = document.querySelector(".sidebar-badge.status-badge");
+        if (statusBadge) {
+            statusBadge.innerText = isGroup ? `Group (${activeProduct.sizes_label || 'Multiple Sizes'})` : 'Unique Piece';
+        }
         
         if (descText) {
             descText.innerText = "An exquisite masterpiece of traditional craftsmanship, meticulously designed to radiate elegance and grace. Handcrafted by master artisans, this exclusive attire features rich, intricate embroidery and mirror embellishments, capturing the true heritage of festive luxury.";
@@ -1016,7 +1039,7 @@
             const imgElem = document.getElementById("lightboxImg");
             const costumeImgUrl = (imgElem && imgElem.src && !imgElem.src.includes('favicon.png'))
                 ? imgElem.src
-                : `${window.location.origin}/static/Kediya/${activeProduct.image}`;
+                : `${window.location.origin}/navaratri/product-image/${productCode}`;
 
             checkBtn.onclick = function(e) {
                 if (e) e.preventDefault();

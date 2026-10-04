@@ -220,17 +220,9 @@
             <div class="glass-card header-section fade-in">
                 <div class="d-flex flex-column flex-lg-row align-items-center header-content">
                     <div class="flex-shrink-0 me-lg-4 mb-3 mb-lg-0">
-                        {% if code.startswith('K') %}
-                            <img src="{{ url_for('static', filename='Kediya/' ~ code ~ '.webp') }}"
-                                 alt="{{ code }} image" class="product-image img-fluid">
-                        {% elif code.startswith('C') %}
-                            <img src="{{ url_for('static', filename='Choli/' ~ code ~ '.webp') }}"
-                                 alt="{{ code }} image" class="product-image img-fluid">
-                        {% else %}
-                            <div class="product-image d-flex align-items-center justify-content-center bg-light text-muted" style="width: 300px; height: 300px;">
-                                <i class="fas fa-image fa-4x"></i>
-                            </div>
-                        {% endif %}
+                        <img src="{{ url_for('navaratri.serve_navaratri_product_image', code=code) }}"
+                             alt="{{ code }} image" class="product-image img-fluid"
+                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='Home_Img/favicon.png') }}';">
                     </div>
                     <div class="flex-fill">
                         <h1 class="display-5 fw-bold text-white mb-3">

@@ -406,14 +406,7 @@
   function getProductImagePath(code) {
     if (!code) return '/static/Home_Img/favicon.png';
     const upper = code.trim().toUpperCase();
-    if (upper.startsWith('C')) {
-      return `/static/CholiJpg/${upper}.jpg`;
-    } else if (upper.startsWith('K')) {
-      return `/static/KediyaJpg/${upper}.jpg`;
-    } else if (upper.startsWith('G')) {
-      return `/static/GroupJpg/${upper}.jpg`;
-    }
-    return '/static/Home_Img/favicon.png';
+    return `/navaratri/product-image/${encodeURIComponent(upper)}`;
   }
 
   // Create Custom Toast
@@ -500,11 +493,21 @@
       <div class="d-flex align-items-center gap-2">
         <img class="product-thumbnail" src="/static/Home_Img/favicon.png" onerror="this.src='/static/Home_Img/favicon.png'; this.style.opacity=0.5;" title="Costume Preview">
       </div>
-      <div class="flex-grow-1" style="min-width: 150px;">
+      <div class="flex-grow-1" style="min-width: 140px; max-width: 200px;">
         <input type="text" class="form-control form-control-sm text-uppercase product-code-input" 
-               required placeholder="Product Code (e.g. C1)" 
+               required placeholder="Code (e.g. C101, G4)" 
                list="product-suggestions" 
                oninput="onProductCodeInput('${dateBlockId}', '${productRowId}', this)">
+      </div>
+      <!-- Group Size & Quantity Selection Container (Dynamically displayed for G products) -->
+      <div class="group-options-container d-none align-items-center gap-2" id="group-opt-${productRowId}">
+        <select class="form-select form-select-sm group-size-select" style="min-width: 130px;" onchange="onGroupOptionChanged('${dateBlockId}', '${productRowId}')">
+          <option value="">Select Size</option>
+        </select>
+        <div class="input-group input-group-sm" style="width: 110px;">
+          <span class="input-group-text px-1 fs-8">Qty</span>
+          <input type="number" min="1" value="1" class="form-control form-control-sm group-qty-input text-center" onchange="onGroupOptionChanged('${dateBlockId}', '${productRowId}')">
+        </div>
       </div>
       <div class="avail-indicator" id="avail-status-${productRowId}">
         <span class="text-muted fs-8">Specify date & code</span>
@@ -552,6 +555,10 @@
     checkProductAvailability(dateBlockId, productRowId);
   }
 
+  function onGroupOptionChanged(dateBlockId, productRowId) {
+    checkProductAvailability(dateBlockId, productRowId);
+  }
+
   // Triggers checking on all products under a Date block (triggered when Date Picker is modified)
   function checkAllProductsInDateBlock(dateBlockId) {
     const block = document.getElementById(dateBlockId);
@@ -572,6 +579,9 @@
     const rawVal = inputEl.value.trim().toUpperCase();
     const prodVal = rawVal.replace(/[^A-Z0-9]/g, '');
     const statusDiv = document.getElementById(`avail-status-${productRowId}`);
+    const groupOptDiv = document.getElementById(`group-opt-${productRowId}`);
+    const sizeSelect = row.querySelector('.group-size-select');
+    const qtyInput = row.querySelector('.group-qty-input');
 
     if (checkAvailabilityTimers[productRowId]) {
       clearTimeout(checkAvailabilityTimers[productRowId]);
@@ -588,6 +598,10 @@
       statusDiv.className = 'avail-indicator text-muted';
       statusDiv.innerHTML = '<span class="fs-8 text-secondary">Specify date & code</span>';
       inputEl.classList.remove('input-check-valid', 'input-check-invalid');
+      if (groupOptDiv) {
+        groupOptDiv.classList.add('d-none');
+        groupOptDiv.classList.remove('d-flex');
+      }
       return;
     }
     
@@ -599,7 +613,13 @@
       const controller = new AbortController();
       checkAvailabilityControllers[productRowId] = controller;
 
-      const url = `/api/check-product?product_code=${encodeURIComponent(prodVal)}&date=${encodeURIComponent(dateVal)}`;
+      const selectedSize = (sizeSelect && sizeSelect.value) ? sizeSelect.value : '';
+      const reqQty = (qtyInput && qtyInput.value) ? parseInt(qtyInput.value) : 1;
+
+      let url = `/api/check-product?product_code=${encodeURIComponent(prodVal)}&date=${encodeURIComponent(dateVal)}`;
+      if (selectedSize) {
+        url += `&size=${encodeURIComponent(selectedSize)}`;
+      }
       
       fetch(url, { signal: controller.signal })
         .then(res => res.json())
@@ -608,17 +628,69 @@
           const currentClean = (inputEl.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
           if (currentClean !== prodVal) return;
 
-          if (res.available) {
-            statusDiv.className = 'avail-indicator available text-success';
-            statusDiv.innerHTML = '<i class="bi bi-check-circle-fill"></i> Available';
-            inputEl.classList.add('input-check-valid');
-            inputEl.classList.remove('input-check-invalid');
+          if (res.is_group) {
+            // Group product: show size & qty controls
+            groupOptDiv.classList.remove('d-none');
+            groupOptDiv.classList.add('d-flex');
+
+            // If sizes dictionary is returned, update options while preserving current selection
+            if (res.sizes) {
+              const prevVal = sizeSelect.value;
+              let optsHtml = '<option value="">Select Size</option>';
+              for (const [sz, sinfo] of Object.entries(res.sizes)) {
+                if (!sinfo.active) continue;
+                const isSel = (sz === prevVal) ? 'selected' : '';
+                const isDis = (sinfo.available <= 0) ? 'disabled' : '';
+                optsHtml += `<option value="${sz}" ${isSel} ${isDis}>${sz} (${sinfo.available} avail / ${sinfo.quantity})</option>`;
+              }
+              sizeSelect.innerHTML = optsHtml;
+            }
+
+            if (!sizeSelect.value) {
+              statusDiv.className = 'avail-indicator text-warning';
+              statusDiv.innerHTML = '<i class="bi bi-info-circle-fill"></i> Select a size';
+              inputEl.classList.remove('input-check-valid', 'input-check-invalid');
+              return;
+            }
+
+            if (res.available) {
+              const maxQ = res.available_quantity || 1;
+              qtyInput.max = maxQ;
+              if (reqQty > maxQ) {
+                statusDiv.className = 'avail-indicator booked text-danger';
+                statusDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Only ${maxQ} pcs available`;
+                inputEl.classList.add('input-check-invalid');
+                inputEl.classList.remove('input-check-valid');
+              } else {
+                statusDiv.className = 'avail-indicator available text-success';
+                statusDiv.innerHTML = `<i class="bi bi-check-circle-fill"></i> ${maxQ} pcs available`;
+                inputEl.classList.add('input-check-valid');
+                inputEl.classList.remove('input-check-invalid');
+              }
+            } else {
+              statusDiv.className = 'avail-indicator booked text-danger';
+              statusDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${res.reason || 'Not available'}`;
+              inputEl.classList.add('input-check-invalid');
+              inputEl.classList.remove('input-check-valid');
+            }
+
           } else {
-            statusDiv.className = 'avail-indicator booked text-danger';
-            const reasonText = res.reason || (res.customer ? `Booked by ${res.customer}` : 'Unavailable');
-            statusDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${reasonText}`;
-            inputEl.classList.add('input-check-invalid');
-            inputEl.classList.remove('input-check-valid');
+            // Individual product: hide group controls
+            groupOptDiv.classList.add('d-none');
+            groupOptDiv.classList.remove('d-flex');
+
+            if (res.available) {
+              statusDiv.className = 'avail-indicator available text-success';
+              statusDiv.innerHTML = '<i class="bi bi-check-circle-fill"></i> Available';
+              inputEl.classList.add('input-check-valid');
+              inputEl.classList.remove('input-check-invalid');
+            } else {
+              statusDiv.className = 'avail-indicator booked text-danger';
+              const reasonText = res.reason || (res.customer ? `Booked by ${res.customer}` : 'Unavailable');
+              statusDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${reasonText}`;
+              inputEl.classList.add('input-check-invalid');
+              inputEl.classList.remove('input-check-valid');
+            }
           }
         })
         .catch(err => {
@@ -678,11 +750,31 @@
         const code = inputEl.value.trim().toUpperCase();
         if (!code) {
           emptyBlock = true;
+          return;
         }
         if (inputEl.classList.contains("input-check-invalid")) {
           conflictBlock = true;
         }
-        productCodes.push(code);
+
+        const groupOpt = row.querySelector(".group-options-container");
+        if (groupOpt && !groupOpt.classList.contains("d-none")) {
+          const sizeSelect = row.querySelector(".group-size-select");
+          const qtyInput = row.querySelector(".group-qty-input");
+          const selectedSize = sizeSelect ? sizeSelect.value.trim() : "";
+          const qty = parseInt(qtyInput ? qtyInput.value : 1) || 1;
+
+          if (!selectedSize) {
+            emptyBlock = true;
+            showToast(`Please select a size for group product ${code}.`, "error");
+            return;
+          }
+
+          for (let q = 0; q < qty; q++) {
+            productCodes.push(`${code}-${selectedSize}`);
+          }
+        } else {
+          productCodes.push(code);
+        }
       });
       
       bookingsPayload.push({

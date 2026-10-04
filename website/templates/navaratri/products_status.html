@@ -1,5 +1,5 @@
 {% extends "general/base.html" %}
-{% block title %}Costume Rental Status & Inventory | Image Traditional{% endblock %}
+{% block title %}Costume Manager & Inventory | Image Traditional{% endblock %}
 
 {% block logo_link %}
 <a href="/navaratri_admin" class="logo">
@@ -14,29 +14,37 @@
 
 {% block content %}
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap');
 
 :root {
-    --navy-bg:      #0a1628;
-    --surface-bg:   #0f1e32;
-    --card-bg:      #111f33;
-    --card-hover:   #152540;
-    --gold:         #d4af37;
-    --gold-lt:      #f3d068;
-    --gold-dk:      #b8961e;
-    --gold-bg:      rgba(212, 175, 55, 0.12);
-    --gold-bd:      rgba(212, 175, 55, 0.28);
-    --gold-bd-h:    rgba(212, 175, 55, 0.6);
-    --white:        #ffffff;
-    --text:         #cbd5e1;
-    --muted:        #a3b8cc;
-    --danger:       #ef4444;
-    --danger-bg:    rgba(239, 68, 68, 0.15);
-    --danger-bd:    rgba(239, 68, 68, 0.35);
-    --success:      #10b981;
-    --success-bg:   rgba(16, 185, 129, 0.15);
-    --success-bd:   rgba(16, 185, 129, 0.35);
-    --border-subtle: rgba(255, 255, 255, 0.12);
+    --navy-bg:       #060b19;
+    --navy-surface:  #0a1326;
+    --card-bg:       #0f1c32;
+    --card-hover:    #142542;
+    --card-surface:  rgba(15, 28, 50, 0.75);
+    
+    --gold:          #d4af37;
+    --gold-lt:       #f3d068;
+    --gold-dk:       #b8961e;
+    --gold-bg:       rgba(212, 175, 55, 0.12);
+    --gold-bd:       rgba(212, 175, 55, 0.25);
+    --gold-bd-h:     rgba(243, 208, 104, 0.6);
+    
+    --white:         #ffffff;
+    --text:          #e2e8f0;
+    --text-muted:    #94a3b8;
+    
+    --danger:        #ef4444;
+    --danger-lt:     #fca5a5;
+    --danger-bg:     rgba(239, 68, 68, 0.15);
+    --danger-bd:     rgba(239, 68, 68, 0.35);
+    
+    --success:       #10b981;
+    --success-lt:    #6ee7b7;
+    --success-bg:    rgba(16, 185, 129, 0.15);
+    --success-bd:    rgba(16, 185, 129, 0.35);
+    
+    --border-subtle: rgba(255, 255, 255, 0.1);
 }
 
 body {
@@ -47,7 +55,7 @@ body {
 }
 
 .products-container {
-    max-width: 1350px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 24px 16px 80px 16px;
 }
@@ -57,31 +65,48 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--surface-bg);
+    background: linear-gradient(145deg, #0e1a2f 0%, #0a1324 100%);
     border: 1px solid var(--gold-bd);
-    border-radius: 14px;
-    padding: 16px 22px;
+    border-radius: 16px;
+    padding: 18px 24px;
     margin-bottom: 24px;
     flex-wrap: wrap;
-    gap: 14px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    gap: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 20px rgba(212, 175, 55, 0.08);
 }
 
 .nav-title-group h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.45rem;
+    font-size: 1.65rem;
     font-weight: 700;
     color: var(--white);
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    letter-spacing: -0.01em;
 }
-.nav-title-group h1 span { color: var(--gold-lt); }
+.nav-title-group h1 span { 
+    color: var(--gold-lt); 
+}
+.header-badge {
+    background: var(--gold-bg);
+    border: 1px solid var(--gold-bd);
+    color: var(--gold-lt);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.6px;
+    font-family: 'Inter', sans-serif;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
 .nav-title-group p {
-    margin: 3px 0 0 0;
+    margin: 5px 0 0 0;
     font-size: 0.88rem;
-    color: #cbd5e1;
+    color: var(--text-muted);
     font-weight: 500;
 }
 
@@ -97,87 +122,199 @@ body {
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    min-height: 40px;
-    border-radius: 8px;
+    min-height: 42px;
+    border-radius: 10px;
     font-size: 0.88rem;
     font-weight: 700;
     text-decoration: none;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.22s ease;
     border: 1px solid var(--gold-bd);
-    background: transparent;
+    background: rgba(255, 255, 255, 0.04);
     color: var(--gold-lt);
+    white-space: nowrap;
 }
 .btn-nav:hover {
     background: var(--gold-bg);
     color: #ffffff;
     border-color: var(--gold-bd-h);
+    transform: translateY(-1px);
 }
 
 .btn-nav-primary {
     background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dk) 100%);
-    color: #0a1120 !important;
-    border: none;
-    font-weight: 700;
+    color: #060c17 !important;
+    border: 1px solid var(--gold-lt);
+    font-weight: 800;
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3);
 }
 .btn-nav-primary:hover {
-    background: linear-gradient(135deg, #f4d360 0%, var(--gold-dk) 100%);
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, #f4d360 0%, var(--gold) 100%);
     color: #000000 !important;
+    box-shadow: 0 6px 18px rgba(212, 175, 55, 0.45);
+}
+
+.btn-nav-danger {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: var(--danger-bd);
+    color: var(--danger-lt);
+}
+.btn-nav-danger:hover {
+    background: rgba(239, 68, 68, 0.25);
+    color: #ffffff;
+    border-color: var(--danger);
+}
+
+.btn-nav-ghost {
+    border-color: var(--border-subtle);
+    color: #cbd5e1;
+}
+.btn-nav-ghost:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--white);
+    border-color: rgba(255, 255, 255, 0.25);
 }
 
 /* ── SUMMARY STATS ── */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
     gap: 14px;
     margin-bottom: 24px;
 }
 
 .stat-card {
-    background: var(--card-bg);
+    background: linear-gradient(145deg, rgba(16, 28, 48, 0.9) 0%, rgba(10, 19, 34, 0.95) 100%);
     border: 1px solid var(--gold-bd);
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 16px 20px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s ease, border-color 0.2s ease;
 }
+.stat-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--gold-bd-h);
+}
+
 .stat-card::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 4px;
+    height: 3.5px;
     background: var(--gold);
 }
 .stat-card.stat-available::before { background: var(--success); }
 .stat-card.stat-sold::before { background: var(--danger); }
+.stat-card.stat-choli::before { background: linear-gradient(90deg, #ec4899, #f472b6); }
+.stat-card.stat-kediya::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
 
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 .stat-label {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
     color: var(--gold-lt);
 }
+.stat-icon {
+    font-size: 1.1rem;
+    opacity: 0.85;
+}
+
 .stat-value {
-    font-size: 1.85rem;
+    font-size: 2rem;
     font-weight: 800;
     color: var(--white);
+    line-height: 1.1;
     margin-top: 2px;
 }
-.stat-value.text-success { color: var(--success); }
-.stat-value.text-danger { color: var(--danger); }
+.stat-value.text-success { color: var(--success-lt); }
+.stat-value.text-danger { color: var(--danger-lt); }
+.stat-value.text-gold { color: var(--gold-lt); }
 
-/* ── FILTER CONTROLS BAR ── */
-.filters-bar {
-    background: var(--surface-bg);
+/* ── SEGMENTED TABS SWITCHER ── */
+.tabs-switcher-card {
+    background: linear-gradient(145deg, #0e1a2f 0%, #0a1324 100%);
     border: 1px solid var(--gold-bd);
     border-radius: 14px;
-    padding: 16px 20px;
+    padding: 8px 12px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.segmented-tabs-group {
+    display: inline-flex;
+    background: rgba(6, 12, 23, 0.7);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 4px;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.tab-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 20px;
+    min-height: 42px;
+    border-radius: 9px;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.tab-pill-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+}
+.tab-pill-btn.active {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dk) 100%);
+    color: #060c17;
+    box-shadow: 0 3px 12px rgba(212, 175, 55, 0.35);
+}
+.tab-pill-btn .pill-counter {
+    background: rgba(0, 0, 0, 0.25);
+    color: inherit;
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+.tab-pill-btn.active .pill-counter {
+    background: rgba(0, 0, 0, 0.35);
+    color: #ffffff;
+}
+
+.tab-extra-info {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+/* ── TOOLBAR / FILTERS BAR ── */
+.filters-bar {
+    background: linear-gradient(145deg, #0e1a2f 0%, #0a1324 100%);
+    border: 1px solid var(--gold-bd);
+    border-radius: 14px;
+    padding: 14px 18px;
     margin-bottom: 20px;
     display: flex;
     flex-wrap: wrap;
@@ -191,25 +328,47 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    background: rgba(10, 22, 40, 0.95);
+    background: rgba(6, 12, 23, 0.9);
     border: 1.5px solid var(--gold-bd);
     border-radius: 10px;
-    padding: 8px 16px;
+    padding: 6px 14px;
     flex: 1;
-    min-width: 250px;
-    max-width: 420px;
-    min-height: 48px;
+    min-width: 260px;
+    max-width: 440px;
+    min-height: 44px;
+    position: relative;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.search-box:focus-within {
+    border-color: var(--gold-lt);
+    box-shadow: 0 0 12px rgba(243, 208, 104, 0.25);
 }
 .search-box input {
     background: transparent;
     border: none;
     outline: none;
     color: var(--white);
-    font-size: 0.98rem;
+    font-size: 0.95rem;
     font-weight: 600;
     width: 100%;
 }
-.search-box input::placeholder { color: #8da2bb !important; opacity: 1; }
+.search-box input::placeholder { 
+    color: #64748b !important; 
+    opacity: 1; 
+}
+.search-clear-btn {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 2px 6px;
+    display: none;
+    border-radius: 50%;
+}
+.search-clear-btn:hover {
+    color: var(--white);
+}
 
 .filter-pills-group {
     display: flex;
@@ -218,19 +377,29 @@ body {
     align-items: center;
 }
 
+.filter-group-label {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    margin-right: 2px;
+}
+
 .filter-pill {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
     color: #cbd5e1;
-    padding: 8px 16px;
-    min-height: 38px;
+    padding: 6px 14px;
+    min-height: 36px;
     border-radius: 20px;
-    font-size: 0.88rem;
+    font-size: 0.84rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
+    gap: 4px;
 }
 .filter-pill:hover {
     color: var(--white);
@@ -244,18 +413,30 @@ body {
     box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
 }
 
-/* ── PRODUCTS TABLE ── */
+.live-results-counter {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--gold-lt);
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid var(--gold-bd);
+    padding: 6px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+/* ── TABLE CARD & STYLES ── */
 .table-card {
-    background: var(--card-bg);
+    background: linear-gradient(145deg, #0e1a2f 0%, #0a1324 100%);
     border: 1px solid var(--gold-bd);
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
 }
 
 .table-responsive {
     overflow-x: auto;
     width: 100%;
+    -webkit-overflow-scrolling: touch;
 }
 
 .products-table {
@@ -266,19 +447,22 @@ body {
 }
 
 .products-table th {
-    background: rgba(10, 22, 40, 0.95);
+    background: #081120;
     color: var(--gold-lt);
     padding: 14px 18px;
-    font-weight: 700;
-    font-size: 0.85rem;
+    font-weight: 800;
+    font-size: 0.82rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
     border-bottom: 1.5px solid var(--gold-bd);
     white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 5;
 }
 
 .products-table td {
-    padding: 12px 18px;
+    padding: 13px 18px;
     border-bottom: 1px solid var(--border-subtle);
     vertical-align: middle;
     color: var(--text);
@@ -293,13 +477,30 @@ body {
 }
 
 /* Thumbnail */
-.prod-thumb {
+.prod-thumb-wrap {
     width: 58px;
     height: 58px;
-    border-radius: 8px;
-    object-fit: cover;
+    border-radius: 10px;
+    overflow: hidden;
     background: #060c16;
     border: 1.5px solid var(--gold-bd);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    position: relative;
+}
+.prod-thumb-wrap:hover {
+    transform: scale(1.12);
+    box-shadow: 0 0 16px rgba(243, 208, 104, 0.5);
+    border-color: var(--gold-lt);
+    z-index: 2;
+}
+.prod-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     display: block;
 }
 
@@ -310,10 +511,18 @@ body {
     font-size: 1.05rem;
     color: var(--gold-lt);
     background: var(--gold-bg);
-    border: 1px solid var(--gold-bd);
+    border: 1.5px solid var(--gold-bd);
     padding: 5px 12px;
-    border-radius: 6px;
+    border-radius: 8px;
     display: inline-block;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.prod-code-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(243, 208, 104, 0.35);
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.35), rgba(212, 175, 55, 0.15));
+    border-color: var(--gold-lt);
 }
 
 /* Status Badges */
@@ -324,7 +533,7 @@ body {
     padding: 6px 14px;
     border-radius: 20px;
     font-size: 0.82rem;
-    font-weight: 700;
+    font-weight: 800;
     letter-spacing: 0.3px;
     text-transform: uppercase;
 }
@@ -332,19 +541,19 @@ body {
 .status-rentable {
     background: var(--success-bg);
     border: 1px solid var(--success-bd);
-    color: var(--success);
+    color: var(--success-lt);
 }
 
 .status-sold {
     background: var(--danger-bg);
     border: 1px solid var(--danger-bd);
-    color: #fca5a5;
+    color: var(--danger-lt);
 }
 
-/* Sell and Restore Buttons */
+/* Action Buttons */
 .btn-sell {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    color: #fff !important;
+    color: #ffffff !important;
     border: none;
     border-radius: 8px;
     padding: 8px 16px;
@@ -353,7 +562,7 @@ body {
     min-height: 38px;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);
     white-space: nowrap;
     display: inline-flex;
     align-items: center;
@@ -366,16 +575,16 @@ body {
 }
 
 .btn-disabled-sold {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(239, 68, 68, 0.35);
-    color: #fca5a5;
+    color: var(--danger-lt);
     border-radius: 8px;
-    padding: 8px 16px;
+    padding: 8px 14px;
     font-size: 0.86rem;
     font-weight: 700;
     min-height: 38px;
     cursor: not-allowed;
-    opacity: 0.85;
+    opacity: 0.9;
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -385,27 +594,50 @@ body {
     background: transparent;
     border: 1px solid var(--gold-bd);
     color: var(--gold-lt);
-    border-radius: 6px;
-    padding: 6px 12px;
-    min-height: 34px;
-    font-size: 0.82rem;
+    border-radius: 8px;
+    padding: 6px 14px;
+    min-height: 36px;
+    font-size: 0.84rem;
     font-weight: 700;
     cursor: pointer;
     margin-left: 8px;
     transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 .btn-restore:hover {
     background: var(--gold-bg);
     color: #ffffff;
-    border-color: var(--gold);
+    border-color: var(--gold-lt);
+    transform: translateY(-1px);
 }
 
-/* ── INTERACTIVE PASSWORD & CONFIRMATION MODAL ── */
+/* Empty Results Message */
+.empty-table-state {
+    padding: 48px 24px;
+    text-align: center;
+    color: var(--text-muted);
+}
+.empty-table-state i {
+    font-size: 2.8rem;
+    color: var(--gold-lt);
+    display: block;
+    margin-bottom: 12px;
+}
+.empty-table-state h3 {
+    color: var(--white);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+/* ── MODALS (DARK LUXURY GLASSMORPHISM) ── */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(5, 13, 31, 0.85);
-    backdrop-filter: blur(6px);
+    background: rgba(4, 8, 18, 0.88);
+    backdrop-filter: blur(8px);
     display: none;
     align-items: center;
     justify-content: center;
@@ -415,38 +647,45 @@ body {
 .modal-overlay.active { display: flex; }
 
 .modal-dialog-box {
-    background: linear-gradient(145deg, #101c30 0%, #0c1524 100%);
-    border: 2px solid var(--gold-bd);
+    background: linear-gradient(145deg, #101e33 0%, #0a1324 100%);
+    border: 1.5px solid var(--gold-bd);
     border-radius: 20px;
     width: 100%;
-    max-width: 480px;
+    max-width: 500px;
     padding: 28px;
     position: relative;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.15);
-    animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(212, 175, 55, 0.18);
+    animation: modalIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    max-height: 92vh;
+    overflow-y: auto;
 }
 
 @keyframes modalIn {
-    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .modal-close-btn {
     position: absolute;
     top: 16px; right: 16px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.06);
     border: 1px solid var(--border-subtle);
-    color: var(--muted);
-    width: 32px; height: 32px;
+    color: var(--text-muted);
+    width: 36px; height: 36px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 1.1rem;
     transition: all 0.2s;
+    z-index: 10;
 }
-.modal-close-btn:hover { background: var(--danger); color: white; border-color: var(--danger); }
+.modal-close-btn:hover { 
+    background: var(--danger); 
+    color: white; 
+    border-color: var(--danger); 
+}
 
 .modal-header-icon {
     font-size: 2.2rem;
@@ -454,7 +693,7 @@ body {
 }
 .modal-title {
     font-family: 'Playfair Display', serif;
-    font-size: 1.35rem;
+    font-size: 1.45rem;
     font-weight: 700;
     color: var(--white);
     margin-bottom: 6px;
@@ -475,49 +714,54 @@ body {
 }
 .password-input-group label {
     font-size: 0.8rem;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--gold-lt);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 .password-input-group input {
-    background: rgba(6, 12, 23, 0.8);
-    border: 1px solid var(--gold-bd);
+    background: rgba(6, 12, 23, 0.85);
+    border: 1.5px solid var(--gold-bd);
     border-radius: 10px;
     padding: 12px 14px;
     color: white;
-    font-size: 1rem;
+    font-size: 1.1rem;
     outline: none;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
+    transition: border-color 0.2s;
 }
-.password-input-group input:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
+.password-input-group input:focus { 
+    border-color: var(--gold); 
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.35); 
+}
 
 .error-banner {
     background: var(--danger-bg);
     border: 1px solid var(--danger-bd);
-    color: #fca5a5;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 0.82rem;
+    color: var(--danger-lt);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.86rem;
+    font-weight: 600;
     margin-bottom: 16px;
     display: none;
 }
 
 .confirmation-card {
-    background: rgba(6, 12, 23, 0.6);
+    background: rgba(6, 12, 23, 0.65);
     border: 1px solid var(--gold-bd);
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 16px;
     margin-bottom: 22px;
     text-align: left;
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     color: #e2e8f0;
 }
 .confirmation-card ul {
     margin: 10px 0 0 18px;
     padding: 0;
-    color: var(--muted);
-    font-size: 0.82rem;
+    color: #cbd5e1;
+    font-size: 0.84rem;
     line-height: 1.6;
 }
 .confirmation-card li { margin-bottom: 4px; }
@@ -529,27 +773,27 @@ body {
     justify-content: flex-end;
 }
 .btn-modal-cancel {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.06);
     border: 1px solid var(--border-subtle);
     color: var(--text);
-    padding: 10px 18px;
+    padding: 10px 20px;
     border-radius: 10px;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 0.88rem;
+    font-weight: 700;
+    font-size: 0.9rem;
     transition: all 0.2s;
 }
-.btn-modal-cancel:hover { background: rgba(255, 255, 255, 0.1); }
+.btn-modal-cancel:hover { background: rgba(255, 255, 255, 0.12); }
 
 .btn-modal-confirm {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     color: white;
     border: none;
-    padding: 10px 22px;
+    padding: 10px 24px;
     border-radius: 10px;
     cursor: pointer;
-    font-weight: 700;
-    font-size: 0.88rem;
+    font-weight: 800;
+    font-size: 0.9rem;
     box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
     transition: all 0.2s;
 }
@@ -560,67 +804,25 @@ body {
 
 .btn-modal-verify {
     background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dk) 100%);
-    color: #0a1120;
+    color: #060c17;
     border: none;
-    padding: 10px 22px;
+    padding: 10px 24px;
     border-radius: 10px;
     cursor: pointer;
-    font-weight: 700;
-    font-size: 0.88rem;
+    font-weight: 800;
+    font-size: 0.9rem;
     transition: all 0.2s;
 }
 .btn-modal-verify:hover {
-    background: linear-gradient(135deg, #f4d360 0%, var(--gold-dk) 100%);
-}
-
-/* Toast */
-.action-toast {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: #0f1e32;
-    border: 1px solid var(--gold);
-    color: var(--white);
-    padding: 14px 20px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-    display: none;
-    z-index: 10000;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
-/* ── INTERACTIVE PRODUCT PREVIEW & CODE ── */
-.clickable-preview {
-    cursor: pointer !important;
-    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-}
-.clickable-preview:hover {
-    transform: scale(1.14);
-    box-shadow: 0 0 16px rgba(243, 208, 104, 0.6);
-    border-color: #f3d068 !important;
-}
-
-.clickable-code {
-    cursor: pointer !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-.clickable-code:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 14px rgba(243, 208, 104, 0.45);
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(212, 175, 55, 0.2)) !important;
-    border-color: #f3d068 !important;
+    background: linear-gradient(135deg, #f4d360 0%, var(--gold) 100%);
+    transform: translateY(-1px);
 }
 
 /* ── PRODUCT PROFILE & CUSTOMER PROFILE MODAL ── */
 .product-profile-dialog {
-    max-width: 820px !important;
+    max-width: 860px !important;
     width: 95% !important;
-    max-height: 90vh;
-    overflow-y: auto;
-    padding: 26px 30px;
-    background: linear-gradient(145deg, #0d1829 0%, #08101d 100%) !important;
-    border: 2px solid var(--gold-bd) !important;
+    padding: 28px 32px;
 }
 
 .profile-topbar {
@@ -637,8 +839,8 @@ body {
 .profile-hero {
     display: flex;
     gap: 22px;
-    background: rgba(15, 30, 50, 0.7);
-    border: 1.5px solid rgba(212, 175, 55, 0.3);
+    background: rgba(15, 28, 50, 0.7);
+    border: 1.5px solid var(--gold-bd);
     border-radius: 16px;
     padding: 20px;
     margin-bottom: 24px;
@@ -647,8 +849,8 @@ body {
 }
 
 .profile-hero-img-wrap {
-    width: 160px;
-    height: 160px;
+    width: 150px;
+    height: 150px;
     border-radius: 14px;
     border: 2px solid var(--gold-bd);
     overflow: hidden;
@@ -704,15 +906,15 @@ body {
 }
 
 .profile-meta-chip {
-    background: rgba(6, 12, 23, 0.7);
+    background: rgba(6, 12, 23, 0.75);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 10px;
     padding: 8px 12px;
 }
 .profile-meta-chip-lbl {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #f3d068;
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: var(--gold-lt);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 2px;
@@ -749,8 +951,8 @@ body {
 }
 
 .booking-item-card {
-    background: rgba(15, 30, 50, 0.85);
-    border: 1.5px solid rgba(212, 175, 55, 0.28);
+    background: rgba(15, 28, 50, 0.85);
+    border: 1.5px solid var(--gold-bd);
     border-radius: 14px;
     padding: 14px 18px;
     margin-bottom: 12px;
@@ -762,8 +964,8 @@ body {
     transition: all 0.2s ease;
 }
 .booking-item-card:hover {
-    border-color: #f3d068;
-    background: rgba(21, 40, 68, 0.95);
+    border-color: var(--gold-lt);
+    background: rgba(20, 36, 62, 0.95);
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 14px rgba(243, 208, 104, 0.2);
 }
@@ -776,8 +978,8 @@ body {
     min-width: 220px;
 }
 .bic-date-box {
-    background: rgba(212, 175, 55, 0.18);
-    border: 1.5px solid rgba(212, 175, 55, 0.45);
+    background: var(--gold-bg);
+    border: 1.5px solid var(--gold-bd);
     border-radius: 10px;
     padding: 8px 12px;
     text-align: center;
@@ -793,7 +995,7 @@ body {
 .bic-cycle-tag {
     font-size: 0.72rem;
     font-weight: 700;
-    color: #f3d068;
+    color: var(--gold-lt);
     text-transform: uppercase;
     margin-top: 2px;
 }
@@ -814,7 +1016,7 @@ body {
 .bic-cust-mobile {
     font-size: 0.88rem;
     font-weight: 700;
-    color: #f3d068;
+    color: var(--gold-lt);
     font-family: monospace;
     display: inline-flex;
     align-items: center;
@@ -846,14 +1048,14 @@ body {
     white-space: nowrap;
 }
 .bic-price-tag.paid {
-    background: rgba(16, 185, 129, 0.2);
-    color: #34d399;
-    border: 1px solid rgba(16, 185, 129, 0.4);
+    background: var(--success-bg);
+    color: var(--success-lt);
+    border: 1px solid var(--success-bd);
 }
 .bic-price-tag.due {
-    background: rgba(239, 68, 68, 0.2);
-    color: #fca5a5;
-    border: 1px solid rgba(239, 68, 68, 0.4);
+    background: var(--danger-bg);
+    color: var(--danger-lt);
+    border: 1px solid var(--danger-bd);
 }
 
 .btn-open-cust {
@@ -871,13 +1073,13 @@ body {
     transition: all 0.2s ease;
 }
 .booking-item-card:hover .btn-open-cust {
-    background: #f3d068;
+    background: var(--gold-lt);
     color: #060c17;
 }
 
 .empty-bookings-box {
-    background: rgba(15, 30, 50, 0.6);
-    border: 1.5px dashed rgba(212, 175, 55, 0.35);
+    background: rgba(15, 28, 50, 0.6);
+    border: 1.5px dashed var(--gold-bd);
     border-radius: 14px;
     padding: 32px 20px;
     text-align: center;
@@ -885,7 +1087,7 @@ body {
 }
 .empty-bookings-box i {
     font-size: 2.2rem;
-    color: #f3d068;
+    color: var(--gold-lt);
     display: block;
     margin-bottom: 10px;
 }
@@ -897,8 +1099,8 @@ body {
 
 /* Customer Profile View Inside Modal */
 .cust-profile-card {
-    background: rgba(15, 30, 50, 0.75);
-    border: 1.5px solid rgba(212, 175, 55, 0.35);
+    background: rgba(15, 28, 50, 0.75);
+    border: 1.5px solid var(--gold-bd);
     border-radius: 16px;
     padding: 22px;
     margin-bottom: 22px;
@@ -916,7 +1118,7 @@ body {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #d4af37, #f3d068);
+    background: linear-gradient(135deg, var(--gold), var(--gold-lt));
     color: #060c17;
     font-size: 1.4rem;
     font-weight: 800;
@@ -939,7 +1141,7 @@ body {
 .cpc-mobile {
     font-size: 1.05rem;
     font-weight: 800;
-    color: #f3d068;
+    color: var(--gold-lt);
     font-family: monospace;
 }
 
@@ -981,21 +1183,21 @@ body {
     background: rgba(255, 255, 255, 0.15);
 }
 .btn-full-booking {
-    background: linear-gradient(135deg, #d4af37, #b89228);
+    background: linear-gradient(135deg, var(--gold), var(--gold-dk));
     color: #060c17 !important;
     border: none;
     font-weight: 800;
     box-shadow: 0 2px 10px rgba(212, 175, 55, 0.35);
 }
 .btn-full-booking:hover {
-    background: #f3d068;
+    background: var(--gold-lt);
     transform: translateY(-1px);
 }
 
 .btn-back-to-prod {
     background: rgba(255, 255, 255, 0.08);
     border: 1.5px solid var(--gold-bd);
-    color: #f3d068;
+    color: var(--gold-lt);
     padding: 8px 16px;
     min-height: 42px;
     border-radius: 8px;
@@ -1010,7 +1212,7 @@ body {
 .btn-back-to-prod:hover {
     background: var(--gold-bg);
     color: #ffffff;
-    border-color: #f3d068;
+    border-color: var(--gold-lt);
 }
 
 .cust-details-grid {
@@ -1027,8 +1229,8 @@ body {
 }
 .cd-box-lbl {
     font-size: 0.78rem;
-    font-weight: 700;
-    color: #f3d068;
+    font-weight: 800;
+    color: var(--gold-lt);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 3px;
@@ -1069,7 +1271,7 @@ body {
 }
 
 .cust-items-timeline {
-    background: rgba(15, 30, 50, 0.6);
+    background: rgba(15, 28, 50, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 12px;
     padding: 16px 20px;
@@ -1088,7 +1290,7 @@ body {
 .tde-date {
     font-size: 0.95rem;
     font-weight: 800;
-    color: #f3d068;
+    color: var(--gold-lt);
     min-width: 110px;
 }
 .tde-codes {
@@ -1097,8 +1299,8 @@ body {
     flex-wrap: wrap;
 }
 .tde-code-chip {
-    background: rgba(212, 175, 55, 0.2);
-    border: 1px solid #f3d068;
+    background: var(--gold-bg);
+    border: 1px solid var(--gold-lt);
     color: #ffffff;
     font-size: 0.88rem;
     font-weight: 800;
@@ -1108,30 +1310,144 @@ body {
     transition: all 0.2s;
 }
 .tde-code-chip:hover {
-    background: #f3d068;
+    background: var(--gold-lt);
     color: #060c17;
 }
 
-@media (max-width: 1199.98px) {
+/* Toast */
+.action-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #0f1e32;
+    border: 1.5px solid var(--gold);
+    color: var(--white);
+    padding: 14px 22px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 15px rgba(212, 175, 55, 0.2);
+    display: none;
+    z-index: 10000;
+    font-size: 0.92rem;
+    font-weight: 700;
+    animation: toastIn 0.25s ease;
+}
+@keyframes toastIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── RESPONSIVE MEDIA QUERIES ── */
+@media (max-width: 1024px) {
     .products-container { padding: 16px 12px 60px 12px; }
-    .top-nav-bar { padding: 14px 16px; }
-    .search-box { min-height: 50px; font-size: 1.02rem; }
-    .filter-pill { min-height: 42px; font-size: 0.92rem; }
-    .products-table th, .products-table td { padding: 12px 14px; font-size: 0.95rem; }
-    .btn-sell, .btn-disabled-sold { min-height: 42px; font-size: 0.9rem; padding: 9px 18px; }
-    
-    .product-profile-dialog { padding: 20px; width: 98% !important; }
-    .profile-hero { flex-direction: column; align-items: flex-start; }
-    .profile-hero-img-wrap { width: 140px; height: 140px; }
-    .profile-code-title { font-size: 1.6rem; }
-    .booking-item-card { flex-direction: column; align-items: stretch; gap: 10px; }
-    .bic-right { justify-content: space-between; }
-    .btn-open-cust { width: 100%; justify-content: center; }
+    .top-nav-bar { padding: 16px 18px; }
+    .nav-title-group h1 { font-size: 1.45rem; }
+    .stats-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
 }
 
 @media (max-width: 768px) {
-    .filters-bar { flex-direction: column; align-items: stretch; }
-    .search-box { max-width: 100%; }
+    .top-nav-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        padding: 16px;
+    }
+    .nav-actions {
+        width: 100%;
+        display: flex;
+    }
+    .nav-actions .btn-nav {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .stat-card {
+        padding: 12px 14px;
+    }
+    .stat-value {
+        font-size: 1.6rem;
+    }
+
+    .tabs-switcher-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .segmented-tabs-group {
+        width: 100%;
+        display: flex;
+    }
+    .tab-pill-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    .filters-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 14px;
+    }
+    .search-box {
+        max-width: 100%;
+        min-width: 100%;
+    }
+    .filter-pills-group {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .modal-dialog-box {
+        padding: 20px 16px !important;
+        border-radius: 16px;
+    }
+    .profile-hero {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .profile-hero-img-wrap {
+        width: 130px;
+        height: 130px;
+    }
+    .profile-code-title {
+        justify-content: center;
+    }
+    .profile-cat-badge {
+        justify-content: center;
+    }
+    .booking-item-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    .bic-right {
+        justify-content: space-between;
+    }
+    .btn-open-cust {
+        width: 100%;
+        justify-content: center;
+    }
+    .action-toast {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .stat-label {
+        font-size: 0.72rem;
+    }
+    .stat-value {
+        font-size: 1.4rem;
+    }
 }
 </style>
 
@@ -1140,142 +1456,349 @@ body {
     <!-- Top Navigation Bar -->
     <div class="top-nav-bar">
         <div class="nav-title-group">
-            <h1>🏷️ Costume <span>Rental Status</span></h1>
-            <p>Database-driven rental availability &amp; sale management for Kediya &amp; Choli</p>
+            <h1>
+                🏷️ Costume <span>Manager</span>
+                <span class="header-badge">LIVE CATALOG</span>
+            </h1>
+            <p>Database-driven inventory, style groups, sizes &amp; rental availability for Kediya &amp; Choli</p>
         </div>
         <div class="nav-actions">
-            <a href="/navaratri_sell" class="btn-nav" style="border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;">
-                <i class="bi bi-tag-fill me-1"></i> Sell Costume Form
+            <a href="/navaratri/admin/products" class="btn-nav btn-nav-primary">
+                <i class="bi bi-plus-circle-fill me-1"></i> Add Products (Bulk &amp; Groups)
             </a>
-            <button type="button" class="btn-nav" onclick="syncProducts()">🔄 Sync Catalog</button>
-            <a href="/kediya" target="_blank" class="btn-nav">🕺 View Kediya</a>
-            <a href="/choli" target="_blank" class="btn-nav">👗 View Choli</a>
-            <a href="/navaratri_admin" class="btn-nav btn-nav-primary">🪔 Navaratri Admin</a>
         </div>
     </div>
 
     <!-- Summary Stats -->
-    <div class="stats-grid">
+    <div class="stats-grid mb-4">
         <div class="stat-card">
-            <span class="stat-label">Total Costumes</span>
+            <div class="stat-header">
+                <span class="stat-label">Total Costumes</span>
+                <span class="stat-icon">🥋</span>
+            </div>
             <span class="stat-value" id="statTotal">{{ total_count }}</span>
         </div>
+        <div class="stat-card stat-choli">
+            <div class="stat-header">
+                <span class="stat-label">Chaniya Choli (C)</span>
+                <span class="stat-icon">👗</span>
+            </div>
+            <span class="stat-value text-gold" id="statCholi">{{ choli_count }}</span>
+        </div>
+        <div class="stat-card stat-kediya">
+            <div class="stat-header">
+                <span class="stat-label">Traditional Kediya (K)</span>
+                <span class="stat-icon">🕺</span>
+            </div>
+            <span class="stat-value text-gold" id="statKediya">{{ kediya_count }}</span>
+        </div>
         <div class="stat-card stat-available">
-            <span class="stat-label">Available for Rent</span>
+            <div class="stat-header">
+                <span class="stat-label">Available for Rent</span>
+                <span class="stat-icon">🟢</span>
+            </div>
             <span class="stat-value text-success" id="statAvailable">{{ available_count }}</span>
         </div>
         <div class="stat-card stat-sold">
-            <span class="stat-label">Sold / Not for Rent</span>
+            <div class="stat-header">
+                <span class="stat-label">Sold / Not for Rent</span>
+                <span class="stat-icon">🔴</span>
+            </div>
             <span class="stat-value text-danger" id="statSold">{{ sold_count }}</span>
         </div>
     </div>
 
-    <!-- Search & Filters -->
-    <div class="filters-bar">
-        <div class="search-box">
-            <span>🔍</span>
-            <input type="text" id="searchInput" placeholder="Search costume code (e.g. C10, K15)..." onkeyup="filterProductsTable()">
+    <!-- Section Switcher Tabs -->
+    <div class="tabs-switcher-card">
+        <div class="segmented-tabs-group" role="tablist">
+            <button type="button" class="tab-pill-btn active" id="tabBtnIndividual" onclick="switchSectionTab('individual')">
+                <span>🥋 Individual Costumes (C / K)</span>
+                <span class="pill-counter" id="pillIndCount">{{ total_count }}</span>
+            </button>
+            <button type="button" class="tab-pill-btn" id="tabBtnGroups" onclick="switchSectionTab('groups')">
+                <span>👥 Style Groups (G)</span>
+                <span class="pill-counter" id="pillGrpCount">{{ group_total_count }}</span>
+            </button>
         </div>
-        
-        <div class="filter-pills-group">
-            <span style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; font-weight: 700; margin-right: 4px;">Category:</span>
-            <button class="filter-pill active" id="catAll" onclick="setCategoryFilter('all')">All</button>
-            <button class="filter-pill" id="catKediya" onclick="setCategoryFilter('K')">🕺 Kediya</button>
-            <button class="filter-pill" id="catCholi" onclick="setCategoryFilter('C')">👗 Choli</button>
-
-            <span style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; font-weight: 700; margin-left: 10px; margin-right: 4px;">Status:</span>
-            <button class="filter-pill active" id="statusAll" onclick="setStatusFilter('all')">All Status</button>
-            <button class="filter-pill" id="statusAvail" onclick="setStatusFilter('available')">🟢 Available</button>
-            <button class="filter-pill" id="statusSold" onclick="setStatusFilter('sold')">🔴 Sold</button>
+        <div class="tab-extra-info d-none d-md-block">
+            <span>💡 Click any thumbnail or code to view booking history &amp; customer details</span>
         </div>
     </div>
 
-    <!-- Products Table -->
-    <div class="table-card">
-        <div class="table-responsive">
-            <table class="products-table" id="productsTable">
-                <thead>
-                    <tr>
-                        <th style="width: 70px;">Preview</th>
-                        <th style="width: 130px;">Code</th>
-                        <th style="width: 160px;">Category</th>
-                        <th style="width: 220px;">Rental Status</th>
-                        <th>Admin Action</th>
-                    </tr>
-                </thead>
-                <tbody id="productsTableBody">
-                    {% for p in products %}
-                    {% set is_choli = p.code.startswith('C') %}
-                    {% set cat_type = 'C' if is_choli else ('K' if p.code.startswith('K') else 'OTHER') %}
-                    {% set is_rent = p.on_rent %}
-                    
-                    <tr class="product-row" 
-                        id="row-{{ p.code }}"
-                        data-code="{{ p.code }}" 
-                        data-category="{{ cat_type }}" 
-                        data-status="{% if is_rent %}available{% else %}sold{% endif %}">
+    <!-- ========================================== -->
+    <!-- TAB 1: INDIVIDUAL PRODUCTS (C / K) -->
+    <!-- ========================================== -->
+    <div id="individualSectionView">
+        <!-- Search & Filters Toolbar -->
+        <div class="filters-bar">
+            <div class="search-box">
+                <span style="font-size: 0.95rem;">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search costume code (e.g. C101, K15)..." onkeyup="filterProductsTable()">
+                <button type="button" class="search-clear-btn" id="searchClearBtn" onclick="clearSearchInput()" title="Clear search">✕</button>
+            </div>
+            
+            <div class="filter-pills-group">
+                <span class="filter-group-label">Category:</span>
+                <button class="filter-pill active" id="catAll" onclick="setCategoryFilter('all')">All (<span id="catCountAll">{{ total_count }}</span>)</button>
+                <button class="filter-pill" id="catKediya" onclick="setCategoryFilter('K')">🕺 Kediya (<span id="catCountKediya">{{ kediya_count }}</span>)</button>
+                <button class="filter-pill" id="catCholi" onclick="setCategoryFilter('C')">👗 Choli (<span id="catCountCholi">{{ choli_count }}</span>)</button>
+
+                <span class="filter-group-label" style="margin-left: 8px;">Status:</span>
+                <button class="filter-pill active" id="statusAll" onclick="setStatusFilter('all')">All Status (<span id="statusCountAll">{{ total_count }}</span>)</button>
+                <button class="filter-pill" id="statusAvail" onclick="setStatusFilter('available')">🟢 Available (<span id="statusCountAvail">{{ available_count }}</span>)</button>
+                <button class="filter-pill" id="statusSold" onclick="setStatusFilter('sold')">🔴 Sold (<span id="statusCountSold">{{ sold_count }}</span>)</button>
+            </div>
+
+            <div class="live-results-counter">
+                Showing <span id="indVisibleCount">{{ total_count }}</span> of <span id="indTotalCount">{{ total_count }}</span>
+            </div>
+        </div>
+
+        <!-- Products Table Card -->
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="products-table" id="productsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Preview</th>
+                            <th style="width: 140px;">Code</th>
+                            <th style="width: 180px;">Category</th>
+                            <th style="width: 230px;">Rental Status</th>
+                            <th>Admin Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        {% for p in products %}
+                        {% set is_choli = p.code.startswith('C') %}
+                        {% set cat_type = 'C' if is_choli else ('K' if p.code.startswith('K') else 'OTHER') %}
+                        {% set is_rent = p.on_rent %}
                         
-                        <!-- Thumbnail -->
-                        <td onclick="openProductProfile('{{ p.code }}')" style="cursor: pointer;" title="View Product Profile & Bookings for {{ p.code }}">
-                            {% if is_choli %}
-                                <img src="{{ url_for('static', filename='CholiJpg/' ~ p.code ~ '.jpg') }}" 
-                                     alt="{{ p.code }}" 
-                                     class="prod-thumb clickable-preview" 
-                                     loading="lazy" 
-                                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='Choli/' ~ p.image) }}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
-                            {% else %}
-                                <img src="{{ url_for('static', filename='KediyaJpg/' ~ p.code ~ '.jpg') }}" 
-                                     alt="{{ p.code }}" 
-                                     class="prod-thumb clickable-preview" 
-                                     loading="lazy" 
-                                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='Kediya/' ~ p.image) }}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
-                            {% endif %}
-                        </td>
+                        <tr class="product-row" 
+                            id="row-{{ p.code }}"
+                            data-code="{{ p.code }}" 
+                            data-category="{{ cat_type }}" 
+                            data-status="{% if is_rent %}available{% else %}sold{% endif %}">
+                            
+                            <!-- Thumbnail -->
+                            <td>
+                                <div class="prod-thumb-wrap" onclick="openProductProfile('{{ p.code }}')" title="View details &amp; bookings for {{ p.code }}">
+                                    {% if is_choli %}
+                                        <img src="{{ url_for('static', filename='CholiJpg/' ~ p.code ~ '.jpg') }}" 
+                                             alt="{{ p.code }}" 
+                                             class="prod-thumb" 
+                                             loading="lazy" 
+                                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='Choli/' ~ p.image) }}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
+                                    {% else %}
+                                        <img src="{{ url_for('static', filename='KediyaJpg/' ~ p.code ~ '.jpg') }}" 
+                                             alt="{{ p.code }}" 
+                                             class="prod-thumb" 
+                                             loading="lazy" 
+                                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='Kediya/' ~ p.image) }}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
+                                    {% endif %}
+                                </div>
+                            </td>
 
-                        <!-- Code -->
-                        <td onclick="openProductProfile('{{ p.code }}')" style="cursor: pointer;" title="View Product Profile & Bookings for {{ p.code }}">
-                            <span class="prod-code-badge clickable-code">{{ p.code }}</span>
-                        </td>
+                            <!-- Code -->
+                            <td>
+                                <span class="prod-code-badge" onclick="openProductProfile('{{ p.code }}')" title="View Product Profile &amp; Bookings for {{ p.code }}">{{ p.code }}</span>
+                            </td>
 
-                        <!-- Category -->
-                        <td>
-                            <span style="font-weight: 600; color: #e2e8f0;">
-                                {% if is_choli %}👗 Chaniya Choli{% else %}🕺 Traditional Kediya{% endif %}
-                            </span>
-                        </td>
-
-                        <!-- Rental Status Badge -->
-                        <td id="status-cell-{{ p.code }}">
-                            {% if is_rent %}
-                                <span class="badge-status status-rentable">
-                                    <span style="font-size: 0.6rem;">●</span> Available for Rent
+                            <!-- Category -->
+                            <td>
+                                <span style="font-weight: 600; color: #e2e8f0;">
+                                    {% if is_choli %}👗 Chaniya Choli{% else %}🕺 Traditional Kediya{% endif %}
                                 </span>
-                            {% else %}
-                                <span class="badge-status status-sold">
-                                    <span style="font-size: 0.6rem;">●</span> Sold / Not for Rent
-                                </span>
-                            {% endif %}
-                        </td>
+                            </td>
 
-                        <!-- Action Button -->
-                        <td id="action-cell-{{ p.code }}">
-                            {% if is_rent %}
-                                <button type="button" class="btn-sell" onclick="initiateSell('{{ p.code }}')">
-                                    🏷️ Sell / Remove From Rent
-                                </button>
-                            {% else %}
-                                <span class="btn-disabled-sold" title="This product has already been sold">
-                                    🔒 Sold
+                            <!-- Rental Status Badge -->
+                            <td id="status-cell-{{ p.code }}">
+                                {% if is_rent %}
+                                    <span class="badge-status status-rentable">
+                                        <span style="font-size: 0.6rem;">●</span> Available for Rent
+                                    </span>
+                                {% else %}
+                                    <span class="badge-status status-sold">
+                                        <span style="font-size: 0.6rem;">●</span> Sold / Not for Rent
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Action Button -->
+                            <td id="action-cell-{{ p.code }}">
+                                {% if is_rent %}
+                                    <button type="button" class="btn-sell" onclick="initiateSell('{{ p.code }}')">
+                                        🏷️ Sell / Remove From Rent
+                                    </button>
+                                {% else %}
+                                    <span class="btn-disabled-sold" title="This product has already been sold">
+                                        🔒 Sold
+                                    </span>
+                                    <button type="button" class="btn-restore" onclick="initiateRestore('{{ p.code }}')" title="Restore back to available rentals">
+                                        ↩ Restore
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State for Individual Costumes -->
+            <div id="indEmptyState" class="empty-table-state" style="display: none;">
+                <i class="bi bi-search"></i>
+                <h3>No Costumes Found</h3>
+                <p>No costumes match your current search or category filter. Try clearing filters.</p>
+                <button type="button" class="btn-nav" onclick="clearSearchInput(); setCategoryFilter('all'); setStatusFilter('all');" style="margin-top: 8px;">
+                    Reset Filters
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: PRODUCT GROUPS (G) -->
+    <!-- ========================================== -->
+    <div id="groupsSectionView" style="display: none;">
+        <!-- Group Search & Filters -->
+        <div class="filters-bar">
+            <div class="search-box">
+                <span style="font-size: 0.95rem;">🔍</span>
+                <input type="text" id="groupSearchInput" placeholder="Search group code (e.g. G4, G12)..." onkeyup="filterGroupsTable()">
+                <button type="button" class="search-clear-btn" id="groupSearchClearBtn" onclick="clearGroupSearchInput()" title="Clear search">✕</button>
+            </div>
+            
+            <div class="filter-pills-group">
+                <span class="filter-group-label">Category:</span>
+                <button class="filter-pill active" id="gcatAll" onclick="setGroupCategoryFilter('all')">All Groups</button>
+                <button class="filter-pill" id="gcatCholi" onclick="setGroupCategoryFilter('choli')">👗 Group Choli</button>
+                <button class="filter-pill" id="gcatKediya" onclick="setGroupCategoryFilter('kediya')">🕺 Group Kediya</button>
+
+                <span class="filter-group-label" style="margin-left: 8px;">Status:</span>
+                <button class="filter-pill active" id="gstatusAll" onclick="setGroupStatusFilter('all')">All Status</button>
+                <button class="filter-pill" id="gstatusAvail" onclick="setGroupStatusFilter('active')">🟢 Taking Bookings</button>
+                <button class="filter-pill" id="gstatusDisabled" onclick="setGroupStatusFilter('inactive')">🔴 Disabled</button>
+            </div>
+
+            <div class="live-results-counter">
+                Showing <span id="grpVisibleCount">{{ group_total_count }}</span> of <span id="grpTotalCount">{{ group_total_count }}</span>
+            </div>
+        </div>
+
+        <!-- Groups Table Card -->
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="products-table" id="groupsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Style Image</th>
+                            <th style="width: 140px;">Group Code</th>
+                            <th style="width: 180px;">Category</th>
+                            <th>Size Inventory (Pieces)</th>
+                            <th style="width: 200px;">Booking Status</th>
+                            <th style="width: 280px;">Admin Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="groupsTableBody">
+                        {% for g in groups %}
+                        {% set is_choli = g.type == 'choli' %}
+                        {% set is_rent = g.on_rent %}
+                        
+                        <tr class="group-row" 
+                            id="group-row-{{ g.code }}"
+                            data-code="{{ g.code }}" 
+                            data-category="{{ g.type }}" 
+                            data-status="{% if is_rent %}active{% else %}inactive{% endif %}">
+                            
+                            <!-- Thumbnail -->
+                            <td>
+                                <div class="prod-thumb-wrap" onclick="openProductProfile('{{ g.code }}')" title="View Style Profile &amp; Bookings for {{ g.code }}">
+                                    <img src="/navaratri/product-image/{{ g.code }}" 
+                                         alt="{{ g.code }}" 
+                                         class="prod-thumb" 
+                                         loading="lazy" 
+                                         onerror="this.src='/static/Home_Img/favicon.png';">
+                                </div>
+                            </td>
+
+                            <!-- Group Code -->
+                            <td>
+                                <span class="prod-code-badge" onclick="openProductProfile('{{ g.code }}')" style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(212, 175, 55, 0.15));" title="View Style Profile &amp; Bookings for {{ g.code }}">{{ g.code }}</span>
+                            </td>
+
+                            <!-- Category -->
+                            <td>
+                                <span style="font-weight: 700; color: var(--gold-lt);">
+                                    {% if is_choli %}👗 Group Choli{% else %}🕺 Group Kediya{% endif %}
                                 </span>
-                                <button type="button" class="btn-restore" onclick="initiateRestore('{{ p.code }}')" title="Restore back to available rentals">
-                                    ↩ Restore
-                                </button>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            </td>
+
+                            <!-- Size Inventory Chips -->
+                            <td>
+                                <div class="d-flex flex-wrap gap-2 align-items-center" id="chips-{{ g.code }}">
+                                    {% set sizes = g.sizes or {} %}
+                                    {% set total_pcs = namespace(count=0) %}
+                                    {% if sizes %}
+                                        {% for sz, sinfo in sizes.items() %}
+                                            {% if sinfo.active %}
+                                                {% set total_pcs.count = total_pcs.count + (sinfo.quantity or 0) %}
+                                                <span class="badge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-size: 0.85rem; padding: 5px 9px;">
+                                                    Size {{ sz }}: <strong>{{ sinfo.quantity }}</strong> pcs
+                                                </span>
+                                            {% else %}
+                                                <span class="badge" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; font-size: 0.85rem; padding: 5px 9px; text-decoration: line-through;" title="Disabled for new bookings">
+                                                    Size {{ sz }}: {{ sinfo.quantity }} pcs (off)
+                                                </span>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <span class="badge" style="background: rgba(212, 175, 55, 0.18); border: 1px solid var(--gold-bd); color: var(--gold-lt); font-size: 0.82rem; padding: 5px 9px;">
+                                            Total: <strong>{{ total_pcs.count }}</strong> pcs
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted fs-8">No sizes configured</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Booking Status Badge -->
+                            <td id="group-status-cell-{{ g.code }}">
+                                {% if is_rent %}
+                                    <span class="badge-status status-rentable">
+                                        <span style="font-size: 0.6rem;">●</span> Taking Bookings
+                                    </span>
+                                {% else %}
+                                    <span class="badge-status status-sold">
+                                        <span style="font-size: 0.6rem;">●</span> Disabled (Paused)
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Actions -->
+                            <td>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <button type="button" class="btn btn-sm btn-outline-warning fw-bold px-3 py-1" style="border-radius: 8px;" onclick="openGroupSizeModal('{{ g.code }}')">
+                                        ⚙️ Manage Sizes
+                                    </button>
+                                    <button type="button" class="btn btn-sm {% if is_rent %}btn-outline-danger{% else %}btn-outline-success{% endif %} fw-bold px-3 py-1" style="border-radius: 8px;" onclick="toggleGroupStatus('{{ g.code }}', {{ 'true' if is_rent else 'false' }})">
+                                        {% if is_rent %}⏹ Pause Rent{% else %}▶ Enable Rent{% endif %}
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State for Groups -->
+            <div id="grpEmptyState" class="empty-table-state" style="display: none;">
+                <i class="bi bi-people"></i>
+                <h3>No Style Groups Found</h3>
+                <p>No costume groups match your current search or category filter. Try clearing filters.</p>
+                <button type="button" class="btn-nav" onclick="clearGroupSearchInput(); setGroupCategoryFilter('all'); setGroupStatusFilter('all');" style="margin-top: 8px;">
+                    Reset Filters
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -1380,7 +1903,7 @@ body {
         <!-- Loading State -->
         <div id="productProfileLoading" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding: 48px 20px;">
             <div style="width: 48px; height: 48px; border: 3px solid rgba(212,175,55,0.25); border-top-color: #f3d068; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px;"></div>
-            <p style="font-size: 1.05rem; font-weight: 700; color: #ffffff; margin: 0;">Loading Product Profile & Bookings...</p>
+            <p style="font-size: 1.05rem; font-weight: 700; color: #ffffff; margin: 0;">Loading Costume Profile &amp; Bookings...</p>
         </div>
 
         <!-- VIEW 1: PRODUCT PROFILE -->
@@ -1389,7 +1912,7 @@ body {
             <div class="profile-topbar">
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                     <span style="font-size: 1.4rem;">🪔</span>
-                    <h2 class="modal-title" style="margin: 0; font-size: 1.4rem;">Product Profile</h2>
+                    <h2 class="modal-title" style="margin: 0; font-size: 1.4rem;">Costume Profile</h2>
                     <span id="profStatusPill"></span>
                 </div>
             </div>
@@ -1434,7 +1957,7 @@ body {
                     <h3>📅 Current Cycle Bookings <span id="profCycleTitleBadge" style="font-size: 0.8rem; font-weight: 700; color: #f3d068; background: rgba(212,175,55,0.18); border: 1px solid rgba(212,175,55,0.35); padding: 2px 8px; border-radius: 6px; margin-left: 6px;"></span></h3>
                     <p>Click on any booking below to view customer profile</p>
                 </div>
-                <span class="badge-count" id="profBookingCountBadge" style="font-size: 0.88rem; padding: 4px 12px;"></span>
+                <span class="badge bg-warning text-dark" id="profBookingCountBadge" style="font-size: 0.88rem; padding: 6px 14px; border-radius: 20px; font-weight: 800;"></span>
             </div>
 
             <div id="profBookingsList">
@@ -1524,6 +2047,65 @@ body {
     </div>
 </div>
 
+<!-- ============================================================================== -->
+<!-- ⚙️ GROUP SIZE MANAGEMENT MODAL -->
+<!-- ============================================================================== -->
+<div class="modal-overlay" id="groupSizeModal" onclick="if(event.target===this) closeGroupSizeModal();">
+    <div class="modal-dialog-box" style="max-width: 680px; width: 95%;">
+        <button type="button" class="modal-close-btn" onclick="closeGroupSizeModal()">✕</button>
+        
+        <div class="d-flex align-items-center gap-3 mb-3 border-bottom pb-3">
+            <img id="gsmImg" src="" style="width: 65px; height: 65px; object-fit: cover; border-radius: 10px; border: 1.5px solid var(--gold-bd);" onerror="this.src='/static/Home_Img/favicon.png';">
+            <div>
+                <h3 class="modal-title mb-0" id="gsmTitle" style="color: #ffffff; font-size: 1.4rem;">Group Size Management</h3>
+                <span class="badge" id="gsmTypeBadge" style="background: rgba(212,175,55,0.2); border: 1px solid var(--gold); color: #f3d068;">Choli</span>
+                <span class="badge" id="gsmStatusBadge" style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); color: #34d399;">Taking Bookings</span>
+            </div>
+        </div>
+
+        <div class="error-banner mb-3" id="gsmErrorBanner" style="display: none;"></div>
+        <div class="success-banner mb-3" id="gsmSuccessBanner" style="display: none; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 10px 14px; border-radius: 8px;"></div>
+
+        <!-- Current Sizes Table -->
+        <h5 style="color: var(--gold-lt); font-size: 0.95rem; font-weight: 700; text-transform: uppercase;">Current Size Inventory</h5>
+        <div class="table-responsive mb-4" style="max-height: 280px; overflow-y: auto;">
+            <table class="table table-dark table-striped table-hover mb-0" style="border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
+                <thead>
+                    <tr style="background: rgba(15, 30, 50, 0.9); font-size: 0.85rem;">
+                        <th style="width: 90px;">Size</th>
+                        <th style="width: 150px;">Quantity (pcs)</th>
+                        <th style="width: 140px;">Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="gsmSizesTbody">
+                    <!-- Populated dynamically by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Add New Size Form -->
+        <div class="p-3 rounded mb-2" style="background: rgba(15, 30, 50, 0.7); border: 1px solid var(--gold-bd);">
+            <h6 style="color: #ffffff; font-weight: 700; margin-bottom: 10px;">➕ Add or Update Size</h6>
+            <div class="row g-2 align-items-center">
+                <div class="col-md-5">
+                    <input type="text" class="form-control form-control-sm text-uppercase" id="newSizeInput" placeholder="Size (e.g. 32, 34, XL)" style="background: rgba(6,12,23,0.8); color: white; border: 1px solid var(--gold-bd);">
+                </div>
+                <div class="col-md-4">
+                    <input type="number" min="1" class="form-control form-control-sm" id="newSizeQty" placeholder="Quantity (pcs)" style="background: rgba(6,12,23,0.8); color: white; border: 1px solid var(--gold-bd);">
+                </div>
+                <div class="col-md-3">
+                    <button type="button" class="btn btn-sm w-100 fw-bold" style="background: var(--gold); color: #060c17;" onclick="submitAddGroupSize()">Add Size</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-end mt-3">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="closeGroupSizeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
 <!-- Action Toast -->
 <div class="action-toast" id="actionToast"></div>
 
@@ -1533,13 +2115,46 @@ let validatedPassword = null;
 let currentCategoryFilter = 'all';
 let currentStatusFilter = 'all';
 
-// ── Search & Filter Logic ──
+let currentGroupCategoryFilter = 'all';
+let currentGroupStatusFilter = 'all';
+let activeGsmGroupCode = null;
+
+// ── Tab Switcher Logic ──
+function switchSectionTab(tab) {
+    const indView = document.getElementById("individualSectionView");
+    const grpView = document.getElementById("groupsSectionView");
+    const indBtn = document.getElementById("tabBtnIndividual");
+    const grpBtn = document.getElementById("tabBtnGroups");
+
+    if (tab === 'groups') {
+        indView.style.display = "none";
+        grpView.style.display = "block";
+        indBtn.classList.remove("active");
+        grpBtn.classList.add("active");
+        filterGroupsTable();
+    } else {
+        indView.style.display = "block";
+        grpView.style.display = "none";
+        grpBtn.classList.remove("active");
+        indBtn.classList.add("active");
+        filterProductsTable();
+    }
+}
+
+// ── Search & Filter Logic: Individual Products ──
 function filterProductsTable() {
     const searchVal = document.getElementById("searchInput").value.trim().toUpperCase();
     const rows = document.querySelectorAll(".product-row");
+    const clearBtn = document.getElementById("searchClearBtn");
+
+    if (clearBtn) {
+        clearBtn.style.display = searchVal ? "inline-block" : "none";
+    }
+
+    let visibleCount = 0;
 
     rows.forEach(row => {
-        const code = row.getAttribute("data-code").toUpperCase();
+        const code = (row.getAttribute("data-code") || "").toUpperCase();
         const cat = row.getAttribute("data-category");
         const status = row.getAttribute("data-status");
 
@@ -1549,15 +2164,40 @@ function filterProductsTable() {
 
         if (matchesSearch && matchesCat && matchesStatus) {
             row.style.display = "";
+            visibleCount++;
         } else {
             row.style.display = "none";
         }
     });
+
+    // Update live counters
+    const countEl = document.getElementById("indVisibleCount");
+    if (countEl) countEl.innerText = visibleCount;
+
+    // Show/hide empty state
+    const emptyState = document.getElementById("indEmptyState");
+    const tableEl = document.getElementById("productsTable");
+    if (emptyState && tableEl) {
+        if (visibleCount === 0 && rows.length > 0) {
+            emptyState.style.display = "block";
+            tableEl.style.display = "none";
+        } else {
+            emptyState.style.display = "none";
+            tableEl.style.display = "table";
+        }
+    }
+}
+
+function clearSearchInput() {
+    const input = document.getElementById("searchInput");
+    if (input) input.value = "";
+    filterProductsTable();
+    if (input) input.focus();
 }
 
 function setCategoryFilter(cat) {
     currentCategoryFilter = cat;
-    document.querySelectorAll(".filter-pills-group .filter-pill").forEach(p => {
+    document.querySelectorAll("#individualSectionView .filter-pills-group .filter-pill").forEach(p => {
         if (p.id.startsWith("cat")) p.classList.remove("active");
     });
     if (cat === 'all') document.getElementById("catAll").classList.add("active");
@@ -1568,13 +2208,305 @@ function setCategoryFilter(cat) {
 
 function setStatusFilter(status) {
     currentStatusFilter = status;
-    document.querySelectorAll(".filter-pills-group .filter-pill").forEach(p => {
+    document.querySelectorAll("#individualSectionView .filter-pills-group .filter-pill").forEach(p => {
         if (p.id.startsWith("status")) p.classList.remove("active");
     });
     if (status === 'all') document.getElementById("statusAll").classList.add("active");
     if (status === 'available') document.getElementById("statusAvail").classList.add("active");
     if (status === 'sold') document.getElementById("statusSold").classList.add("active");
     filterProductsTable();
+}
+
+// ── Search & Filter Logic: Style Groups ──
+function filterGroupsTable() {
+    const searchVal = (document.getElementById("groupSearchInput").value || "").trim().toUpperCase();
+    const rows = document.querySelectorAll(".group-row");
+    const clearBtn = document.getElementById("groupSearchClearBtn");
+
+    if (clearBtn) {
+        clearBtn.style.display = searchVal ? "inline-block" : "none";
+    }
+
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const code = (row.getAttribute("data-code") || "").toUpperCase();
+        const cat = row.getAttribute("data-category");
+        const status = row.getAttribute("data-status");
+
+        const matchesSearch = !searchVal || code.includes(searchVal);
+        const matchesCat = (currentGroupCategoryFilter === 'all') || (cat === currentGroupCategoryFilter);
+        const matchesStatus = (currentGroupStatusFilter === 'all') || (status === currentGroupStatusFilter);
+
+        if (matchesSearch && matchesCat && matchesStatus) {
+            row.style.display = "";
+            visibleCount++;
+        } else {
+            row.style.display = "none";
+        }
+    });
+
+    const countEl = document.getElementById("grpVisibleCount");
+    if (countEl) countEl.innerText = visibleCount;
+
+    const emptyState = document.getElementById("grpEmptyState");
+    const tableEl = document.getElementById("groupsTable");
+    if (emptyState && tableEl) {
+        if (visibleCount === 0 && rows.length > 0) {
+            emptyState.style.display = "block";
+            tableEl.style.display = "none";
+        } else {
+            emptyState.style.display = "none";
+            tableEl.style.display = "table";
+        }
+    }
+}
+
+function clearGroupSearchInput() {
+    const input = document.getElementById("groupSearchInput");
+    if (input) input.value = "";
+    filterGroupsTable();
+    if (input) input.focus();
+}
+
+function setGroupCategoryFilter(cat) {
+    currentGroupCategoryFilter = cat;
+    document.querySelectorAll("#groupsSectionView .filter-pills-group .filter-pill").forEach(p => {
+        if (p.id.startsWith("gcat")) p.classList.remove("active");
+    });
+    if (cat === 'all') document.getElementById("gcatAll").classList.add("active");
+    if (cat === 'choli') document.getElementById("gcatCholi").classList.add("active");
+    if (cat === 'kediya') document.getElementById("gcatKediya").classList.add("active");
+    filterGroupsTable();
+}
+
+function setGroupStatusFilter(status) {
+    currentGroupStatusFilter = status;
+    document.querySelectorAll("#groupsSectionView .filter-pills-group .filter-pill").forEach(p => {
+        if (p.id.startsWith("gstatus")) p.classList.remove("active");
+    });
+    if (status === 'all') document.getElementById("gstatusAll").classList.add("active");
+    if (status === 'active') document.getElementById("gstatusAvail").classList.add("active");
+    if (status === 'inactive') document.getElementById("gstatusDisabled").classList.add("active");
+    filterGroupsTable();
+}
+
+// ── Group Status Toggle ──
+async function toggleGroupStatus(code, currentOnRent) {
+    const newStatus = !currentOnRent;
+    try {
+        const resp = await fetch("/api/navaratri/toggle-status", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: code, on_rent: newStatus })
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+            showToast(`✅ ${data.message}`);
+            setTimeout(() => location.reload(), 600);
+        } else {
+            showToast(`❌ ${data.message || 'Failed to update status'}`, 'error');
+        }
+    } catch (e) {
+        showToast(`❌ Error: ${e.message}`, 'error');
+    }
+}
+
+// ── Group Size Management Modal Logic ──
+async function openGroupSizeModal(code) {
+    activeGsmGroupCode = code;
+    document.getElementById("gsmTitle").innerText = `Manage Sizes: ${code}`;
+    document.getElementById("gsmImg").src = `/navaratri/product-image/${encodeURIComponent(code)}`;
+    document.getElementById("gsmErrorBanner").style.display = "none";
+    document.getElementById("gsmSuccessBanner").style.display = "none";
+    document.getElementById("newSizeInput").value = "";
+    document.getElementById("newSizeQty").value = "";
+
+    document.getElementById("groupSizeModal").classList.add("active");
+    await refreshGroupSizes(code);
+}
+
+function closeGroupSizeModal() {
+    document.getElementById("groupSizeModal").classList.remove("active");
+    activeGsmGroupCode = null;
+}
+
+async function refreshGroupSizes(code) {
+    const tbody = document.getElementById("gsmSizesTbody");
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Loading sizes...</td></tr>';
+
+    try {
+        const resp = await fetch(`/api/check-product?product_code=${encodeURIComponent(code)}&date=today`);
+        const data = await resp.json();
+        
+        if (data.type) {
+            document.getElementById("gsmTypeBadge").innerText = data.type === 'choli' ? '👗 Chaniya Choli' : '🕺 Traditional Kediya';
+        }
+
+        const sizes = data.sizes || {};
+        const sizeKeys = Object.keys(sizes);
+        if (sizeKeys.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No sizes configured yet. Add one below.</td></tr>';
+            return;
+        }
+
+        let html = '';
+        sizeKeys.forEach(sz => {
+            const sinfo = sizes[sz];
+            const qty = sinfo.quantity;
+            const act = sinfo.active;
+
+            html += `
+                <tr>
+                    <td class="align-middle fw-bold text-warning fs-6">${escapeHtml(sz)}</td>
+                    <td class="align-middle">
+                        <div class="input-group input-group-sm" style="max-width: 140px;">
+                            <input type="number" min="1" class="form-control form-control-sm text-center fw-bold" 
+                                   id="gsmQtyInput-${sz}" value="${qty}" style="background: rgba(6,12,23,0.8); color: white; border-color: var(--gold-bd);">
+                            <button type="button" class="btn btn-sm btn-outline-warning" onclick="updateGroupSizeQuantity('${code}', '${sz}')" title="Save Quantity">
+                                💾
+                            </button>
+                        </div>
+                    </td>
+                    <td class="align-middle">
+                        <span class="badge ${act ? 'bg-success' : 'bg-danger'}">${act ? 'Active' : 'Disabled'}</span>
+                    </td>
+                    <td class="align-middle">
+                        <div class="d-flex align-items-center gap-1">
+                            <button type="button" class="btn btn-xs ${act ? 'btn-outline-danger' : 'btn-outline-success'} py-1 px-2" 
+                                    onclick="toggleGroupSizeActive('${code}', '${sz}', ${act})" title="${act ? 'Disable for new bookings' : 'Enable size'}">
+                                ${act ? '⏹ Disable' : '▶ Enable'}
+                            </button>
+                            <button type="button" class="btn btn-xs btn-outline-danger py-1 px-2" 
+                                    onclick="deleteGroupSize('${code}', '${sz}')" title="Delete size (or soft-deactivate if booked)">
+                                🗑️
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-danger text-center py-3">Error loading sizes: ${e.message}</td></tr>`;
+    }
+}
+
+async function updateGroupSizeQuantity(code, size) {
+    const input = document.getElementById(`gsmQtyInput-${size}`);
+    const newQty = parseInt(input.value);
+    if (!newQty || newQty < 1) {
+        showGsmError("Quantity must be a positive integer (at least 1).");
+        return;
+    }
+
+    try {
+        const resp = await fetch(`/api/navaratri/group/${encodeURIComponent(code)}/update-size`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ size: size, quantity: newQty })
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+            showGsmSuccess(data.message);
+            await refreshGroupSizes(code);
+        } else {
+            showGsmError(data.message || "Failed to update quantity.");
+        }
+    } catch (e) {
+        showGsmError(`Network error: ${e.message}`);
+    }
+}
+
+async function toggleGroupSizeActive(code, size, currentActive) {
+    try {
+        const resp = await fetch(`/api/navaratri/group/${encodeURIComponent(code)}/toggle-size`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ size: size, active: !currentActive })
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+            showGsmSuccess(data.message);
+            await refreshGroupSizes(code);
+        } else {
+            showGsmError(data.message || "Failed to toggle size.");
+        }
+    } catch (e) {
+        showGsmError(`Network error: ${e.message}`);
+    }
+}
+
+async function deleteGroupSize(code, size) {
+    if (!confirm(`Are you sure you want to remove size '${size}' from group '${code}'?`)) return;
+    try {
+        const resp = await fetch(`/api/navaratri/group/${encodeURIComponent(code)}/delete-size`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ size: size })
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+            showGsmSuccess(data.message);
+            await refreshGroupSizes(code);
+        } else {
+            showGsmError(data.message || "Failed to delete size.");
+        }
+    } catch (e) {
+        showGsmError(`Network error: ${e.message}`);
+    }
+}
+
+async function submitAddGroupSize() {
+    if (!activeGsmGroupCode) return;
+    const sizeInput = document.getElementById("newSizeInput");
+    const qtyInput = document.getElementById("newSizeQty");
+    const size = sizeInput.value.trim().toUpperCase();
+    const qty = parseInt(qtyInput.value);
+
+    if (!size) {
+        showGsmError("Size name/number is required.");
+        return;
+    }
+    if (!qty || qty < 1) {
+        showGsmError("Quantity must be a positive integer (at least 1).");
+        return;
+    }
+
+    try {
+        const resp = await fetch(`/api/navaratri/group/${encodeURIComponent(activeGsmGroupCode)}/add-size`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ size: size, quantity: qty })
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+            showGsmSuccess(data.message);
+            sizeInput.value = "";
+            qtyInput.value = "";
+            await refreshGroupSizes(activeGsmGroupCode);
+        } else {
+            showGsmError(data.message || "Failed to add size.");
+        }
+    } catch (e) {
+        showGsmError(`Network error: ${e.message}`);
+    }
+}
+
+function showGsmError(msg) {
+    const banner = document.getElementById("gsmErrorBanner");
+    banner.innerText = msg;
+    banner.style.display = "block";
+    document.getElementById("gsmSuccessBanner").style.display = "none";
+}
+
+function showGsmSuccess(msg) {
+    const banner = document.getElementById("gsmSuccessBanner");
+    banner.innerText = msg;
+    banner.style.display = "block";
+    document.getElementById("gsmErrorBanner").style.display = "none";
+    setTimeout(() => { banner.style.display = "none"; }, 4000);
 }
 
 // ── Sell Modal Orchestration ──
@@ -1625,7 +2557,6 @@ async function handlePasswordSubmit(e) {
         const data = await resp.json();
 
         if (resp.ok && data.success) {
-            // Password verified server-side! Transition to Confirmation Step 2
             validatedPassword = password;
             document.getElementById("modalStep1").style.display = "none";
             document.getElementById("modalStep2").style.display = "block";
@@ -1666,7 +2597,6 @@ async function executeSell() {
         const data = await resp.json();
 
         if (resp.ok && data.success) {
-            // Success! Update row in table immediately
             updateRowToSold(currentTargetCode);
             showToast(`✅ ${data.message}`);
             closeSellModal();
@@ -1688,7 +2618,6 @@ function updateRowToSold(code) {
     if (row) {
         row.setAttribute("data-status", "sold");
         
-        // Update status badge
         const statusCell = document.getElementById(`status-cell-${code}`);
         if (statusCell) {
             statusCell.innerHTML = `
@@ -1698,7 +2627,6 @@ function updateRowToSold(code) {
             `;
         }
 
-        // Update action cell to disabled sold button + optional restore
         const actionCell = document.getElementById(`action-cell-${code}`);
         if (actionCell) {
             actionCell.innerHTML = `
@@ -1712,13 +2640,17 @@ function updateRowToSold(code) {
         }
     }
 
-    // Update stats counters
     const availEl = document.getElementById("statAvailable");
     const soldEl = document.getElementById("statSold");
     if (availEl && soldEl) {
         availEl.innerText = Math.max(0, parseInt(availEl.innerText || "0", 10) - 1);
         soldEl.innerText = parseInt(soldEl.innerText || "0", 10) + 1;
+        const availPill = document.getElementById("statusCountAvail");
+        const soldPill = document.getElementById("statusCountSold");
+        if (availPill) availPill.innerText = availEl.innerText;
+        if (soldPill) soldPill.innerText = soldEl.innerText;
     }
+    filterProductsTable();
 }
 
 // ── Restore Flow ──
@@ -1809,7 +2741,12 @@ function updateRowToAvailable(code) {
     if (availEl && soldEl) {
         availEl.innerText = parseInt(availEl.innerText || "0", 10) + 1;
         soldEl.innerText = Math.max(0, parseInt(soldEl.innerText || "0", 10) - 1);
+        const availPill = document.getElementById("statusCountAvail");
+        const soldPill = document.getElementById("statusCountSold");
+        if (availPill) availPill.innerText = availEl.innerText;
+        if (soldPill) soldPill.innerText = soldEl.innerText;
     }
+    filterProductsTable();
 }
 
 // ── Sync Catalog with Files ──
@@ -2002,18 +2939,14 @@ function showCustomerProfileFromBooking(idx) {
     document.getElementById("productProfileView").style.display = "none";
     document.getElementById("customerProfileView").style.display = "block";
 
-    // Set back button text
     document.getElementById("backToProdBtnText").innerText = `← Back to Costume ${currentProductProfileData ? currentProductProfileData.code : ''}`;
 
-    // Avatar initials
     const initials = (b.customer_name || 'CU').substring(0, 2).toUpperCase();
     document.getElementById("custAvatar").innerText = initials;
 
-    // Name & Mobile
     document.getElementById("custName").innerText = b.customer_name || 'Unnamed Customer';
     document.getElementById("custMobile").innerText = b.customer_mobile || 'No mobile provided';
 
-    // WhatsApp, Call, and Booking Manager links
     const cleanMobile = (b.customer_mobile || '').replace(/\D/g, '');
     const waBtn = document.getElementById("custWhatsappBtn");
     const callBtn = document.getElementById("custCallBtn");
@@ -2031,7 +2964,6 @@ function showCustomerProfileFromBooking(idx) {
         fullBookingBtn.href = `/navaratri_booking`;
     }
 
-    // Billing status
     document.getElementById("custTotalBill").innerText = `₹${b.customer_total_price}`;
     document.getElementById("custGivenBill").innerText = `₹${b.customer_given_price}`;
 
@@ -2042,13 +2974,11 @@ function showCustomerProfileFromBooking(idx) {
         remEl.innerHTML = `<span style="color:#f87171; font-weight:800;">₹${b.customer_remaining} <small style="font-size:0.75rem; text-transform:uppercase; font-weight:700;">(Pending)</small></span>`;
     }
 
-    // Details Grid
     document.getElementById("custAddress").innerText = b.customer_address || 'None provided';
     document.getElementById("custDeposit").innerText = b.customer_deposit || 'Not provided';
     document.getElementById("custRefGroup").innerText = `${b.customer_reference || 'Self'} / ${b.customer_group || '-'}`;
     document.getElementById("custCycle").innerText = b.cycle_name || 'Active Cycle';
 
-    // Timeline / All costumes booked by this customer
     const timelineList = document.getElementById("custTimelineList");
     const allBookings = b.all_customer_bookings || {};
     const dates = Object.keys(allBookings);
@@ -2099,9 +3029,15 @@ function escapeHtml(text) {
 window.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeProductProfileModal();
+        closeGroupSizeModal();
         closeSellModal();
         closeRestoreModal();
     }
+});
+
+// Initial table filter execution on page load
+document.addEventListener("DOMContentLoaded", function() {
+    filterProductsTable();
 });
 </script>
 {% endblock %}

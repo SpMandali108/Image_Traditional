@@ -1000,10 +1000,10 @@ textarea.pos-input, textarea.form-control {
               {% set jpg_dir = 'CholiJpg' if is_c else 'KediyaJpg' %}
               <div class="selected-item-row archive-item-row" data-code="{{ sp.code }}" data-buyer="{{ sp.sold_info.buyer_name if sp.sold_info else '' }}">
                 <div class="selected-item-left">
-                  <img src="/static/{{ jpg_dir }}/{{ sp.code }}.jpg" 
+                  <img src="/navaratri/product-image/{{ sp.code }}" 
                        class="selected-item-thumb" 
                        alt="{{ sp.code }}"
-                       onerror="this.onerror=null; this.src='/static/{{ cat_name }}/{{ sp.image }}'; this.onerror=function(){ this.src='/static/Home_Img/favicon.png'; };">
+                       onerror="this.onerror=null; this.src='/static/Home_Img/favicon.png';">
                   <div class="selected-item-details">
                     <span class="selected-item-code">{{ sp.code }}</span>
                     <span class="selected-item-category">{{ cat_name }}</span>
@@ -1031,7 +1031,7 @@ textarea.pos-input, textarea.form-control {
 
       <div class="modal-footer justify-content-between">
         <a href="/navaratri_products" class="btn-nav-ghost" style="font-size: 0.8rem;">
-          View Full Costumes Table &rarr;
+          Open Costume Manager &rarr;
         </a>
         <button type="button" class="btn-nav-ghost" data-bs-dismiss="modal">Close</button>
       </div>
@@ -1133,8 +1133,8 @@ async function addCostumeByCode(code) {
 
     const isCholi = code.startsWith('C');
     const category = data.category || (isCholi ? 'Choli' : 'Kediya');
-    const thumb_url = data.thumb_url || `/static/${isCholi ? 'CholiJpg' : 'KediyaJpg'}/${code}.jpg`;
-    const orig_url = data.orig_url || `/static/${category}/${code}.webp`;
+    const thumb_url = data.thumb_url || `/navaratri/product-image/${code}`;
+    const orig_url = data.orig_url || `/navaratri/product-image/${code}`;
 
     selectedCostumes.push({
       code: code,

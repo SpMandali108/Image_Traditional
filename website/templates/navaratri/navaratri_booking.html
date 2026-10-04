@@ -1313,11 +1313,7 @@
                   <div class="item-row" data-date="{{ date }}" data-product="{{ item }}">
                     <div class="ir-date"><i class="bi bi-calendar3 me-1"></i>{{ date }}</div>
                     <div class="ir-product">
-                      {% if item and item|upper|first == 'K' %}
-                        <img src="/static/Kediya/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png';this.style.opacity=0.4;" class="ir-thumb">
-                      {% else %}
-                        <img src="/static/Choli/{{ item|upper }}.webp" onerror="this.src='/static/Home_Img/favicon.png';this.style.opacity=0.4;" class="ir-thumb">
-                      {% endif %}
+                      <img src="/navaratri/product-image/{{ item }}" onerror="this.onerror=null;this.src='/static/Home_Img/favicon.png';this.style.opacity=0.4;" class="ir-thumb" alt="{{ item }}">
                       <a href="{{ url_for('navaratri.code_detail', code=item) }}"
                          class="badge-navy text-decoration-none font-monospace fw-bold ir-code">
                         {{ item }}
@@ -1950,10 +1946,7 @@
   function getProductImagePath(code) {
     if (!code) return '/static/Home_Img/favicon.png';
     const u = code.trim().toUpperCase();
-    if (u.startsWith('C')) return `/static/CholiJpg/${u}.jpg`;
-    if (u.startsWith('K')) return `/static/KediyaJpg/${u}.jpg`;
-    if (u.startsWith('G')) return `/static/GroupJpg/${u}.jpg`;
-    return '/static/Home_Img/favicon.png';
+    return `/navaratri/product-image/${encodeURIComponent(u)}`;
   }
 
   // ── STATUS BADGES ────────────────────────────────────────────────
@@ -2142,12 +2135,18 @@
       return;
     }
 
-    // Check for duplicate costume on the same date within this modal
-    const others = block.querySelectorAll(`.booking-row-item:not(#${rowId})`);
+    // Check for duplicate costume on the same date anywhere within this modal
     let isDup = false;
-    others.forEach(o => {
-      const val = (o.querySelector('.booking-row-product')?.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-      if (val && val === cleanCode) isDup = true;
+    document.querySelectorAll('.modal-date-block').forEach(b => {
+      const bDate = b.querySelector('.modal-date-picker')?.value;
+      if (bDate && bDate === dateVal) {
+        b.querySelectorAll('.booking-row-item').forEach(o => {
+          if (o.id !== rowId) {
+            const val = (o.querySelector('.booking-row-product')?.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (val && val === cleanCode) isDup = true;
+          }
+        });
+      }
     });
 
     if (isDup) {
@@ -2177,11 +2176,18 @@
           const currentVal = (inp.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
           if (currentVal !== cleanCode) return;
 
-          // Double check duplicate in modal
+          // Double check duplicate anywhere in modal
           let dup2 = false;
-          block.querySelectorAll(`.booking-row-item:not(#${rowId})`).forEach(o => {
-            const val = (o.querySelector('.booking-row-product')?.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-            if (val && val === cleanCode) dup2 = true;
+          document.querySelectorAll('.modal-date-block').forEach(b => {
+            const bDate = b.querySelector('.modal-date-picker')?.value;
+            if (bDate && bDate === dateVal) {
+              b.querySelectorAll('.booking-row-item').forEach(o => {
+                if (o.id !== rowId) {
+                  const val = (o.querySelector('.booking-row-product')?.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+                  if (val && val === cleanCode) dup2 = true;
+                }
+              });
+            }
           });
           if (dup2) {
             status.className = 'avail-indicator booked';
@@ -2290,6 +2296,25 @@
     });
     if (empty)    { showToast("Fill all dates and costume codes, or remove empty slots.", "error"); return; }
     if (conflict) { showToast("Resolve all costume conflicts before saving.", "error"); return; }
+
+    // Client-side duplicate safeguard across all rows
+    const seenCombos = new Set();
+    let hasDuplicateInForm = false;
+    bookingRows.forEach(row => {
+      row.products.forEach(p => {
+        const clean = p.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+        const isGrp = clean.startsWith('G') && clean.length <= 4;
+        const comboKey = `${row.date}::${clean}`;
+        if (!isGrp && seenCombos.has(comboKey)) {
+          hasDuplicateInForm = true;
+        }
+        seenCombos.add(comboKey);
+      });
+    });
+    if (hasDuplicateInForm) {
+      showToast("Cannot book the same costume multiple times on the same date.", "error");
+      return;
+    }
     document.getElementById('modalLoadingOverlay').classList.remove('d-none');
     const btn = document.getElementById('saveCustomerModalBtn');
     btn.disabled = true;
