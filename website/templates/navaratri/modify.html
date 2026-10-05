@@ -25,8 +25,11 @@
 
       <div style="margin-bottom: 15px;">
         <label for="date" style="display: block; font-weight: 600; margin-bottom: 5px; color: #16213e;">Date (to modify booking):</label>
-        <input type="date" id="date" name="date" required
-          style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;" />
+        <div style="position: relative;">
+          <input type="text" id="date" name="date" required placeholder="Select Date" class="date-picker-input" readonly
+            style="width: 100%; padding: 10px 38px 10px 12px; border-radius: 6px; border: 1px solid #ccc; cursor: pointer; background: #fff; box-sizing: border-box;" />
+          <span id="modifyCalendarIcon" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #666; cursor: pointer; font-size: 16px;">📅</span>
+        </div>
       </div>
 
       <div style="margin-bottom: 15px;">
@@ -59,4 +62,19 @@
       </button>
     </form>
   </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('date');
+    const icon = document.getElementById('modifyCalendarIcon');
+    if (window.initPlainDatePicker && dateInput) {
+      window.initPlainDatePicker(dateInput, {
+        triggerBtn: icon,
+        altInputClass: 'date-picker-alt-input'
+      });
+    }
+  });
+</script>
 {% endblock %}

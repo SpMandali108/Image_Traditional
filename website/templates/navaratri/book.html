@@ -442,7 +442,15 @@
       <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
         <div class="d-flex align-items-center gap-2 flex-fill max-w-sm">
           <span class="fw-bold text-secondary text-uppercase fs-7"><i class="bi bi-calendar-date"></i> Select Date:</span>
-          <input type="date" class="form-control form-control-sm date-picker-input" style="max-width: 200px;" required onchange="checkAllProductsInDateBlock('${dateBlockId}')">
+          <div class="input-group input-group-sm" style="max-width: 210px; cursor: pointer;">
+            <input type="text" class="form-control form-control-sm date-picker-input" 
+                   placeholder="Select Date" 
+                   required readonly 
+                   style="background-color: #fff; cursor: pointer; font-weight: 500;">
+            <button type="button" class="btn btn-outline-secondary date-picker-icon-btn px-2" title="Choose date" tabindex="-1">
+              <i class="bi bi-calendar3 text-primary"></i>
+            </button>
+          </div>
         </div>
         <button type="button" class="btn btn-xs btn-outline-danger" onclick="removeDateBlock('${dateBlockId}')" title="Delete Date Row">
           <i class="bi bi-trash3-fill"></i> Delete Date Row
@@ -462,6 +470,20 @@
     `;
     container.appendChild(blockDiv);
     
+    // Initialize modern plain date picker
+    const dateInput = blockDiv.querySelector('.date-picker-input');
+    const iconBtn = blockDiv.querySelector('.date-picker-icon-btn');
+    
+    if (window.initPlainDatePicker && dateInput) {
+      window.initPlainDatePicker(dateInput, {
+        triggerBtn: iconBtn,
+        altInputClass: 'form-control form-control-sm date-picker-alt-input',
+        onChange: function(selectedDates, dateStr, instance) {
+          checkAllProductsInDateBlock(dateBlockId);
+        }
+      });
+    }
+    
     // Add initial product entry to this date row block
     addProductToDateBlock(dateBlockId);
   }
@@ -471,6 +493,10 @@
     const container = document.getElementById('dateBlocksContainer');
     if (container.children.length > 1) {
       const block = document.getElementById(dateBlockId);
+      const dateInput = block.querySelector('.date-picker-input');
+      if (dateInput && dateInput._flatpickrInstance) {
+        try { dateInput._flatpickrInstance.destroy(); } catch(e){}
+      }
       block.style.opacity = '0';
       block.style.transform = 'translateY(10px)';
       setTimeout(() => {

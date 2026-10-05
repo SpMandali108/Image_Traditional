@@ -67,10 +67,13 @@ def book():
         bookings_data = []
         for date, prod_str in zip(dates, products_inputs):
             prod_list = [p.strip() for p in prod_str.split(',') if p.strip()]
-            try:
-                formatted_date = datetime.strptime(date, "%Y-%m-%d").strftime("%d-%m-%y")
-            except:
-                formatted_date = date
+            formatted_date = date
+            for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%d-%m-%y", "%d/%m/%y"):
+                try:
+                    formatted_date = datetime.strptime(date, fmt).strftime("%d-%m-%y")
+                    break
+                except ValueError:
+                    continue
             bookings_data.append({"date": formatted_date, "products": prod_list})
 
         with booking_lock:
@@ -324,12 +327,15 @@ def modify():
         new_products_str = request.form.get('new_products')
         price_diff_str = request.form.get('price_diff')
 
-        # Convert date → DD-MM-YY
-        try:
-            date_obj = datetime.strptime(date_input, "%Y-%m-%d")
-            date = date_obj.strftime("%d-%m-%y")
-        except ValueError:
-            date = date_input  # fallback (in case already stored in correct format)
+        # Convert date to DD-MM-YY
+        date = date_input
+        for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%d-%m-%y", "%d/%m/%y"):
+            try:
+                date_obj = datetime.strptime(date_input, fmt)
+                date = date_obj.strftime("%d-%m-%y")
+                break
+            except ValueError:
+                continue
 
         customer = collection.find_one({"mobile": mobile})
         if not customer:
@@ -496,11 +502,16 @@ def delete():
             flash("❌ Invalid mobile number. Please enter a 10-digit number.", "error")
             return redirect(url_for('navaratri.delete'))
 
-        # ✅ Convert Date Format (YYYY-MM-DD → DD-MM-YY)
-        try:
-            date_obj = datetime.strptime(date_input, "%Y-%m-%d")
-            date = date_obj.strftime("%d-%m-%y")
-        except ValueError:
+        # Convert Date Format to DD-MM-YY
+        date = None
+        for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%d-%m-%y", "%d/%m/%y"):
+            try:
+                date = datetime.strptime(date_input, fmt).strftime("%d-%m-%y")
+                break
+            except ValueError:
+                continue
+
+        if not date:
             flash("❌ Invalid date format.", "error")
             return redirect(url_for('navaratri.delete'))
 
@@ -889,11 +900,14 @@ def profile_update():
             if not date or not prods:
                 continue
                 
-            try:
-                date_obj = datetime.strptime(date, "%Y-%m-%d")
-                formatted_date = date_obj.strftime("%d-%m-%y")
-            except ValueError:
-                formatted_date = date
+            formatted_date = date
+            for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%d-%m-%y", "%d/%m/%y"):
+                try:
+                    date_obj = datetime.strptime(date, fmt)
+                    formatted_date = date_obj.strftime("%d-%m-%y")
+                    break
+                except ValueError:
+                    continue
                 
             curr = list(formatted_bookings.get(formatted_date, []))
             for np in prods:
@@ -1352,13 +1366,15 @@ def check():
             flash("❌ Please provide both date and product name.", "error")
             return redirect(url_for('navaratri.check'))
         
-        # ✅ Convert YYYY-MM-DD → DD-MM-YY
-        try:
-            date_obj = datetime.strptime(date, "%Y-%m-%d")
-            formatted_date = date_obj.strftime("%d-%m-%y")
-        except ValueError:
-            # If already in DD-MM-YY
-            formatted_date = date
+        # Convert date to DD-MM-YY format
+        formatted_date = date
+        for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%d-%m-%y", "%d/%m/%y"):
+            try:
+                date_obj = datetime.strptime(date, fmt)
+                formatted_date = date_obj.strftime("%d-%m-%y")
+                break
+            except ValueError:
+                continue
 
         current_app.logger.debug(f"DEBUG check: input = {date} formatted = {formatted_date}")
 
