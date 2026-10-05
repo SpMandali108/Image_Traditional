@@ -413,13 +413,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 <div class="form-col">
                     <div class="form-group">
                         <label for="start_date" class="form-label">Start Date</label>
-                        <input type="date" class="form-control" name="start_date" id="start_date" required>
+                        <input type="text" class="form-control plain-date-field" name="start_date" id="start_date" placeholder="Select Start Date" readonly required style="cursor: pointer;">
                     </div>
                 </div>
                 <div class="form-col">
                     <div class="form-group">
                         <label for="end_date" class="form-label">End Date</label>
-                        <input type="date" class="form-control" name="end_date" id="end_date" required>
+                        <input type="text" class="form-control plain-date-field" name="end_date" id="end_date" placeholder="Select End Date" readonly required style="cursor: pointer;">
                     </div>
                 </div>
             </div>
@@ -459,6 +459,16 @@ $(function () {
     // ── Init Select2 ──────────────────────────────────────────
     $('#school').select2({ tags: true, placeholder: 'Search or type school name', width: '100%' });
     $('#costume').select2({ tags: true, placeholder: 'Search or type costume name', width: '100%' });
+
+    // ── Plain Date Pickers ────────────────────────────────────
+    if (window.initPlainDatePicker) {
+        window.initPlainDatePicker('#start_date', {
+            altInputClass: 'form-control plain-date-field date-picker-alt-input'
+        });
+        window.initPlainDatePicker('#end_date', {
+            altInputClass: 'form-control plain-date-field date-picker-alt-input'
+        });
+    }
 
     // ── Element refs ──────────────────────────────────────────
     const form           = document.getElementById('fancyBookingForm');

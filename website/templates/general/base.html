@@ -40,6 +40,10 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='CSS/base.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='CSS/inquiry_date_modal.css') }}">
 
+  <!-- Modern Date Picker (Flatpickr) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" onerror="this.onerror=null;this.href='{{ url_for('static', filename='flatpickr/flatpickr.min.css') }}';">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/flatpickr_custom.css') }}">
+
   <!-- Favicon -->
   <link rel="icon" href="{{ url_for('static', filename='Home_Img/favicon.png') }}?v=5">
 
@@ -167,6 +171,15 @@
 <!-- Festive Date Picker Modal for WhatsApp Inquiry -->
 {% include "general/inquiry_date_modal.html" %}
 <script src="{{ url_for('static', filename='JS/inquiry_date_modal.js') }}"></script>
+
+<!-- Modern Date Picker (Flatpickr) Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+  if (typeof flatpickr === 'undefined') {
+    document.write('<script src="{{ url_for("static", filename="flatpickr/flatpickr.min.js") }}"><\/script>');
+  }
+</script>
+<script src="{{ url_for('static', filename='JS/flatpickr_init.js') }}"></script>
 
 {% block scripts %}{% endblock %}
 

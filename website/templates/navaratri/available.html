@@ -30,13 +30,15 @@
                         <!-- Date Selection -->
                         <div class="flex-fill">
                             <label for="date" class="form-label fw-semibold text-dark mb-2">Select Date</label>
-                            <input type="date" 
+                            <input type="text" 
                                    name="date" 
                                    id="date" 
-                                   class="form-control form-control-lg shadow-sm border-0"
+                                   class="form-control form-control-lg shadow-sm border-0 plain-date-field"
+                                   placeholder="Select Date"
+                                   readonly
                                    required
                                    value="{{ date if date }}"
-                                   onchange="document.getElementById('filterForm').submit();">
+                                   style="cursor: pointer; background-color: #fff;">
                         </div>
 
                         <!-- Filter Options -->
@@ -512,7 +514,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add loading state to form
     const form = document.getElementById('filterForm');
     const radioButtons = form.querySelectorAll('input[type="radio"]');
-    const dateInput = form.querySelector('input[type="date"]');
+    const dateInput = form.querySelector('input[name="date"]');
     
     function showLoading() {
         // Add subtle loading indicator
@@ -528,7 +530,18 @@ document.addEventListener('DOMContentLoaded', function() {
         radio.addEventListener('change', showLoading);
     });
     
-    dateInput.addEventListener('change', showLoading);
+    if (window.initPlainDatePicker && dateInput) {
+        window.initPlainDatePicker(dateInput, {
+            defaultDate: '{{ date if date }}',
+            altInputClass: 'form-control form-control-lg shadow-sm border-0 plain-date-field',
+            onChange: function() {
+                showLoading();
+                form.submit();
+            }
+        });
+    } else if (dateInput) {
+        dateInput.addEventListener('change', showLoading);
+    }
 });
 </script>
 {% endblock %}

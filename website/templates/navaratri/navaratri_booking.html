@@ -1358,7 +1358,7 @@
           <div class="row g-3 align-items-end">
             <div class="col-md-5 col-sm-6">
               <label class="form-label">Target Date</label>
-              <input type="date" id="widgetCheckDate" class="form-control">
+              <input type="text" id="widgetCheckDate" class="form-control plain-date-field" placeholder="Select Date" readonly style="cursor: pointer;">
             </div>
             <div class="col-md-5 col-sm-6">
               <label class="form-label">Costume Code</label>
@@ -1469,7 +1469,7 @@
         <div class="row g-2 align-items-end">
           <div class="col-md-5">
             <label class="form-label">Date</label>
-            <input type="date" id="modalCheckDate" class="form-control">
+            <input type="text" id="modalCheckDate" class="form-control plain-date-field" placeholder="Select Date" readonly style="cursor: pointer;">
           </div>
           <div class="col-md-5">
             <label class="form-label">Costume Code</label>
@@ -1596,7 +1596,7 @@
           <hr style="border-color:var(--border-color);">
           <div class="mb-3">
             <label class="form-label">New Booking Date *</label>
-            <input type="date" id="reassign-new-date" class="form-control" required onchange="checkReassignAvailability()">
+            <input type="text" id="reassign-new-date" class="form-control plain-date-field" placeholder="Select Date" readonly required style="cursor: pointer;" onchange="checkReassignAvailability()">
           </div>
           <div class="mb-3">
             <label class="form-label">New Costume Code *</label>
@@ -2001,8 +2001,9 @@
           <span style="font-size:0.88rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gold-light);">
             <i class="bi bi-calendar-event me-1"></i>Date
           </span>
-          <input type="date" class="form-control modal-date-picker" value="${parsedDate}"
-                 required style="min-width:160px;min-height:42px;font-size:0.95rem;font-weight:600;" onchange="checkAllProductsInModalDateBlock('${blockId}')">
+          <input type="text" class="form-control modal-date-picker plain-date-field" value="${parsedDate}"
+                 placeholder="Select Date" readonly
+                 required style="min-width:160px;min-height:42px;font-size:0.95rem;font-weight:600; cursor: pointer;" onchange="checkAllProductsInModalDateBlock('${blockId}')">
         </div>
         <button type="button" class="btn btn-ghost-danger btn-sm px-3 py-2 fw-bold" onclick="removeModalDateBlock('${blockId}')">
           <i class="bi bi-trash-fill me-1"></i> Delete Date
@@ -2013,6 +2014,18 @@
         <i class="bi bi-plus-circle me-1"></i> Add Product
       </button>`;
     container.appendChild(div);
+
+    const mDateInp = div.querySelector('.modal-date-picker');
+    if (window.initPlainDatePicker && mDateInp) {
+      window.initPlainDatePicker(mDateInp, {
+        defaultDate: parsedDate,
+        altInputClass: 'form-control modal-date-alt-picker plain-date-field',
+        onChange: function() {
+          checkAllProductsInModalDateBlock(blockId);
+        }
+      });
+    }
+
     if (addDefaultProduct) {
       addModalProductRow(blockId, '', false);
     }
@@ -2021,7 +2034,13 @@
 
   function removeModalDateBlock(id) {
     const b = document.getElementById(id);
-    if (b) b.remove();
+    if (b) {
+      const inp = b.querySelector('.modal-date-picker');
+      if (inp && inp._flatpickrInstance) {
+        try { inp._flatpickrInstance.destroy(); } catch(e){}
+      }
+      b.remove();
+    }
   }
 
   function addModalProductRow(blockId, product = "", isOriginal = false) {
@@ -2834,6 +2853,22 @@
         document.querySelectorAll('.multi-select-button').forEach(b => b.classList.remove('active'));
       }
     });
+
+    // Initialize modern plain date pickers
+    if (window.initPlainDatePicker) {
+      window.initPlainDatePicker('#widgetCheckDate', {
+        altInputClass: 'form-control plain-date-field date-picker-alt-input'
+      });
+      window.initPlainDatePicker('#modalCheckDate', {
+        altInputClass: 'form-control plain-date-field date-picker-alt-input'
+      });
+      window.initPlainDatePicker('#reassign-new-date', {
+        altInputClass: 'form-control plain-date-field date-picker-alt-input',
+        onChange: function() {
+          if (typeof checkReassignAvailability === 'function') checkReassignAvailability();
+        }
+      });
+    }
   })();
 </script>
 {% endblock %}
