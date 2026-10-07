@@ -726,9 +726,7 @@ def api_check_product():
             return jsonify({"available": False, "error": "JSON payload must be an object."}), 400
 
         # Whitelist permitted keys - reject unexpected/NoSQL operator keys
-        allowed_keys = {"product_code", "date"}
-        if is_admin:
-            allowed_keys.add("exclude_mobile")
+        allowed_keys = {"product_code", "date", "exclude_mobile"}
         extra_keys = set(data.keys()) - allowed_keys
         if extra_keys:
             current_app.logger.warning(f"[SECURITY ALERT] Unexpected payload keys {extra_keys} from IP {client_ip}")
@@ -736,12 +734,20 @@ def api_check_product():
 
         raw_product_code = data.get("product_code")
         raw_date = data.get("date")
-        raw_exclude_mobile = data.get("exclude_mobile") if is_admin else None
+        raw_exclude_mobile = data.get("exclude_mobile")
     else:
         # GET request: extract from query string
         raw_product_code = request.args.get("product_code")
         raw_date = request.args.get("date")
-        raw_exclude_mobile = request.args.get("exclude_mobile") if is_admin else None
+        raw_exclude_mobile = request.args.get("exclude_mobile")
+
+    clean_exclude_mobile = None
+    if raw_exclude_mobile:
+        m_digits = re.sub(r'\D', '', str(raw_exclude_mobile))
+        if len(m_digits) == 10:
+            clean_exclude_mobile = m_digits
+        elif len(m_digits) == 12 and m_digits.startswith('91'):
+            clean_exclude_mobile = m_digits[2:]
 
     # 4. Strict Type, Length, Format & Injection Validation
     val_code_ok, product_code, err_code = validate_product_code(raw_product_code)
@@ -783,7 +789,7 @@ def api_check_product():
                     })
                 
                 avail_qty, master_qty, booked_qty = get_available_group_quantity(
-                    norm_base, sz_str, date_str, exclude_mobile=raw_exclude_mobile if is_admin else None
+                    norm_base, sz_str, date_str, exclude_mobile=clean_exclude_mobile
                 )
                 if avail_qty <= 0:
                     return jsonify({
@@ -810,7 +816,7 @@ def api_check_product():
             else:
                 # No specific size passed -> return full breakdown for the date
                 sizes_breakdown = get_group_size_availability(
-                    norm_base, date=date_str, exclude_mobile=raw_exclude_mobile if is_admin else None
+                    norm_base, date=date_str, exclude_mobile=clean_exclude_mobile
                 )
                 has_any_avail = any(s["available"] > 0 for s in sizes_breakdown.values() if s.get("active"))
                 return jsonify({
@@ -842,7 +848,7 @@ def api_check_product():
             has_conflict, conflicts = check_booking_conflict(
                 date_str, 
                 [norm_base], 
-                exclude_mobile=raw_exclude_mobile if is_admin else None
+                exclude_mobile=clean_exclude_mobile
             )
             if has_conflict:
                 conflict = conflicts[0]
@@ -943,7 +949,8 @@ def profile_update():
         return jsonify({"success": False, "message": "Mobile number must be a 10-digit number."}), 400
         
     # Determine whether this is an explicit edit of an existing record or a booking submission
-    is_explicit_edit = bool(customer_id and customer_id != 'new')
+    is_append_request = bool(data.get('is_append'))
+    is_explicit_edit = bool(customer_id and customer_id != 'new' and not is_append_request)
     existing_by_mobile = collection.find_one({"mobile": mobile})
     if not existing_by_mobile:
         existing_by_mobile = collection.find_one({
@@ -955,6 +962,11 @@ def profile_update():
                 {"mobile": int(mobile) if mobile.isdigit() else mobile}
             ]
         })
+    if not existing_by_mobile and customer_id and customer_id != 'new':
+        try:
+            existing_by_mobile = collection.find_one({"_id": ObjectId(customer_id)})
+        except:
+            pass
 
     if is_explicit_edit:
         # Check if mobile belongs to another customer
@@ -966,7 +978,7 @@ def profile_update():
         is_append = False
         is_new = False
     else:
-        # Booking form submitted
+        # Booking form submitted or append mode
         if existing_by_mobile:
             # Customer already exists in this cycle -> REBOOKING / APPEND!
             is_append = True
@@ -1023,11 +1035,20 @@ def profile_update():
                 if not is_avail:
                     return jsonify({"success": False, "message": f"❌ Booking Rejected: {err_reason}"}), 400
 
-        # Conflict check
         if is_explicit_edit:
             # Exclude this customer since they are replacing their own bookings
+            existing_cust_doc = None
+            try:
+                existing_cust_doc = collection.find_one({"_id": ObjectId(customer_id)})
+            except Exception:
+                pass
+            old_cust_mobile = existing_cust_doc.get('mobile') if existing_cust_doc else None
+            exclude_mobiles = [mobile]
+            if old_cust_mobile and old_cust_mobile != mobile:
+                exclude_mobiles.append(old_cust_mobile)
+
             for date_str, products_list in formatted_bookings.items():
-                has_conflict, conflicts = check_booking_conflict(date_str, products_list, exclude_mobile=mobile)
+                has_conflict, conflicts = check_booking_conflict(date_str, products_list, exclude_mobile=exclude_mobiles)
                 if has_conflict:
                     conflict_msg = f"❌ Conflict: Following product(s) are already booked on {date_str}:<br>"
                     for conflict in conflicts:
@@ -1139,46 +1160,14 @@ def profile_update():
             if total_price < 0 or given_price < 0:
                 return jsonify({"success": False, "message": "Total and Payment amounts cannot be negative."}), 400
 
-            existing_cust = None
-            try:
-                existing_cust = collection.find_one({"_id": ObjectId(customer_id)})
-            except:
-                pass
-            if not existing_cust:
-                existing_cust = existing_by_mobile
+            if given_price > total_price:
+                return jsonify({
+                    "success": False,
+                    "message": f"Payment amount (₹{given_price}) cannot exceed total invoice amount of ₹{total_price}."
+                }), 400
 
-            if existing_cust:
-                old_total = int(existing_cust.get('total_price', 0) or 0)
-                old_given = int(existing_cust.get('given_price', 0) or 0)
-                previous_remaining = max(0, old_total - old_given)
-
-                if total_price < old_total or given_price > total_price:
-                    cumulative_total = old_total + total_price
-                    maximum_payment_allowed = cumulative_total - old_given
-                    if given_price > maximum_payment_allowed:
-                        return jsonify({
-                            "success": False,
-                            "message": f"Payment amount (₹{given_price}) cannot exceed total outstanding amount of ₹{maximum_payment_allowed} (Previous Outstanding ₹{previous_remaining} + Current Items ₹{total_price})."
-                        }), 400
-                    final_total_price = cumulative_total
-                    final_given_price = old_given + given_price
-                else:
-                    maximum_payment_allowed = total_price
-                    if given_price > maximum_payment_allowed:
-                        return jsonify({
-                            "success": False,
-                            "message": f"Payment amount (₹{given_price}) cannot exceed total outstanding amount of ₹{maximum_payment_allowed}."
-                        }), 400
-                    final_total_price = total_price
-                    final_given_price = given_price
-            else:
-                if given_price > total_price:
-                    return jsonify({
-                        "success": False,
-                        "message": f"Payment amount (₹{given_price}) cannot exceed total outstanding amount of ₹{total_price}."
-                    }), 400
-                final_total_price = total_price
-                final_given_price = given_price
+            final_total_price = total_price
+            final_given_price = given_price
 
             # Explicit profile edit
             ret_id = customer_id
