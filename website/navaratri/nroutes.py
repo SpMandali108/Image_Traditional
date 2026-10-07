@@ -120,6 +120,16 @@ def book():
                 return redirect(url_for('navaratri.book'))
 
             customer = collection.find_one({"mobile": mobile})
+            if not customer:
+                customer = collection.find_one({
+                    "$or": [
+                        {"mobile": mobile},
+                        {"mobile": f"91{mobile}"},
+                        {"mobile": f"+91{mobile}"},
+                        {"mobile": f"0{mobile}"},
+                        {"mobile": int(mobile) if mobile.isdigit() else mobile}
+                    ]
+                })
 
             if customer:
                 # Existing customer → cumulative payable calculation
@@ -130,7 +140,7 @@ def book():
                 maximum_payment_allowed = cumulative_total - old_given
 
                 if given_price_val > maximum_payment_allowed:
-                    flash(f"❌ Payment amount (₹{given_price_val}) cannot exceed total outstanding payable amount of ₹{maximum_payment_allowed} (Previous Outstanding ₹{previous_remaining} + Current Items ₹{total_price}).", "error")
+                    flash(f"❌ Payment amount (₹{given_price_val}) cannot exceed total outstanding amount of ₹{maximum_payment_allowed} (Previous Outstanding ₹{previous_remaining} + Current Items ₹{total_price}).", "error")
                     return redirect(url_for('navaratri.book'))
 
                 final_name = Name if Name else customer.get("Name", "")
@@ -174,7 +184,7 @@ def book():
             else:
                 # New customer
                 if given_price_val > total_price:
-                    flash(f"❌ Payment amount (₹{given_price_val}) cannot exceed total amount of ₹{total_price}.", "error")
+                    flash(f"❌ Payment amount (₹{given_price_val}) cannot exceed total outstanding amount of ₹{total_price}.", "error")
                     return redirect(url_for('navaratri.book'))
 
                 final_name = Name
@@ -935,6 +945,16 @@ def profile_update():
     # Determine whether this is an explicit edit of an existing record or a booking submission
     is_explicit_edit = bool(customer_id and customer_id != 'new')
     existing_by_mobile = collection.find_one({"mobile": mobile})
+    if not existing_by_mobile:
+        existing_by_mobile = collection.find_one({
+            "$or": [
+                {"mobile": mobile},
+                {"mobile": f"91{mobile}"},
+                {"mobile": f"+91{mobile}"},
+                {"mobile": f"0{mobile}"},
+                {"mobile": int(mobile) if mobile.isdigit() else mobile}
+            ]
+        })
 
     if is_explicit_edit:
         # Check if mobile belongs to another customer
@@ -1086,7 +1106,7 @@ def profile_update():
             if given_price > maximum_payment_allowed:
                 return jsonify({
                     "success": False,
-                    "message": f"Payment amount (₹{given_price}) cannot exceed total outstanding payable amount of ₹{maximum_payment_allowed} (Previous Outstanding ₹{previous_remaining} + Current Items ₹{total_price})."
+                    "message": f"Payment amount (₹{given_price}) cannot exceed total outstanding amount of ₹{maximum_payment_allowed} (Previous Outstanding ₹{previous_remaining} + Current Items ₹{total_price})."
                 }), 400
 
             final_total_price = cumulative_total
@@ -1118,11 +1138,47 @@ def profile_update():
         elif is_explicit_edit:
             if total_price < 0 or given_price < 0:
                 return jsonify({"success": False, "message": "Total and Payment amounts cannot be negative."}), 400
-            if given_price > total_price:
-                return jsonify({
-                    "success": False,
-                    "message": f"Paid amount (₹{given_price}) cannot exceed total invoice (₹{total_price})."
-                }), 400
+
+            existing_cust = None
+            try:
+                existing_cust = collection.find_one({"_id": ObjectId(customer_id)})
+            except:
+                pass
+            if not existing_cust:
+                existing_cust = existing_by_mobile
+
+            if existing_cust:
+                old_total = int(existing_cust.get('total_price', 0) or 0)
+                old_given = int(existing_cust.get('given_price', 0) or 0)
+                previous_remaining = max(0, old_total - old_given)
+
+                if total_price < old_total or given_price > total_price:
+                    cumulative_total = old_total + total_price
+                    maximum_payment_allowed = cumulative_total - old_given
+                    if given_price > maximum_payment_allowed:
+                        return jsonify({
+                            "success": False,
+                            "message": f"Payment amount (₹{given_price}) cannot exceed total outstanding amount of ₹{maximum_payment_allowed} (Previous Outstanding ₹{previous_remaining} + Current Items ₹{total_price})."
+                        }), 400
+                    final_total_price = cumulative_total
+                    final_given_price = old_given + given_price
+                else:
+                    maximum_payment_allowed = total_price
+                    if given_price > maximum_payment_allowed:
+                        return jsonify({
+                            "success": False,
+                            "message": f"Payment amount (₹{given_price}) cannot exceed total outstanding amount of ₹{maximum_payment_allowed}."
+                        }), 400
+                    final_total_price = total_price
+                    final_given_price = given_price
+            else:
+                if given_price > total_price:
+                    return jsonify({
+                        "success": False,
+                        "message": f"Payment amount (₹{given_price}) cannot exceed total outstanding amount of ₹{total_price}."
+                    }), 400
+                final_total_price = total_price
+                final_given_price = given_price
 
             # Explicit profile edit
             ret_id = customer_id
@@ -1132,8 +1188,6 @@ def profile_update():
             final_deposit = deposit
             final_group = group
             final_reference = reference
-            final_total_price = total_price
-            final_given_price = given_price
             added_items_summary = []
 
             customer_data = {
@@ -1149,11 +1203,6 @@ def profile_update():
                 "qr_url": qr_url
             }
 
-            try:
-                existing_cust = collection.find_one({"_id": ObjectId(customer_id)})
-            except:
-                pass
-
             collection.update_one(
                 {"_id": ObjectId(customer_id)},
                 {"$set": customer_data}
@@ -1166,7 +1215,7 @@ def profile_update():
             if given_price > total_price:
                 return jsonify({
                     "success": False,
-                    "message": f"Paid amount (₹{given_price}) cannot exceed total invoice (₹{total_price})."
+                    "message": f"Payment amount (₹{given_price}) cannot exceed total outstanding amount of ₹{total_price}."
                 }), 400
 
             # New customer
@@ -3801,6 +3850,16 @@ def get_navaratri_customer():
 
     # Check if they have a booking in this cycle first
     active_customer = collection.find_one({"mobile": mobile})
+    if not active_customer:
+        active_customer = collection.find_one({
+            "$or": [
+                {"mobile": mobile},
+                {"mobile": f"91{mobile}"},
+                {"mobile": f"+91{mobile}"},
+                {"mobile": f"0{mobile}"},
+                {"mobile": int(mobile) if mobile.isdigit() else mobile}
+            ]
+        })
     if active_customer:
         tot = int(active_customer.get("total_price", 0) or 0)
         giv = int(active_customer.get("given_price", 0) or 0)

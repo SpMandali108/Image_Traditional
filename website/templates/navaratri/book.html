@@ -853,11 +853,12 @@
   }
 
   // Intercept form submit and post JSON payload to unified create endpoint
-  function submitFormAJAX(event) {
+  async function submitFormAJAX(event) {
     event.preventDefault();
     
     const name = document.getElementById("cust-name").value.trim();
-    const mobile = document.getElementById("cust-mobile").value.trim();
+    const rawMobile = document.getElementById("cust-mobile").value.trim();
+    const mobile = rawMobile.replace(/\D/g, '').slice(-10);
     const address = document.getElementById("cust-address").value.trim();
     const group = document.getElementById("cust-group").value.trim();
     const reference = document.getElementById("cust-reference").value.trim();
@@ -867,26 +868,35 @@
     
     const mobileError = document.getElementById("mobile-error");
     
-    if (mobile.length !== 10 || isNaN(mobile)) {
+    if (mobile.length !== 10) {
       mobileError.classList.remove("d-none");
       showToast("Mobile number must be exactly 10 digits.", "error");
       return;
     } else {
       mobileError.classList.add("d-none");
     }
-    
-    if (window.existingCustomerInCycle) {
-      const prevRemaining = parseInt(window.existingCustomerInCycle.remaining) || 0;
-      const totalOutstanding = prevRemaining + total_price;
-      if (given_price > totalOutstanding) {
-        showToast(`Received payment (₹${given_price}) cannot exceed Total Outstanding (₹${totalOutstanding}).`, "error");
-        return;
+
+    // Resolve previous remaining balance for this customer
+    let prevRemaining = 0;
+    if (window.existingCustomerInCycle && window.existingCustomerInCycle.mobile === mobile) {
+      prevRemaining = parseInt(window.existingCustomerInCycle.remaining) || 0;
+    } else if (mobile.length === 10) {
+      try {
+        const resp = await fetch(`/get-navaratri-customer?mobile=${encodeURIComponent(mobile)}`);
+        const cdata = await resp.json();
+        if (cdata.exists && cdata.in_cycle && cdata.data) {
+          window.existingCustomerInCycle = cdata.data;
+          prevRemaining = parseInt(cdata.data.remaining) || 0;
+        }
+      } catch (e) {
+        console.warn("Pre-submit customer lookup error:", e);
       }
-    } else {
-      if (given_price > total_price) {
-        showToast(`Received payment (₹${given_price}) cannot exceed total price (₹${total_price}).`, "error");
-        return;
-      }
+    }
+
+    const totalOutstanding = prevRemaining + total_price;
+    if (given_price > totalOutstanding) {
+      showToast(`Payment amount (₹${given_price}) cannot exceed total outstanding amount (₹${totalOutstanding}).`, "error");
+      return;
     }
     
     // Construct bookings payload grouped by date

@@ -2393,10 +2393,11 @@
   }
 
   // ── SAVE PROFILE ─────────────────────────────────────────────────
-  function saveCustomerProfile() {
+  async function saveCustomerProfile() {
     const id          = document.getElementById('modal-customer-id').value;
     const name        = document.getElementById('modal-name').value.trim();
-    const mobile      = document.getElementById('modal-mobile').value.trim();
+    const rawMobile   = document.getElementById('modal-mobile').value.trim();
+    const mobile      = rawMobile.replace(/\D/g, '').slice(-10);
     const address     = document.getElementById('modal-address').value.trim();
     const group       = document.getElementById('modal-group').value.trim();
     const reference   = document.getElementById('modal-reference').value.trim();
@@ -2405,22 +2406,32 @@
     const given_price = parseInt(document.getElementById('modal-given-price').value) || 0;
     const errEl       = document.getElementById('modal-mobile-error');
     if (!name || !mobile) { showToast("Name and mobile are required.", "error"); return; }
-    if (mobile.length !== 10 || isNaN(mobile)) { errEl.classList.remove('d-none'); showToast("Mobile must be 10 digits.", "error"); return; }
+    if (mobile.length !== 10) { errEl.classList.remove('d-none'); showToast("Mobile must be 10 digits.", "error"); return; }
     errEl.classList.add('d-none');
 
-    const isAppendMode = (window.existingCustomerInCycle != null) && (id === 'new' || !id);
-    if (isAppendMode) {
-      const prevRemaining = parseInt(window.existingCustomerInCycle.remaining) || 0;
-      const totalOutstanding = prevRemaining + total_price;
-      if (given_price > totalOutstanding) {
-        showToast(`Paid amount (₹${given_price}) cannot exceed Total Outstanding (₹${totalOutstanding}).`, "error");
-        return;
+    // Robust cumulative payment calculation
+    let prevRemaining = 0;
+    if (window.existingCustomerInCycle && window.existingCustomerInCycle.mobile === mobile) {
+      prevRemaining = parseInt(window.existingCustomerInCycle.remaining) || 0;
+    } else if (id && id !== 'new' && customerData && customerData.id === id) {
+      prevRemaining = Math.max(0, (customerData.total_price || 0) - (customerData.given_price || 0));
+    } else if (mobile.length === 10) {
+      try {
+        const resp = await fetch(`/get-navaratri-customer?mobile=${encodeURIComponent(mobile)}`);
+        const cdata = await resp.json();
+        if (cdata.exists && cdata.in_cycle && cdata.data) {
+          window.existingCustomerInCycle = cdata.data;
+          prevRemaining = parseInt(cdata.data.remaining) || 0;
+        }
+      } catch (e) {
+        console.warn("Pre-save customer lookup error:", e);
       }
-    } else {
-      if (given_price > total_price) {
-        showToast(`Paid amount (₹${given_price}) cannot exceed total invoice (₹${total_price}).`, "error");
-        return;
-      }
+    }
+
+    const totalOutstanding = prevRemaining + total_price;
+    if (given_price > totalOutstanding) {
+      showToast(`Payment amount (₹${given_price}) cannot exceed total outstanding amount (₹${totalOutstanding}).`, "error");
+      return;
     }
     const bookingRows = [];
     let conflict = false, empty = false;
@@ -2819,7 +2830,7 @@
     if (givenPriceEl) givenPriceEl.addEventListener('input', updateRebookingFinancialCalc);
 
     if (!mobileEl) return;
-    mobileEl.addEventListener('input', function () {
+    const handleMobileLookup = function () {
       this.value = this.value.replace(/\D/g, '').slice(0, 10);
       const alertEl = document.getElementById('modal-rebooking-alert');
       const alertName = document.getElementById('modal-rebooking-name');
@@ -2891,7 +2902,9 @@
         document.getElementById('modal-given-price-hint')?.classList.add('d-none');
         updateRebookingFinancialCalc();
       }
-    });
+    };
+    ['input', 'change'].forEach(ev => mobileEl.addEventListener(ev, handleMobileLookup));
+    mobileEl.addEventListener('paste', function () { setTimeout(() => handleMobileLookup.call(this), 50); });
   });
 
   // ── FILTER & SEARCH ──────────────────────────────────────────────
