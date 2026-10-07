@@ -41,14 +41,22 @@ def book():
         if is_selected_cycle_locked():
             flash("❌ Selected cycle is locked.", "error")
             return redirect(request.referrer or url_for("navaratri.dashboard_summary"))
-        Name = request.form.get('name')
-        mobile = request.form.get('mobile')
+        Name = (request.form.get('name') or '').strip()
+        raw_mobile = request.form.get('mobile')
+        mobile_digits = re.sub(r'\D', '', str(raw_mobile or ''))
+        if len(mobile_digits) == 12 and mobile_digits.startswith('91'):
+            mobile = mobile_digits[2:]
+        elif len(mobile_digits) == 11 and mobile_digits.startswith('0'):
+            mobile = mobile_digits[1:]
+        else:
+            mobile = mobile_digits
+
         given_price = request.form.get('given_price')
         price = request.form.get('price')
-        address = request.form.get('address')
-        deposit = request.form.get('deposit')
-        group = request.form.get('group')
-        reference = request.form.get('reference')
+        address = (request.form.get('address') or '').strip()
+        deposit = (request.form.get('deposit') or '').strip()
+        group = (request.form.get('group') or '').strip()
+        reference = (request.form.get('reference') or '').strip()
 
         dates = request.form.getlist('date')
         products_inputs = request.form.getlist('product')
@@ -99,16 +107,38 @@ def book():
                         reason = conflict.get('reason')
                         if reason:
                             conflict_msg += f"• {conflict['product']}: {reason}\n"
+                        elif conflict.get('customer_mobile') == mobile:
+                            conflict_msg += f"• '{conflict['product']}' is already booked in your booking for {date}.\n"
                         else:
                             conflict_msg += f"• '{conflict['product']}' by {conflict['customer_name']} ({conflict['customer_mobile']})\n"
                     flash(conflict_msg, "error")
                     return redirect(url_for('navaratri.book'))
 
-            # -------------------- Insert / Update customer --------------------
+            # -------------------- Payment validation & Insert / Update customer --------------------
+            if given_price_val < 0 or total_price < 0:
+                flash("❌ Total and Paid amounts cannot be negative.", "error")
+                return redirect(url_for('navaratri.book'))
+
             customer = collection.find_one({"mobile": mobile})
 
             if customer:
-                # Existing customer → merge bookings
+                # Existing customer → cumulative payable calculation
+                old_total = int(customer.get('total_price', 0) or 0)
+                old_given = int(customer.get('given_price', 0) or 0)
+                previous_remaining = max(0, old_total - old_given)
+                cumulative_total = old_total + total_price
+                maximum_payment_allowed = cumulative_total - old_given
+
+                if given_price_val > maximum_payment_allowed:
+                    flash(f"❌ Payment amount (₹{given_price_val}) cannot exceed total outstanding payable amount of ₹{maximum_payment_allowed} (Previous Outstanding ₹{previous_remaining} + Current Items ₹{total_price}).", "error")
+                    return redirect(url_for('navaratri.book'))
+
+                final_name = Name if Name else customer.get("Name", "")
+                final_address = address if address else customer.get("address", "")
+                final_deposit = deposit if deposit else customer.get("deposit", "")
+                final_group = group if group else customer.get("group", "")
+                final_reference = reference if reference else customer.get("reference", "")
+
                 bookings = customer.get('bookings', {})
                 for booking_item in bookings_data:
                     date = booking_item['date']
@@ -125,12 +155,17 @@ def book():
                                 curr.append(np)
                     bookings[date] = curr
 
-                updated_total = customer.get('total_price', 0) + total_price
-                updated_given = customer.get('given_price', 0) + given_price_val
+                updated_total = cumulative_total
+                updated_given = old_given + given_price_val
 
                 collection.update_one(
                     {"_id": customer['_id']},
                     {"$set": {
+                        "Name": final_name,
+                        "address": final_address,
+                        "deposit": final_deposit,
+                        "group": final_group,
+                        "reference": final_reference,
                         "bookings": bookings,
                         "total_price": updated_total,
                         "given_price": updated_given,
@@ -138,6 +173,16 @@ def book():
                 )
             else:
                 # New customer
+                if given_price_val > total_price:
+                    flash(f"❌ Payment amount (₹{given_price_val}) cannot exceed total amount of ₹{total_price}.", "error")
+                    return redirect(url_for('navaratri.book'))
+
+                final_name = Name
+                final_address = address
+                final_deposit = deposit
+                final_group = group
+                final_reference = reference
+
                 bookings = {}
                 for b in bookings_data:
                     date = b['date']
@@ -170,11 +215,11 @@ def book():
             {"mobile": mobile},
             {
                 "$set": {
-                    "name": Name,
+                    "name": final_name,
                     "mobile": mobile,
-                    "address": address,
-                    "group": group,
-                    "reference": reference,
+                    "address": final_address,
+                    "group": final_group,
+                    "reference": final_reference,
                     "updated_at": datetime.now()
                 }
             },
@@ -195,11 +240,14 @@ def book():
         try:
             details_list = [f"{b['date']}: {b['products']}" for b in bookings_data]
             details = f"Booked products: {', '.join(details_list)}. Total: ₹{total_price}, Paid: ₹{given_price_val}."
-            log_action(Name, mobile, "book", details)
+            log_action(final_name, mobile, "book", details)
         except Exception:
             pass
 
-        flash("✅ Booking successful!", "success")
+        if customer:
+            flash(f"✅ Additional items added successfully to {final_name}'s booking!", "success")
+        else:
+            flash("✅ Booking successful!", "success")
         return redirect(url_for('navaratri.QR', mobile=mobile))
 
     return render_template("navaratri/book.html")
@@ -850,12 +898,12 @@ def profile_update():
         return jsonify({"success": False, "message": "No data provided"}), 400
         
     customer_id = data.get('customer_id')
-    name = data.get('name', '').strip()
-    mobile = data.get('mobile', '').strip()
-    address = data.get('address', '').strip()
-    deposit = data.get('deposit', '').strip()
-    group = data.get('group', '').strip()
-    reference = data.get('reference', '').strip()
+    name = (data.get('name') or '').strip()
+    raw_mobile = (data.get('mobile') or '').strip()
+    address = (data.get('address') or '').strip()
+    deposit = (data.get('deposit') or '').strip()
+    group = (data.get('group') or '').strip()
+    reference = (data.get('reference') or '').strip()
     
     try:
         total_price = int(data.get('total_price', 0))
@@ -868,6 +916,15 @@ def profile_update():
         given_price = 0
         
     bookings_raw = data.get('bookings', [])
+
+    # Normalize mobile number consistently
+    mobile_digits = re.sub(r'\D', '', str(raw_mobile))
+    if len(mobile_digits) == 12 and mobile_digits.startswith('91'):
+        mobile = mobile_digits[2:]
+    elif len(mobile_digits) == 11 and mobile_digits.startswith('0'):
+        mobile = mobile_digits[1:]
+    else:
+        mobile = mobile_digits
     
     if not name or not mobile:
         return jsonify({"success": False, "message": "Name and Mobile are required."}), 400
@@ -875,15 +932,29 @@ def profile_update():
     if not mobile.isdigit() or len(mobile) != 10:
         return jsonify({"success": False, "message": "Mobile number must be a 10-digit number."}), 400
         
-    # Check mobile conflicts
-    if customer_id and customer_id != 'new':
-        existing = collection.find_one({"mobile": mobile})
-        if existing and str(existing['_id']) != customer_id:
-            return jsonify({"success": False, "message": f"Mobile number {mobile} is already registered to another customer ({existing.get('Name')})."}), 400
+    # Determine whether this is an explicit edit of an existing record or a booking submission
+    is_explicit_edit = bool(customer_id and customer_id != 'new')
+    existing_by_mobile = collection.find_one({"mobile": mobile})
+
+    if is_explicit_edit:
+        # Check if mobile belongs to another customer
+        if existing_by_mobile and str(existing_by_mobile['_id']) != str(customer_id):
+            return jsonify({
+                "success": False, 
+                "message": f"Mobile number {mobile} is already registered to another customer ({existing_by_mobile.get('Name')})."
+            }), 400
+        is_append = False
+        is_new = False
     else:
-        existing = collection.find_one({"mobile": mobile})
-        if existing:
-            return jsonify({"success": False, "message": f"Mobile number {mobile} is already registered to customer {existing.get('Name')}."}), 400
+        # Booking form submitted
+        if existing_by_mobile:
+            # Customer already exists in this cycle -> REBOOKING / APPEND!
+            is_append = True
+            is_new = False
+        else:
+            # Brand new customer in this active cycle
+            is_append = False
+            is_new = True
 
     # Process and clean bookings
     formatted_bookings = {}
@@ -932,68 +1003,211 @@ def profile_update():
                 if not is_avail:
                     return jsonify({"success": False, "message": f"❌ Booking Rejected: {err_reason}"}), 400
 
-        # Run conflict checks for the bookings (excluding this customer)
-        for date_str, products_list in formatted_bookings.items():
-            has_conflict, conflicts = check_booking_conflict(date_str, products_list, exclude_mobile=mobile)
-            if has_conflict:
-                conflict_msg = f"❌ Conflict: Following product(s) are already booked on {date_str}:<br>"
-                for conflict in conflicts:
-                    reason = conflict.get('reason')
-                    if reason:
-                        conflict_msg += f"• {conflict['product']}: {reason}<br>"
-                    else:
-                        conflict_msg += f"• '{conflict['product']}' by {conflict['customer_name']} ({conflict['customer_mobile']})<br>"
-                return jsonify({"success": False, "message": conflict_msg}), 400
-
-        if customer_id and customer_id != 'new':
-            ret_id = customer_id
+        # Conflict check
+        if is_explicit_edit:
+            # Exclude this customer since they are replacing their own bookings
+            for date_str, products_list in formatted_bookings.items():
+                has_conflict, conflicts = check_booking_conflict(date_str, products_list, exclude_mobile=mobile)
+                if has_conflict:
+                    conflict_msg = f"❌ Conflict: Following product(s) are already booked on {date_str}:<br>"
+                    for conflict in conflicts:
+                        reason = conflict.get('reason')
+                        if reason:
+                            conflict_msg += f"• {conflict['product']}: {reason}<br>"
+                        else:
+                            conflict_msg += f"• '{conflict['product']}' by {conflict['customer_name']} ({conflict['customer_mobile']})<br>"
+                    return jsonify({"success": False, "message": conflict_msg}), 400
         else:
-            ret_id = str(ObjectId())
+            # For new booking or appending to existing customer:
+            # Check against all bookings (exclude_mobile=None)
+            # This protects against double booking individual items and enforces group quantities
+            for date_str, products_list in formatted_bookings.items():
+                has_conflict, conflicts = check_booking_conflict(date_str, products_list, exclude_mobile=None)
+                if has_conflict:
+                    conflict_msg = f"❌ Conflict: Following product(s) are already booked on {date_str}:<br>"
+                    for conflict in conflicts:
+                        reason = conflict.get('reason')
+                        if reason:
+                            conflict_msg += f"• {conflict['product']}: {reason}<br>"
+                        elif conflict.get('customer_mobile') == mobile:
+                            conflict_msg += f"• '{conflict['product']}' is already booked in this customer's booking on {date_str}.<br>"
+                        else:
+                            conflict_msg += f"• '{conflict['product']}' by {conflict['customer_name']} ({conflict['customer_mobile']})<br>"
+                    return jsonify({"success": False, "message": conflict_msg}), 400
 
-        qr_url = url_for('navaratri.download_bill_page', id=ret_id, _external=True)
-        
-        customer_data = {
-            "Name": name,
-            "mobile": mobile,
-            "address": address,
-            "deposit": deposit,
-            "group": group,
-            "reference": reference,
-            "bookings": formatted_bookings,
-            "given_price": given_price,
-            "total_price": total_price,
-            "qr_url": qr_url
-        }
-        
         existing_cust = None
-        if customer_id and customer_id != 'new':
+
+        if is_append:
+            # Existing customer rebooking / append
+            ret_id = str(existing_by_mobile['_id'])
+            existing_cust = existing_by_mobile
+
+            # Preserve existing profile values unless user entered non-empty values
+            final_name = name if (name and name != existing_by_mobile.get('Name')) else existing_by_mobile.get('Name', name)
+            final_address = address if address else existing_by_mobile.get('address', '')
+            final_deposit = deposit if deposit else existing_by_mobile.get('deposit', '')
+            final_group = group if group else existing_by_mobile.get('group', '')
+            final_reference = reference if reference else existing_by_mobile.get('reference', '')
+
+            # Merge bookings dictionary
+            existing_bookings = existing_by_mobile.get('bookings', {})
+            if not isinstance(existing_bookings, dict):
+                existing_bookings = {}
+            merged_bookings = {}
+            for d_k, p_l in existing_bookings.items():
+                merged_bookings[d_k] = list(p_l) if isinstance(p_l, list) else [p_l]
+
+            added_items_summary = []
+            for date_str, new_prods in formatted_bookings.items():
+                curr = list(merged_bookings.get(date_str, []))
+                for np in new_prods:
+                    base_c, size, _ = parse_product_item(np)
+                    grp = get_group(base_c) if is_group_code(base_c) else None
+                    if grp and size:
+                        curr.append(np)
+                        added_items_summary.append(f"{np} ({date_str})")
+                    else:
+                        norm_np = normalize_product_code(np)
+                        if not any(normalize_product_code(x) == norm_np for x in curr):
+                            curr.append(np)
+                            added_items_summary.append(f"{np} ({date_str})")
+                merged_bookings[date_str] = curr
+
+            # Calculate updated total, cumulative payable amount, and validate payments
+            old_total = int(existing_by_mobile.get('total_price', 0) or 0)
+            old_given = int(existing_by_mobile.get('given_price', 0) or 0)
+            previous_remaining = max(0, old_total - old_given)
+            cumulative_total = old_total + total_price
+            maximum_payment_allowed = cumulative_total - old_given
+
+            if total_price < 0 or given_price < 0:
+                return jsonify({"success": False, "message": "Total and Payment amounts cannot be negative."}), 400
+
+            if given_price > maximum_payment_allowed:
+                return jsonify({
+                    "success": False,
+                    "message": f"Payment amount (₹{given_price}) cannot exceed total outstanding payable amount of ₹{maximum_payment_allowed} (Previous Outstanding ₹{previous_remaining} + Current Items ₹{total_price})."
+                }), 400
+
+            final_total_price = cumulative_total
+            final_given_price = old_given + given_price
+
+            qr_url = existing_by_mobile.get('qr_url')
+            if not qr_url:
+                qr_url = url_for('navaratri.download_bill_page', id=ret_id, _external=True)
+
+            customer_data = {
+                "Name": final_name,
+                "mobile": mobile,
+                "address": final_address,
+                "deposit": final_deposit,
+                "group": final_group,
+                "reference": final_reference,
+                "bookings": merged_bookings,
+                "given_price": final_given_price,
+                "total_price": final_total_price,
+                "qr_url": qr_url
+            }
+
+            collection.update_one(
+                {"_id": existing_by_mobile['_id']},
+                {"$set": customer_data}
+            )
+            message = f"✅ Additional items added successfully to {final_name}'s booking!"
+
+        elif is_explicit_edit:
+            if total_price < 0 or given_price < 0:
+                return jsonify({"success": False, "message": "Total and Payment amounts cannot be negative."}), 400
+            if given_price > total_price:
+                return jsonify({
+                    "success": False,
+                    "message": f"Paid amount (₹{given_price}) cannot exceed total invoice (₹{total_price})."
+                }), 400
+
+            # Explicit profile edit
+            ret_id = customer_id
+            qr_url = url_for('navaratri.download_bill_page', id=ret_id, _external=True)
+            final_name = name
+            final_address = address
+            final_deposit = deposit
+            final_group = group
+            final_reference = reference
+            final_total_price = total_price
+            final_given_price = given_price
+            added_items_summary = []
+
+            customer_data = {
+                "Name": final_name,
+                "mobile": mobile,
+                "address": final_address,
+                "deposit": final_deposit,
+                "group": final_group,
+                "reference": final_reference,
+                "bookings": formatted_bookings,
+                "given_price": final_given_price,
+                "total_price": final_total_price,
+                "qr_url": qr_url
+            }
+
             try:
                 existing_cust = collection.find_one({"_id": ObjectId(customer_id)})
             except:
                 pass
 
-        if customer_id and customer_id != 'new':
             collection.update_one(
                 {"_id": ObjectId(customer_id)},
                 {"$set": customer_data}
             )
             message = "✅ Customer profile updated successfully!"
+
         else:
-            customer_data["_id"] = ObjectId(ret_id)
+            if total_price < 0 or given_price < 0:
+                return jsonify({"success": False, "message": "Total and Payment amounts cannot be negative."}), 400
+            if given_price > total_price:
+                return jsonify({
+                    "success": False,
+                    "message": f"Paid amount (₹{given_price}) cannot exceed total invoice (₹{total_price})."
+                }), 400
+
+            # New customer
+            ret_id = str(ObjectId())
+            qr_url = url_for('navaratri.download_bill_page', id=ret_id, _external=True)
+            final_name = name
+            final_address = address
+            final_deposit = deposit
+            final_group = group
+            final_reference = reference
+            final_total_price = total_price
+            final_given_price = given_price
+            added_items_summary = [f"{p} ({d})" for d, prods in formatted_bookings.items() for p in prods]
+
+            customer_data = {
+                "_id": ObjectId(ret_id),
+                "Name": final_name,
+                "mobile": mobile,
+                "address": final_address,
+                "deposit": final_deposit,
+                "group": final_group,
+                "reference": final_reference,
+                "bookings": formatted_bookings,
+                "given_price": final_given_price,
+                "total_price": final_total_price,
+                "qr_url": qr_url
+            }
+
             collection.insert_one(customer_data)
             message = "✅ Customer profile created successfully!"
-            ret_id = str(ret_id)
 
     # Upsert customer record into Navaratri_Customers collection
     ncustomers.update_one(
         {"mobile": mobile},
         {
             "$set": {
-                "name": name,
+                "name": final_name,
                 "mobile": mobile,
-                "address": address,
-                "group": group,
-                "reference": reference,
+                "address": final_address,
+                "group": final_group,
+                "reference": final_reference,
                 "updated_at": datetime.now()
             }
         },
@@ -1001,7 +1215,15 @@ def profile_update():
     )
 
     try:
-        if customer_id and customer_id != 'new':
+        if is_append:
+            items_desc = ", ".join(added_items_summary) if added_items_summary else str(formatted_bookings)
+            details = (
+                f"Added additional items to existing booking: {items_desc}. "
+                f"Added Total: ₹{total_price}, Added Paid: ₹{given_price}. "
+                f"Updated Total: ₹{final_total_price}, Updated Paid: ₹{final_given_price}."
+            )
+            log_action(final_name, mobile, "book", details)
+        elif is_explicit_edit:
             if existing_cust:
                 changes = []
                 for label, key in [("Name", "Name"), ("Mobile", "mobile"), ("Address", "address"), ("Deposit", "deposit"), ("Group", "group"), ("Reference", "reference")]:
@@ -1010,10 +1232,10 @@ def profile_update():
                     if str(old_v).strip() != str(new_v).strip():
                         changes.append(f"{label}: '{old_v}' -> '{new_v}'")
                 
-                if existing_cust.get("total_price", 0) != total_price:
-                    changes.append(f"Total Price: ₹{existing_cust.get('total_price', 0)} -> ₹{total_price}")
-                if existing_cust.get("given_price", 0) != given_price:
-                    changes.append(f"Paid Amount: ₹{existing_cust.get('given_price', 0)} -> ₹{given_price}")
+                if existing_cust.get("total_price", 0) != final_total_price:
+                    changes.append(f"Total Price: ₹{existing_cust.get('total_price', 0)} -> ₹{final_total_price}")
+                if existing_cust.get("given_price", 0) != final_given_price:
+                    changes.append(f"Paid Amount: ₹{existing_cust.get('given_price', 0)} -> ₹{final_given_price}")
                 
                 old_books = existing_cust.get("bookings", {})
                 all_dates = set(old_books.keys()) | set(formatted_bookings.keys())
@@ -1039,25 +1261,27 @@ def profile_update():
                 else:
                     details = "Updated customer profile (no value changes detected)."
             else:
-                details = f"Updated customer profile via profile page. Total: ₹{total_price}, Given: ₹{given_price}. Bookings: {formatted_bookings}."
-            log_action(name, mobile, "edit", details)
+                details = f"Updated customer profile via profile page. Total: ₹{final_total_price}, Given: ₹{final_given_price}. Bookings: {formatted_bookings}."
+            log_action(final_name, mobile, "edit", details)
         else:
-            log_action(name, mobile, "book", f"Created customer profile. Total: ₹{total_price}, Given: ₹{given_price}. Bookings: {formatted_bookings}.")
+            log_action(final_name, mobile, "book", f"Created customer profile. Total: ₹{final_total_price}, Given: ₹{final_given_price}. Bookings: {formatted_bookings}.")
     except Exception:
         pass
         
-    is_new = (customer_id == 'new' or not customer_id or not existing_cust)
     return jsonify({
         "success": True,
         "message": message,
         "customer_id": ret_id,
         "mobile": mobile,
-        "name": name,
-        "total_price": total_price,
-        "given_price": given_price,
-        "remaining": max(0, total_price - given_price),
+        "name": final_name,
+        "total_price": final_total_price,
+        "given_price": final_given_price,
+        "remaining": max(0, final_total_price - final_given_price),
         "qr_url": qr_url,
-        "is_new": is_new
+        "is_new": is_new,
+        "is_append": is_append,
+        "newly_added_products": added_items_summary,
+        "booking_dates": list(formatted_bookings.keys())
     })
 
 # ------------------ API: Add Payment to Customer ------------------
@@ -3537,7 +3761,18 @@ def lock_cycle(cycle_id):
 def get_navaratri_customer():
     if not session.get('logged_in'):
         return jsonify({"exists": False, "error": "Unauthorized"}), 401
-    mobile = request.args.get("mobile", "").strip()
+    raw_mobile = request.args.get("mobile", "").strip()
+    if not raw_mobile:
+        return jsonify({"exists": False})
+
+    mobile_digits = re.sub(r'\D', '', str(raw_mobile))
+    if len(mobile_digits) == 12 and mobile_digits.startswith('91'):
+        mobile = mobile_digits[2:]
+    elif len(mobile_digits) == 11 and mobile_digits.startswith('0'):
+        mobile = mobile_digits[1:]
+    else:
+        mobile = mobile_digits
+
     if not mobile:
         return jsonify({"exists": False})
 
@@ -3567,15 +3802,21 @@ def get_navaratri_customer():
     # Check if they have a booking in this cycle first
     active_customer = collection.find_one({"mobile": mobile})
     if active_customer:
+        tot = int(active_customer.get("total_price", 0) or 0)
+        giv = int(active_customer.get("given_price", 0) or 0)
         return jsonify({
             "exists": True,
             "in_cycle": True,
             "data": {
+                "id": str(active_customer.get("_id")),
                 "name": active_customer.get("Name") or active_customer.get("name", ""),
                 "mobile": active_customer.get("mobile", ""),
                 "address": active_customer.get("address", ""),
                 "group": active_customer.get("group", ""),
-                "reference": active_customer.get("reference", "")
+                "reference": active_customer.get("reference", ""),
+                "total_price": tot,
+                "given_price": giv,
+                "remaining": max(0, tot - giv)
             }
         })
 
