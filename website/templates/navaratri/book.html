@@ -260,6 +260,7 @@
             <label class="form-label fw-semibold">Mobile Number *</label>
             <input type="tel" id="cust-mobile" required placeholder="Enter 10-digit mobile number" class="form-control" maxlength="10" pattern="[0-9]{10}">
             <div id="mobile-error" class="text-danger fs-7 mt-1 d-none">Mobile number must be exactly 10 digits.</div>
+            <div id="cust-found-info" class="text-success fs-7 mt-1 d-none fw-semibold"></div>
           </div>
           <div class="col-12">
             <label class="form-label fw-semibold">Complete Address</label>
@@ -298,14 +299,50 @@
         <h3><i class="bi bi-wallet2 text-warning"></i> Payment Details</h3>
       </div>
       <div class="card-body-premium">
+
+        <!-- Cumulative Financial Breakdown Card for Existing Customer -->
+        <div id="book-rebooking-calc-card" class="p-3 mb-3 rounded d-none" style="background:rgba(14, 165, 233, 0.08); border:1px solid rgba(14, 165, 233, 0.35); border-radius:12px;">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold text-info" style="font-size:0.92rem;"><i class="bi bi-calculator me-1"></i> Cumulative Payment Calculation</span>
+            <span class="badge bg-info text-dark font-monospace">Active Customer Balance</span>
+          </div>
+          <div class="row g-2 text-center" style="font-size:0.85rem;">
+            <div class="col-6 col-md-2 p-2 rounded" style="background:rgba(255,255,255,0.04);">
+              <div class="text-white-50 small">Previous Outstanding</div>
+              <div class="fw-bold text-danger fs-6">₹<span id="book-calc-prev-remaining">0</span></div>
+            </div>
+            <div class="col-6 col-md-3 p-2 rounded" style="background:rgba(255,255,255,0.04);">
+              <div class="text-white-50 small">Current Items Total</div>
+              <div class="fw-bold text-warning fs-6">₹<span id="book-calc-current-total">0</span></div>
+            </div>
+            <div class="col-6 col-md-3 p-2 rounded" style="background:rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.3);">
+              <div class="text-info small fw-bold">Total Outstanding</div>
+              <div class="fw-bold text-info fs-6">₹<span id="book-calc-total-outstanding">0</span></div>
+            </div>
+            <div class="col-6 col-md-2 p-2 rounded" style="background:rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3);">
+              <div class="text-success small fw-bold">Amount Paying Now</div>
+              <div class="fw-bold text-success fs-6">₹<span id="book-calc-amount-paying">0</span></div>
+            </div>
+            <div class="col-12 col-md-2 p-2 rounded" style="background:rgba(255,255,255,0.04);">
+              <div class="text-white-50 small">Remaining After</div>
+              <div class="fw-bold text-light fs-6">₹<span id="book-calc-remaining-after">0</span></div>
+            </div>
+          </div>
+          <div id="book-calc-error" class="text-danger small mt-2 fw-semibold d-none">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> Amount paying now (₹<span id="book-calc-err-given">0</span>) cannot exceed Total Outstanding (₹<span id="book-calc-max-allowed">0</span>).
+          </div>
+        </div>
+
         <div class="row g-3">
           <div class="col-md-4">
-            <label class="form-label fw-semibold">Total Price (₹) *</label>
+            <label class="form-label fw-semibold" id="book-total-price-label">Total Price (₹) *</label>
             <input type="number" id="total-price" min="0" required class="form-control" value="0">
+            <small id="book-total-price-hint" class="text-white-50 d-none" style="font-size:0.78rem;">Cost of new item(s) being added now</small>
           </div>
           <div class="col-md-4">
-            <label class="form-label fw-semibold">Amount Received / Paid (₹) *</label>
+            <label class="form-label fw-semibold" id="book-given-price-label">Amount Received / Paid (₹) *</label>
             <input type="number" id="given-price" min="0" required class="form-control" value="0">
+            <small id="book-given-price-hint" class="text-white-50 d-none" style="font-size:0.78rem;">Payment received now</small>
           </div>
           <div class="col-md-4">
             <label class="form-label fw-semibold">Deposit Details</label>
@@ -349,9 +386,52 @@
     // Add default date row to start
     addDateRow();
     
-    // Setup validation events
+  window.existingCustomerInCycle = null;
+
+  function updateBookFinancialCalc() {
+    const card = document.getElementById('book-rebooking-calc-card');
+    if (!card) return;
+
+    if (window.existingCustomerInCycle) {
+      card.classList.remove('d-none');
+      const prevRemaining = parseInt(window.existingCustomerInCycle.remaining) || 0;
+      const currentItemsTotal = parseInt(document.getElementById('total-price').value) || 0;
+      const totalOutstanding = prevRemaining + currentItemsTotal;
+      const amountPayingNow = parseInt(document.getElementById('given-price').value) || 0;
+      const remainingAfter = Math.max(0, totalOutstanding - amountPayingNow);
+
+      document.getElementById('book-calc-prev-remaining').innerText = prevRemaining;
+      document.getElementById('book-calc-current-total').innerText = currentItemsTotal;
+      document.getElementById('book-calc-total-outstanding').innerText = totalOutstanding;
+      document.getElementById('book-calc-amount-paying').innerText = amountPayingNow;
+      document.getElementById('book-calc-remaining-after').innerText = remainingAfter;
+
+      const errBox = document.getElementById('book-calc-error');
+      const errGiven = document.getElementById('book-calc-err-given');
+      const maxAllowed = document.getElementById('book-calc-max-allowed');
+      if (amountPayingNow > totalOutstanding) {
+        if (errBox) errBox.classList.remove('d-none');
+        if (errGiven) errGiven.innerText = amountPayingNow;
+        if (maxAllowed) maxAllowed.innerText = totalOutstanding;
+      } else {
+        if (errBox) errBox.classList.add('d-none');
+      }
+    } else {
+      card.classList.add('d-none');
+    }
+  }
+
+  // Setup validation events
+  document.addEventListener("DOMContentLoaded", function() {
     const mobileInput = document.getElementById("cust-mobile");
     const mobileError = document.getElementById("mobile-error");
+    const custFoundInfo = document.getElementById("cust-found-info");
+    const totalPriceInput = document.getElementById("total-price");
+    const givenPriceInput = document.getElementById("given-price");
+
+    if (totalPriceInput) totalPriceInput.addEventListener("input", updateBookFinancialCalc);
+    if (givenPriceInput) givenPriceInput.addEventListener("input", updateBookFinancialCalc);
+
     mobileInput.addEventListener("input", function() {
       this.value = this.value.replace(/[^0-9]/g, ""); // digits only
       if (this.value.length === 10) {
@@ -376,16 +456,60 @@
               if (grpEl) grpEl.value = data.data.group || '';
               if (refEl) refEl.value = data.data.reference || '';
               
+              if (custFoundInfo) {
+                custFoundInfo.innerHTML = `<i class="bi bi-person-check-fill me-1"></i> Existing customer found: <strong>${data.data.name || ''}</strong>` + (data.in_cycle ? ' (New items will be added to active booking)' : '');
+                custFoundInfo.classList.remove('d-none');
+              }
+
               if (data.in_cycle) {
-                showToast("👤 Booking in this cycle found! Details, group, and reference pre-filled.", "success");
+                window.existingCustomerInCycle = data.data;
+                const lblTot = document.getElementById('book-total-price-label');
+                const lblGiv = document.getElementById('book-given-price-label');
+                if (lblTot) lblTot.innerText = "Current Items Total (₹) *";
+                if (lblGiv) lblGiv.innerText = "Amount Paying Now (₹) *";
+                document.getElementById('book-total-price-hint')?.classList.remove('d-none');
+                document.getElementById('book-given-price-hint')?.classList.remove('d-none');
+
+                updateBookFinancialCalc();
+                showToast(`👤 Existing customer found: ${data.data.name}! Additional items will be added to active booking.`, "success");
               } else {
-                showToast("👤 Returning customer found! Details, group, and reference pre-filled.", "success");
+                window.existingCustomerInCycle = null;
+                const lblTot = document.getElementById('book-total-price-label');
+                const lblGiv = document.getElementById('book-given-price-label');
+                if (lblTot) lblTot.innerText = "Total Price (₹) *";
+                if (lblGiv) lblGiv.innerText = "Amount Received / Paid (₹) *";
+                document.getElementById('book-total-price-hint')?.classList.add('d-none');
+                document.getElementById('book-given-price-hint')?.classList.add('d-none');
+
+                updateBookFinancialCalc();
+                showToast(`👤 Returning customer found: ${data.data.name}! Details pre-filled.`, "success");
               }
             } else {
+              window.existingCustomerInCycle = null;
+              if (custFoundInfo) custFoundInfo.classList.add('d-none');
+              const lblTot = document.getElementById('book-total-price-label');
+              const lblGiv = document.getElementById('book-given-price-label');
+              if (lblTot) lblTot.innerText = "Total Price (₹) *";
+              if (lblGiv) lblGiv.innerText = "Amount Received / Paid (₹) *";
+              document.getElementById('book-total-price-hint')?.classList.add('d-none');
+              document.getElementById('book-given-price-hint')?.classList.add('d-none');
+
+              updateBookFinancialCalc();
               console.log("Customer not found or empty data returned.");
             }
           })
           .catch(err => console.error("Error fetching customer data:", err));
+      } else {
+        window.existingCustomerInCycle = null;
+        if (custFoundInfo) custFoundInfo.classList.add('d-none');
+        const lblTot = document.getElementById('book-total-price-label');
+        const lblGiv = document.getElementById('book-given-price-label');
+        if (lblTot) lblTot.innerText = "Total Price (₹) *";
+        if (lblGiv) lblGiv.innerText = "Amount Received / Paid (₹) *";
+        document.getElementById('book-total-price-hint')?.classList.add('d-none');
+        document.getElementById('book-given-price-hint')?.classList.add('d-none');
+
+        updateBookFinancialCalc();
       }
     });
   });
@@ -729,11 +853,12 @@
   }
 
   // Intercept form submit and post JSON payload to unified create endpoint
-  function submitFormAJAX(event) {
+  async function submitFormAJAX(event) {
     event.preventDefault();
     
     const name = document.getElementById("cust-name").value.trim();
-    const mobile = document.getElementById("cust-mobile").value.trim();
+    const rawMobile = document.getElementById("cust-mobile").value.trim();
+    const mobile = rawMobile.replace(/\D/g, '').slice(-10);
     const address = document.getElementById("cust-address").value.trim();
     const group = document.getElementById("cust-group").value.trim();
     const reference = document.getElementById("cust-reference").value.trim();
@@ -743,16 +868,34 @@
     
     const mobileError = document.getElementById("mobile-error");
     
-    if (mobile.length !== 10 || isNaN(mobile)) {
+    if (mobile.length !== 10) {
       mobileError.classList.remove("d-none");
       showToast("Mobile number must be exactly 10 digits.", "error");
       return;
     } else {
       mobileError.classList.add("d-none");
     }
-    
-    if (given_price > total_price) {
-      showToast("Received payment cannot exceed total price.", "error");
+
+    // Resolve previous remaining balance for this customer
+    let prevRemaining = 0;
+    if (window.existingCustomerInCycle && window.existingCustomerInCycle.mobile === mobile) {
+      prevRemaining = parseInt(window.existingCustomerInCycle.remaining) || 0;
+    } else if (mobile.length === 10) {
+      try {
+        const resp = await fetch(`/get-navaratri-customer?mobile=${encodeURIComponent(mobile)}`);
+        const cdata = await resp.json();
+        if (cdata.exists && cdata.in_cycle && cdata.data) {
+          window.existingCustomerInCycle = cdata.data;
+          prevRemaining = parseInt(cdata.data.remaining) || 0;
+        }
+      } catch (e) {
+        console.warn("Pre-submit customer lookup error:", e);
+      }
+    }
+
+    const totalOutstanding = prevRemaining + total_price;
+    if (given_price > totalOutstanding) {
+      showToast(`Payment amount (₹${given_price}) cannot exceed total outstanding amount (₹${totalOutstanding}).`, "error");
       return;
     }
     

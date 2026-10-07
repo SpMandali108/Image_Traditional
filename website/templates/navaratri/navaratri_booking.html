@@ -1265,15 +1265,18 @@
             <!-- Col 3: Action Controls -->
             <div class="col-xl-4 col-lg-4 col-md-6 col-12">
               <div class="action-grid h-100 d-flex flex-column justify-content-center">
-                <div class="d-flex gap-2">
-                  <button class="btn btn-gold flex-fill text-nowrap" onclick="openEditModal()">
+                <div class="d-flex gap-2 mb-2">
+                  <button class="btn btn-gold flex-fill text-nowrap fw-bold" onclick="openAddBookingModal()">
+                    <i class="bi bi-plus-circle-fill me-1"></i> Add Booking
+                  </button>
+                  <button class="btn btn-ghost-gold flex-fill text-nowrap fw-bold" onclick="openEditModal()">
                     <i class="bi bi-pencil-square me-1"></i> Edit Booking
                   </button>
+                </div>
+                <div class="d-flex gap-2 mb-2">
                   <a href="{{ url_for('navaratri.download_customer', mobile=customer.mobile, id=customer._id|string) }}" class="btn btn-ghost-success flex-fill fw-bold text-nowrap d-inline-flex align-items-center justify-content-center" title="Download PDF Bill">
                     <i class="bi bi-file-earmark-pdf-fill me-1"></i> Bill PDF
                   </a>
-                </div>
-                <div class="d-flex gap-2">
                   <button class="btn btn-ghost-light flex-fill text-nowrap" onclick="openQrModal('{{ customer.mobile }}')">
                     <i class="bi bi-qr-code me-1"></i> View QR
                   </button>
@@ -1294,15 +1297,20 @@
 
       <!-- ── RESERVED ITEMS TIMELINE (FULL WIDTH) ──────────────────── -->
       <div class="it-card">
-        <div class="it-card-header">
-          <h3 class="it-card-title"><i class="bi bi-calendar-check-fill"></i> Reserved Items Timeline</h3>
-          <span class="badge-gold" id="disp-booking-count">
-            {% set total_prods = namespace(val=0) %}
-            {% for date, items in customer.bookings.items() %}
-              {% set total_prods.val = total_prods.val + items|length %}
-            {% endfor %}
-            {{ total_prods.val }} Item(s)
-          </span>
+        <div class="it-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <h3 class="it-card-title mb-0"><i class="bi bi-calendar-check-fill"></i> Reserved Items Timeline</h3>
+            <span class="badge-gold" id="disp-booking-count">
+              {% set total_prods = namespace(val=0) %}
+              {% for date, items in customer.bookings.items() %}
+                {% set total_prods.val = total_prods.val + items|length %}
+              {% endfor %}
+              {{ total_prods.val }} Item(s)
+            </span>
+          </div>
+          <button type="button" class="btn btn-gold btn-sm fw-bold" onclick="openAddBookingModal()">
+            <i class="bi bi-plus-circle-fill me-1"></i> Add More Items
+          </button>
         </div>
         <div class="it-card-body-flush">
 
@@ -1516,6 +1524,13 @@
               <label class="form-label">Mobile Number (10 digits) *</label>
               <input type="tel" id="modal-mobile" required placeholder="10-digit mobile" class="form-control" maxlength="10" pattern="[0-9]{10}">
               <div id="modal-mobile-error" class="mt-1 d-none" style="font-size:0.85rem;font-weight:600;color:#ff8080;">Please enter exactly 10 numeric digits.</div>
+              <div id="modal-rebooking-alert" class="alert alert-info py-2 px-3 mt-2 d-none" style="font-size:0.86rem; background:rgba(14, 165, 233, 0.15); border:1px solid rgba(14, 165, 233, 0.4); color:#7dd3fc; border-radius:8px;">
+                <div class="fw-bold"><i class="bi bi-person-check-fill me-1"></i> Existing customer found: <span id="modal-rebooking-name"></span></div>
+                <div id="modal-rebooking-financials" class="small mt-1 text-white-50 d-none">
+                  Current Booking: Total ₹<span id="modal-rebooking-total">0</span> | Paid ₹<span id="modal-rebooking-paid">0</span> | Due ₹<span id="modal-rebooking-due">0</span>.
+                  <br><span style="color:var(--gold-light);">Enter amounts for newly added items only; they will be appended automatically.</span>
+                </div>
+              </div>
             </div>
             <div class="col-12">
               <label class="form-label">Address</label>
@@ -1532,14 +1547,50 @@
           </div>
 
           <div class="modal-section-title"><i class="bi bi-wallet2 me-1"></i> Financial Information</div>
+
+          <!-- Dynamic Financial Breakdown Card for Existing Customer -->
+          <div id="modal-rebooking-calc-card" class="p-3 mb-3 rounded d-none" style="background:rgba(14, 165, 233, 0.08); border:1px solid rgba(14, 165, 233, 0.35); border-radius:12px;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold text-info" style="font-size:0.9rem;"><i class="bi bi-calculator me-1"></i> Cumulative Payment Calculation</span>
+              <span class="badge bg-info text-dark font-monospace">Active Customer Balance</span>
+            </div>
+            <div class="row g-2 text-center" style="font-size:0.85rem;">
+              <div class="col-6 col-md-2 p-2 rounded" style="background:rgba(255,255,255,0.04);">
+                <div class="text-white-50 small">Previous Outstanding</div>
+                <div class="fw-bold text-danger fs-6">₹<span id="calc-prev-remaining">0</span></div>
+              </div>
+              <div class="col-6 col-md-3 p-2 rounded" style="background:rgba(255,255,255,0.04);">
+                <div class="text-white-50 small">Current Items Total</div>
+                <div class="fw-bold text-warning fs-6">₹<span id="calc-current-total">0</span></div>
+              </div>
+              <div class="col-6 col-md-3 p-2 rounded" style="background:rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.3);">
+                <div class="text-info small fw-bold">Total Outstanding</div>
+                <div class="fw-bold text-info fs-6">₹<span id="calc-total-outstanding">0</span></div>
+              </div>
+              <div class="col-6 col-md-2 p-2 rounded" style="background:rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3);">
+                <div class="text-success small fw-bold">Amount Paying Now</div>
+                <div class="fw-bold text-success fs-6">₹<span id="calc-amount-paying">0</span></div>
+              </div>
+              <div class="col-12 col-md-2 p-2 rounded" style="background:rgba(255,255,255,0.04);">
+                <div class="text-white-50 small">Remaining After</div>
+                <div class="fw-bold text-light fs-6">₹<span id="calc-remaining-after">0</span></div>
+              </div>
+            </div>
+            <div id="modal-calc-error" class="text-danger small mt-2 fw-semibold d-none">
+              <i class="bi bi-exclamation-triangle-fill me-1"></i> Amount paying now (₹<span id="modal-calc-err-given">0</span>) cannot exceed Total Outstanding (₹<span id="modal-calc-max-allowed">0</span>).
+            </div>
+          </div>
+
           <div class="row g-3 mb-4">
             <div class="col-md-4">
-              <label class="form-label">Total Invoice Amount (₹) *</label>
+              <label class="form-label" id="modal-total-price-label">Total Invoice Amount (₹) *</label>
               <input type="number" id="modal-total-price" min="0" required class="form-control" value="0">
+              <small id="modal-total-price-hint" class="text-white-50 d-none" style="font-size:0.78rem;">Cost of new item(s) being added now</small>
             </div>
             <div class="col-md-4">
-              <label class="form-label">Amount Paid (₹) *</label>
+              <label class="form-label" id="modal-given-price-label">Amount Paid (₹) *</label>
               <input type="number" id="modal-given-price" min="0" required class="form-control" value="0">
+              <small id="modal-given-price-hint" class="text-white-50 d-none" style="font-size:0.78rem;">Payment received now</small>
             </div>
             <div class="col-md-4">
               <label class="form-label">Security Deposit</label>
@@ -1565,6 +1616,124 @@
         <button type="button" class="btn btn-ghost-light fw-bold" data-bs-dismiss="modal">Cancel</button>
         <button type="button" class="btn btn-gold fw-bold px-4" id="saveCustomerModalBtn" onclick="saveCustomerProfile()">
           Save Booking Changes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Booking to Existing Customer Modal -->
+<div class="modal fade" id="addBookingModal" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-fullscreen-md-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addBookingModalLabel">
+          <i class="bi bi-plus-circle-fill me-2" style="color:var(--gold-primary);"></i>Add Booking to Existing Customer
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4" style="position:relative;">
+
+        <div id="addBookingLoadingOverlay" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(6,12,23,0.85);z-index:10;border-radius:20px;">
+          <div class="text-center">
+            <div class="spinner-border" style="color:var(--gold-primary);width:3.5rem;height:3.5rem;" role="status"></div>
+            <p class="mt-3 fw-bold" style="color:var(--gold-light);">Appending booking data…</p>
+          </div>
+        </div>
+
+        <!-- Customer Summary Header Strip -->
+        <div class="p-3 mb-4 rounded" style="background:linear-gradient(135deg, rgba(201, 162, 39, 0.12), rgba(15, 23, 42, 0.6)); border:1px solid var(--border-gold); border-radius:12px;">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+              <div class="text-white-50 small text-uppercase fw-bold" style="letter-spacing:0.08em;">Active Customer</div>
+              <h5 class="mb-0 fw-bold text-white" id="add-booking-cust-name-display">—</h5>
+            </div>
+            <div>
+              <div class="text-white-50 small text-uppercase fw-bold" style="letter-spacing:0.08em;">Mobile Number</div>
+              <div class="fw-bold fs-6" style="color:var(--gold-light);" id="add-booking-cust-mobile-display">—</div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <span class="badge py-2 px-3" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:#cbd5e1; font-size:0.85rem;">
+                Current Total: ₹<span id="add-booking-cust-prev-total">0</span>
+              </span>
+              <span class="badge py-2 px-3" style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:#34d399; font-size:0.85rem;">
+                Paid So Far: ₹<span id="add-booking-cust-prev-paid">0</span>
+              </span>
+              <span class="badge py-2 px-3" style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:#f87171; font-size:0.85rem;">
+                Previous Due: ₹<span id="add-booking-cust-prev-due">0</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <form id="addBookingForm">
+          <div class="modal-section-title"><i class="bi bi-wallet2 me-1"></i> Financial Calculation</div>
+
+          <!-- Cumulative Payment Calculation Card -->
+          <div id="add-booking-calc-card" class="p-3 mb-3 rounded" style="background:rgba(14, 165, 233, 0.08); border:1px solid rgba(14, 165, 233, 0.35); border-radius:12px;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold text-info" style="font-size:0.9rem;"><i class="bi bi-calculator me-1"></i> Cumulative Payment Calculation</span>
+              <span class="badge bg-info text-dark font-monospace">Auto-Appends To Active Booking</span>
+            </div>
+            <div class="row g-2 text-center" style="font-size:0.85rem;">
+              <div class="col-6 col-md-2 p-2 rounded" style="background:rgba(255,255,255,0.04);">
+                <div class="text-white-50 small">Previous Outstanding</div>
+                <div class="fw-bold text-danger fs-6">₹<span id="add-calc-prev-remaining">0</span></div>
+              </div>
+              <div class="col-6 col-md-3 p-2 rounded" style="background:rgba(255,255,255,0.04);">
+                <div class="text-white-50 small">Current Items Total</div>
+                <div class="fw-bold text-warning fs-6">₹<span id="add-calc-current-total">0</span></div>
+              </div>
+              <div class="col-6 col-md-3 p-2 rounded" style="background:rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.3);">
+                <div class="text-info small fw-bold">Total Outstanding</div>
+                <div class="fw-bold text-info fs-6">₹<span id="add-calc-total-outstanding">0</span></div>
+              </div>
+              <div class="col-6 col-md-2 p-2 rounded" style="background:rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3);">
+                <div class="text-success small fw-bold">Amount Paying Now</div>
+                <div class="fw-bold text-success fs-6">₹<span id="add-calc-amount-paying">0</span></div>
+              </div>
+              <div class="col-12 col-md-2 p-2 rounded" style="background:rgba(255,255,255,0.04);">
+                <div class="text-white-50 small">Remaining After</div>
+                <div class="fw-bold text-light fs-6">₹<span id="add-calc-remaining-after">0</span></div>
+              </div>
+            </div>
+            <div id="add-calc-error" class="text-danger small mt-2 fw-semibold d-none">
+              <i class="bi bi-exclamation-triangle-fill me-1"></i> Amount paying now (₹<span id="add-calc-err-given">0</span>) cannot exceed Total Outstanding (₹<span id="add-calc-max-allowed">0</span>).
+            </div>
+          </div>
+
+          <!-- Total and Paid Inputs -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Current Items Total (₹) *</label>
+              <input type="number" id="add-booking-total-price" min="0" required class="form-control" value="0">
+              <small class="text-white-50" style="font-size:0.78rem;">Cost of newly added costume(s)</small>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Amount Paying Now (₹) *</label>
+              <input type="number" id="add-booking-given-price" min="0" required class="form-control" value="0">
+              <small class="text-white-50" style="font-size:0.78rem;">Payment received now (can cover new items + past due)</small>
+            </div>
+          </div>
+
+          <div class="sticky-allocation-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="modal-section-title mb-0"><i class="bi bi-calendar-plus-fill me-1"></i> Additional Dates & Costume Allocations</div>
+            <button type="button" class="btn btn-gold btn-sm fw-bold" onclick="addAddBookingDateBlock()">
+              <i class="bi bi-plus-circle-fill me-1"></i> Add Date Block
+            </button>
+          </div>
+          <div id="addBookingRowsContainer"></div>
+          <div class="text-center mt-3 pt-3 border-top border-secondary">
+            <button type="button" class="btn btn-ghost-gold btn-sm fw-bold px-4 py-2" onclick="addAddBookingDateBlock()">
+              <i class="bi bi-plus-circle-fill me-1"></i> Add Another Date Block
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost-light fw-bold" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-gold fw-bold px-4" id="saveAddBookingBtn" onclick="saveAddBooking()">
+          <i class="bi bi-plus-circle-fill me-1"></i> Add to Existing Booking
         </button>
       </div>
     </div>
@@ -1697,7 +1866,7 @@
       </div>
       <div class="modal-body p-4 text-center">
         <div class="mb-3">
-          <span class="badge bg-success px-3 py-2 fs-6 rounded-pill" style="background:#10b981 !important;">
+          <span class="badge bg-success px-3 py-2 fs-6 rounded-pill" id="succ-badge" style="background:#10b981 !important;">
             <i class="bi bi-shield-check me-1"></i> New Booking Registered
           </span>
         </div>
@@ -1727,6 +1896,13 @@
             <strong style="color:var(--gold-primary);">Balance Remaining:</strong>
             <strong style="color:var(--gold-light);" id="succ-remaining-price">₹0</strong>
           </div>
+        </div>
+
+        <!-- Newly Added Items Summary (Shown for Additional Items / Rebooking) -->
+        <div id="succ-items-summary-container" class="p-3 mb-3 rounded text-start d-none" style="background:rgba(212,175,55,0.08); border:1px solid rgba(212,175,55,0.3);">
+          <div style="font-size:0.82rem; color:var(--gold-light); font-weight:700;"><i class="bi bi-bag-check-fill me-1"></i> Newly Added Items:</div>
+          <div id="succ-items-summary-list" style="font-size:0.9rem; color:#ffffff; font-weight:600; margin-top:3px;"></div>
+          <div id="succ-items-dates-list" style="font-size:0.8rem; color:#94a3b8; margin-top:2px;"></div>
         </div>
 
         <!-- Action Buttons: WhatsApp & Direct Download -->
@@ -1824,7 +2000,7 @@
     ]
   }{% else %}null{% endif %};
 
-  let editModalObj, reassignModalObj, deleteModalObj, deleteCustomerModalObj, bookingSuccessModalObj;
+  let editModalObj, addBookingModalObj, reassignModalObj, deleteModalObj, deleteCustomerModalObj, bookingSuccessModalObj;
   let checkAvailabilityTimers = {};
   let checkAvailabilityControllers = {};
   let checkAvailabilitySeq = {};
@@ -1832,6 +2008,8 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     editModalObj           = new bootstrap.Modal(document.getElementById('editCustomerModal'));
+    const addModalEl       = document.getElementById('addBookingModal');
+    if (addModalEl) addBookingModalObj = new bootstrap.Modal(addModalEl);
     reassignModalObj       = new bootstrap.Modal(document.getElementById('reassignModal'));
     deleteModalObj         = new bootstrap.Modal(document.getElementById('deleteBookingRowModal'));
     deleteCustomerModalObj = new bootstrap.Modal(document.getElementById('deleteCustomerModal'));
@@ -1858,80 +2036,85 @@
     fetchProductSuggestions();
     if (customerData) updateInventoryStatusBadges();
 
-    const container = document.getElementById('modalBookingRowsContainer');
-    let scrollInterval = null;
+    function setupBookingRowsDragAndDrop(container) {
+      if (!container) return;
+      let scrollInterval = null;
 
-    function startAutoScroll(el, dir) {
-      if (scrollInterval) return;
-      scrollInterval = setInterval(() => { el.scrollTop += dir * 8; }, 15);
-    }
-    function stopAutoScroll() {
-      if (scrollInterval) { clearInterval(scrollInterval); scrollInterval = null; }
-    }
-
-    container.addEventListener('dragstart', function (e) {
-      const t = e.target;
-      if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'BUTTON' || t.closest('button')) { e.preventDefault(); return; }
-      const row = t.closest('.booking-row-item');
-      if (row) {
-        row.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', row.id);
-        window.currentlyDraggingRowId = row.id;
-        const src = row.closest('.modal-date-block');
-        window.currentlyDraggingSourceBlockId = src ? src.id : null;
+      function startAutoScroll(el, dir) {
+        if (scrollInterval) return;
+        scrollInterval = setInterval(() => { el.scrollTop += dir * 8; }, 15);
       }
-    });
-
-    container.addEventListener('dragend', function (e) {
-      stopAutoScroll();
-      const row = e.target.closest('.booking-row-item');
-      if (row) {
-        row.classList.remove('dragging');
-        triggerAvailabilityCheck(row.id);
-        if (window.currentlyDraggingSourceBlockId)
-          checkAllProductsInModalDateBlock(window.currentlyDraggingSourceBlockId);
+      function stopAutoScroll() {
+        if (scrollInterval) { clearInterval(scrollInterval); scrollInterval = null; }
       }
-      container.querySelectorAll('.product-dropzone').forEach(d => d.classList.remove('drag-over'));
-    });
 
-    container.addEventListener('dragover', function (e) {
-      e.preventDefault();
-      const dz = e.target.closest('.product-dropzone');
-      if (!dz) return;
-      container.querySelectorAll('.product-dropzone').forEach(d => d.classList.toggle('drag-over', d === dz));
-      const dragging = container.querySelector('.dragging');
-      if (!dragging) return;
-      const siblings = [...dz.querySelectorAll('.booking-row-item:not(.dragging)')];
-      const next = siblings.find(s => {
-        const b = s.getBoundingClientRect();
-        if (e.clientY < b.top) return true;
-        if (e.clientY >= b.top && e.clientY <= b.bottom) return e.clientX < b.left + b.width / 2;
-        return false;
+      container.addEventListener('dragstart', function (e) {
+        const t = e.target;
+        if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'BUTTON' || t.closest('button')) { e.preventDefault(); return; }
+        const row = t.closest('.booking-row-item');
+        if (row) {
+          row.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', row.id);
+          window.currentlyDraggingRowId = row.id;
+          const src = row.closest('.modal-date-block');
+          window.currentlyDraggingSourceBlockId = src ? src.id : null;
+        }
       });
-      next ? dz.insertBefore(dragging, next) : dz.appendChild(dragging);
-      const mb = document.querySelector('#editCustomerModal .modal-body');
-      if (mb) {
-        const r = mb.getBoundingClientRect(), ry = e.clientY - r.top;
-        if (ry < 50) startAutoScroll(mb, -1);
-        else if (r.height - ry < 50) startAutoScroll(mb, 1);
-        else stopAutoScroll();
-      }
-    });
 
-    container.addEventListener('dragleave', function (e) {
-      const dz = e.target.closest('.product-dropzone');
-      if (dz) dz.classList.remove('drag-over');
-    });
+      container.addEventListener('dragend', function (e) {
+        stopAutoScroll();
+        const row = e.target.closest('.booking-row-item');
+        if (row) {
+          row.classList.remove('dragging');
+          triggerAvailabilityCheck(row.id);
+          if (window.currentlyDraggingSourceBlockId)
+            checkAllProductsInModalDateBlock(window.currentlyDraggingSourceBlockId);
+        }
+        container.querySelectorAll('.product-dropzone').forEach(d => d.classList.remove('drag-over'));
+      });
 
-    container.addEventListener('drop', function (e) {
-      e.preventDefault();
-      stopAutoScroll();
-      const dz = e.target.closest('.product-dropzone');
-      if (!dz) return;
-      dz.classList.remove('drag-over');
-      if (window.currentlyDraggingRowId) triggerAvailabilityCheck(window.currentlyDraggingRowId);
-    });
+      container.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        const dz = e.target.closest('.product-dropzone');
+        if (!dz) return;
+        container.querySelectorAll('.product-dropzone').forEach(d => d.classList.toggle('drag-over', d === dz));
+        const dragging = container.querySelector('.dragging');
+        if (!dragging) return;
+        const siblings = [...dz.querySelectorAll('.booking-row-item:not(.dragging)')];
+        const next = siblings.find(s => {
+          const b = s.getBoundingClientRect();
+          if (e.clientY < b.top) return true;
+          if (e.clientY >= b.top && e.clientY <= b.bottom) return e.clientX < b.left + b.width / 2;
+          return false;
+        });
+        next ? dz.insertBefore(dragging, next) : dz.appendChild(dragging);
+        const mb = dz.closest('.modal-body');
+        if (mb) {
+          const r = mb.getBoundingClientRect(), ry = e.clientY - r.top;
+          if (ry < 50) startAutoScroll(mb, -1);
+          else if (r.height - ry < 50) startAutoScroll(mb, 1);
+          else stopAutoScroll();
+        }
+      });
+
+      container.addEventListener('dragleave', function (e) {
+        const dz = e.target.closest('.product-dropzone');
+        if (dz) dz.classList.remove('drag-over');
+      });
+
+      container.addEventListener('drop', function (e) {
+        e.preventDefault();
+        stopAutoScroll();
+        const dz = e.target.closest('.product-dropzone');
+        if (!dz) return;
+        dz.classList.remove('drag-over');
+        if (window.currentlyDraggingRowId) triggerAvailabilityCheck(window.currentlyDraggingRowId);
+      });
+    }
+
+    setupBookingRowsDragAndDrop(document.getElementById('modalBookingRowsContainer'));
+    setupBookingRowsDragAndDrop(document.getElementById('addBookingRowsContainer'));
   });
 
   // ── PRODUCT SUGGESTIONS ──────────────────────────────────────────
@@ -1984,14 +2167,27 @@
   }
 
   // ── MODAL DATE BLOCKS ────────────────────────────────────────────
-  function addModalDateBlock(date = "", addDefaultProduct = true) {
-    const container = document.getElementById('modalBookingRowsContainer');
-    const blockId = 'block-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-    let parsedDate = typeof date === 'string' ? date : '';
-    if (parsedDate && parsedDate.includes('-') && parsedDate.split('-')[0].length === 2) {
-      const p = parsedDate.split('-');
-      parsedDate = `20${p[2]}-${p[1]}-${p[0]}`;
+  function parseDateToYMD(dStr) {
+    if (!dStr) return '';
+    const s = String(dStr).trim();
+    const parts = s.split(/[-/]/).map(x => x.trim());
+    if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+      } else if (parts[2].length === 4) {
+        return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+      } else if (parts[2].length === 2) {
+        return `20${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+      }
     }
+    return s;
+  }
+
+  function addModalDateBlock(date = "", addDefaultProduct = true, containerId = 'modalBookingRowsContainer') {
+    const container = document.getElementById(containerId);
+    if (!container) return null;
+    const blockId = 'block-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+    const parsedDate = parseDateToYMD(date);
     const div = document.createElement('div');
     div.className = 'modal-date-block';
     div.id = blockId;
@@ -2030,6 +2226,10 @@
       addModalProductRow(blockId, '', false);
     }
     return blockId;
+  }
+
+  function addAddBookingDateBlock(date = "", addDefaultProduct = true) {
+    return addModalDateBlock(date, addDefaultProduct, 'addBookingRowsContainer');
   }
 
   function removeModalDateBlock(id) {
@@ -2079,7 +2279,7 @@
         </button>
       </div>`;
     dz.appendChild(div);
-    if (product) triggerAvailabilityCheck(rowId);
+    if (product && !isOriginal) triggerAvailabilityCheck(rowId);
   }
 
   function removeModalProductRow(rowId) {
@@ -2154,9 +2354,10 @@
       return;
     }
 
-    // Check for duplicate costume on the same date anywhere within this modal
+    // Modal scope to check duplicate costume on same date within this modal
+    const modalScope = row.closest('.modal-body') || document;
     let isDup = false;
-    document.querySelectorAll('.modal-date-block').forEach(b => {
+    modalScope.querySelectorAll('.modal-date-block').forEach(b => {
       const bDate = b.querySelector('.modal-date-picker')?.value;
       if (bDate && bDate === dateVal) {
         b.querySelectorAll('.booking-row-item').forEach(o => {
@@ -2183,21 +2384,29 @@
       const controller = new AbortController();
       checkAvailabilityControllers[rowId] = controller;
 
-      const mobile = document.getElementById('modal-mobile').value.trim();
+      // Extract mobile: from modal input if present, or active customerData
+      let mobile = '';
+      const mobileInput = row.closest('.modal')?.querySelector('#modal-mobile');
+      if (mobileInput) {
+        mobile = mobileInput.value.trim();
+      } else if (customerData && customerData.mobile) {
+        mobile = customerData.mobile;
+      }
+
+      const isAppendModal = Boolean(row.closest('#addBookingModal'));
       let url = `/api/check-product?product_code=${encodeURIComponent(cleanCode)}&date=${encodeURIComponent(dateVal)}`;
-      if (mobile) url += `&exclude_mobile=${encodeURIComponent(mobile)}`;
+      if (mobile && !isAppendModal) url += `&exclude_mobile=${encodeURIComponent(mobile)}`;
 
       fetch(url, { signal: controller.signal })
         .then(r => r.json())
         .then(res => {
-          // If a newer check has started or row was changed, ignore stale response
           if (checkAvailabilitySeq[rowId] !== seq) return;
           const currentVal = (inp.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
           if (currentVal !== cleanCode) return;
 
           // Double check duplicate anywhere in modal
           let dup2 = false;
-          document.querySelectorAll('.modal-date-block').forEach(b => {
+          modalScope.querySelectorAll('.modal-date-block').forEach(b => {
             const bDate = b.querySelector('.modal-date-picker')?.value;
             if (bDate && bDate === dateVal) {
               b.querySelectorAll('.booking-row-item').forEach(o => {
@@ -2218,7 +2427,7 @@
           if (res.available) {
             status.className = 'avail-indicator available';
             status.innerHTML = '<i class="bi bi-check-circle-fill"></i> Available';
-            inp.classList.add('input-check-valid'); inp.classList.remove('input-check-invalid');
+            inp.classList.add('input-check-valid'); inp.classList.remove('input-check-valid');
           } else {
             status.className = 'avail-indicator booked';
             const reasonText = res.reason || (res.customer ? `Booked by ${res.customer}` : 'Unavailable');
@@ -2227,7 +2436,7 @@
           }
         })
         .catch(err => {
-          if (err.name === 'AbortError') return; // Cancelled intentionally
+          if (err.name === 'AbortError') return;
           if (checkAvailabilitySeq[rowId] !== seq) return;
           status.className = 'avail-indicator';
           status.innerHTML = '<span style="color:#ff8080;font-size:0.82rem;font-weight:600;">Error checking</span>';
@@ -2248,8 +2457,302 @@
     new bootstrap.Modal(document.getElementById('quickAvailabilityModal')).show();
   }
 
+  window.existingCustomerInCycle = null;
+
+  function updateRebookingFinancialCalc() {
+    const isAppendMode = (window.existingCustomerInCycle != null) && (document.getElementById('modal-customer-id').value === 'new' || !document.getElementById('modal-customer-id').value);
+    const card = document.getElementById('modal-rebooking-calc-card');
+    if (!card) return;
+
+    if (isAppendMode) {
+      card.classList.remove('d-none');
+      const prevRemaining = parseInt(window.existingCustomerInCycle.remaining) || 0;
+      const currentItemsTotal = parseInt(document.getElementById('modal-total-price').value) || 0;
+      const totalOutstanding = prevRemaining + currentItemsTotal;
+      const amountPayingNow = parseInt(document.getElementById('modal-given-price').value) || 0;
+      const remainingAfter = Math.max(0, totalOutstanding - amountPayingNow);
+
+      document.getElementById('calc-prev-remaining').innerText = prevRemaining;
+      document.getElementById('calc-current-total').innerText = currentItemsTotal;
+      document.getElementById('calc-total-outstanding').innerText = totalOutstanding;
+      document.getElementById('calc-amount-paying').innerText = amountPayingNow;
+      document.getElementById('calc-remaining-after').innerText = remainingAfter;
+
+      const errBox = document.getElementById('modal-calc-error');
+      const errGiven = document.getElementById('modal-calc-err-given');
+      const maxAllowed = document.getElementById('modal-calc-max-allowed');
+      if (amountPayingNow > totalOutstanding) {
+        if (errBox) errBox.classList.remove('d-none');
+        if (errGiven) errGiven.innerText = amountPayingNow;
+        if (maxAllowed) maxAllowed.innerText = totalOutstanding;
+      } else {
+        if (errBox) errBox.classList.add('d-none');
+      }
+    } else {
+      card.classList.add('d-none');
+    }
+  }
+
+  function normalizeDateStr(d) {
+    if (!d) return '';
+    const s = String(d).trim();
+    const parts = s.split(/[-/]/);
+    if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        const yy = parts[0].slice(-2);
+        return `${parts[2].padStart(2, '0')}-${parts[1].padStart(2, '0')}-${yy}`;
+      } else if (parts[2].length === 4) {
+        const yy = parts[2].slice(-2);
+        return `${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}-${yy}`;
+      } else {
+        return `${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+      }
+    }
+    return s;
+  }
+
+  function openAddBookingModal() {
+    if (!customerData) {
+      showToast("No active customer selected.", "error");
+      return;
+    }
+
+    document.getElementById('add-booking-cust-name-display').innerText = customerData.name || '—';
+    document.getElementById('add-booking-cust-mobile-display').innerText = customerData.mobile || '—';
+    const prevTotal = parseInt(customerData.total_price) || 0;
+    const prevPaid = parseInt(customerData.given_price) || 0;
+    const prevDue = Math.max(0, prevTotal - prevPaid);
+
+    document.getElementById('add-booking-cust-prev-total').innerText = prevTotal;
+    document.getElementById('add-booking-cust-prev-paid').innerText = prevPaid;
+    document.getElementById('add-booking-cust-prev-due').innerText = prevDue;
+
+    document.getElementById('add-booking-total-price').value = 0;
+    document.getElementById('add-booking-given-price').value = 0;
+
+    const container = document.getElementById('addBookingRowsContainer');
+    container.innerHTML = '';
+    addAddBookingDateBlock('', true);
+
+    updateAddBookingFinancialCalc();
+
+    if (addBookingModalObj) {
+      addBookingModalObj.show();
+    }
+  }
+
+  function updateAddBookingFinancialCalc() {
+    if (!customerData) return;
+    const prevTotal = parseInt(customerData.total_price) || 0;
+    const prevPaid = parseInt(customerData.given_price) || 0;
+    const prevRemaining = Math.max(0, prevTotal - prevPaid);
+
+    const currentItemsTotal = parseInt(document.getElementById('add-booking-total-price').value) || 0;
+    const totalOutstanding = prevRemaining + currentItemsTotal;
+    const amountPayingNow = parseInt(document.getElementById('add-booking-given-price').value) || 0;
+    const remainingAfter = Math.max(0, totalOutstanding - amountPayingNow);
+
+    document.getElementById('add-calc-prev-remaining').innerText = prevRemaining;
+    document.getElementById('add-calc-current-total').innerText = currentItemsTotal;
+    document.getElementById('add-calc-total-outstanding').innerText = totalOutstanding;
+    document.getElementById('add-calc-amount-paying').innerText = amountPayingNow;
+    document.getElementById('add-calc-remaining-after').innerText = remainingAfter;
+
+    const errBox = document.getElementById('add-calc-error');
+    const errGiven = document.getElementById('add-calc-err-given');
+    const maxAllowed = document.getElementById('add-calc-max-allowed');
+    if (amountPayingNow > totalOutstanding) {
+      if (errBox) errBox.classList.remove('d-none');
+      if (errGiven) errGiven.innerText = amountPayingNow;
+      if (maxAllowed) maxAllowed.innerText = totalOutstanding;
+    } else {
+      if (errBox) errBox.classList.add('d-none');
+    }
+  }
+
+  async function saveAddBooking() {
+    if (!customerData) {
+      showToast("No customer profile loaded.", "error");
+      return;
+    }
+    const total_price = parseInt(document.getElementById('add-booking-total-price').value) || 0;
+    const given_price = parseInt(document.getElementById('add-booking-given-price').value) || 0;
+
+    if (total_price < 0 || given_price < 0) {
+      showToast("Amounts cannot be negative.", "error");
+      return;
+    }
+
+    const prevTotal = parseInt(customerData.total_price) || 0;
+    const prevPaid = parseInt(customerData.given_price) || 0;
+    const prevRemaining = Math.max(0, prevTotal - prevPaid);
+    const totalOutstanding = prevRemaining + total_price;
+
+    if (given_price > totalOutstanding) {
+      showToast(`Payment amount (₹${given_price}) cannot exceed total outstanding amount (₹${totalOutstanding}).`, "error");
+      return;
+    }
+
+    const bookingRows = [];
+    let conflict = false, empty = false;
+    document.querySelectorAll('#addBookingRowsContainer .modal-date-block').forEach(block => {
+      const dateInp = block.querySelector('.modal-date-picker');
+      let dateVal = '';
+      if (dateInp && dateInp._flatpickrInstance && dateInp._flatpickrInstance.selectedDates && dateInp._flatpickrInstance.selectedDates.length > 0) {
+        dateVal = dateInp._flatpickrInstance.formatDate(dateInp._flatpickrInstance.selectedDates[0], 'Y-m-d');
+      }
+      if (!dateVal && dateInp && dateInp.value) {
+        dateVal = dateInp.value.trim();
+      }
+      if (!dateVal) {
+        const altInp = block.querySelector('.modal-date-alt-picker');
+        if (altInp && altInp.value) dateVal = altInp.value.trim();
+      }
+      dateVal = parseDateToYMD(dateVal);
+
+      const rows = block.querySelectorAll('.booking-row-item');
+      const filledCodes = [];
+      let hasEmptyCodeRow = false;
+      let hasConflictInBlock = false;
+
+      rows.forEach(row => {
+        const inp = row.querySelector('.booking-row-product');
+        const code = inp ? inp.value.trim().toUpperCase() : '';
+        if (code) {
+          filledCodes.push(code);
+          if (inp.classList.contains('input-check-invalid')) hasConflictInBlock = true;
+        } else {
+          hasEmptyCodeRow = true;
+        }
+      });
+
+      // Ignore completely empty, untouched blocks
+      if (!dateVal && filledCodes.length === 0) {
+        return;
+      }
+
+      if (!dateVal || filledCodes.length === 0 || hasEmptyCodeRow) {
+        empty = true;
+        return;
+      }
+
+      if (hasConflictInBlock) conflict = true;
+
+      filledCodes.forEach(code => {
+        bookingRows.push({ date: dateVal, products: [code] });
+      });
+    });
+
+    if (bookingRows.length === 0) {
+      showToast("Please add at least one booking date and costume code.", "error");
+      return;
+    }
+    if (empty) {
+      showToast("Fill all dates and costume codes, or remove empty slots.", "error");
+      return;
+    }
+    if (conflict) {
+      showToast("Resolve all costume conflicts before saving.", "error");
+      return;
+    }
+
+    // Check duplicate within the modal itself
+    const seenCombos = new Set();
+    let hasDuplicateInForm = false;
+    bookingRows.forEach(row => {
+      row.products.forEach(p => {
+        const clean = p.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+        const isGrp = clean.startsWith('G') && clean.length <= 4;
+        const comboKey = `${normalizeDateStr(row.date)}::${clean}`;
+        if (!isGrp && seenCombos.has(comboKey)) {
+          hasDuplicateInForm = true;
+        }
+        seenCombos.add(comboKey);
+      });
+    });
+    if (hasDuplicateInForm) {
+      showToast("Cannot book the same costume multiple times on the same date.", "error");
+      return;
+    }
+
+    // Check duplicate against this customer's already booked items
+    const alreadyBookedCombos = new Set(
+      (customerData.bookings || []).map(b => `${normalizeDateStr(b.date)}::${b.product.trim().toUpperCase().replace(/[^A-Z0-9]/g, '')}`)
+    );
+    let duplicateWithExisting = false;
+    let dupExistingCode = '';
+    bookingRows.forEach(row => {
+      row.products.forEach(p => {
+        const clean = p.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+        const isGrp = clean.startsWith('G') && clean.length <= 4;
+        if (!isGrp && alreadyBookedCombos.has(`${normalizeDateStr(row.date)}::${clean}`)) {
+          duplicateWithExisting = true;
+          dupExistingCode = clean;
+        }
+      });
+    });
+    if (duplicateWithExisting) {
+      showToast(`Costume '${dupExistingCode}' is already reserved for this customer on that date.`, "error");
+      return;
+    }
+
+    const loadingOverlay = document.getElementById('addBookingLoadingOverlay');
+    if (loadingOverlay) loadingOverlay.classList.remove('d-none');
+    const btn = document.getElementById('saveAddBookingBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Appending…';
+
+    fetch('/navaratri_booking/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer_id: customerData.id,
+        name: customerData.name,
+        mobile: customerData.mobile,
+        address: customerData.address,
+        group: customerData.group,
+        reference: customerData.reference,
+        deposit: customerData.deposit,
+        total_price: total_price,
+        given_price: given_price,
+        bookings: bookingRows,
+        is_append: true
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        showToast(data.message, "success");
+        if (addBookingModalObj) addBookingModalObj.hide();
+        openBookingSuccessModal(data);
+      } else {
+        if (loadingOverlay) loadingOverlay.classList.add('d-none');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-plus-circle-fill me-1"></i> Add to Existing Booking';
+        showToast(data.message || "Failed to append booking.", "error");
+      }
+    })
+    .catch(() => {
+      if (loadingOverlay) loadingOverlay.classList.add('d-none');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-plus-circle-fill me-1"></i> Add to Existing Booking';
+      showToast("Connection error while saving.", "error");
+    });
+  }
+
   function openEditModal() {
     if (!customerData) return;
+    window.existingCustomerInCycle = null;
+    const rebookAlert = document.getElementById('modal-rebooking-alert');
+    if (rebookAlert) rebookAlert.classList.add('d-none');
+    document.getElementById('modal-rebooking-calc-card')?.classList.add('d-none');
+    const lblTot = document.getElementById('modal-total-price-label');
+    const lblGiv = document.getElementById('modal-given-price-label');
+    if (lblTot) lblTot.innerText = "Total Invoice Amount (₹) *";
+    if (lblGiv) lblGiv.innerText = "Amount Paid (₹) *";
+    document.getElementById('modal-total-price-hint')?.classList.add('d-none');
+    document.getElementById('modal-given-price-hint')?.classList.add('d-none');
+
     document.getElementById('editCustomerModalLabel').innerHTML = `<i class="bi bi-pencil-square me-2"></i>Edit Booking: ${customerData.name}`;
     document.getElementById('modal-customer-id').value  = customerData.id;
     document.getElementById('modal-name').value         = customerData.name;
@@ -2263,15 +2766,31 @@
     const c = document.getElementById('modalBookingRowsContainer');
     c.innerHTML = '';
     const groups = {};
-    customerData.bookings.forEach(b => { if (!groups[b.date]) groups[b.date] = []; groups[b.date].push(b.product); });
-    Object.keys(groups).forEach(d => {
-      const bid = addModalDateBlock(d, false);
-      groups[d].forEach(p => addModalProductRow(bid, p, true));
-    });
+    (customerData.bookings || []).forEach(b => { if (!groups[b.date]) groups[b.date] = []; groups[b.date].push(b.product); });
+    const dateKeys = Object.keys(groups);
+    if (dateKeys.length === 0) {
+      addModalDateBlock('', true, 'modalBookingRowsContainer');
+    } else {
+      dateKeys.forEach(d => {
+        const bid = addModalDateBlock(d, false, 'modalBookingRowsContainer');
+        groups[d].forEach(p => addModalProductRow(bid, p, true));
+      });
+    }
     editModalObj.show();
   }
 
   function openNewCustomerModal() {
+    window.existingCustomerInCycle = null;
+    const rebookAlert = document.getElementById('modal-rebooking-alert');
+    if (rebookAlert) rebookAlert.classList.add('d-none');
+    document.getElementById('modal-rebooking-calc-card')?.classList.add('d-none');
+    const lblTot = document.getElementById('modal-total-price-label');
+    const lblGiv = document.getElementById('modal-given-price-label');
+    if (lblTot) lblTot.innerText = "Total Invoice Amount (₹) *";
+    if (lblGiv) lblGiv.innerText = "Amount Paid (₹) *";
+    document.getElementById('modal-total-price-hint')?.classList.add('d-none');
+    document.getElementById('modal-given-price-hint')?.classList.add('d-none');
+
     document.getElementById('editCustomerModalLabel').innerHTML = `<i class="bi bi-person-plus-fill me-2"></i>New Customer Booking`;
     ['modal-customer-id','modal-name','modal-mobile','modal-address','modal-group','modal-reference','modal-deposit'].forEach(id => {
       document.getElementById(id).value = id === 'modal-customer-id' ? 'new' : '';
@@ -2280,15 +2799,16 @@
     document.getElementById('modal-given-price').value = 0;
     const c = document.getElementById('modalBookingRowsContainer');
     c.innerHTML = '';
-    addModalDateBlock('', true);
+    addModalDateBlock('', true, 'modalBookingRowsContainer');
     editModalObj.show();
   }
 
   // ── SAVE PROFILE ─────────────────────────────────────────────────
-  function saveCustomerProfile() {
+  async function saveCustomerProfile() {
     const id          = document.getElementById('modal-customer-id').value;
     const name        = document.getElementById('modal-name').value.trim();
-    const mobile      = document.getElementById('modal-mobile').value.trim();
+    const rawMobile   = document.getElementById('modal-mobile').value.trim();
+    const mobile      = rawMobile.replace(/\D/g, '').slice(-10);
     const address     = document.getElementById('modal-address').value.trim();
     const group       = document.getElementById('modal-group').value.trim();
     const reference   = document.getElementById('modal-reference').value.trim();
@@ -2297,22 +2817,109 @@
     const given_price = parseInt(document.getElementById('modal-given-price').value) || 0;
     const errEl       = document.getElementById('modal-mobile-error');
     if (!name || !mobile) { showToast("Name and mobile are required.", "error"); return; }
-    if (mobile.length !== 10 || isNaN(mobile)) { errEl.classList.remove('d-none'); showToast("Mobile must be 10 digits.", "error"); return; }
+    if (mobile.length !== 10) { errEl.classList.remove('d-none'); showToast("Mobile must be 10 digits.", "error"); return; }
     errEl.classList.add('d-none');
-    if (given_price > total_price) { showToast("Paid amount cannot exceed total invoice.", "error"); return; }
+
+    if (total_price < 0 || given_price < 0) {
+      showToast("Amounts cannot be negative.", "error");
+      return;
+    }
+
+    const isEditMode = (id && id !== 'new');
+
+    if (isEditMode) {
+      // Editing existing customer profile: payment cannot exceed total invoice
+      if (given_price > total_price) {
+        showToast(`Payment amount (₹${given_price}) cannot exceed total invoice amount of ₹${total_price}.`, "error");
+        return;
+      }
+    } else {
+      // New booking flow:
+      let prevRemaining = 0;
+      if (window.existingCustomerInCycle && window.existingCustomerInCycle.mobile === mobile) {
+        prevRemaining = parseInt(window.existingCustomerInCycle.remaining) || 0;
+      } else if (mobile.length === 10) {
+        try {
+          const resp = await fetch(`/get-navaratri-customer?mobile=${encodeURIComponent(mobile)}`);
+          const cdata = await resp.json();
+          if (cdata.exists && cdata.in_cycle && cdata.data) {
+            window.existingCustomerInCycle = cdata.data;
+            prevRemaining = parseInt(cdata.data.remaining) || 0;
+          }
+        } catch (e) {
+          console.warn("Pre-save customer lookup error:", e);
+        }
+      }
+
+      if (window.existingCustomerInCycle) {
+        const totalOutstanding = prevRemaining + total_price;
+        if (given_price > totalOutstanding) {
+          showToast(`Payment amount (₹${given_price}) cannot exceed total outstanding amount (₹${totalOutstanding}).`, "error");
+          return;
+        }
+      } else {
+        if (given_price > total_price) {
+          showToast(`Payment amount (₹${given_price}) cannot exceed total invoice amount of ₹${total_price}.`, "error");
+          return;
+        }
+      }
+    }
+
+    // Scoped STRICTLY to modalBookingRowsContainer so other modals are NEVER inspected
     const bookingRows = [];
     let conflict = false, empty = false;
-    document.querySelectorAll('.modal-date-block').forEach(block => {
-      const dateVal = block.querySelector('.modal-date-picker').value;
-      if (!dateVal) { empty = true; return; }
-      block.querySelectorAll('.booking-row-item').forEach(row => {
-        const inp  = row.querySelector('.booking-row-product');
-        const code = inp.value.trim().toUpperCase();
-        if (!code) { empty = true; return; }
-        if (inp.classList.contains('input-check-invalid')) conflict = true;
+    document.querySelectorAll('#modalBookingRowsContainer .modal-date-block').forEach(block => {
+      const dateInp = block.querySelector('.modal-date-picker');
+      let dateVal = '';
+      if (dateInp && dateInp._flatpickrInstance && dateInp._flatpickrInstance.selectedDates && dateInp._flatpickrInstance.selectedDates.length > 0) {
+        dateVal = dateInp._flatpickrInstance.formatDate(dateInp._flatpickrInstance.selectedDates[0], 'Y-m-d');
+      }
+      if (!dateVal && dateInp && dateInp.value) {
+        dateVal = dateInp.value.trim();
+      }
+      if (!dateVal) {
+        const altInp = block.querySelector('.modal-date-alt-picker');
+        if (altInp && altInp.value) dateVal = altInp.value.trim();
+      }
+      dateVal = parseDateToYMD(dateVal);
+
+      const rows = block.querySelectorAll('.booking-row-item');
+      const filledCodes = [];
+      let hasEmptyCodeRow = false;
+      let hasConflictInBlock = false;
+
+      rows.forEach(row => {
+        const inp = row.querySelector('.booking-row-product');
+        const code = inp ? inp.value.trim().toUpperCase() : '';
+        if (code) {
+          filledCodes.push(code);
+          if (inp.classList.contains('input-check-invalid')) hasConflictInBlock = true;
+        } else {
+          hasEmptyCodeRow = true;
+        }
+      });
+
+      // Ignore completely empty, untouched blocks
+      if (!dateVal && filledCodes.length === 0) {
+        return;
+      }
+
+      if (!dateVal || filledCodes.length === 0 || hasEmptyCodeRow) {
+        empty = true;
+        return;
+      }
+
+      if (hasConflictInBlock) conflict = true;
+
+      filledCodes.forEach(code => {
         bookingRows.push({ date: dateVal, products: [code] });
       });
     });
+
+    if (!isEditMode && bookingRows.length === 0) {
+      showToast("Please add at least one booking date and costume code.", "error");
+      return;
+    }
     if (empty)    { showToast("Fill all dates and costume codes, or remove empty slots.", "error"); return; }
     if (conflict) { showToast("Resolve all costume conflicts before saving.", "error"); return; }
 
@@ -2323,7 +2930,7 @@
       row.products.forEach(p => {
         const clean = p.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
         const isGrp = clean.startsWith('G') && clean.length <= 4;
-        const comboKey = `${row.date}::${clean}`;
+        const comboKey = `${normalizeDateStr(row.date)}::${clean}`;
         if (!isGrp && seenCombos.has(comboKey)) {
           hasDuplicateInForm = true;
         }
@@ -2345,7 +2952,7 @@
     }).then(r => r.json()).then(data => {
       if (data.success) {
         showToast(data.message, "success");
-        if (data.is_new) {
+        if (data.is_new || data.is_append) {
           openBookingSuccessModal(data);
         } else {
           editModalObj.hide();
@@ -2366,9 +2973,14 @@
   // ── BOOKING SUCCESS & BILL SHARE MODAL ───────────────────────────
   function openBookingSuccessModal(data) {
     document.getElementById('modalLoadingOverlay').classList.add('d-none');
+    const addLoading = document.getElementById('addBookingLoadingOverlay');
+    if (addLoading) addLoading.classList.add('d-none');
     const saveBtn = document.getElementById('saveCustomerModalBtn');
     if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = 'Save Booking Changes'; }
-    editModalObj.hide();
+    const saveAddBtn = document.getElementById('saveAddBookingBtn');
+    if (saveAddBtn) { saveAddBtn.disabled = false; saveAddBtn.innerHTML = '<i class="bi bi-plus-circle-fill me-1"></i> Add to Existing Booking'; }
+    if (editModalObj) editModalObj.hide();
+    if (addBookingModalObj) addBookingModalObj.hide();
     nextRedirectCustomerId = data.customer_id;
 
     document.getElementById('succ-cust-name').innerText = data.name;
@@ -2378,10 +2990,43 @@
     document.getElementById('succ-given-price').innerText = `₹${data.given_price}`;
     document.getElementById('succ-remaining-price').innerText = `₹${data.remaining}`;
 
+    const badgeEl = document.getElementById('succ-badge');
+    if (badgeEl) {
+      if (data.is_append) {
+        badgeEl.className = 'badge px-3 py-2 fs-6 rounded-pill';
+        badgeEl.style.cssText = 'background:#0284c7 !important;';
+        badgeEl.innerHTML = '<i class="bi bi-plus-circle-fill me-1"></i> Additional Items Added';
+      } else {
+        badgeEl.className = 'badge bg-success px-3 py-2 fs-6 rounded-pill';
+        badgeEl.style.cssText = 'background:#10b981 !important;';
+        badgeEl.innerHTML = '<i class="bi bi-shield-check me-1"></i> New Booking Registered';
+      }
+    }
+
+    const itemsBox = document.getElementById('succ-items-summary-container');
+    const itemsList = document.getElementById('succ-items-summary-list');
+    const datesList = document.getElementById('succ-items-dates-list');
+    if (itemsBox && itemsList) {
+      if (data.newly_added_products && data.newly_added_products.length > 0) {
+        itemsList.innerText = data.newly_added_products.join(', ');
+        if (datesList && data.booking_dates && data.booking_dates.length > 0) {
+          datesList.innerText = `Booking Date(s): ${data.booking_dates.join(', ')}`;
+        }
+        itemsBox.classList.remove('d-none');
+      } else {
+        itemsBox.classList.add('d-none');
+      }
+    }
+
+    const headerTitle = data.is_append ? '*Image Traditional - Navaratri Booking Updated*' : '*Image Traditional - Navaratri Booking Confirmation*';
+    const subIntro = data.is_append ? 'Additional items have been added to your booking at Image Traditional!' : 'Thank you for your booking at Image Traditional!';
+    const itemsText = (data.newly_added_products && data.newly_added_products.length > 0) ? `\n👗 *Added Items:* ${data.newly_added_products.join(', ')}\n` : '\n';
+
     const text = encodeURIComponent(
-      `*Image Traditional - Navaratri Booking Confirmation*\n\n` +
+      `${headerTitle}\n\n` +
       `Dear *${data.name}*,\n` +
-      `Thank you for your booking at Image Traditional!\n\n` +
+      `${subIntro}\n` +
+      itemsText +
       `💰 *Total Bill:* ₹${data.total_price}\n` +
       `✅ *Paid Amount:* ₹${data.given_price}\n` +
       `📌 *Balance Due:* ₹${data.remaining}\n\n` +
@@ -2655,12 +3300,25 @@
     });
   }
 
-  // ── MOBILE AUTOCOMPLETE ──────────────────────────────────────────
+  // ── MOBILE AUTOCOMPLETE & FINANCIAL CALCULATOR ───────────────────
   document.addEventListener('DOMContentLoaded', () => {
     const mobileEl = document.getElementById('modal-mobile');
+    const totalPriceEl = document.getElementById('modal-total-price');
+    const givenPriceEl = document.getElementById('modal-given-price');
+    if (totalPriceEl) totalPriceEl.addEventListener('input', updateRebookingFinancialCalc);
+    if (givenPriceEl) givenPriceEl.addEventListener('input', updateRebookingFinancialCalc);
+
+    const addTotalPriceEl = document.getElementById('add-booking-total-price');
+    const addGivenPriceEl = document.getElementById('add-booking-given-price');
+    if (addTotalPriceEl) addTotalPriceEl.addEventListener('input', updateAddBookingFinancialCalc);
+    if (addGivenPriceEl) addGivenPriceEl.addEventListener('input', updateAddBookingFinancialCalc);
+
     if (!mobileEl) return;
-    mobileEl.addEventListener('input', function () {
+    const handleMobileLookup = function () {
       this.value = this.value.replace(/\D/g, '').slice(0, 10);
+      const alertEl = document.getElementById('modal-rebooking-alert');
+      const alertName = document.getElementById('modal-rebooking-name');
+      const alertFin = document.getElementById('modal-rebooking-financials');
       if (this.value.length === 10) {
         const cid = document.getElementById('modal-customer-id').value;
         if (!cid || cid === 'new') {
@@ -2670,12 +3328,67 @@
                 const el = document.getElementById(`modal-${f}`);
                 if (el) el.value = data.data[f] || '';
               });
-              showToast(data.in_cycle ? "👤 Customer record found — details pre-filled." : "👤 Returning customer — details pre-filled.", "success");
+              if (alertEl && alertName) {
+                alertName.innerText = data.data.name || 'Existing Customer';
+                if (data.in_cycle) {
+                  window.existingCustomerInCycle = data.data;
+                  const tEl = document.getElementById('modal-rebooking-total');
+                  const pEl = document.getElementById('modal-rebooking-paid');
+                  const dEl = document.getElementById('modal-rebooking-due');
+                  if (tEl) tEl.innerText = data.data.total_price || 0;
+                  if (pEl) pEl.innerText = data.data.given_price || 0;
+                  if (dEl) dEl.innerText = data.data.remaining || 0;
+                  if (alertFin) alertFin.classList.remove('d-none');
+
+                  const lblTot = document.getElementById('modal-total-price-label');
+                  const lblGiv = document.getElementById('modal-given-price-label');
+                  if (lblTot) lblTot.innerText = "Current Items Total (₹) *";
+                  if (lblGiv) lblGiv.innerText = "Amount Paying Now (₹) *";
+                  document.getElementById('modal-total-price-hint')?.classList.remove('d-none');
+                  document.getElementById('modal-given-price-hint')?.classList.remove('d-none');
+
+                  updateRebookingFinancialCalc();
+                } else {
+                  window.existingCustomerInCycle = null;
+                  if (alertFin) alertFin.classList.add('d-none');
+                  const lblTot = document.getElementById('modal-total-price-label');
+                  const lblGiv = document.getElementById('modal-given-price-label');
+                  if (lblTot) lblTot.innerText = "Total Invoice Amount (₹) *";
+                  if (lblGiv) lblGiv.innerText = "Amount Paid (₹) *";
+                  document.getElementById('modal-total-price-hint')?.classList.add('d-none');
+                  document.getElementById('modal-given-price-hint')?.classList.add('d-none');
+                  updateRebookingFinancialCalc();
+                }
+                alertEl.classList.remove('d-none');
+              }
+              showToast(data.in_cycle ? `👤 Existing customer found: ${data.data.name}. Additional items will be appended to their active booking.` : `👤 Returning customer found: ${data.data.name}. Details pre-filled.`, "success");
+            } else {
+              window.existingCustomerInCycle = null;
+              if (alertEl) alertEl.classList.add('d-none');
+              const lblTot = document.getElementById('modal-total-price-label');
+              const lblGiv = document.getElementById('modal-given-price-label');
+              if (lblTot) lblTot.innerText = "Total Invoice Amount (₹) *";
+              if (lblGiv) lblGiv.innerText = "Amount Paid (₹) *";
+              document.getElementById('modal-total-price-hint')?.classList.add('d-none');
+              document.getElementById('modal-given-price-hint')?.classList.add('d-none');
+              updateRebookingFinancialCalc();
             }
           }).catch(e => console.error(e));
         }
+      } else {
+        window.existingCustomerInCycle = null;
+        if (alertEl) alertEl.classList.add('d-none');
+        const lblTot = document.getElementById('modal-total-price-label');
+        const lblGiv = document.getElementById('modal-given-price-label');
+        if (lblTot) lblTot.innerText = "Total Invoice Amount (₹) *";
+        if (lblGiv) lblGiv.innerText = "Amount Paid (₹) *";
+        document.getElementById('modal-total-price-hint')?.classList.add('d-none');
+        document.getElementById('modal-given-price-hint')?.classList.add('d-none');
+        updateRebookingFinancialCalc();
       }
-    });
+    };
+    ['input', 'change'].forEach(ev => mobileEl.addEventListener(ev, handleMobileLookup));
+    mobileEl.addEventListener('paste', function () { setTimeout(() => handleMobileLookup.call(this), 50); });
   });
 
   // ── FILTER & SEARCH ──────────────────────────────────────────────

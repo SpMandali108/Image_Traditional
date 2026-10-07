@@ -116,8 +116,12 @@ def get_booked_group_quantity(code, size, date, exclude_mobile=None):
 
     for doc in all_docs:
         cust_mobile = str(doc.get("mobile", "")).strip()
-        if exclude_mobile and cust_mobile == str(exclude_mobile).strip():
-            continue
+        if exclude_mobile:
+            if isinstance(exclude_mobile, (list, tuple, set)):
+                if cust_mobile in [str(m).strip() for m in exclude_mobile if m]:
+                    continue
+            elif cust_mobile == str(exclude_mobile).strip():
+                continue
 
         cust_bookings = doc.get("bookings", {})
         if not isinstance(cust_bookings, dict):
@@ -266,8 +270,12 @@ def check_booking_conflict(date, products, exclude_mobile=None):
         found_conflict = None
         for doc in all_docs:
             cust_mobile = str(doc.get("mobile", "")).strip()
-            if exclude_mobile and cust_mobile == str(exclude_mobile).strip():
-                continue
+            if exclude_mobile:
+                if isinstance(exclude_mobile, (list, tuple, set)):
+                    if cust_mobile in [str(m).strip() for m in exclude_mobile if m]:
+                        continue
+                elif cust_mobile == str(exclude_mobile).strip():
+                    continue
 
             cust_bookings = doc.get("bookings", {})
             if not isinstance(cust_bookings, dict):
