@@ -47,6 +47,31 @@
   <!-- Favicon -->
   <link rel="icon" href="{{ url_for('static', filename='Home_Img/favicon.png') }}?v=5">
 
+  <style>
+    .env-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .env-pill-production {
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+    .env-pill-testing {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.5);
+    }
+  </style>
+
   {% block head %}{% endblock %}
 </head>
 
@@ -105,6 +130,13 @@
 
       <!-- Admin Actions (Only exposed to authenticated administrators) -->
       {% if session.logged_in %}
+      <!-- Environment Indicator Badge -->
+      {% if IS_TESTING %}
+      <span class="env-pill env-pill-testing" title="Testing Database: Image_Traditional_Test">🧪 TESTING</span>
+      {% else %}
+      <span class="env-pill env-pill-production" title="Production Database: Image_Traditional">🟢 PRODUCTION</span>
+      {% endif %}
+
       <!-- Private Admin APK Download Button -->
       <a href="{{ url_for('views.download_apk') }}" class="it-install-btn" id="apkDownloadBtn" download title="Download Private Android APK" aria-label="Download App">
         <span class="icon">📥</span>

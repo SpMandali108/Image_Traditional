@@ -1,0 +1,433 @@
+{
+  "Navaratri_Customers": [
+    {
+      "_id": "6a380023eaf94e5ac82602e8",
+      "name": "TEST",
+      "mobile": "1234567890",
+      "action": "",
+      "date_stamp": "",
+      "time_stamp": "",
+      "details": ""
+    },
+    {
+      "_id": "6ac65291fac1a5e5fe040c2f",
+      "name": "Repro Test Customer Edited",
+      "mobile": "9799988889",
+      "action": "",
+      "date_stamp": "",
+      "time_stamp": "",
+      "details": ""
+    },
+    {
+      "_id": "6ac68256fac1a5e5fe0411c2",
+      "name": "Test Customer Flow",
+      "mobile": "9999900001",
+      "action": "",
+      "date_stamp": "",
+      "time_stamp": "",
+      "details": ""
+    }
+  ],
+  "Navaratri_2026": [
+    {
+      "_id": "6ac6528f32329a14c8eebdfa",
+      "name": "Repro Test Customer Edited",
+      "mobile": "9799988889",
+      "action": "",
+      "date_stamp": "",
+      "time_stamp": "",
+      "details": ""
+    }
+  ],
+  "Navaratri_2026_logs": [
+    {
+      "_id": "6ab7e46b5b982eae43c2cb49",
+      "name": "Automated Test Customer",
+      "mobile": "9988776655",
+      "action": "sale",
+      "date_stamp": "26/09/2026",
+      "time_stamp": "20:57:39",
+      "details": "Sold 2 costume(s): C1, C10. Total: Rs. 3500, Paid: Rs. 2000."
+    },
+    {
+      "_id": "6ab7e46c5b982eae43c2cb4a",
+      "name": "Automated Test Customer",
+      "mobile": "9988776655",
+      "action": "sale_bill_download",
+      "date_stamp": "26/09/2026",
+      "time_stamp": "20:57:40",
+      "details": "Downloaded costume sale invoice: Automated Test Customer_Sale_Invoice.pdf."
+    },
+    {
+      "_id": "6ab7e5f03abc283785a6f6f1",
+      "name": "POS Counter Test Customer",
+      "mobile": "9876543210",
+      "action": "sale",
+      "date_stamp": "26/09/2026",
+      "time_stamp": "21:04:08",
+      "details": "Sold 2 costume(s): C1, C10. Total: Rs. 2500, Paid: Rs. 2000."
+    },
+    {
+      "_id": "6ab7e5f13abc283785a6f6f2",
+      "name": "POS Counter Test Customer",
+      "mobile": "9876543210",
+      "action": "sale_bill_download",
+      "date_stamp": "26/09/2026",
+      "time_stamp": "21:04:09",
+      "details": "Downloaded costume sale invoice: POS Counter Test Customer_Sale_Invoice.pdf."
+    },
+    {
+      "_id": "6ac63da452389c2ac0305b71",
+      "name": "Shashwat Mandali",
+      "mobile": "9999900001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:10:04",
+      "details": "Created customer profile. Total: Rs. 2000, Given: Rs. 1000. Bookings: {'15-10-25': ['C101']}."
+    },
+    {
+      "_id": "6ac63e0463bbb88e30fe350c",
+      "name": "Shashwat Mandali",
+      "mobile": "9999900001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:11:40",
+      "details": "Created customer profile. Total: Rs. 2000, Given: Rs. 1000. Bookings: {'15-10-25': ['C101']}."
+    },
+    {
+      "_id": "6ac63e51cfaf474b867d0f43",
+      "name": "Shashwat Mandali",
+      "mobile": "9999900001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:12:57",
+      "details": "Created customer profile. Total: Rs. 2000, Given: Rs. 1000. Bookings: {'15-10-25': ['C101']}."
+    },
+    {
+      "_id": "6ac63e52cfaf474b867d0f44",
+      "name": "Shashwat Mandali",
+      "mobile": "9999900001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:12:58",
+      "details": "Added additional items to existing booking: C102 (15-10-25). Added Total: Rs. 800, Added Paid: Rs. 0. Updated Total: Rs. 2800, Updated Paid: Rs. 1000."
+    },
+    {
+      "_id": "6ac63e52cfaf474b867d0f45",
+      "name": "Shashwat Mandali",
+      "mobile": "9999900001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:12:58",
+      "details": "Added additional items to existing booking: C100 (15-10-25), C10 (16-10-25). Added Total: Rs. 1200, Added Paid: Rs. 500. Updated Total: Rs. 4000, Updated Paid: Rs. 1500."
+    },
+    {
+      "_id": "6ac63e52cfaf474b867d0f46",
+      "name": "Shashwat Mandali",
+      "mobile": "9999900001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:12:58",
+      "details": "Added additional items to existing booking: NONEXISTENT999 (15-10-25). Added Total: Rs. 500, Added Paid: Rs. 0. Updated Total: Rs. 4500, Updated Paid: Rs. 1500."
+    },
+    {
+      "_id": "6ac63ed821135d18f299648f",
+      "name": "Shashwat Mandali",
+      "mobile": "9999900001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:15:12",
+      "details": "Created customer profile. Total: Rs. 2000, Given: Rs. 1000. Bookings: {'15-10-25': ['C101']}."
+    },
+    {
+      "_id": "6ac63ed821135d18f2996490",
+      "name": "Shashwat Mandali",
+      "mobile": "9999900001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:15:12",
+      "details": "Added additional items to existing booking: C102 (15-10-25). Added Total: Rs. 800, Added Paid: Rs. 0. Updated Total: Rs. 2800, Updated Paid: Rs. 1000."
+    },
+    {
+      "_id": "6ac63ed921135d18f2996491",
+      "name": "Shashwat Mandali",
+      "mobile": "9999900001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:15:13",
+      "details": "Added additional items to existing booking: C100 (15-10-25), C10 (16-10-25). Added Total: Rs. 1200, Added Paid: Rs. 500. Updated Total: Rs. 4000, Updated Paid: Rs. 1500."
+    },
+    {
+      "_id": "6ac63ed921135d18f2996493",
+      "name": "Shashwat Mandali",
+      "mobile": "9999900001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:15:13",
+      "details": "Added additional items to existing booking: G99-32 (18-10-25). Added Total: Rs. 800, Added Paid: Rs. 0. Updated Total: Rs. 4800, Updated Paid: Rs. 1500."
+    },
+    {
+      "_id": "6ac63eda21135d18f2996494",
+      "name": "Shashwat Mandali",
+      "mobile": "9999900001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:15:14",
+      "details": "Added additional items to existing booking: G99-32 (18-10-25). Added Total: Rs. 800, Added Paid: Rs. 0. Updated Total: Rs. 5600, Updated Paid: Rs. 1500."
+    },
+    {
+      "_id": "6ac63eda21135d18f2996495",
+      "name": "Shashwat Mandali",
+      "mobile": "9999900001",
+      "action": "payment",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:15:14",
+      "details": "Added payment of Rs. 500 via profile page. New given price: Rs. 2000 of total Rs. 5600."
+    },
+    {
+      "_id": "6ac63eda21135d18f2996497",
+      "name": "Different Customer",
+      "mobile": "9999900002",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:15:14",
+      "details": "Created customer profile. Total: Rs. 1500, Given: Rs. 500. Bookings: {'20-10-25': ['C101']}."
+    },
+    {
+      "_id": "6ac64908fb8000c7f33ede4c",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:58:40",
+      "details": "Created customer profile. Total: Rs. 2000, Given: Rs. 1000. Bookings: {'15-10-25': ['C101']}."
+    },
+    {
+      "_id": "6ac64909fb8000c7f33ede4f",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:58:41",
+      "details": "Added additional items to existing booking: C104 (16-10-25). Added Total: Rs. 500, Added Paid: Rs. 1500. Updated Total: Rs. 2500, Updated Paid: Rs. 2500."
+    },
+    {
+      "_id": "6ac64909fb8000c7f33ede50",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:58:41",
+      "details": "Added additional items to existing booking: C105 (17-10-25). Added Total: Rs. 500, Added Paid: Rs. 200. Updated Total: Rs. 3000, Updated Paid: Rs. 2700."
+    },
+    {
+      "_id": "6ac64909fb8000c7f33ede51",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:58:41",
+      "details": "Added additional items to existing booking: C103 (19-10-25). Added Total: Rs. 700, Added Paid: Rs. 1000. Updated Total: Rs. 3700, Updated Paid: Rs. 3700."
+    },
+    {
+      "_id": "6ac6490afb8000c7f33ede52",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:58:42",
+      "details": "Added additional items to existing booking: C101 (20-10-25). Added Total: Rs. 500, Added Paid: Rs. 500. Updated Total: Rs. 4200, Updated Paid: Rs. 4200."
+    },
+    {
+      "_id": "6ac64936a75553b54ca16f8f",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:59:26",
+      "details": "Created customer profile. Total: Rs. 2000, Given: Rs. 1000. Bookings: {'15-10-25': ['C101']}."
+    },
+    {
+      "_id": "6ac64936a75553b54ca16f92",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:59:26",
+      "details": "Added additional items to existing booking: C104 (16-10-25). Added Total: Rs. 500, Added Paid: Rs. 1500. Updated Total: Rs. 2500, Updated Paid: Rs. 2500."
+    },
+    {
+      "_id": "6ac64936a75553b54ca16f93",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:59:26",
+      "details": "Added additional items to existing booking: C105 (17-10-25). Added Total: Rs. 500, Added Paid: Rs. 200. Updated Total: Rs. 3000, Updated Paid: Rs. 2700."
+    },
+    {
+      "_id": "6ac64936a75553b54ca16f94",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:59:26",
+      "details": "Added additional items to existing booking: C103 (19-10-25). Added Total: Rs. 700, Added Paid: Rs. 1000. Updated Total: Rs. 3700, Updated Paid: Rs. 3700."
+    },
+    {
+      "_id": "6ac64937a75553b54ca16f95",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:59:27",
+      "details": "Added additional items to existing booking: C101 (20-10-25). Added Total: Rs. 500, Added Paid: Rs. 500. Updated Total: Rs. 4200, Updated Paid: Rs. 4200."
+    },
+    {
+      "_id": "6ac64938a75553b54ca16f96",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "bill_download",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "18:59:28",
+      "details": "Downloaded rental booking bill/invoice: Shashwat Test_Profile.pdf."
+    },
+    {
+      "_id": "6ac6528f32329a14c8eebdfb",
+      "name": "Repro Test Customer",
+      "mobile": "9799988889",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "19:39:19",
+      "details": "Created customer profile. Total: Rs. 1, Given: Rs. 0. Bookings: {'23-10-26': ['C104']}."
+    },
+    {
+      "_id": "6ac6529032329a14c8eebdfc",
+      "name": "Repro Test Customer",
+      "mobile": "9799988889",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "19:39:20",
+      "details": "Added additional items to existing booking: C105 (24-10-26). Added Total: Rs. 1, Added Paid: Rs. 2. Updated Total: Rs. 2, Updated Paid: Rs. 2."
+    },
+    {
+      "_id": "6ac6529032329a14c8eebdfd",
+      "name": "Repro Test Customer Edited",
+      "mobile": "9799988889",
+      "action": "edit",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "19:39:20",
+      "details": "Updated customer details: Name: 'Repro Test Customer' -> 'Repro Test Customer Edited'; Total Price: Rs. 2 -> Rs. 3; Paid Amount: Rs. 2 -> Rs. 3; Bookings: on 23-10-26 (removed ['C104']), on 26-10-26 (added ['C102']), on 24-10-26 (removed ['C105'])."
+    },
+    {
+      "_id": "6ac652fdfb52176af239f7d4",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "19:41:09",
+      "details": "Created customer profile. Total: Rs. 2000, Given: Rs. 1000. Bookings: {'15-10-25': ['C101']}."
+    },
+    {
+      "_id": "6ac652fdfb52176af239f7d7",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "19:41:09",
+      "details": "Added additional items to existing booking: C104 (16-10-25). Added Total: Rs. 500, Added Paid: Rs. 1500. Updated Total: Rs. 2500, Updated Paid: Rs. 2500."
+    },
+    {
+      "_id": "6ac652fdfb52176af239f7d8",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "19:41:09",
+      "details": "Added additional items to existing booking: C105 (17-10-25). Added Total: Rs. 500, Added Paid: Rs. 200. Updated Total: Rs. 3000, Updated Paid: Rs. 2700."
+    },
+    {
+      "_id": "6ac652fefb52176af239f7d9",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "19:41:10",
+      "details": "Added additional items to existing booking: C103 (19-10-25). Added Total: Rs. 700, Added Paid: Rs. 1000. Updated Total: Rs. 3700, Updated Paid: Rs. 3700."
+    },
+    {
+      "_id": "6ac652fefb52176af239f7da",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "19:41:10",
+      "details": "Added additional items to existing booking: C101 (20-10-25). Added Total: Rs. 500, Added Paid: Rs. 500. Updated Total: Rs. 4200, Updated Paid: Rs. 4200."
+    },
+    {
+      "_id": "6ac652fefb52176af239f7db",
+      "name": "Shashwat Test",
+      "mobile": "9888800001",
+      "action": "bill_download",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "19:41:10",
+      "details": "Downloaded rental booking bill/invoice: Shashwat Test_Profile.pdf."
+    },
+    {
+      "_id": "6ac6824a349c6f2b3f8c438d",
+      "name": "Test Customer Flow",
+      "mobile": "9999900001",
+      "action": "edit",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "23:02:58",
+      "details": "Updated customer profile via profile page. Total: Rs. 2000, Given: Rs. 1000. Bookings: {'10-10-26': ['C99999TEST']}."
+    },
+    {
+      "_id": "6ac68263a2cf37f1d945c162",
+      "name": "Test Customer Flow",
+      "mobile": "9999900001",
+      "action": "edit",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "23:03:23",
+      "details": "Updated customer profile via profile page. Total: Rs. 2000, Given: Rs. 1000. Bookings: {'10-10-26': ['C99999TEST']}."
+    },
+    {
+      "_id": "6ac68263a2cf37f1d945c163",
+      "name": "Test Customer Flow",
+      "mobile": "9999900001",
+      "action": "edit",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "23:03:23",
+      "details": "Updated customer profile via profile page. Total: Rs. 1500, Given: Rs. 1000. Bookings: {'10-10-26': ['C99999TEST']}."
+    },
+    {
+      "_id": "6ac68264a2cf37f1d945c164",
+      "name": "Test Customer Flow",
+      "mobile": "9999900001",
+      "action": "book",
+      "date_stamp": "07/10/2026",
+      "time_stamp": "23:03:24",
+      "details": "Added additional items to existing booking: C99998TEST (11-10-26). Added Total: Rs. 500, Added Paid: Rs. 1000. Updated Total: Rs. 2000, Updated Paid: Rs. 2000."
+    }
+  ],
+  "Form": [
+    {
+      "_id": "6abfa9636c5da359a089a1f7",
+      "name": "Test Customer",
+      "mobile": "9999988888",
+      "action": "",
+      "date_stamp": "",
+      "time_stamp": "",
+      "details": ""
+    },
+    {
+      "_id": "6abfa9636c5da359a089a1f8",
+      "name": "Committed Customer",
+      "mobile": "9999988887",
+      "action": "",
+      "date_stamp": "",
+      "time_stamp": "",
+      "details": ""
+    }
+  ]
+}
