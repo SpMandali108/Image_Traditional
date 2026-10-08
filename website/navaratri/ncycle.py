@@ -83,6 +83,12 @@ def create_cycle(name, collection_name):
 
     result = navaratri_cycles.insert_one(cycle)
 
+    try:
+        from website.general.customer_manager import sync_all_navaratri_customers
+        sync_all_navaratri_customers(db)
+    except Exception:
+        pass
+
     return result.inserted_id
 
 

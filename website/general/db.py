@@ -138,4 +138,12 @@ raw_id = os.environ.get("ADMIN_ID")
 raw_pass = os.environ.get("ADMIN_PASS")
 
 ADMIN_ID = (raw_id if raw_id else "IMGTRADE1008").strip().strip('"\'')
-ADMIN_PASS = (raw_pass if raw_pass else "212010").strip().strip('"\'')
+ADMIN_PASS = (raw_pass if raw_pass else "212010").strip().strip('"\'')
+
+# Guarantee customer databases are united irrespective of cycles on startup
+try:
+    from website.general.customer_manager import sync_all_customers
+    sync_all_customers(db)
+except Exception as e:
+    print(f"[DB INIT NOTICE] Customer unification: {e}", flush=True)
+

@@ -81,6 +81,12 @@ def create_cycle(name, collection_name):
 
     result = fancy_cycles.insert_one(cycle)
 
+    try:
+        from website.general.customer_manager import sync_all_fancy_customers
+        sync_all_fancy_customers(db)
+    except Exception:
+        pass
+
     return result.inserted_id
 
 

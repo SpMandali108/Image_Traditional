@@ -1,15 +1,48 @@
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 
 # Virtual environment
 .venv/
+venv/
+ENV/
+env/
 
-# Environment variables
+# Environment variables & secrets
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+
+# Sensitive Data, Backups & Database Dumps
+data/
+*.backup
+*.bak
+
+# Scratch scripts, temporary tests & audit artifacts
+scratch/
+log_test.md
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Android Build Caches
 android/.gradle/
 android/app/build/
 android/local.properties
 android/**/build/
+
+# OS / Editor metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
