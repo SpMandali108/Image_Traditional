@@ -31,6 +31,15 @@ def create_app():
     app.register_blueprint(navaratri, url_prefix='/')
     app.register_blueprint(general, url_prefix='/')
 
+    from .general.db import APP_ENV
+
+    @app.context_processor
+    def inject_app_env():
+        return {
+            'APP_ENV': APP_ENV,
+            'IS_TESTING': (APP_ENV == 'testing')
+        }
+
     @app.after_request
     def security_middleware(response):
         response = apply_security_headers(response)

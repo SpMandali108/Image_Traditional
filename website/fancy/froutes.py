@@ -206,16 +206,9 @@ def update_booking():
 @fancy.route("/get_customer")
 def get_customer():
     mobile = request.args.get("mobile")
-
-    customer = fcustomers.find_one(
-        {"mobile": mobile},     # lowercase mobile
-        {"_id": 0}
-    )
-
-    if customer:
-        return jsonify({"exists": True, "data": customer})
-
-    return jsonify({"exists": False})
+    from website.general.customer_manager import lookup_fancy_customer_autocomplete
+    from website.general.db import db
+    return jsonify(lookup_fancy_customer_autocomplete(mobile, db))
 
 @fancy.route('/fancy_calendar', methods=['GET', 'POST'])
 def fancy_calendar():

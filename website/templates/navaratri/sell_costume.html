@@ -1248,6 +1248,29 @@ function validateMobileInput(val) {
   } else {
     err.classList.add('d-none');
   }
+
+  if (clean.length === 10) {
+    fetch(`/get-navaratri-customer?mobile=${clean}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.exists && data.data) {
+          const nameEl = document.getElementById('custName');
+          const addrEl = document.getElementById('custAddress');
+          const refEl = document.getElementById('custReference');
+          if (nameEl && (!nameEl.value.trim() || nameEl.value === 'Unnamed Customer') && data.data.name) {
+            nameEl.value = data.data.name;
+          }
+          if (addrEl && !addrEl.value.trim() && data.data.address) {
+            addrEl.value = data.data.address;
+          }
+          if (refEl && !refEl.value.trim() && data.data.reference) {
+            refEl.value = data.data.reference;
+          }
+          showToast(`👤 Customer found: ${data.data.name}. Details pre-filled.`, "info");
+        }
+      })
+      .catch(err => console.warn('Customer lookup error:', err));
+  }
 }
 
 function togglePasswordEye(fieldId, btn) {

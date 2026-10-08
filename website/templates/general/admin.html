@@ -67,6 +67,15 @@
         <header class="dashboard-header">
             <h1 class="dashboard-title">Administration Dashboard</h1>
             <p class="dashboard-subtitle">Select the costume rental department to manage</p>
+            {% if IS_TESTING %}
+            <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(245,158,11,0.18); border:1px solid #f59e0b; color:#fbbf24; padding:6px 18px; border-radius:20px; font-size:0.82rem; font-weight:700; margin:6px auto 14px; letter-spacing:0.5px;">
+                <span>🧪 TESTING ENVIRONMENT (ISOLATED DATABASE)</span>
+            </div>
+            {% else %}
+            <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.35); color:#4ade80; padding:6px 18px; border-radius:20px; font-size:0.82rem; font-weight:700; margin:6px auto 14px; letter-spacing:0.5px;">
+                <span>🟢 PRODUCTION ENVIRONMENT</span>
+            </div>
+            {% endif %}
             <div class="dashboard-divider">
                 <span class="d-line"></span>
                 <span class="d-icon">🪔</span>
@@ -109,6 +118,25 @@
                 </div>
             </div>
 
+        </div>
+
+        <!-- Data Audit & Review Quarantine Gateway -->
+        <div class="admin-data-audit-banner" style="margin-top: 24px; max-width: 860px; margin-left: auto; margin-right: auto; width: 100%;">
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(212, 175, 55, 0.35); border-radius: 16px; padding: 20px 26px; display: flex; align-items: center; justify-content: space-between; gap: 16px; backdrop-filter: blur(10px); flex-wrap: wrap;">
+                <div style="text-align: left; flex: 1; min-width: 240px;">
+                    <div style="display: inline-flex; align-items: center; gap: 6px; color: #d4af37; font-weight: 700; font-size: 0.95rem; margin-bottom: 4px;">
+                        <span>🛡️</span> <span>Database Isolation & Audit Review</span>
+                    </div>
+                    <p style="margin: 0; color: #94a3b8; font-size: 0.85rem; line-height: 1.4;">
+                        Inspect flagged test records, examine full relational trees (customer, bookings, logs), export pre-cleanup backups, and safely manage retained data.
+                    </p>
+                </div>
+                <div>
+                    <a href="{{ url_for('auth.admin_data_review') }}" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(212, 175, 55, 0.15); border: 1px solid #d4af37; color: #d4af37; padding: 10px 20px; border-radius: 24px; text-decoration: none; font-weight: 700; font-size: 0.88rem; transition: all 0.2s;">
+                        <span>Open Data Review</span> <span>➔</span>
+                    </a>
+                </div>
+            </div>
         </div>
 
         <!-- Private Admin Android App Card -->

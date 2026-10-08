@@ -8,16 +8,12 @@ def print_customer_list():
     their name and mobile number to the console.
     """
     
-    # 1. Load environment variables (like your DB password)
+    # 1. Load environment variables
     load_dotenv()
     
-    # 2. Connect to the database (copied from your auth.py)
+    # 2. Connect to the database via centralized db configuration
     try:
-        mongoUrl = os.environ.get("client")
-        client = MongoClient(mongoUrl, tls=True, tlsAllowInvalidCertificates=True)
-        db = client['Image_Traditional']
-        collection = db['Form']
-        
+        from website.general.db import client, collection
         # Test the connection
         client.admin.command('ping') 
         print("✅ Database connection successful.")

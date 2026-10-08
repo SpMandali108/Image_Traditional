@@ -3800,89 +3800,9 @@ def get_navaratri_customer():
     if not session.get('logged_in'):
         return jsonify({"exists": False, "error": "Unauthorized"}), 401
     raw_mobile = request.args.get("mobile", "").strip()
-    if not raw_mobile:
-        return jsonify({"exists": False})
-
-    mobile_digits = re.sub(r'\D', '', str(raw_mobile))
-    if len(mobile_digits) == 12 and mobile_digits.startswith('91'):
-        mobile = mobile_digits[2:]
-    elif len(mobile_digits) == 11 and mobile_digits.startswith('0'):
-        mobile = mobile_digits[1:]
-    else:
-        mobile = mobile_digits
-
-    if not mobile:
-        return jsonify({"exists": False})
-
-    # Self-healing migration: Seed from active bookings if empty
-    if ncustomers.count_documents({}) == 0:
-        try:
-            for b in collection.find():
-                m = b.get("mobile")
-                if m:
-                    ncustomers.update_one(
-                        {"mobile": m},
-                        {
-                            "$set": {
-                                "name": b.get("Name"),
-                                "mobile": m,
-                                "address": b.get("address", ""),
-                                "group": b.get("group", ""),
-                                "reference": b.get("reference", ""),
-                                "updated_at": datetime.now()
-                            }
-                        },
-                        upsert=True
-                    )
-        except Exception as e:
-            current_app.logger.error(f"Migration error: {e}")
-
-    # Check if they have a booking in this cycle first
-    active_customer = collection.find_one({"mobile": mobile})
-    if not active_customer:
-        active_customer = collection.find_one({
-            "$or": [
-                {"mobile": mobile},
-                {"mobile": f"91{mobile}"},
-                {"mobile": f"+91{mobile}"},
-                {"mobile": f"0{mobile}"},
-                {"mobile": int(mobile) if mobile.isdigit() else mobile}
-            ]
-        })
-    if active_customer:
-        tot = int(active_customer.get("total_price", 0) or 0)
-        giv = int(active_customer.get("given_price", 0) or 0)
-        return jsonify({
-            "exists": True,
-            "in_cycle": True,
-            "data": {
-                "id": str(active_customer.get("_id")),
-                "name": active_customer.get("Name") or active_customer.get("name", ""),
-                "mobile": active_customer.get("mobile", ""),
-                "address": active_customer.get("address", ""),
-                "group": active_customer.get("group", ""),
-                "reference": active_customer.get("reference", ""),
-                "total_price": tot,
-                "given_price": giv,
-                "remaining": max(0, tot - giv)
-            }
-        })
-
-    # Otherwise, fall back to the all-time database
-    customer = ncustomers.find_one({"mobile": mobile}, {"_id": 0})
-    if customer:
-        return jsonify({
-            "exists": True,
-            "in_cycle": False,
-            "data": {
-                "name": customer.get("name", ""),
-                "mobile": customer.get("mobile", ""),
-                "address": customer.get("address", ""),
-                "group": customer.get("group", ""),
-                "reference": customer.get("reference", "")
-            }
-        })
-    return jsonify({"exists": False})
+    from website.general.customer_manager import lookup_navaratri_customer_autocomplete
+    result = lookup_navaratri_customer_autocomplete(raw_mobile, db, collection)
+    return jsonify(result)
 
 
 # ------------------ Page: Navaratri Customers Directory ------------------
