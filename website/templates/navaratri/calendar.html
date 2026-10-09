@@ -694,7 +694,7 @@ body {
                 <div class="page-subtitle">Track costume reservations and daily back-to-back handovers across Navaratri</div>
             </div>
         </div>
-        {% if date and bookings %}
+        {% if date %}
         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <a href="{{ url_for('navaratri.export_calendar_bookings', date=date) }}" class="btn-ghost" title="Export as CSV">
                 <i class="fa-solid fa-file-arrow-down"></i> Export CSV
@@ -733,7 +733,7 @@ body {
                         Reservations
                     {% endif %}
                 </h2>
-                {% if date and bookings %}
+                {% if date %}
                 <div style="display: flex; gap: 6px; align-items: center;">
                     <a href="{{ url_for('navaratri.export_calendar_bookings', date=date) }}" class="btn-ghost" title="Export as CSV">
                         <i class="fa-solid fa-file-arrow-down"></i> CSV
