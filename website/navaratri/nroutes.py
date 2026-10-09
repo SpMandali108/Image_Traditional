@@ -2765,7 +2765,56 @@ def export_calendar_bookings():
     writer = csv.DictWriter(output, fieldnames=fieldnames)
     writer.writeheader()
 
-    # 1. SECTION: TODAY'S BOOKINGS
+    # 1. SECTION: PREVIOUS DAY'S RETURNS (PRODUCTS TO TAKE RETURN)
+    yesterday_has_data = False
+    for yc in yesterday_customers:
+        products = extract_products(yc.get("bookings", {}).get(yesterday_date_str, []))
+        for product in products:
+            yesterday_has_data = True
+            td_info = find_info(product, today_map)
+
+            action = f"B2B Handover to: {td_info['name']} ({td_info['mobile']})" if td_info else "Return to Shop Inventory"
+            row = {
+                "Schedule Type": f"Date: {date_str_yesterday}",
+                "Customer Name": yc.get("Name", "N/A"),
+                "Customer Mobile": yc.get("mobile", "N/A"),
+                "Product Code": product,
+                "Collect From (Yesterday)": f"Rented {date_str_yesterday}",
+                "Booked Tomorrow": "-",
+                "Today's Action / Handover To": action,
+                "Marked Taken": "-",
+                "Marked Return": "[ ]"
+            }
+            writer.writerow(row)
+
+    if not yesterday_has_data:
+        writer.writerow({
+            "Schedule Type": f"Date: {date_str_yesterday}",
+            "Customer Name": f"No returns scheduled for Date: {date_str_yesterday}",
+            "Customer Mobile": "-",
+            "Product Code": "-",
+            "Collect From (Yesterday)": "-",
+            "Booked Tomorrow": "-",
+            "Today's Action / Handover To": "-",
+            "Marked Taken": "-",
+            "Marked Return": "-"
+        })
+
+    # Separator row + Section Marker
+    writer.writerow({k: "" for k in fieldnames})
+    writer.writerow({
+        "Schedule Type": f"=== Date: {date_str_today} ===",
+        "Customer Name": "",
+        "Customer Mobile": "",
+        "Product Code": "",
+        "Collect From (Yesterday)": "",
+        "Booked Tomorrow": "",
+        "Today's Action / Handover To": "",
+        "Marked Taken": "",
+        "Marked Return": ""
+    })
+
+    # 2. SECTION: TODAY'S BOOKINGS (PRODUCTS TO BE GIVEN)
     today_has_data = False
     for c in customers:
         products = extract_products(c.get("bookings", {}).get(formatted_date, []))
@@ -2792,55 +2841,6 @@ def export_calendar_bookings():
         writer.writerow({
             "Schedule Type": f"Date: {date_str_today}",
             "Customer Name": f"No bookings scheduled for Date: {date_str_today}",
-            "Customer Mobile": "-",
-            "Product Code": "-",
-            "Collect From (Yesterday)": "-",
-            "Booked Tomorrow": "-",
-            "Today's Action / Handover To": "-",
-            "Marked Taken": "-",
-            "Marked Return": "-"
-        })
-
-    # Separator row + Section Marker
-    writer.writerow({k: "" for k in fieldnames})
-    writer.writerow({
-        "Schedule Type": f"=== Date: {date_str_yesterday} ===",
-        "Customer Name": "",
-        "Customer Mobile": "",
-        "Product Code": "",
-        "Collect From (Yesterday)": "",
-        "Booked Tomorrow": "",
-        "Today's Action / Handover To": "",
-        "Marked Taken": "",
-        "Marked Return": ""
-    })
-
-    # 2. SECTION: PREVIOUS DAY'S RETURNS
-    yesterday_has_data = False
-    for yc in yesterday_customers:
-        products = extract_products(yc.get("bookings", {}).get(yesterday_date_str, []))
-        for product in products:
-            yesterday_has_data = True
-            td_info = find_info(product, today_map)
-
-            action = f"B2B Handover to: {td_info['name']} ({td_info['mobile']})" if td_info else "Return to Shop Inventory"
-            row = {
-                "Schedule Type": f"Date: {date_str_yesterday}",
-                "Customer Name": yc.get("Name", "N/A"),
-                "Customer Mobile": yc.get("mobile", "N/A"),
-                "Product Code": product,
-                "Collect From (Yesterday)": f"Rented {date_str_yesterday}",
-                "Booked Tomorrow": "-",
-                "Today's Action / Handover To": action,
-                "Marked Taken": "-",
-                "Marked Return": "[ ]"
-            }
-            writer.writerow(row)
-
-    if not yesterday_has_data:
-        writer.writerow({
-            "Schedule Type": f"Date: {date_str_yesterday}",
-            "Customer Name": f"No returns scheduled for Date: {date_str_yesterday}",
             "Customer Mobile": "-",
             "Product Code": "-",
             "Collect From (Yesterday)": "-",
@@ -3303,7 +3303,7 @@ def export_calendar_pdf():
     # Title: Centered Date Title
     pdf.set_font('helvetica', 'B', 15)
     pdf.set_text_color(15, 23, 42)
-    pdf.cell(0, 8, f"Date: {date_str_today}", align='C')
+    pdf.cell(0, 8, f"Date: {date_str_yesterday}", align='C')
     pdf.ln(8)
 
     # Gold separator line
@@ -3325,8 +3325,8 @@ def export_calendar_pdf():
 
     slots = [
         (14, "Date: ", date_str_today, (15, 23, 42)),
-        (62, "To Give: ", f"{today_count} item(s)", (15, 23, 42)),
-        (110, "To Collect: ", f"{yesterday_count} item(s)", (15, 23, 42)),
+        (62, "To Collect: ", f"{yesterday_count} item(s)", (15, 23, 42)),
+        (110, "To Give: ", f"{today_count} item(s)", (15, 23, 42)),
         (158, "B2B Handovers: ", f"{b2b_count} item(s)", (220, 38, 38) if b2b_count > 0 else (16, 185, 129))
     ]
 
@@ -3344,7 +3344,42 @@ def export_calendar_pdf():
 
     pdf.set_y(kpi_y + 13.5)
 
-    # 1. TABLE: TODAY'S BOOKINGS
+    # 1. TABLE: PREVIOUS DAY'S RETURNS (PRODUCTS TO TAKE RETURN)
+    draw_table_header_yesterday()
+
+    if not yesterday_rows:
+        pdf.set_x(10)
+        pdf.set_font('helvetica', 'I', 9)
+        pdf.set_text_color(148, 163, 184)
+        pdf.cell(190, 9, f"No returns scheduled for Date: {date_str_yesterday}.", border=1, align="C")
+        pdf.ln()
+    else:
+        for idx, r in enumerate(yesterday_rows):
+            render_return_row(
+                idx=idx,
+                name=r['name'],
+                mobile=r['mobile'],
+                product=r['product'],
+                col5_text=r['status'],
+                col5_type=r['status_type']
+            )
+
+    # 2. SECTION: TODAY'S BOOKINGS (PRODUCTS TO BE GIVEN)
+    if pdf.get_y() + 30 > 280:
+        pdf.add_page()
+        pdf.set_y(12)
+    else:
+        pdf.ln(5)
+        pdf.set_draw_color(212, 175, 55)
+        pdf.set_line_width(0.5)
+        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+        pdf.ln(4)
+
+    pdf.set_font('helvetica', 'B', 15)
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(0, 8, f"Date: {date_str_today}", align='C')
+    pdf.ln(8)
+
     draw_table_header_today()
 
     if not today_rows:
@@ -3363,41 +3398,6 @@ def export_calendar_pdf():
                 col5_text=r['yesterday'],
                 col5_type=r['yesterday_type'],
                 col6_text=r['tomorrow']
-            )
-
-    # 2. SECTION: PREVIOUS DAY'S RETURNS
-    if pdf.get_y() + 30 > 280:
-        pdf.add_page()
-        pdf.set_y(12)
-    else:
-        pdf.ln(5)
-        pdf.set_draw_color(212, 175, 55)
-        pdf.set_line_width(0.5)
-        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-        pdf.ln(4)
-
-    pdf.set_font('helvetica', 'B', 15)
-    pdf.set_text_color(15, 23, 42)
-    pdf.cell(0, 8, f"Date: {date_str_yesterday}", align='C')
-    pdf.ln(8)
-
-    draw_table_header_yesterday()
-
-    if not yesterday_rows:
-        pdf.set_x(10)
-        pdf.set_font('helvetica', 'I', 9)
-        pdf.set_text_color(148, 163, 184)
-        pdf.cell(190, 9, f"No returns scheduled for Date: {date_str_yesterday}.", border=1, align="C")
-        pdf.ln()
-    else:
-        for idx, r in enumerate(yesterday_rows):
-            render_return_row(
-                idx=idx,
-                name=r['name'],
-                mobile=r['mobile'],
-                product=r['product'],
-                col5_text=r['status'],
-                col5_type=r['status_type']
             )
 
     # Operational Note
