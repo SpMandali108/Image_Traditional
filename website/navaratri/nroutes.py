@@ -1804,13 +1804,14 @@ def get_navaratri_analytics(traditional_data):
     sorted_references = sorted(reference_revenue.items(), key=lambda x: x[1], reverse=True)[:10]
 
     # ── Product-Centric Analytical AI ──
-    # A. Stock Utilization & Capacity Analytics
-    db_cholis = get_active_individual_products("choli")
-    db_kediyas = get_active_individual_products("kediya")
-    choli_all_set = {p["code"] for p in db_cholis}
-    kediya_all_set = {p["code"] for p in db_kediyas}
-    total_choli_stock = len(choli_all_set) if choli_all_set else 150
-    total_kediya_stock = len(kediya_all_set) if kediya_all_set else 173
+    # A. Stock Utilization & Capacity Analytics (from navaratri_products in DB)
+    all_db_products = list(navaratri_products.find({}, {"_id": 0, "code": 1, "image": 1}))
+    choli_all_set = {p["code"].strip().upper() for p in all_db_products if p.get("code") and p.get("code", "").strip().upper().startswith("C")}
+    kediya_all_set = {p["code"].strip().upper() for p in all_db_products if p.get("code") and p.get("code", "").strip().upper().startswith("K")}
+    product_images = {p["code"].strip().upper(): p.get("image", "") for p in all_db_products if p.get("code")}
+    
+    total_choli_stock = len(choli_all_set)
+    total_kediya_stock = len(kediya_all_set)
     total_stock = total_choli_stock + total_kediya_stock
     
     rented_codes = set(product_counts.keys())
@@ -1859,10 +1860,8 @@ def get_navaratri_analytics(traditional_data):
         })
 
     # D. Catalog Showcase Rotations (Identify idle unique garments)
-    unbooked_cholis = list(choli_all_set - rented_cholis)
-    unbooked_kediyas = list(kediya_all_set - rented_kediyas)
-    unbooked_cholis.sort(key=lambda x: int(x[1:]) if x[1:].isdigit() else 0)
-    unbooked_kediyas.sort(key=lambda x: int(x[1:]) if x[1:].isdigit() else 0)
+    unbooked_cholis = sorted(list(choli_all_set - rented_cholis), key=natural_sort_key)
+    unbooked_kediyas = sorted(list(kediya_all_set - rented_kediyas), key=natural_sort_key)
     
     catalog_rotations = []
     for code in unbooked_cholis[:4]:
@@ -1879,6 +1878,9 @@ def get_navaratri_analytics(traditional_data):
             "reason": "Idle this cycle (0 bookings).",
             "action": "Reposition in catalog list header or display as outfit alternative."
         })
+
+    choli_codes_sorted = sorted(list(choli_all_set), key=natural_sort_key)
+    kediya_codes_sorted = sorted(list(kediya_all_set), key=natural_sort_key)
 
     return {
         "total_customers_trad": total_customers_trad,
@@ -1912,8 +1914,9 @@ def get_navaratri_analytics(traditional_data):
             "total_stock": total_stock,
             "total_choli_stock": total_choli_stock,
             "total_kediya_stock": total_kediya_stock,
-            "choli_codes": sorted(list(choli_all_set), key=lambda x: int(x[1:]) if x[1:].isdigit() else 0),
-            "kediya_codes": sorted(list(kediya_all_set), key=lambda x: int(x[1:]) if x[1:].isdigit() else 0),
+            "choli_codes": choli_codes_sorted,
+            "kediya_codes": kediya_codes_sorted,
+            "product_images": product_images,
             "rented_unique": len(rented_codes),
             "product_counts": product_counts
         },
@@ -2667,14 +2670,36 @@ def export_calendar_bookings():
         date_obj = datetime.strptime(date, "%Y-%m-%d")
         formatted_date = date_obj.strftime("%d-%m-%y")
     except ValueError:
-        return "Invalid date format. Expected YYYY-MM-DD", 400
+        try:
+            date_obj = datetime.strptime(date, "%d-%m-%y")
+            formatted_date = date
+        except ValueError:
+            return "Invalid date format. Expected YYYY-MM-DD", 400
 
     # Calculate yesterday's and tomorrow's date strings
     yesterday_obj = date_obj - timedelta(days=1)
     yesterday_date_str = yesterday_obj.strftime("%d-%m-%y")
+    date_str_today = date_obj.strftime("%d-%m-%Y")
+    date_str_yesterday = yesterday_obj.strftime("%d-%m-%Y")
     
     tomorrow_obj = date_obj + timedelta(days=1)
     tomorrow_date_str = tomorrow_obj.strftime("%d-%m-%y")
+
+    # Helper to normalize product extraction
+    def extract_products(val):
+        if not val:
+            return []
+        if isinstance(val, str):
+            return [p.strip() for p in val.split(",") if p.strip()]
+        if isinstance(val, list):
+            res = []
+            for item in val:
+                if isinstance(item, str) and "," in item:
+                    res.extend([p.strip() for p in item.split(",") if p.strip()])
+                elif item:
+                    res.append(str(item).strip())
+            return res
+        return [str(val).strip()]
 
     # Query MongoDB for bookings on formatted_date, yesterday, and tomorrow
     customers = list(collection.find({f"bookings.{formatted_date}": {"$exists": True}}))
@@ -2684,50 +2709,146 @@ def export_calendar_bookings():
     # Map product codes to yesterday's renter details
     yesterday_map = {}
     for yc in yesterday_customers:
-        y_prods = yc.get("bookings", {}).get(yesterday_date_str, [])
+        y_prods = extract_products(yc.get("bookings", {}).get(yesterday_date_str, []))
         for yp in y_prods:
             yesterday_map[yp] = {
                 "name": yc.get("Name", "Unknown"),
                 "mobile": yc.get("mobile", "N/A")
             }
             
-    # Map product codes to tomorrow's renter details
-    tomorrow_map = {}
-    for tc in tomorrow_customers:
-        t_prods = tc.get("bookings", {}).get(tomorrow_date_str, [])
+    # Map product codes to today's renter details
+    today_map = {}
+    for tc in customers:
+        t_prods = extract_products(tc.get("bookings", {}).get(formatted_date, []))
         for tp in t_prods:
-            tomorrow_map[tp] = {
+            today_map[tp] = {
                 "name": tc.get("Name", "Unknown"),
                 "mobile": tc.get("mobile", "N/A")
             }
 
-    # Prepare CSV fieldnames matching the web dashboard
+    # Map product codes to tomorrow's renter details
+    tomorrow_map = {}
+    for tmc in tomorrow_customers:
+        tm_prods = extract_products(tmc.get("bookings", {}).get(tomorrow_date_str, []))
+        for tmp in tm_prods:
+            tomorrow_map[tmp] = {
+                "name": tmc.get("Name", "Unknown"),
+                "mobile": tmc.get("mobile", "N/A")
+            }
+
+    def find_info(p_code, mapping):
+        if not p_code:
+            return None
+        p_str = str(p_code).strip()
+        if p_str in mapping:
+            return mapping[p_str]
+        p_lower = p_str.lower()
+        for k, v in mapping.items():
+            if k.lower() == p_lower:
+                return v
+        return None
+
+    # Prepare CSV fieldnames
     fieldnames = [
+        "Schedule Type",
         "Customer Name", 
         "Customer Mobile", 
         "Product Code", 
-        "Booked Yesterday", 
-        "Booked Tomorrow"
+        "Collect From (Yesterday)", 
+        "Booked Tomorrow",
+        "Today's Action / Handover To",
+        "Marked Taken",
+        "Marked Return"
     ]
 
     output = io.StringIO()
     writer = csv.DictWriter(output, fieldnames=fieldnames)
     writer.writeheader()
 
+    # 1. SECTION: TODAY'S BOOKINGS
+    today_has_data = False
     for c in customers:
-        products = c.get("bookings", {}).get(formatted_date, [])
+        products = extract_products(c.get("bookings", {}).get(formatted_date, []))
         for product in products:
-            y_info = yesterday_map.get(product)
-            t_info = tomorrow_map.get(product)
+            today_has_data = True
+            y_info = find_info(product, yesterday_map)
+            t_info = find_info(product, tomorrow_map)
 
+            action = "B2B Handover from Yesterday" if y_info else "Ready in Shop Inventory"
             row = {
+                "Schedule Type": f"Date: {date_str_today}",
                 "Customer Name": c.get("Name", "N/A"),
                 "Customer Mobile": c.get("mobile", "N/A"),
                 "Product Code": product,
-                "Booked Yesterday": f"{y_info['name']} - {y_info['mobile']}" if y_info else "",
-                "Booked Tomorrow": f"{t_info['name']} - {t_info['mobile']}" if t_info else ""
+                "Collect From (Yesterday)": f"{y_info['name']} - {y_info['mobile']}" if y_info else "In shop - ready",
+                "Booked Tomorrow": f"{t_info['name']} - {t_info['mobile']}" if t_info else "-",
+                "Today's Action / Handover To": action,
+                "Marked Taken": "[ ]",
+                "Marked Return": "-"
             }
             writer.writerow(row)
+
+    if not today_has_data:
+        writer.writerow({
+            "Schedule Type": f"Date: {date_str_today}",
+            "Customer Name": f"No bookings scheduled for Date: {date_str_today}",
+            "Customer Mobile": "-",
+            "Product Code": "-",
+            "Collect From (Yesterday)": "-",
+            "Booked Tomorrow": "-",
+            "Today's Action / Handover To": "-",
+            "Marked Taken": "-",
+            "Marked Return": "-"
+        })
+
+    # Separator row + Section Marker
+    writer.writerow({k: "" for k in fieldnames})
+    writer.writerow({
+        "Schedule Type": f"=== Date: {date_str_yesterday} ===",
+        "Customer Name": "",
+        "Customer Mobile": "",
+        "Product Code": "",
+        "Collect From (Yesterday)": "",
+        "Booked Tomorrow": "",
+        "Today's Action / Handover To": "",
+        "Marked Taken": "",
+        "Marked Return": ""
+    })
+
+    # 2. SECTION: PREVIOUS DAY'S RETURNS
+    yesterday_has_data = False
+    for yc in yesterday_customers:
+        products = extract_products(yc.get("bookings", {}).get(yesterday_date_str, []))
+        for product in products:
+            yesterday_has_data = True
+            td_info = find_info(product, today_map)
+
+            action = f"B2B Handover to: {td_info['name']} ({td_info['mobile']})" if td_info else "Return to Shop Inventory"
+            row = {
+                "Schedule Type": f"Date: {date_str_yesterday}",
+                "Customer Name": yc.get("Name", "N/A"),
+                "Customer Mobile": yc.get("mobile", "N/A"),
+                "Product Code": product,
+                "Collect From (Yesterday)": f"Rented {date_str_yesterday}",
+                "Booked Tomorrow": "-",
+                "Today's Action / Handover To": action,
+                "Marked Taken": "-",
+                "Marked Return": "[ ]"
+            }
+            writer.writerow(row)
+
+    if not yesterday_has_data:
+        writer.writerow({
+            "Schedule Type": f"Date: {date_str_yesterday}",
+            "Customer Name": f"No returns scheduled for Date: {date_str_yesterday}",
+            "Customer Mobile": "-",
+            "Product Code": "-",
+            "Collect From (Yesterday)": "-",
+            "Booked Tomorrow": "-",
+            "Today's Action / Handover To": "-",
+            "Marked Taken": "-",
+            "Marked Return": "-"
+        })
 
     output.seek(0)
     filename = f"Bookings_{date}.csv"
@@ -2754,12 +2875,14 @@ def export_calendar_pdf():
         date_obj = datetime.strptime(date, "%Y-%m-%d")
         formatted_date = date_obj.strftime("%d-%m-%y")
         formatted_date_display = date_obj.strftime("%d-%b-%Y")
+        date_str_today = date_obj.strftime("%d-%m-%Y")
         full_date_display = date_obj.strftime("%d %B %Y (%A)")
     except ValueError:
         try:
             date_obj = datetime.strptime(date, "%d-%m-%y")
             formatted_date = date
             formatted_date_display = date_obj.strftime("%d-%b-%Y")
+            date_str_today = date_obj.strftime("%d-%m-%Y")
             full_date_display = date_obj.strftime("%d %B %Y (%A)")
         except ValueError:
             return "Invalid date format. Expected YYYY-MM-DD", 400
@@ -2768,9 +2891,27 @@ def export_calendar_pdf():
     from datetime import timedelta
     yesterday_obj = date_obj - timedelta(days=1)
     yesterday_date_str = yesterday_obj.strftime("%d-%m-%y")
+    yesterday_date_display = yesterday_obj.strftime("%d-%b-%Y")
+    date_str_yesterday = yesterday_obj.strftime("%d-%m-%Y")
     
     tomorrow_obj = date_obj + timedelta(days=1)
     tomorrow_date_str = tomorrow_obj.strftime("%d-%m-%y")
+
+    # Helper to normalize product extraction
+    def extract_products(val):
+        if not val:
+            return []
+        if isinstance(val, str):
+            return [p.strip() for p in val.split(",") if p.strip()]
+        if isinstance(val, list):
+            res = []
+            for item in val:
+                if isinstance(item, str) and "," in item:
+                    res.extend([p.strip() for p in item.split(",") if p.strip()])
+                elif item:
+                    res.append(str(item).strip())
+            return res
+        return [str(val).strip()]
 
     # Query MongoDB for bookings on formatted_date, yesterday, and tomorrow
     customers = list(collection.find({f"bookings.{formatted_date}": {"$exists": True}}))
@@ -2780,90 +2921,89 @@ def export_calendar_pdf():
     # Map product codes to yesterday's renter details
     yesterday_map = {}
     for yc in yesterday_customers:
-        y_prods = yc.get("bookings", {}).get(yesterday_date_str, [])
+        y_prods = extract_products(yc.get("bookings", {}).get(yesterday_date_str, []))
         for yp in y_prods:
             yesterday_map[yp] = {
                 "name": yc.get("Name", "Unknown"),
                 "mobile": yc.get("mobile", "N/A")
             }
+
+    # Map product codes to today's renter details
+    today_map = {}
+    for tc in customers:
+        t_prods = extract_products(tc.get("bookings", {}).get(formatted_date, []))
+        for tp in t_prods:
+            today_map[tp] = {
+                "name": tc.get("Name", "Unknown"),
+                "mobile": tc.get("mobile", "N/A")
+            }
             
     # Map product codes to tomorrow's renter details
     tomorrow_map = {}
     for tc in tomorrow_customers:
-        t_prods = tc.get("bookings", {}).get(tomorrow_date_str, [])
+        t_prods = extract_products(tc.get("bookings", {}).get(tomorrow_date_str, []))
         for tp in t_prods:
             tomorrow_map[tp] = {
                 "name": tc.get("Name", "Unknown"),
                 "mobile": tc.get("mobile", "N/A")
             }
 
-    # Collect rows
-    rows = []
+    def find_info(p_code, mapping):
+        if not p_code:
+            return None
+        p_str = str(p_code).strip()
+        if p_str in mapping:
+            return mapping[p_str]
+        p_lower = p_str.lower()
+        for k, v in mapping.items():
+            if k.lower() == p_lower:
+                return v
+        return None
+
+    # Collect today's rows (costumes to give today)
+    today_rows = []
     for c in customers:
-        products = c.get("bookings", {}).get(formatted_date, [])
+        products = extract_products(c.get("bookings", {}).get(formatted_date, []))
         for product in products:
-            y_info = yesterday_map.get(product)
-            t_info = tomorrow_map.get(product)
-            rows.append({
+            y_info = find_info(product, yesterday_map)
+            t_info = find_info(product, tomorrow_map)
+            today_rows.append({
                 "name": c.get("Name", "N/A"),
                 "mobile": c.get("mobile", "N/A"),
                 "product": product,
-                "yesterday": f"{y_info['name']} ({y_info['mobile']})" if y_info else None,
-                "tomorrow": f"{t_info['name']} ({t_info['mobile']})" if t_info else None,
+                "yesterday_raw": y_info,
+                "yesterday": f"Collect from: {y_info['name']} ({y_info['mobile']})" if y_info else "In shop - ready",
+                "yesterday_type": "alert" if y_info else "success",
+                "tomorrow_raw": t_info,
+                "tomorrow": f"{t_info['name']} ({t_info['mobile']})" if t_info else "-",
+            })
+
+    # Collect previous day's rows (costumes to collect & return back today)
+    yesterday_rows = []
+    for yc in yesterday_customers:
+        products = extract_products(yc.get("bookings", {}).get(yesterday_date_str, []))
+        for product in products:
+            td_info = find_info(product, today_map)
+            yesterday_rows.append({
+                "name": yc.get("Name", "N/A"),
+                "mobile": yc.get("mobile", "N/A"),
+                "product": product,
+                "today_raw": td_info,
+                "status": f"Handover to: {td_info['name']} ({td_info['mobile']})" if td_info else "Return to Shop Inventory",
+                "status_type": "alert" if td_info else "success",
             })
 
     class CalendarPDF(FPDF):
-        def header(self):
-            # Background navy banner
-            self.set_fill_color(10, 17, 32)  # #0a1120 Premium navy
-            self.rect(0, 0, 210, 42, 'F')
-            
-            # Shop Logo
-            logo_path = os.path.join(current_app.root_path, "static", "Home_Img", "favicon.png")
-            if os.path.exists(logo_path):
-                self.image(logo_path, 15, 10, 22)
-            
-            # Title
-            self.set_text_color(212, 175, 55)  # Gold #d4af37
-            self.set_font('helvetica', 'B', 22)
-            self.set_xy(42, 10)
-            self.cell(0, 10, 'IMAGE TRADITIONAL')
-            
-            # Address info (white text)
-            self.set_text_color(241, 245, 249)
-            self.set_font('helvetica', '', 9)
-            self.set_xy(42, 20)
-            self.multi_cell(
-                95, 4.5,
-                "Nr. Laxminarayan Bus-stand, Opp Prarabdh Soc.\n"
-                "Maninagar(E), Ahmedabad-08",
-                align='L'
-            )
-            
-            # Owner & Meta Details (Right Side)
-            self.set_text_color(212, 175, 55)  # Gold
-            self.set_font('helvetica', 'B', 10)
-            self.set_xy(140, 11)
-            self.cell(55, 5, "Prakash Mandali: 9428610384", align='R')
-            
-            self.set_text_color(241, 245, 249)
-            self.set_font('helvetica', '', 9)
-            self.set_xy(140, 17)
-            self.cell(55, 5, "Daily Bookings Schedule", align='R')
-            
-            self.set_xy(140, 23)
-            self.cell(55, 5, f"Date: {formatted_date_display}", align='R')
-            
-            self.ln(25)
-
         def footer(self):
-            self.set_y(-15)
+            self.set_y(-10)
             self.set_font('helvetica', 'I', 8)
             self.set_text_color(148, 163, 184)
-            self.cell(0, 10, f'Page {self.page_no()}/{{nb}} | Image Traditional Daily Bookings Schedule', align='C')
+            self.cell(0, 6, f'Page {self.page_no()}/{{nb}} | Image Traditional', align='C')
 
     pdf = CalendarPDF('P', 'mm', 'A4')
     pdf.alias_nb_pages()
+    pdf.set_auto_page_break(False)
+    pdf.set_margins(10, 10, 10)
 
     # Register Unicode Gujarati font
     font_reg = os.path.join(current_app.root_path, "static", "fonts", "NotoSansGujarati-Regular.ttf")
@@ -2884,168 +3024,389 @@ def export_calendar_pdf():
     def is_gujarati(text):
         return any('\u0a80' <= ch <= '\u0aff' for ch in str(text))
 
-    def set_smart_font(text, style='', size=8):
+    def set_smart_font(text, style='', size=9):
         if is_gujarati(text) and has_guj_font:
             pdf.set_font("NotoSansGujarati", style, size)
         else:
             pdf.set_font("helvetica", style, size)
 
-    def draw_table_header():
+    COL_W_TODAY = [8, 33, 24, 30, 39, 34, 22]
+    COL_W_RETURN = [8, 40, 24, 32, 62, 24]
+
+    def fit_text(text, max_w, font_size=9, is_bold=False):
+        text = str(text or '').strip()
+        if not text:
+            return ''
+        style = 'B' if (is_bold and not is_gujarati(text)) else ''
+        set_smart_font(text, style=style, size=font_size)
+        if pdf.get_string_width('  ' + text) <= max_w:
+            return text
+        curr = text
+        while len(curr) > 1 and pdf.get_string_width('  ' + curr + '..') > max_w:
+            curr = curr[:-1]
+        return curr + '..'
+
+    def draw_table_header_today():
         pdf.set_font("helvetica", "B", 8.5)
         pdf.set_text_color(255, 255, 255)
         pdf.set_fill_color(10, 17, 32)
         pdf.set_draw_color(10, 17, 32)
 
-        pdf.set_x(15)
-        pdf.cell(8, 8, "Sr.", border=1, align="C", fill=True)
-        pdf.cell(36, 8, "Customer Name", border=1, align="C", fill=True)
-        pdf.cell(24, 8, "Mobile", border=1, align="C", fill=True)
-        pdf.cell(16, 8, "Product", border=1, align="C", fill=True)
-        pdf.cell(48, 8, "Booked Yesterday (Handover)", border=1, align="C", fill=True)
-        pdf.cell(48, 8, "Booked Tomorrow (Next)", border=1, align="C", fill=True)
+        pdf.set_x(10)
+        pdf.cell(COL_W_TODAY[0], 8.5, "Sr.", border=1, align="C", fill=True)
+        pdf.cell(COL_W_TODAY[1], 8.5, "Customer Name", border=1, align="C", fill=True)
+        pdf.cell(COL_W_TODAY[2], 8.5, "Mobile", border=1, align="C", fill=True)
+        pdf.cell(COL_W_TODAY[3], 8.5, "Product Code", border=1, align="C", fill=True)
+        pdf.cell(COL_W_TODAY[4], 8.5, "Collect From (Yesterday)", border=1, align="C", fill=True)
+        pdf.cell(COL_W_TODAY[5], 8.5, "Booked Tomorrow", border=1, align="C", fill=True)
+        pdf.cell(COL_W_TODAY[6], 8.5, "Marked Taken", border=1, align="C", fill=True)
         pdf.ln()
 
-    pdf.add_page()
-    pdf.set_y(46)
+    def draw_table_header_yesterday():
+        pdf.set_font("helvetica", "B", 8.5)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_fill_color(10, 17, 32)
+        pdf.set_draw_color(10, 17, 32)
 
-    # Title
-    pdf.set_font('helvetica', 'B', 11)
+        pdf.set_x(10)
+        pdf.cell(COL_W_RETURN[0], 8.5, "Sr.", border=1, align="C", fill=True)
+        pdf.cell(COL_W_RETURN[1], 8.5, "Customer Name (Holder)", border=1, align="C", fill=True)
+        pdf.cell(COL_W_RETURN[2], 8.5, "Mobile", border=1, align="C", fill=True)
+        pdf.cell(COL_W_RETURN[3], 8.5, "Product Code", border=1, align="C", fill=True)
+        pdf.cell(COL_W_RETURN[4], 8.5, "Today's Action / Handover To", border=1, align="C", fill=True)
+        pdf.cell(COL_W_RETURN[5], 8.5, "Marked Return", border=1, align="C", fill=True)
+        pdf.ln()
+
+    def render_today_row(idx, name, mobile, product, col5_text, col5_type, col6_text):
+        prod_str = str(product or '-')
+        prod_display = prod_str.replace(',', ', ')
+
+        set_smart_font(prod_display, style='B' if not is_gujarati(prod_display) else '', size=10)
+        # Wrap product code text across cell width (30 - 4 = 26mm available)
+        prod_lines = pdf.multi_cell(COL_W_TODAY[3] - 4, 4.3, prod_display, dry_run=True, output='LINES')
+        if not prod_lines:
+            prod_lines = [prod_display]
+        prod_lines = [l.strip() for l in prod_lines if l.strip()]
+        if not prod_lines:
+            prod_lines = ['-']
+
+        safe_lines = []
+        for pl in prod_lines:
+            safe_lines.append(fit_text(pl, COL_W_TODAY[3] - 2, font_size=10, is_bold=True))
+        prod_lines = safe_lines
+
+        n_lines = len(prod_lines)
+        h_row = max(8.5, n_lines * 4.4 + 2)
+
+        # Check for page overflow
+        if pdf.get_y() + h_row > 280:
+            pdf.add_page()
+            pdf.set_y(10)
+            draw_table_header_today()
+
+        y_top = pdf.get_y()
+        x = 10
+        bg_fill = (idx % 2 == 1)
+        if bg_fill:
+            pdf.set_fill_color(248, 250, 252)
+        else:
+            pdf.set_fill_color(255, 255, 255)
+        pdf.set_draw_color(226, 232, 240)
+
+        # 1. Sr. (8mm)
+        pdf.set_xy(x, y_top)
+        pdf.set_font('helvetica', '', 9)
+        pdf.set_text_color(100, 116, 139)
+        pdf.cell(COL_W_TODAY[0], h_row, str(idx + 1), border=1, align="C", fill=True)
+        x += COL_W_TODAY[0]
+
+        # 2. Customer Name (33mm)
+        pdf.set_xy(x, y_top)
+        c_name = str(name or 'N/A')
+        c_name_fitted = fit_text(c_name, COL_W_TODAY[1] - 3, font_size=9.5, is_bold=True)
+        set_smart_font(c_name_fitted, style='B' if not is_gujarati(c_name_fitted) else '', size=9.5)
+        pdf.set_text_color(15, 23, 42)
+        pdf.cell(COL_W_TODAY[1], h_row, '  ' + c_name_fitted, border=1, align="L", fill=True)
+        x += COL_W_TODAY[1]
+
+        # 3. Mobile (24mm)
+        pdf.set_xy(x, y_top)
+        mobile_str = str(mobile or 'N/A')
+        mobile_fitted = fit_text(mobile_str, COL_W_TODAY[2] - 2, font_size=9, is_bold=False)
+        set_smart_font(mobile_fitted, style='', size=9)
+        pdf.set_text_color(30, 41, 59)
+        pdf.cell(COL_W_TODAY[2], h_row, mobile_fitted, border=1, align="C", fill=True)
+        x += COL_W_TODAY[2]
+
+        # 4. Product Code (30mm) - WRAPPED
+        pdf.set_xy(x, y_top)
+        pdf.rect(x, y_top, COL_W_TODAY[3], h_row, 'DF')
+        pdf.set_text_color(10, 17, 32)
+        line_h = 4.3
+        text_total_h = n_lines * line_h
+        start_y = y_top + (h_row - text_total_h) / 2
+        for i, line_text in enumerate(prod_lines):
+            pdf.set_xy(x, start_y + i * line_h)
+            set_smart_font(line_text, style='B' if not is_gujarati(line_text) else '', size=10)
+            pdf.cell(COL_W_TODAY[3], line_h, line_text, border=0, align="C")
+        x += COL_W_TODAY[3]
+
+        # 5. Collect From (Yesterday) (39mm)
+        pdf.set_xy(x, y_top)
+        text5 = str(col5_text or '-')
+        text5_fitted = fit_text(text5, COL_W_TODAY[4] - 3, font_size=8.5, is_bold=False)
+        set_smart_font(text5_fitted, size=8.5)
+        if col5_type == 'alert':
+            pdf.set_text_color(185, 28, 28)  # Alert Red
+        elif col5_type == 'success':
+            pdf.set_text_color(21, 128, 61)  # Success Green
+        elif col5_type == 'info':
+            pdf.set_text_color(29, 78, 216)  # Info Blue
+        else:
+            pdf.set_text_color(100, 116, 139)
+        pdf.cell(COL_W_TODAY[4], h_row, '  ' + text5_fitted, border=1, align="L", fill=True)
+        x += COL_W_TODAY[4]
+
+        # 6. Tomorrow Booking (34mm)
+        pdf.set_xy(x, y_top)
+        if col6_text and col6_text != '-':
+            text6 = str(col6_text)
+            text6_fitted = fit_text(text6, COL_W_TODAY[5] - 3, font_size=8.5, is_bold=False)
+            set_smart_font(text6_fitted, size=8.5)
+            pdf.set_text_color(29, 78, 216)  # Info Blue
+            pdf.cell(COL_W_TODAY[5], h_row, '  ' + text6_fitted, border=1, align="L", fill=True)
+        else:
+            pdf.set_font('helvetica', '', 8.5)
+            pdf.set_text_color(148, 163, 184)  # Muted slate
+            pdf.cell(COL_W_TODAY[5], h_row, '-', border=1, align="C", fill=True)
+        x += COL_W_TODAY[5]
+
+        # 7. Marked Taken (22mm) - Checkbox square
+        pdf.set_xy(x, y_top)
+        pdf.cell(COL_W_TODAY[6], h_row, '', border=1, align="C", fill=True)
+        box_sz = 4.5
+        bx = x + (COL_W_TODAY[6] - box_sz) / 2
+        by = y_top + (h_row - box_sz) / 2
+        pdf.set_draw_color(71, 85, 105)
+        pdf.set_line_width(0.4)
+        pdf.rect(bx, by, box_sz, box_sz, 'D')
+
+        # Move cursor down for next row
+        pdf.set_xy(10, y_top + h_row)
+
+    def render_return_row(idx, name, mobile, product, col5_text, col5_type):
+        prod_str = str(product or '-')
+        prod_display = prod_str.replace(',', ', ')
+
+        set_smart_font(prod_display, style='B' if not is_gujarati(prod_display) else '', size=10)
+        # Wrap product code text across cell width (32 - 4 = 28mm available)
+        prod_lines = pdf.multi_cell(COL_W_RETURN[3] - 4, 4.3, prod_display, dry_run=True, output='LINES')
+        if not prod_lines:
+            prod_lines = [prod_display]
+        prod_lines = [l.strip() for l in prod_lines if l.strip()]
+        if not prod_lines:
+            prod_lines = ['-']
+
+        safe_lines = []
+        for pl in prod_lines:
+            safe_lines.append(fit_text(pl, COL_W_RETURN[3] - 2, font_size=10, is_bold=True))
+        prod_lines = safe_lines
+
+        n_lines = len(prod_lines)
+        h_row = max(8.5, n_lines * 4.4 + 2)
+
+        # Check for page overflow
+        if pdf.get_y() + h_row > 280:
+            pdf.add_page()
+            pdf.set_y(10)
+            draw_table_header_yesterday()
+
+        y_top = pdf.get_y()
+        x = 10
+        bg_fill = (idx % 2 == 1)
+        if bg_fill:
+            pdf.set_fill_color(248, 250, 252)
+        else:
+            pdf.set_fill_color(255, 255, 255)
+        pdf.set_draw_color(226, 232, 240)
+
+        # 1. Sr. (8mm)
+        pdf.set_xy(x, y_top)
+        pdf.set_font('helvetica', '', 9)
+        pdf.set_text_color(100, 116, 139)
+        pdf.cell(COL_W_RETURN[0], h_row, str(idx + 1), border=1, align="C", fill=True)
+        x += COL_W_RETURN[0]
+
+        # 2. Customer Name (Holder) (40mm)
+        pdf.set_xy(x, y_top)
+        c_name = str(name or 'N/A')
+        c_name_fitted = fit_text(c_name, COL_W_RETURN[1] - 3, font_size=9.5, is_bold=True)
+        set_smart_font(c_name_fitted, style='B' if not is_gujarati(c_name_fitted) else '', size=9.5)
+        pdf.set_text_color(15, 23, 42)
+        pdf.cell(COL_W_RETURN[1], h_row, '  ' + c_name_fitted, border=1, align="L", fill=True)
+        x += COL_W_RETURN[1]
+
+        # 3. Mobile (24mm)
+        pdf.set_xy(x, y_top)
+        mobile_str = str(mobile or 'N/A')
+        mobile_fitted = fit_text(mobile_str, COL_W_RETURN[2] - 2, font_size=9, is_bold=False)
+        set_smart_font(mobile_fitted, style='', size=9)
+        pdf.set_text_color(30, 41, 59)
+        pdf.cell(COL_W_RETURN[2], h_row, mobile_fitted, border=1, align="C", fill=True)
+        x += COL_W_RETURN[2]
+
+        # 4. Product Code (32mm) - WRAPPED
+        pdf.set_xy(x, y_top)
+        pdf.rect(x, y_top, COL_W_RETURN[3], h_row, 'DF')
+        pdf.set_text_color(10, 17, 32)
+        line_h = 4.3
+        text_total_h = n_lines * line_h
+        start_y = y_top + (h_row - text_total_h) / 2
+        for i, line_text in enumerate(prod_lines):
+            pdf.set_xy(x, start_y + i * line_h)
+            set_smart_font(line_text, style='B' if not is_gujarati(line_text) else '', size=10)
+            pdf.cell(COL_W_RETURN[3], line_h, line_text, border=0, align="C")
+        x += COL_W_RETURN[3]
+
+        # 5. Today's Action / Handover To (62mm)
+        pdf.set_xy(x, y_top)
+        text5 = str(col5_text or '-')
+        text5_fitted = fit_text(text5, COL_W_RETURN[4] - 3, font_size=8.5, is_bold=(col5_type == 'alert'))
+        set_smart_font(text5_fitted, style='B' if (col5_type == 'alert' and not is_gujarati(text5_fitted)) else '', size=8.5)
+        if col5_type == 'alert':
+            pdf.set_text_color(185, 28, 28)  # Alert Red
+        elif col5_type == 'success':
+            pdf.set_text_color(21, 128, 61)  # Success Green
+        elif col5_type == 'info':
+            pdf.set_text_color(29, 78, 216)  # Info Blue
+        else:
+            pdf.set_text_color(100, 116, 139)
+        pdf.cell(COL_W_RETURN[4], h_row, '  ' + text5_fitted, border=1, align="L", fill=True)
+        x += COL_W_RETURN[4]
+
+        # 6. Marked Return (24mm) - Checkbox square
+        pdf.set_xy(x, y_top)
+        pdf.cell(COL_W_RETURN[5], h_row, '', border=1, align="C", fill=True)
+        box_sz = 4.5
+        bx = x + (COL_W_RETURN[5] - box_sz) / 2
+        by = y_top + (h_row - box_sz) / 2
+        pdf.set_draw_color(71, 85, 105)
+        pdf.set_line_width(0.4)
+        pdf.rect(bx, by, box_sz, box_sz, 'D')
+
+        # Move cursor down for next row
+        pdf.set_xy(10, y_top + h_row)
+
+    pdf.add_page()
+    pdf.set_y(12)
+
+    # Title: Centered Date Title
+    pdf.set_font('helvetica', 'B', 15)
     pdf.set_text_color(15, 23, 42)
-    pdf.cell(0, 7, "DAILY BOOKINGS & HANDOVER SCHEDULE")
-    pdf.ln(7)
+    pdf.cell(0, 8, f"Date: {date_str_today}", align='C')
+    pdf.ln(8)
 
     # Gold separator line
     pdf.set_draw_color(212, 175, 55)
-    pdf.set_line_width(0.5)
-    pdf.line(15, pdf.get_y(), 195, pdf.get_y())
-    pdf.ln(3.5)
+    pdf.set_line_width(0.6)
+    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+    pdf.ln(3)
 
     # KPI summary bar
-    b2b_count = sum(1 for r in rows if r.get('yesterday'))
-    total_count = len(rows)
+    b2b_count = sum(1 for r in today_rows if r.get('yesterday_raw'))
+    today_count = len(today_rows)
+    yesterday_count = len(yesterday_rows)
 
     kpi_y = pdf.get_y()
     pdf.set_fill_color(248, 250, 252)
-    pdf.set_draw_color(226, 232, 240)
+    pdf.set_draw_color(203, 213, 225)
     pdf.set_line_width(0.3)
-    pdf.rect(15, kpi_y, 180, 9, 'DF')
+    pdf.rect(10, kpi_y, 190, 10, 'DF')
 
-    # Date
-    pdf.set_xy(18, kpi_y + 2)
-    pdf.set_font('helvetica', 'B', 8.5)
-    pdf.set_text_color(100, 116, 139)
-    pdf.cell(24, 5, "Schedule Date: ")
-    pdf.set_font('helvetica', 'B', 9)
-    pdf.set_text_color(15, 23, 42)
-    pdf.cell(50, 5, full_date_display)
+    slots = [
+        (14, "Date: ", date_str_today, (15, 23, 42)),
+        (62, "To Give: ", f"{today_count} item(s)", (15, 23, 42)),
+        (110, "To Collect: ", f"{yesterday_count} item(s)", (15, 23, 42)),
+        (158, "B2B Handovers: ", f"{b2b_count} item(s)", (220, 38, 38) if b2b_count > 0 else (16, 185, 129))
+    ]
 
-    # Total Costumes
-    pdf.set_xy(95, kpi_y + 2)
-    pdf.set_font('helvetica', 'B', 8.5)
-    pdf.set_text_color(100, 116, 139)
-    pdf.cell(28, 5, "Total Costumes: ")
-    pdf.set_font('helvetica', 'B', 9)
-    pdf.set_text_color(15, 23, 42)
-    pdf.cell(18, 5, str(total_count))
+    for sx, lbl, val, val_color in slots:
+        pdf.set_xy(sx, kpi_y + 2.5)
+        pdf.set_font('helvetica', 'B', 9)
+        pdf.set_text_color(100, 116, 139)
+        w_lbl = pdf.get_string_width(lbl)
+        pdf.cell(w_lbl, 5, lbl)
 
-    # B2B Handovers
-    pdf.set_xy(145, kpi_y + 2)
-    pdf.set_font('helvetica', 'B', 8.5)
-    pdf.set_text_color(100, 116, 139)
-    pdf.cell(26, 5, "B2B Handovers: ")
-    pdf.set_font('helvetica', 'B', 9)
-    if b2b_count > 0:
-        pdf.set_text_color(220, 38, 38)
-    else:
-        pdf.set_text_color(16, 185, 129)
-    pdf.cell(20, 5, f"{b2b_count} item(s)")
+        pdf.set_font('helvetica', 'B', 9.5)
+        pdf.set_text_color(*val_color)
+        w_val = pdf.get_string_width(val)
+        pdf.cell(w_val + 2, 5, val)
 
-    pdf.set_y(kpi_y + 12)
+    pdf.set_y(kpi_y + 13.5)
 
-    # Draw Table
-    draw_table_header()
+    # 1. TABLE: TODAY'S BOOKINGS
+    draw_table_header_today()
 
-    if not rows:
-        pdf.set_x(15)
+    if not today_rows:
+        pdf.set_x(10)
         pdf.set_font('helvetica', 'I', 9)
         pdf.set_text_color(148, 163, 184)
-        pdf.cell(180, 14, "No costume bookings scheduled for this date.", border=1, align="C")
+        pdf.cell(190, 9, f"No bookings scheduled for Date: {date_str_today}.", border=1, align="C")
+        pdf.ln()
     else:
-        for idx, r in enumerate(rows):
-            # Check for page overflow
-            if pdf.get_y() + 8.5 > 270:
-                pdf.add_page()
-                pdf.set_y(46)
-                draw_table_header()
+        for idx, r in enumerate(today_rows):
+            render_today_row(
+                idx=idx,
+                name=r['name'],
+                mobile=r['mobile'],
+                product=r['product'],
+                col5_text=r['yesterday'],
+                col5_type=r['yesterday_type'],
+                col6_text=r['tomorrow']
+            )
 
-            bg_fill = (idx % 2 == 1)
-            pdf.set_x(15)
-            if bg_fill:
-                pdf.set_fill_color(248, 250, 252)
-            else:
-                pdf.set_fill_color(255, 255, 255)
-            pdf.set_draw_color(226, 232, 240)
+    # 2. SECTION: PREVIOUS DAY'S RETURNS
+    if pdf.get_y() + 30 > 280:
+        pdf.add_page()
+        pdf.set_y(12)
+    else:
+        pdf.ln(5)
+        pdf.set_draw_color(212, 175, 55)
+        pdf.set_line_width(0.5)
+        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+        pdf.ln(4)
 
-            # 1. Sr. (8mm)
-            pdf.set_font('helvetica', '', 8)
-            pdf.set_text_color(100, 116, 139)
-            pdf.cell(8, 7.5, str(idx + 1), border=1, align="C", fill=True)
+    pdf.set_font('helvetica', 'B', 15)
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(0, 8, f"Date: {date_str_yesterday}", align='C')
+    pdf.ln(8)
 
-            # 2. Customer Name (36mm)
-            name = str(r.get('name', 'N/A'))
-            set_smart_font(name, style='B' if not is_gujarati(name) else '', size=8)
-            pdf.set_text_color(15, 23, 42)
-            while pdf.get_string_width('  ' + name) > 34 and len(name) > 3:
-                name = name[:-2] + '..'
-            pdf.cell(36, 7.5, '  ' + name, border=1, align="L", fill=True)
+    draw_table_header_yesterday()
 
-            # 3. Mobile (24mm)
-            pdf.set_font('helvetica', '', 8)
-            pdf.set_text_color(51, 65, 85)
-            pdf.cell(24, 7.5, str(r.get('mobile', 'N/A')), border=1, align="C", fill=True)
+    if not yesterday_rows:
+        pdf.set_x(10)
+        pdf.set_font('helvetica', 'I', 9)
+        pdf.set_text_color(148, 163, 184)
+        pdf.cell(190, 9, f"No returns scheduled for Date: {date_str_yesterday}.", border=1, align="C")
+        pdf.ln()
+    else:
+        for idx, r in enumerate(yesterday_rows):
+            render_return_row(
+                idx=idx,
+                name=r['name'],
+                mobile=r['mobile'],
+                product=r['product'],
+                col5_text=r['status'],
+                col5_type=r['status_type']
+            )
 
-            # 4. Product Code (16mm)
-            pdf.set_font('helvetica', 'B', 8.5)
-            pdf.set_text_color(10, 17, 32)
-            pdf.cell(16, 7.5, str(r.get('product', '-')), border=1, align="C", fill=True)
-
-            # 5. Booked Yesterday (48mm)
-            y_info = r.get('yesterday')
-            if y_info:
-                set_smart_font(y_info, size=7.5)
-                pdf.set_text_color(185, 28, 28)  # Alert Red
-                y_text = str(y_info)
-                while pdf.get_string_width('  ' + y_text) > 46 and len(y_text) > 3:
-                    y_text = y_text[:-2] + '..'
-                pdf.cell(48, 7.5, '  ' + y_text, border=1, align="L", fill=True)
-            else:
-                pdf.set_font('helvetica', '', 7.5)
-                pdf.set_text_color(21, 128, 61)  # Success Green
-                pdf.cell(48, 7.5, '  In shop - ready', border=1, align="L", fill=True)
-
-            # 6. Booked Tomorrow (48mm)
-            t_info = r.get('tomorrow')
-            if t_info:
-                set_smart_font(t_info, size=7.5)
-                pdf.set_text_color(29, 78, 216)  # Info Blue
-                t_text = str(t_info)
-                while pdf.get_string_width('  ' + t_text) > 46 and len(t_text) > 3:
-                    t_text = t_text[:-2] + '..'
-                pdf.cell(48, 7.5, '  ' + t_text, border=1, align="L", fill=True)
-            else:
-                pdf.set_font('helvetica', '', 7.5)
-                pdf.set_text_color(148, 163, 184)  # Muted slate
-                pdf.cell(48, 7.5, '  -', border=1, align="L", fill=True)
-
-            pdf.ln()
-
-        # Operational Note
-        pdf.ln(3)
-        if pdf.get_y() + 10 <= 270:
-            pdf.set_x(15)
-            pdf.set_font('helvetica', 'I', 7.5)
-            pdf.set_text_color(100, 116, 139)
-            pdf.cell(180, 5, "* Note: Costumes with Back-to-Back (B2B) handovers must be checked and sanitized immediately upon return.")
+    # Operational Note
+    pdf.ln(3)
+    if pdf.get_y() + 10 <= 280:
+        pdf.set_x(10)
+        pdf.set_font('helvetica', 'I', 8)
+        pdf.set_text_color(100, 116, 139)
+        pdf.cell(190, 5, "* Note: Costumes with Back-to-Back (B2B) handovers must be checked and sanitized immediately upon return.")
 
     pdf_output = pdf.output()
     if isinstance(pdf_output, (bytes, bytearray)):

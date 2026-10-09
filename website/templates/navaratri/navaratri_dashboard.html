@@ -9,31 +9,53 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-  /* ── Dashboard Custom Styling ── */
+  /* ── Design Tokens & System (Fancy Dress Analytics Theme) ── */
   :root {
-    --accent: #f97316;       /* Radiant Marigold Orange */
-    --accent-glow: rgba(249, 115, 22, 0.2);
-    --bg-dashboard: #0b0f19; /* Dark Space Blue */
-    --card-bg: rgba(17, 24, 39, 0.75);
-    --card-border: rgba(255, 255, 255, 0.15);
-    --text-primary: #ffffff;
-    --text-muted: #cbd5e1;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
+    --bg-dark:          #080b11;
+    --panel-bg:         rgba(17, 24, 39, 0.7);
+    --panel-border:     rgba(255, 255, 255, 0.08);
+    --panel-border-glow: rgba(139, 92, 246, 0.35);
+    
+    /* Neon gradients & status colors */
+    --neon-blue:        #3b82f6;
+    --neon-purple:      #8b5cf6;
+    --neon-pink:        #ec4899;
+    --neon-emerald:     #10b981;
+    --neon-amber:       #f59e0b;
+    --neon-rose:        #f43f5e;
+    --neon-cyan:        #06b6d4;
+    
+    --text-primary:     #f3f4f6;
+    --text-secondary:   #9ca3af;
+    --text-muted:       #6b7280;
+    
+    --shadow-card:      0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --shadow-hover:     0 12px 40px 0 rgba(139, 92, 246, 0.15);
+    --radius-lg:        16px;
+    --radius-md:        10px;
+    --radius-sm:        6px;
+
+    /* Semantic Compatibility Tokens */
+    --accent:           var(--neon-purple);
+    --accent-glow:      rgba(139, 92, 246, 0.3);
+    --card-bg:          var(--panel-bg);
+    --card-border:      var(--panel-border);
+    --success:          var(--neon-emerald);
+    --warning:          var(--neon-amber);
+    --danger:           var(--neon-rose);
   }
 
   body {
-    background: radial-gradient(circle at 50% 50%, #171233 0%, var(--bg-dashboard) 100%) !important;
+    background-color: var(--bg-dark) !important;
     color: var(--text-primary);
-    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
     min-height: 100vh;
   }
 
   .container {
-    max-width: 1440px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 2rem 1.5rem;
+    padding: 2rem 1.5rem 4rem;
   }
 
   /* ── Header ── */
@@ -41,49 +63,49 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
     flex-wrap: wrap;
     gap: 1.5rem;
   }
 
   .header-info h1 {
-    font-size: 2.25rem;
+    font-size: 2rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff 30%, var(--neon-purple) 90%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 0.25rem;
   }
 
   .header-info p {
-    color: var(--text-muted);
-    font-size: 1rem;
-    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
   }
 
   .cycle-badge {
-    background: rgba(249, 115, 22, 0.15);
-    border: 1.5px solid rgba(249, 115, 22, 0.4);
-    color: #ffedd5;
-    background-color: rgba(249, 115, 22, 0.2);
-    padding: 0.55rem 1.35rem;
-    border-radius: 9999px;
-    font-size: 0.9rem;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    box-shadow: 0 0 15px var(--accent-glow);
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    padding: 0.55rem 1.25rem;
+    border-radius: 30px;
+    color: var(--neon-purple);
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
   }
 
   /* ── Navigation Tabs ── */
   .tabs-nav {
     display: flex;
-    gap: 0.6rem;
+    gap: 0.5rem;
     margin-bottom: 2rem;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 0.45rem;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.4rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--panel-border);
     overflow-x: auto;
     scrollbar-width: none; /* Firefox */
   }
@@ -95,14 +117,14 @@
   .tab-btn {
     background: transparent;
     border: none;
-    color: var(--text-muted);
-    padding: 0.85rem 1.6rem;
+    color: var(--text-secondary);
+    padding: 0.75rem 1.5rem;
     min-height: 44px;
-    font-size: 0.95rem;
-    font-weight: 700;
+    font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 10px;
+    transition: all 0.2s ease;
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -110,14 +132,15 @@
   }
 
   .tab-btn:hover {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
   }
 
   .tab-btn.active {
-    color: #ffffff;
-    background: var(--accent);
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
+    color: #ffffff !important;
+    background: var(--neon-purple) !important;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3) !important;
+    border-color: transparent !important;
   }
 
   .tab-content {
@@ -134,37 +157,47 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* ── Card Styles ── */
+  /* ── Glassmorphic Cards ── */
   .card-glass {
-    background: var(--card-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--card-border);
-    border-radius: 18px;
-    padding: 1.75rem;
+    background: var(--panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
     position: relative;
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-card);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
   }
 
   .card-glass:hover {
     transform: translateY(-4px);
-    border-color: rgba(249, 115, 22, 0.35);
-    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(249, 115, 22, 0.1);
+    border-color: var(--panel-border-glow);
+    box-shadow: var(--shadow-hover);
   }
 
   /* ── KPI Grid ── */
   .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
     margin-bottom: 2rem;
   }
 
   .kpi-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .kpi-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--panel-border-glow);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.15);
   }
 
   .kpi-card::before {
@@ -172,64 +205,61 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--accent);
-    opacity: 0.8;
+    width: 100%;
+    height: 3px;
+    background: var(--neon-purple);
   }
 
-  .kpi-card:nth-child(2)::before { background: var(--success); }
-  .kpi-card:nth-child(3)::before { background: var(--success); }
-  .kpi-card:nth-child(4)::before { background: var(--danger); }
-  .kpi-card:nth-child(5)::before { background: #8b5cf6; }
-  .kpi-card:nth-child(6)::before { background: #06b6d4; }
+  .kpi-card:nth-child(1)::before { background: var(--neon-blue); }
+  .kpi-card:nth-child(2)::before { background: var(--neon-emerald); }
+  .kpi-card:nth-child(3)::before { background: var(--neon-purple); }
+  .kpi-card:nth-child(4)::before { background: var(--neon-rose); }
+  .kpi-card:nth-child(5)::before { background: var(--neon-amber); }
+  .kpi-card:nth-child(6)::before { background: var(--neon-cyan); }
 
   .kpi-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
-    padding-left: 0.5rem;
+    margin-bottom: 0.75rem;
   }
 
   .kpi-title {
-    color: #fb923c;
-    font-size: 0.85rem;
-    font-weight: 800;
+    font-size: 0.72rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
   }
 
   .kpi-icon {
-    font-size: 1.35rem;
-    opacity: 0.95;
-    padding: 0.45rem;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
+    font-size: 1.15rem;
+    opacity: 0.9;
+    padding: 0.35rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-sm);
   }
 
   .kpi-value {
     font-size: 2.1rem;
     font-weight: 800;
+    letter-spacing: -0.03em;
     color: #ffffff;
-    line-height: 1.1;
-    padding-left: 0.5rem;
+    line-height: 1;
   }
 
   .kpi-sub {
-    margin-top: 0.65rem;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
-    font-weight: 600;
+    margin-top: 0.5rem;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.25rem;
-    padding-left: 0.5rem;
   }
 
-  .kpi-sub.green { color: #34d399; font-weight: 700; }
-  .kpi-sub.yellow { color: #fbbf24; font-weight: 700; }
-  .kpi-sub.red { color: #f87171; font-weight: 700; }
+  .kpi-sub.green { color: var(--neon-emerald); font-weight: 700; }
+  .kpi-sub.yellow { color: var(--neon-amber); font-weight: 700; }
+  .kpi-sub.red { color: var(--neon-rose); font-weight: 700; }
 
   /* ── Visual Charts Section ── */
   .charts-grid {
@@ -241,7 +271,7 @@
 
   @media (max-width: 1024px) {
     .charts-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr !important;
     }
   }
 
@@ -253,13 +283,16 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
   }
 
   .chart-title-header h2 {
-    font-size: 1.25rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .chart-container-inner {
@@ -282,89 +315,102 @@
     }
   }
 
-  /* ── Interactive Tables ── */
+  /* ── Interactive Tables & Search ── */
   .search-wrapper {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.8rem;
+    margin-bottom: 1rem;
     position: relative;
-    margin-bottom: 1.25rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .search-wrapper:focus-within {
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.25);
   }
 
   .search-input {
     width: 100%;
-    min-height: 48px;
-    background: rgba(15, 23, 42, 0.9);
-    border: 1.5px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    padding: 0.75rem 1rem 0.75rem 2.85rem;
+    min-height: 38px;
+    background: transparent;
+    border: none;
     color: #ffffff;
-    font-size: 0.98rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 500;
+    outline: none;
+    padding: 0.4rem 0.6rem 0.4rem 2rem;
     transition: all 0.2s;
   }
 
   .search-input::placeholder {
-    color: #8da2bb !important;
+    color: var(--text-muted) !important;
     opacity: 1;
-  }
-
-  .search-input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25);
   }
 
   .search-icon {
     position: absolute;
-    left: 1.05rem;
+    left: 0.8rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #fb923c;
-    font-size: 1.1rem;
+    color: var(--neon-purple);
+    font-size: 0.95rem;
   }
 
   .table-container {
     overflow-x: auto;
     max-height: 500px;
     overflow-y: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--panel-border);
   }
 
   table.modern-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
-    font-size: 0.92rem;
+    font-size: 0.88rem;
   }
 
   table.modern-table th {
-    background: rgba(15, 23, 42, 0.95);
-    color: #fb923c;
-    font-weight: 800;
-    padding: 1rem 1.15rem;
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-secondary);
+    font-weight: 700;
+    padding: 0.85rem 1.25rem;
     text-transform: uppercase;
-    font-size: 0.82rem;
-    letter-spacing: 0.05em;
-    border-bottom: 1.5px solid rgba(255, 255, 255, 0.15);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--panel-border);
     position: sticky;
     top: 0;
     z-index: 10;
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
   table.modern-table td {
-    padding: 1rem 1.15rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    color: #ffffff;
-    font-size: 0.92rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+    font-size: 0.88rem;
     font-weight: 500;
     vertical-align: middle;
   }
 
   table.modern-table tr {
-    transition: background 0.15s ease;
+    transition: background 0.2s ease;
   }
 
   table.modern-table tr:hover:not(.no-hover) {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(139, 92, 246, 0.06);
     cursor: pointer;
+  }
+
+  table.modern-table tr:last-child td {
+    border-bottom: none;
   }
 
   /* ── Badges & Tags ── */
@@ -374,43 +420,43 @@
     justify-content: center;
     width: 26px;
     height: 26px;
-    border-radius: 6px;
-    font-weight: 800;
-    font-size: 0.85rem;
-    background: rgba(255, 255, 255, 0.08);
-    color: #ffffff;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
   }
-  .rank-tag.rank-1 { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1.5px solid rgba(245, 158, 11, 0.4); }
-  .rank-tag.rank-2 { background: rgba(226, 232, 240, 0.15); color: #f1f5f9; border: 1.5px solid rgba(226, 232, 240, 0.3); }
-  .rank-tag.rank-3 { background: rgba(180, 83, 9, 0.2); color: #f59e0b; border: 1.5px solid rgba(180, 83, 9, 0.3); }
+  .rank-tag.rank-1 { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid #fbbf24; }
+  .rank-tag.rank-2 { background: rgba(226, 232, 240, 0.15); color: #e2e8f0; border: 1px solid #e2e8f0; }
+  .rank-tag.rank-3 { background: rgba(180, 83, 9, 0.15); color: #f59e0b; border: 1px solid #b45309; }
 
   .status-pill {
     display: inline-flex;
     align-items: center;
-    padding: 0.35rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.82rem;
-    font-weight: 800;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
     gap: 0.35rem;
   }
 
-  .status-pill.paid { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); }
-  .status-pill.partial { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.35); }
-  .status-pill.unpaid { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.35); }
+  .status-pill.paid { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+  .status-pill.partial { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+  .status-pill.unpaid { background: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3); }
 
   .prod-tag {
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #ffffff;
+    background: rgba(139, 92, 246, 0.12);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: #c4b5fd;
     padding: 0.25rem 0.6rem;
-    border-radius: 6px;
-    font-size: 0.85rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
     font-family: monospace;
     font-weight: 700;
   }
 
   .progress-track {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     height: 8px;
     border-radius: 4px;
     width: 65px;
@@ -421,7 +467,7 @@
   }
 
   .progress-fill {
-    background: var(--accent);
+    background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
     height: 100%;
     border-radius: 4px;
   }
@@ -431,36 +477,37 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    color: #ffffff;
-    padding: 0.75rem 1.4rem;
-    min-height: 44px;
-    border-radius: 10px;
-    font-size: 0.9rem;
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    color: var(--neon-purple);
+    padding: 0.6rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
     font-weight: 700;
     text-decoration: none;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     cursor: pointer;
   }
 
   .action-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: #ffffff;
-    transform: translateY(-1px);
+    background: rgba(139, 92, 246, 0.3);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(139, 92, 246, 0.25);
   }
 
   .action-btn.primary {
-    background: var(--accent);
-    border-color: transparent;
+    background: linear-gradient(135deg, var(--neon-emerald), #059669);
+    border: none;
     color: white;
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
   }
 
   .action-btn.primary:hover {
-    background: #ea580c;
-    box-shadow: 0 6px 16px rgba(249, 115, 22, 0.45);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+    filter: brightness(1.1);
+    color: white;
   }
 
   .buttons-row {
@@ -473,10 +520,10 @@
 
   @media (max-width: 1199.98px) {
     .container { padding: 1.5rem 1rem; }
-    .search-input { min-height: 50px; font-size: 1.02rem; }
-    .tab-btn { min-height: 48px; font-size: 1rem; padding: 0.85rem 1.4rem; }
-    table.modern-table th, table.modern-table td { padding: 1rem; font-size: 0.95rem; }
-    .action-btn { min-height: 46px; font-size: 0.92rem; }
+    .search-input { min-height: 42px; font-size: 0.9rem; }
+    .tab-btn { min-height: 44px; font-size: 0.9rem; padding: 0.75rem 1.25rem; }
+    table.modern-table th, table.modern-table td { padding: 0.85rem 1rem; font-size: 0.88rem; }
+    .action-btn { min-height: 42px; font-size: 0.85rem; }
   }
 </style>
 {% endblock %}
@@ -509,7 +556,7 @@
     <button class="tab-btn active" onclick="switchTab(event, 'overview-tab')">
       📊 Overview
     </button>
-    <button class="tab-btn" onclick="switchTab(event, 'product-ai-tab')" style="border: 1px solid rgba(249, 115, 22, 0.3); background: rgba(249, 115, 22, 0.05); color: #fb923c;">
+    <button class="tab-btn" onclick="switchTab(event, 'product-ai-tab')" style="border: 1px solid rgba(139, 92, 246, 0.4); background: rgba(139, 92, 246, 0.1); color: var(--neon-purple);">
       🔮 Costume AI Insights
     </button>
     <button class="tab-btn" onclick="switchTab(event, 'inventory-tab')">
@@ -589,7 +636,7 @@
     </div>
 
     <!-- Charts Section -->
-    <div class="charts-grid">
+    <div class="charts-grid" style="grid-template-columns: 1fr;">
       <div class="card-glass chart-card">
         <div class="chart-title-header">
           <h2>📅 Booking Timeline & Load Trend</h2>
@@ -597,15 +644,6 @@
         </div>
         <div class="chart-container-inner">
           <canvas id="timelineChart"></canvas>
-        </div>
-      </div>
-
-      <div class="card-glass chart-card">
-        <div class="chart-title-header">
-          <h2>💳 Ledger Health Status</h2>
-        </div>
-        <div class="chart-container-inner">
-          <canvas id="paymentStatusChart"></canvas>
         </div>
       </div>
     </div>
@@ -698,111 +736,55 @@
   <!-- ── TAB: PRODUCT AI INSIGHTS ── -->
   <div id="product-ai-tab" class="tab-content">
     
-    <!-- Product KPI Grid -->
-    <div class="kpi-grid">
-      <div class="card-glass kpi-card" style="border-left: 4px solid var(--accent);">
-        <div class="kpi-header">
-          <span class="kpi-title">Overall Stock Rented</span>
-          <span class="kpi-icon">📊</span>
-        </div>
-        <div class="kpi-value">{{ utilization.overall_pct }}%</div>
-        <div class="kpi-sub">
-          {{ utilization.rented_unique }} of {{ utilization.total_stock }} items active
-        </div>
+    <!-- Pre-Matched Styling suggestions -->
+    <div class="card-glass" style="margin-bottom: 2rem;">
+      <div class="chart-title-header">
+        <h2>👯 Best Fitting Style Pairings (Frequently Booked Together)</h2>
+        <span class="cycle-badge" style="font-size: 0.75rem; padding: 0.35rem 0.9rem;">Top Pairs</span>
       </div>
-
-      <div class="card-glass kpi-card" style="border-left: 4px solid #a855f7;">
-        <div class="kpi-header">
-          <span class="kpi-title">Choli Utilization</span>
-          <span class="kpi-icon">👗</span>
-        </div>
-        <div class="kpi-value">{{ utilization.choli_pct }}%</div>
-        <div class="kpi-sub">150 unique designs in stock</div>
-      </div>
-
-      <div class="card-glass kpi-card" style="border-left: 4px solid var(--success);">
-        <div class="kpi-header">
-          <span class="kpi-title">Kediya Utilization</span>
-          <span class="kpi-icon">🕺</span>
-        </div>
-        <div class="kpi-value">{{ utilization.kediya_pct }}%</div>
-        <div class="kpi-sub">173 unique designs in stock</div>
-      </div>
-
-      <div class="card-glass kpi-card" style="border-left: 4px solid var(--warning);">
-        <div class="kpi-header">
-          <span class="kpi-title">Wear Alerts Pending</span>
-          <span class="kpi-icon">⚠️</span>
-        </div>
-        <div class="kpi-value">{{ wear_tear_alerts|length }}</div>
-        <div class="kpi-sub">Items requiring fabric check</div>
+      <div class="table-container" style="max-height: 380px;">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Choli Code</th>
+              <th>Kediya Code</th>
+              <th>Pair Bookings</th>
+              <th>Action Suggestion</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pair in style_pairings %}
+            <tr>
+              <td><span class="prod-tag" style="background: rgba(139, 92, 246, 0.15); color: #c4b5fd; border-color: rgba(139, 92, 246, 0.3);">{{ pair.choli }}</span></td>
+              <td><span class="prod-tag" style="background: rgba(16, 185, 129, 0.15); color: var(--neon-emerald); border-color: rgba(16, 185, 129, 0.3);">{{ pair.kediya }}</span></td>
+              <td style="font-weight: 700; text-align: center;">{{ pair.count }} times</td>
+              <td style="font-size: 0.8rem; color: var(--text-muted);">{{ pair.suggestion }}</td>
+            </tr>
+            {% else %}
+            <tr class="no-hover"><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 3rem;">No associated product pairings found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
-
-    <!-- Utilization Chart -->
-    <div class="charts-grid" style="grid-template-columns: 1fr 1fr;">
-      
-      <!-- Chart -->
-      <div class="card-glass chart-card">
-        <div class="chart-title-header">
-          <h2>📊 Costume Stock Capacity vs. Rentals Utilization</h2>
-        </div>
-        <div class="chart-container-inner" style="height: 300px;">
-          <canvas id="utilizationCapacityChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Pre-Matched Styling suggestions -->
-      <div class="card-glass" style="min-height: 380px;">
-        <div class="chart-title-header">
-          <h2>👯 Best Fitting Style Pairings (Frequently Booked Together)</h2>
-          <span class="cycle-badge" style="font-size: 0.7rem; padding: 0.25rem 0.75rem;">Top Pairs</span>
-        </div>
-        <div class="table-container" style="max-height: 300px;">
-          <table class="modern-table">
-            <thead>
-              <tr>
-                <th>Choli Code</th>
-                <th>Kediya Code</th>
-                <th>Pair Bookings</th>
-                <th>Action Suggestion</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for pair in style_pairings %}
-              <tr>
-                <td><span class="prod-tag" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.3);">{{ pair.choli }}</span></td>
-                <td><span class="prod-tag" style="background: rgba(16, 185, 129, 0.15); color: var(--success); border-color: rgba(16, 185, 129, 0.3);">{{ pair.kediya }}</span></td>
-                <td style="font-weight: 700; text-align: center;">{{ pair.count }} times</td>
-                <td style="font-size: 0.75rem; color: var(--text-muted);">{{ pair.suggestion }}</td>
-              </tr>
-              {% else %}
-              <tr class="no-hover"><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 3rem;">No associated product pairings found.</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
 
     <!-- ── Wardrobe Matrix Explorer ── -->
     <div class="card-glass" style="margin-bottom: 2rem; width: 100%;">
       <div class="chart-title-header" style="margin-bottom: 1rem;">
         <div>
-          <h2 style="font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, #ffffff 0%, #fb923c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          <h2 style="font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, #ffffff 30%, var(--neon-purple) 90%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             🔍 Unique Wardrobe Matrix Explorer
           </h2>
           <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.25rem;">
-            A real-time visual grid of all unique traditional items. Click on any costume chip to display its image, active rental count, wear and tear fabric inspection status, and unique merchandising suggestions.
+            A real-time visual grid of all unique traditional items from navaratri_products in DB. Click on any costume chip to display its image, active rental count, wear and tear fabric inspection status, and unique merchandising suggestions.
           </p>
         </div>
         <div style="display: flex; gap: 0.5rem;">
-          <button class="action-btn" id="switcherCholiBtn" onclick="toggleMatrixType('Choli')" style="background: rgba(124, 58, 237, 0.15); color: #c084fc; border-color: rgba(124, 58, 237, 0.3); font-size: 0.8rem; padding: 0.4rem 0.8rem;">
-            👗 Cholis (C1-C150)
+          <button class="action-btn" id="switcherCholiBtn" onclick="toggleMatrixType('Choli')" style="background: rgba(139, 92, 246, 0.15); color: #c4b5fd; border-color: rgba(139, 92, 246, 0.4); font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+            👗 Cholis ({{ utilization.choli_codes|length if utilization.choli_codes else 0 }})
           </button>
           <button class="action-btn" id="switcherKediyaBtn" onclick="toggleMatrixType('Kediya')" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
-            🕺 Kediyas (K1-K173)
+            🕺 Kediyas ({{ utilization.kediya_codes|length if utilization.kediya_codes else 0 }})
           </button>
         </div>
       </div>
@@ -823,12 +805,12 @@
           display: flex;
           flex-wrap: wrap;
           gap: 0.4rem;
-          max-height: 270px;
+          max-height: 400px;
           overflow-y: auto;
           padding: 0.75rem;
-          background: rgba(15, 23, 42, 0.4);
+          background: rgba(0, 0, 0, 0.25);
           border-radius: 12px;
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          border: 1px solid var(--panel-border);
           align-content: flex-start;
         }
         /* Custom scrollbar for matrix container */
@@ -868,12 +850,12 @@
         .chip-idle {
           background: rgba(255, 255, 255, 0.02);
           border-color: rgba(255, 255, 255, 0.06);
-          color: #64748b;
+          color: var(--text-muted);
         }
         .chip-active-choli {
-          background: rgba(168, 85, 247, 0.12);
-          border-color: rgba(168, 85, 247, 0.3);
-          color: #c084fc;
+          background: rgba(139, 92, 246, 0.12);
+          border-color: rgba(139, 92, 246, 0.3);
+          color: #c4b5fd;
         }
         .chip-active-kediya {
           background: rgba(16, 185, 129, 0.12);
@@ -881,27 +863,27 @@
           color: #34d399;
         }
         .chip-medium-wear {
-          background: rgba(245, 158, 11, 0.18);
-          border-color: rgba(245, 158, 11, 0.4);
-          color: #fbd561;
+          background: rgba(245, 158, 11, 0.15);
+          border-color: rgba(245, 158, 11, 0.35);
+          color: #fbbf24;
         }
         .chip-high-wear {
-          background: rgba(239, 68, 68, 0.18);
-          border-color: rgba(239, 68, 68, 0.4);
-          color: #f87171;
+          background: rgba(244, 63, 94, 0.15);
+          border-color: rgba(244, 63, 94, 0.35);
+          color: #f43f5e;
         }
         .chip-selected {
-          border-color: #fb923c !important;
-          box-shadow: 0 0 10px rgba(251, 146, 60, 0.4) !important;
+          border-color: var(--neon-purple) !important;
+          box-shadow: 0 0 14px rgba(139, 92, 246, 0.5) !important;
           font-weight: 800;
           color: #ffffff !important;
         }
         .preview-box {
-          background: rgba(15, 23, 42, 0.7);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          border-radius: 14px;
+          background: var(--panel-bg);
+          border: 1px solid var(--panel-border);
+          border-radius: var(--radius-md);
           padding: 1.25rem;
-          min-height: 270px;
+          min-height: 400px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -910,8 +892,8 @@
           position: relative;
         }
         .preview-box-active {
-          border-color: rgba(251, 146, 60, 0.3);
-          box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.5);
+          border-color: var(--panel-border-glow);
+          box-shadow: var(--shadow-hover);
         }
         .preview-img-container {
           width: 100%;
@@ -975,54 +957,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Optimization Recommendations Grid -->
-    <div class="details-grid">
-      
-      <!-- Wear & Tear Fabric Maintenance Alerts -->
-      <div class="card-glass">
-        <div class="chart-title-header">
-          <h2>🛠️ Garment Wear & Tear alerts</h2>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 380px; overflow-y: auto; padding-right: 0.25rem;">
-          {% for alert in wear_tear_alerts %}
-          <div style="background: {% if alert.util_level == 'High' %}rgba(239, 68, 68, 0.05){% else %}rgba(245, 158, 11, 0.05){% endif %}; border: 1px solid {% if alert.util_level == 'High' %}rgba(239, 68, 68, 0.15){% else %}rgba(245, 158, 11, 0.15){% endif %}; border-radius: 12px; padding: 1rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span class="prod-tag">{{ alert.code }}</span>
-              <span class="status-pill {% if alert.util_level == 'High' %}unpaid{% else %}partial{% endif %}" style="font-size: 0.7rem; padding: 0.15rem 0.45rem;">
-                {{ alert.util_level }} Usage ({{ alert.rentals }} rentals)
-              </span>
-            </div>
-            <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.35;">{{ alert.action }}</p>
-          </div>
-          {% else %}
-          <div style="text-align: center; color: var(--text-muted); padding: 2rem;">No items have reached wear inspection limits.</div>
-          {% endfor %}
-        </div>
-      </div>
-
-      <!-- Catalog Showcase Rotations -->
-      <div class="card-glass">
-        <div class="chart-title-header">
-          <h2>🖼️ Catalog Rotation Suggestions (Idle Garments)</h2>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 380px; overflow-y: auto; padding-right: 0.25rem;">
-          {% for rot in catalog_rotations %}
-          <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.15); border-radius: 12px; padding: 1rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span class="prod-tag" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3);">{{ rot.code }}</span>
-              <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">{{ rot.type }}</span>
-            </div>
-            <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.35; margin-bottom: 0.5rem;">Reason: <em>{{ rot.reason }}</em></p>
-            <p style="font-size: 0.78rem; color: var(--warning); line-height: 1.3;">⚡ Action: {{ rot.action }}</p>
-          </div>
-          {% else %}
-          <div style="text-align: center; color: var(--text-muted); padding: 2rem;">No idle stock detected! All catalog active.</div>
-          {% endfor %}
-        </div>
-      </div>
-
-    </div>
   </div>
 
   <!-- ── TAB: COSTUME ANALYTICS ── -->
@@ -1054,7 +988,7 @@
                 <td>
                   {% set max_choli = top_cholis[0][1] if top_cholis else 1 %}
                   <div class="progress-track" style="width: 100px;">
-                    <div class="progress-fill" style="width: {{ (count / max_choli * 100)|round(0) }}%; background: #a855f7;"></div>
+                    <div class="progress-fill" style="width: {{ (count / max_choli * 100)|round(0) }}%; background: var(--neon-purple);"></div>
                   </div>
                   {{ (count / max_choli * 100)|round(0) }}%
                 </td>
@@ -1071,7 +1005,7 @@
       <div class="card-glass">
         <div class="chart-title-header">
           <h2>🕺 Most Popular Kediyas (K-Prefix)</h2>
-          <span class="cycle-badge" style="font-size: 0.7rem; padding: 0.25rem 0.75rem; background: rgba(16, 185, 129, 0.12); color: var(--success); border-color: rgba(16, 185, 129, 0.3); box-shadow: none;">Total Rented: {{ kediya_count }}</span>
+          <span class="cycle-badge" style="font-size: 0.7rem; padding: 0.25rem 0.75rem; background: rgba(16, 185, 129, 0.15); color: var(--neon-emerald); border-color: rgba(16, 185, 129, 0.4); box-shadow: none;">Total Rented: {{ kediya_count }}</span>
         </div>
         <div class="table-container">
           <table class="modern-table">
@@ -1092,7 +1026,7 @@
                 <td>
                   {% set max_kediya = top_kediyas[0][1] if top_kediyas else 1 %}
                   <div class="progress-track" style="width: 100px;">
-                    <div class="progress-fill" style="width: {{ (count / max_kediya * 100)|round(0) }}%; background: var(--success);"></div>
+                    <div class="progress-fill" style="width: {{ (count / max_kediya * 100)|round(0) }}%; background: var(--neon-emerald);"></div>
                   </div>
                   {{ (count / max_kediya * 100)|round(0) }}%
                 </td>
@@ -1178,7 +1112,7 @@
       <div class="card-glass">
         <div class="chart-title-header">
           <h2>⏳ Collection Ledger (Debtors)</h2>
-          <span class="cycle-badge" style="font-size: 0.7rem; padding: 0.25rem 0.75rem; background: rgba(239, 68, 68, 0.12); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); box-shadow: none;">Outstanding Collection: ₹{{ total_rem_trad }}</span>
+          <span class="cycle-badge" style="font-size: 0.7rem; padding: 0.25rem 0.75rem; background: rgba(244, 63, 94, 0.15); color: var(--neon-rose); border-color: rgba(244, 63, 94, 0.4); box-shadow: none;">Outstanding Collection: ₹{{ total_rem_trad }}</span>
         </div>
 
         <div class="search-wrapper">
@@ -1350,28 +1284,26 @@
     const choliBtn = document.getElementById("switcherCholiBtn");
     const kediyaBtn = document.getElementById("switcherKediyaBtn");
     if (type === 'Choli') {
-      choliBtn.style.background = "rgba(124, 58, 237, 0.15)";
-      choliBtn.style.color = "#c084fc";
-      choliBtn.style.borderColor = "rgba(124, 58, 237, 0.3)";
+      choliBtn.style.background = "rgba(139, 92, 246, 0.15)";
+      choliBtn.style.color = "#c4b5fd";
+      choliBtn.style.borderColor = "rgba(139, 92, 246, 0.4)";
       
       kediyaBtn.style.background = "transparent";
       kediyaBtn.style.color = "var(--text-muted)";
-      kediyaBtn.style.borderColor = "rgba(255, 255, 255, 0.08)";
+      kediyaBtn.style.borderColor = "var(--panel-border)";
     } else {
       kediyaBtn.style.background = "rgba(16, 185, 129, 0.15)";
       kediyaBtn.style.color = "#34d399";
-      kediyaBtn.style.borderColor = "rgba(16, 185, 129, 0.3)";
+      kediyaBtn.style.borderColor = "rgba(16, 185, 129, 0.4)";
       
       choliBtn.style.background = "transparent";
       choliBtn.style.color = "var(--text-muted)";
-      choliBtn.style.borderColor = "rgba(255, 255, 255, 0.08)";
+      choliBtn.style.borderColor = "var(--panel-border)";
     }
     
-    const countLimit = type === 'Choli' ? 150 : 173;
-    const prefix = type === 'Choli' ? 'C' : 'K';
+    const codesList = type === 'Choli' ? (utilData.choli_codes || []) : (utilData.kediya_codes || []);
     
-    for (let i = 1; i <= countLimit; i++) {
-      const code = `${prefix}${i}`;
+    codesList.forEach(code => {
       const count = (utilData.product_counts && utilData.product_counts[code]) || 0;
       
       const chip = document.createElement("div");
@@ -1395,7 +1327,7 @@
       
       chip.onclick = () => selectProductChip(code, count, type, chip);
       container.appendChild(chip);
-    }
+    });
   }
   
   function toggleMatrixType(type) {
@@ -1423,9 +1355,9 @@
     
     // Color code badge depending on type
     if (type === 'Choli') {
-      codeBadge.style.background = "rgba(168, 85, 247, 0.15)";
-      codeBadge.style.color = "#c084fc";
-      codeBadge.style.borderColor = "rgba(168, 85, 247, 0.3)";
+      codeBadge.style.background = "rgba(139, 92, 246, 0.15)";
+      codeBadge.style.color = "#c4b5fd";
+      codeBadge.style.borderColor = "rgba(139, 92, 246, 0.3)";
     } else {
       codeBadge.style.background = "rgba(16, 185, 129, 0.15)";
       codeBadge.style.color = "#34d399";
@@ -1437,7 +1369,8 @@
     
     // Update image
     const imgElement = document.getElementById("previewImage");
-    imgElement.src = `/static/${type}/${code}.webp`;
+    const imgFilename = (utilData.product_images && utilData.product_images[code]) || `${code}.webp`;
+    imgElement.src = `/static/${type}/${imgFilename}`;
     imgElement.onerror = function() {
       this.onerror = null;
       // Try JPG fallback
@@ -1495,14 +1428,14 @@
         datasets: [{
           label: 'Rented Items count',
           data: timelineData.length > 0 ? timelineData : [0],
-          borderColor: '#f97316',
-          backgroundColor: 'rgba(249, 115, 22, 0.12)',
+          borderColor: '#8b5cf6',
+          backgroundColor: 'rgba(139, 92, 246, 0.08)',
           fill: true,
           tension: 0.35,
           borderWidth: 3,
-          pointBackgroundColor: '#ffffff',
-          pointBorderColor: '#f97316',
-          pointBorderWidth: 2,
+          pointBackgroundColor: '#8b5cf6',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 1.5,
           pointRadius: 4,
           pointHoverRadius: 6
         }]
@@ -1515,13 +1448,13 @@
         },
         scales: {
           x: {
-            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-            ticks: { color: '#94a3b8' }
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            ticks: { color: '#9ca3af' }
           },
           y: {
-            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
             ticks: { 
-              color: '#94a3b8',
+              color: '#9ca3af',
               precision: 0 
             }
           }
@@ -1530,37 +1463,40 @@
     });
 
     // 2. Ledger Health Status Chart (Doughnut Chart)
-    new Chart(document.getElementById('paymentStatusChart').getContext('2d'), {
-      type: 'doughnut',
-      data: {
-        labels: ['Fully Paid', 'Partially Paid', 'Unpaid'],
-        datasets: [{
-          data: [
-            paymentStatus.fully_paid || 0,
-            paymentStatus.partially_paid || 0,
-            paymentStatus.unpaid || 0
-          ],
-          backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-          borderColor: '#111827',
-          borderWidth: 2,
-          hoverOffset: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              color: '#94a3b8',
-              font: { weight: '600', size: 11 }
-            }
-          }
+    const paymentStatusCanvas = document.getElementById('paymentStatusChart');
+    if (paymentStatusCanvas) {
+      new Chart(paymentStatusCanvas.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Fully Paid', 'Partially Paid', 'Unpaid'],
+          datasets: [{
+            data: [
+              paymentStatus.fully_paid || 0,
+              paymentStatus.partially_paid || 0,
+              paymentStatus.unpaid || 0
+            ],
+            backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
+            borderColor: '#111827',
+            borderWidth: 2,
+            hoverOffset: 4
+          }]
         },
-        cutout: '65%'
-      }
-    });
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#9ca3af',
+                font: { weight: '600', size: 11 }
+              }
+            }
+          },
+          cutout: '65%'
+        }
+      });
+    }
 
     // 3. Group Contribution Chart (Horizontal Bar Chart)
     const groupLabels = groupStats.map(item => item[0]);
@@ -1625,50 +1561,11 @@
           },
           y: {
             grid: { color: 'rgba(255, 255, 255, 0.04)' },
-            ticks: { color: '#94a3b8' }
+            ticks: { color: '#9ca3af' }
           }
         }
       }
     });
-
-    // 5. Utilization vs Capacity double bar chart
-    const choliRented = Math.round((utilData.choli_pct / 100) * 150);
-    const kediyaRented = Math.round((utilData.kediya_pct / 100) * 173);
-
-    new Chart(document.getElementById('utilizationCapacityChart').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: ['Choli stock', 'Kediya stock', 'Total Wardrobe'],
-        datasets: [
-          {
-            label: 'Total Unique Stock size',
-            data: [150, 173, 323],
-            backgroundColor: 'rgba(255, 255, 255, 0.06)',
-            borderColor: 'rgba(255, 255, 255, 0.15)',
-            borderWidth: 1.5,
-            borderRadius: 6
-          },
-          {
-            label: 'Rented Unique designs',
-            data: [choliRented, kediyaRented, utilData.rented_unique],
-            backgroundColor: '#fb923c',
-            borderRadius: 6
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { labels: { color: '#94a3b8', font: { weight: '600' } } }
-        },
-        scales: {
-          x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
-          y: { ticks: { color: '#94a3b8', precision: 0 }, grid: { color: 'rgba(255, 255, 255, 0.05)' } }
-        }
-      }
-    });
-
   });
 </script>
 {% endblock %}
