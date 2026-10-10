@@ -2754,6 +2754,7 @@ def export_calendar_bookings():
         "Customer Name", 
         "Customer Mobile", 
         "Product Code", 
+        "Remaining Payment", 
         "Collect From (Yesterday)", 
         "Booked Tomorrow",
         "Today's Action / Handover To",
@@ -2765,10 +2766,17 @@ def export_calendar_bookings():
     writer = csv.DictWriter(output, fieldnames=fieldnames)
     writer.writeheader()
 
+    def _safe_int(val):
+        try:
+            return int(float(str(val).strip()))
+        except (ValueError, TypeError, AttributeError):
+            return 0
+
     # 1. SECTION: PREVIOUS DAY'S RETURNS (PRODUCTS TO TAKE RETURN)
     yesterday_has_data = False
     for yc in yesterday_customers:
         products = extract_products(yc.get("bookings", {}).get(yesterday_date_str, []))
+        yc_rem = max(0, _safe_int(yc.get("total_price", 0)) - _safe_int(yc.get("given_price", 0)))
         for product in products:
             yesterday_has_data = True
             td_info = find_info(product, today_map)
@@ -2779,6 +2787,7 @@ def export_calendar_bookings():
                 "Customer Name": yc.get("Name", "N/A"),
                 "Customer Mobile": yc.get("mobile", "N/A"),
                 "Product Code": product,
+                "Remaining Payment": yc_rem,
                 "Collect From (Yesterday)": f"Rented {date_str_yesterday}",
                 "Booked Tomorrow": "-",
                 "Today's Action / Handover To": action,
@@ -2793,6 +2802,7 @@ def export_calendar_bookings():
             "Customer Name": f"No returns scheduled for Date: {date_str_yesterday}",
             "Customer Mobile": "-",
             "Product Code": "-",
+            "Remaining Payment": "-",
             "Collect From (Yesterday)": "-",
             "Booked Tomorrow": "-",
             "Today's Action / Handover To": "-",
@@ -2807,6 +2817,7 @@ def export_calendar_bookings():
         "Customer Name": "",
         "Customer Mobile": "",
         "Product Code": "",
+        "Remaining Payment": "",
         "Collect From (Yesterday)": "",
         "Booked Tomorrow": "",
         "Today's Action / Handover To": "",
@@ -2818,6 +2829,7 @@ def export_calendar_bookings():
     today_has_data = False
     for c in customers:
         products = extract_products(c.get("bookings", {}).get(formatted_date, []))
+        c_rem = max(0, _safe_int(c.get("total_price", 0)) - _safe_int(c.get("given_price", 0)))
         for product in products:
             today_has_data = True
             y_info = find_info(product, yesterday_map)
@@ -2829,6 +2841,7 @@ def export_calendar_bookings():
                 "Customer Name": c.get("Name", "N/A"),
                 "Customer Mobile": c.get("mobile", "N/A"),
                 "Product Code": product,
+                "Remaining Payment": c_rem,
                 "Collect From (Yesterday)": f"{y_info['name']} - {y_info['mobile']}" if y_info else "In shop - ready",
                 "Booked Tomorrow": f"{t_info['name']} - {t_info['mobile']}" if t_info else "-",
                 "Today's Action / Handover To": action,
@@ -2843,6 +2856,7 @@ def export_calendar_bookings():
             "Customer Name": f"No bookings scheduled for Date: {date_str_today}",
             "Customer Mobile": "-",
             "Product Code": "-",
+            "Remaining Payment": "-",
             "Collect From (Yesterday)": "-",
             "Booked Tomorrow": "-",
             "Today's Action / Handover To": "-",
@@ -2960,10 +2974,17 @@ def export_calendar_pdf():
                 return v
         return None
 
+    def _safe_int(val):
+        try:
+            return int(float(str(val).strip()))
+        except (ValueError, TypeError, AttributeError):
+            return 0
+
     # Collect today's rows (costumes to give today)
     today_rows = []
     for c in customers:
         products = extract_products(c.get("bookings", {}).get(formatted_date, []))
+        c_rem = max(0, _safe_int(c.get("total_price", 0)) - _safe_int(c.get("given_price", 0)))
         for product in products:
             y_info = find_info(product, yesterday_map)
             t_info = find_info(product, tomorrow_map)
@@ -2971,25 +2992,28 @@ def export_calendar_pdf():
                 "name": c.get("Name", "N/A"),
                 "mobile": c.get("mobile", "N/A"),
                 "product": product,
+                "remaining": c_rem,
                 "yesterday_raw": y_info,
-                "yesterday": f"Collect from: {y_info['name']} ({y_info['mobile']})" if y_info else "In shop - ready",
+                "yesterday": f"Collect from: {y_info['name']}\n({y_info['mobile']})" if (y_info and y_info.get('mobile')) else (f"Collect from: {y_info['name']}" if y_info else "In shop - ready"),
                 "yesterday_type": "alert" if y_info else "success",
                 "tomorrow_raw": t_info,
-                "tomorrow": f"{t_info['name']} ({t_info['mobile']})" if t_info else "-",
+                "tomorrow": f"{t_info['name']}\n({t_info['mobile']})" if (t_info and t_info.get('mobile')) else (t_info['name'] if t_info else "-"),
             })
 
     # Collect previous day's rows (costumes to collect & return back today)
     yesterday_rows = []
     for yc in yesterday_customers:
         products = extract_products(yc.get("bookings", {}).get(yesterday_date_str, []))
+        yc_rem = max(0, _safe_int(yc.get("total_price", 0)) - _safe_int(yc.get("given_price", 0)))
         for product in products:
             td_info = find_info(product, today_map)
             yesterday_rows.append({
                 "name": yc.get("Name", "N/A"),
                 "mobile": yc.get("mobile", "N/A"),
                 "product": product,
+                "remaining": yc_rem,
                 "today_raw": td_info,
-                "status": f"Handover to: {td_info['name']} ({td_info['mobile']})" if td_info else "Return to Shop Inventory",
+                "status": f"B2B Handover to: {td_info['name']}\n({td_info['mobile']})" if (td_info and td_info.get('mobile')) else (f"B2B Handover to: {td_info['name']}" if td_info else "Return to Shop Inventory"),
                 "status_type": "alert" if td_info else "success",
             })
 
@@ -3030,8 +3054,20 @@ def export_calendar_pdf():
         else:
             pdf.set_font("helvetica", style, size)
 
-    COL_W_TODAY = [8, 33, 24, 30, 39, 34, 22]
-    COL_W_RETURN = [8, 40, 24, 32, 62, 24]
+    COL_W_TODAY = [7, 30, 23, 24, 21, 37, 29, 19]
+    COL_W_RETURN = [7, 35, 23, 24, 21, 61, 19]
+
+    def get_wrapped_lines(text, max_w, font_size=8.0, is_bold=False):
+        text = str(text or '').strip()
+        if not text or text == '-':
+            return ['-']
+        style = 'B' if (is_bold and not is_gujarati(text)) else ''
+        set_smart_font(text, style=style, size=font_size)
+        lines = pdf.multi_cell(max_w, 3.8, text, dry_run=True, output='LINES')
+        if not lines:
+            return [text]
+        cleaned = [l.strip() for l in lines if l.strip()]
+        return cleaned if cleaned else ['-']
 
     def fit_text(text, max_w, font_size=9, is_bold=False):
         text = str(text or '').strip()
@@ -3047,7 +3083,7 @@ def export_calendar_pdf():
         return curr + '..'
 
     def draw_table_header_today():
-        pdf.set_font("helvetica", "B", 8.5)
+        pdf.set_font("helvetica", "B", 8)
         pdf.set_text_color(255, 255, 255)
         pdf.set_fill_color(10, 17, 32)
         pdf.set_draw_color(10, 17, 32)
@@ -3057,13 +3093,15 @@ def export_calendar_pdf():
         pdf.cell(COL_W_TODAY[1], 8.5, "Customer Name", border=1, align="C", fill=True)
         pdf.cell(COL_W_TODAY[2], 8.5, "Mobile", border=1, align="C", fill=True)
         pdf.cell(COL_W_TODAY[3], 8.5, "Product Code", border=1, align="C", fill=True)
-        pdf.cell(COL_W_TODAY[4], 8.5, "Collect From (Yesterday)", border=1, align="C", fill=True)
-        pdf.cell(COL_W_TODAY[5], 8.5, "Booked Tomorrow", border=1, align="C", fill=True)
-        pdf.cell(COL_W_TODAY[6], 8.5, "Marked Taken", border=1, align="C", fill=True)
+        pdf.cell(COL_W_TODAY[4], 8.5, "Rem. Payment", border=1, align="C", fill=True)
+        pdf.cell(COL_W_TODAY[5], 8.5, "Collect From (Yesterday)", border=1, align="C", fill=True)
+        pdf.cell(COL_W_TODAY[6], 8.5, "Booked Tomorrow", border=1, align="C", fill=True)
+        pdf.set_font("helvetica", "B", 7.8)
+        pdf.cell(COL_W_TODAY[7], 8.5, "Marked Taken", border=1, align="C", fill=True)
         pdf.ln()
 
     def draw_table_header_yesterday():
-        pdf.set_font("helvetica", "B", 8.5)
+        pdf.set_font("helvetica", "B", 8)
         pdf.set_text_color(255, 255, 255)
         pdf.set_fill_color(10, 17, 32)
         pdf.set_draw_color(10, 17, 32)
@@ -3073,30 +3111,24 @@ def export_calendar_pdf():
         pdf.cell(COL_W_RETURN[1], 8.5, "Customer Name (Holder)", border=1, align="C", fill=True)
         pdf.cell(COL_W_RETURN[2], 8.5, "Mobile", border=1, align="C", fill=True)
         pdf.cell(COL_W_RETURN[3], 8.5, "Product Code", border=1, align="C", fill=True)
-        pdf.cell(COL_W_RETURN[4], 8.5, "Today's Action / Handover To", border=1, align="C", fill=True)
-        pdf.cell(COL_W_RETURN[5], 8.5, "Marked Return", border=1, align="C", fill=True)
+        pdf.cell(COL_W_RETURN[4], 8.5, "Rem. Payment", border=1, align="C", fill=True)
+        pdf.cell(COL_W_RETURN[5], 8.5, "Today's Action / Handover To", border=1, align="C", fill=True)
+        pdf.set_font("helvetica", "B", 7.8)
+        pdf.cell(COL_W_RETURN[6], 8.5, "Marked Return", border=1, align="C", fill=True)
         pdf.ln()
 
-    def render_today_row(idx, name, mobile, product, col5_text, col5_type, col6_text):
+    def render_today_row(idx, name, mobile, product, remaining, col5_text, col5_type, col6_text):
         prod_str = str(product or '-')
         prod_display = prod_str.replace(',', ', ')
+        prod_lines = get_wrapped_lines(prod_display, COL_W_TODAY[3] - 4, font_size=10, is_bold=True)
 
-        set_smart_font(prod_display, style='B' if not is_gujarati(prod_display) else '', size=10)
-        # Wrap product code text across cell width (30 - 4 = 26mm available)
-        prod_lines = pdf.multi_cell(COL_W_TODAY[3] - 4, 4.3, prod_display, dry_run=True, output='LINES')
-        if not prod_lines:
-            prod_lines = [prod_display]
-        prod_lines = [l.strip() for l in prod_lines if l.strip()]
-        if not prod_lines:
-            prod_lines = ['-']
+        name_lines = get_wrapped_lines(str(name or 'N/A'), COL_W_TODAY[1] - 3, font_size=9.0, is_bold=True)
+        col5_lines = get_wrapped_lines(str(col5_text or '-'), COL_W_TODAY[5] - 3, font_size=8.0, is_bold=False)
+        col6_lines = get_wrapped_lines(str(col6_text or '-'), COL_W_TODAY[6] - 3, font_size=8.0, is_bold=False)
 
-        safe_lines = []
-        for pl in prod_lines:
-            safe_lines.append(fit_text(pl, COL_W_TODAY[3] - 2, font_size=10, is_bold=True))
-        prod_lines = safe_lines
-
-        n_lines = len(prod_lines)
-        h_row = max(8.5, n_lines * 4.4 + 2)
+        max_lines = max(len(prod_lines), len(name_lines), len(col5_lines), len(col6_lines), 1)
+        line_h = 3.8
+        h_row = max(8.5, max_lines * line_h + 2.5)
 
         # Check for page overflow
         if pdf.get_y() + h_row > 280:
@@ -3113,49 +3145,58 @@ def export_calendar_pdf():
             pdf.set_fill_color(255, 255, 255)
         pdf.set_draw_color(226, 232, 240)
 
-        # 1. Sr. (8mm)
+        # 1. Sr. (7mm)
         pdf.set_xy(x, y_top)
         pdf.set_font('helvetica', '', 9)
         pdf.set_text_color(100, 116, 139)
         pdf.cell(COL_W_TODAY[0], h_row, str(idx + 1), border=1, align="C", fill=True)
         x += COL_W_TODAY[0]
 
-        # 2. Customer Name (33mm)
+        # 2. Customer Name (30mm) - Wrapped & Vertically Centered
         pdf.set_xy(x, y_top)
-        c_name = str(name or 'N/A')
-        c_name_fitted = fit_text(c_name, COL_W_TODAY[1] - 3, font_size=9.5, is_bold=True)
-        set_smart_font(c_name_fitted, style='B' if not is_gujarati(c_name_fitted) else '', size=9.5)
+        pdf.rect(x, y_top, COL_W_TODAY[1], h_row, 'DF')
         pdf.set_text_color(15, 23, 42)
-        pdf.cell(COL_W_TODAY[1], h_row, '  ' + c_name_fitted, border=1, align="L", fill=True)
+        start_y = y_top + (h_row - len(name_lines) * line_h) / 2
+        for i, line_text in enumerate(name_lines):
+            pdf.set_xy(x, start_y + i * line_h)
+            set_smart_font(line_text, style='B', size=9.0)
+            pdf.cell(COL_W_TODAY[1], line_h, ' ' + line_text, border=0, align="L")
         x += COL_W_TODAY[1]
 
-        # 3. Mobile (24mm)
+        # 3. Mobile (23mm)
         pdf.set_xy(x, y_top)
         mobile_str = str(mobile or 'N/A')
-        mobile_fitted = fit_text(mobile_str, COL_W_TODAY[2] - 2, font_size=9, is_bold=False)
-        set_smart_font(mobile_fitted, style='', size=9)
+        set_smart_font(mobile_str, style='', size=8.5)
         pdf.set_text_color(30, 41, 59)
-        pdf.cell(COL_W_TODAY[2], h_row, mobile_fitted, border=1, align="C", fill=True)
+        pdf.cell(COL_W_TODAY[2], h_row, mobile_str, border=1, align="C", fill=True)
         x += COL_W_TODAY[2]
 
-        # 4. Product Code (30mm) - WRAPPED
+        # 4. Product Code (24mm) - Wrapped & Vertically Centered
         pdf.set_xy(x, y_top)
         pdf.rect(x, y_top, COL_W_TODAY[3], h_row, 'DF')
         pdf.set_text_color(10, 17, 32)
-        line_h = 4.3
-        text_total_h = n_lines * line_h
-        start_y = y_top + (h_row - text_total_h) / 2
+        start_y = y_top + (h_row - len(prod_lines) * line_h) / 2
         for i, line_text in enumerate(prod_lines):
             pdf.set_xy(x, start_y + i * line_h)
-            set_smart_font(line_text, style='B' if not is_gujarati(line_text) else '', size=10)
+            set_smart_font(line_text, style='B', size=10)
             pdf.cell(COL_W_TODAY[3], line_h, line_text, border=0, align="C")
         x += COL_W_TODAY[3]
 
-        # 5. Collect From (Yesterday) (39mm)
+        # 5. Remaining Payment (21mm)
         pdf.set_xy(x, y_top)
-        text5 = str(col5_text or '-')
-        text5_fitted = fit_text(text5, COL_W_TODAY[4] - 3, font_size=8.5, is_bold=False)
-        set_smart_font(text5_fitted, size=8.5)
+        rem_val = int(remaining) if isinstance(remaining, (int, float)) else _safe_int(remaining)
+        rem_text = f"Rs. {rem_val}"
+        pdf.set_font('helvetica', 'B' if rem_val > 0 else '', 9)
+        if rem_val > 0:
+            pdf.set_text_color(185, 28, 28)  # Alert Red
+        else:
+            pdf.set_text_color(21, 128, 61)   # Success Green
+        pdf.cell(COL_W_TODAY[4], h_row, rem_text, border=1, align="C", fill=True)
+        x += COL_W_TODAY[4]
+
+        # 6. Collect From (Yesterday) (37mm) - Wrapped & Vertically Centered
+        pdf.set_xy(x, y_top)
+        pdf.rect(x, y_top, COL_W_TODAY[5], h_row, 'DF')
         if col5_type == 'alert':
             pdf.set_text_color(185, 28, 28)  # Alert Red
         elif col5_type == 'success':
@@ -3164,28 +3205,33 @@ def export_calendar_pdf():
             pdf.set_text_color(29, 78, 216)  # Info Blue
         else:
             pdf.set_text_color(100, 116, 139)
-        pdf.cell(COL_W_TODAY[4], h_row, '  ' + text5_fitted, border=1, align="L", fill=True)
-        x += COL_W_TODAY[4]
-
-        # 6. Tomorrow Booking (34mm)
-        pdf.set_xy(x, y_top)
-        if col6_text and col6_text != '-':
-            text6 = str(col6_text)
-            text6_fitted = fit_text(text6, COL_W_TODAY[5] - 3, font_size=8.5, is_bold=False)
-            set_smart_font(text6_fitted, size=8.5)
-            pdf.set_text_color(29, 78, 216)  # Info Blue
-            pdf.cell(COL_W_TODAY[5], h_row, '  ' + text6_fitted, border=1, align="L", fill=True)
-        else:
-            pdf.set_font('helvetica', '', 8.5)
-            pdf.set_text_color(148, 163, 184)  # Muted slate
-            pdf.cell(COL_W_TODAY[5], h_row, '-', border=1, align="C", fill=True)
+        start_y = y_top + (h_row - len(col5_lines) * line_h) / 2
+        for i, line_text in enumerate(col5_lines):
+            pdf.set_xy(x, start_y + i * line_h)
+            set_smart_font(line_text, size=8.0)
+            pdf.cell(COL_W_TODAY[5], line_h, ' ' + line_text, border=0, align="L")
         x += COL_W_TODAY[5]
 
-        # 7. Marked Taken (22mm) - Checkbox square
+        # 7. Tomorrow Booking (29mm) - Wrapped & Vertically Centered
         pdf.set_xy(x, y_top)
-        pdf.cell(COL_W_TODAY[6], h_row, '', border=1, align="C", fill=True)
+        pdf.rect(x, y_top, COL_W_TODAY[6], h_row, 'DF')
+        if col6_text and col6_text != '-':
+            pdf.set_text_color(29, 78, 216)  # Info Blue
+        else:
+            pdf.set_text_color(148, 163, 184)  # Muted slate
+        start_y = y_top + (h_row - len(col6_lines) * line_h) / 2
+        for i, line_text in enumerate(col6_lines):
+            pdf.set_xy(x, start_y + i * line_h)
+            set_smart_font(line_text, size=8.0)
+            align_c = "C" if (col6_text == '-' or not col6_text) else "L"
+            pdf.cell(COL_W_TODAY[6], line_h, ' ' + line_text if align_c == 'L' else line_text, border=0, align=align_c)
+        x += COL_W_TODAY[6]
+
+        # 8. Marked Taken (19mm) - Checkbox square
+        pdf.set_xy(x, y_top)
+        pdf.cell(COL_W_TODAY[7], h_row, '', border=1, align="C", fill=True)
         box_sz = 4.5
-        bx = x + (COL_W_TODAY[6] - box_sz) / 2
+        bx = x + (COL_W_TODAY[7] - box_sz) / 2
         by = y_top + (h_row - box_sz) / 2
         pdf.set_draw_color(71, 85, 105)
         pdf.set_line_width(0.4)
@@ -3194,26 +3240,17 @@ def export_calendar_pdf():
         # Move cursor down for next row
         pdf.set_xy(10, y_top + h_row)
 
-    def render_return_row(idx, name, mobile, product, col5_text, col5_type):
+    def render_return_row(idx, name, mobile, product, remaining, col5_text, col5_type):
         prod_str = str(product or '-')
         prod_display = prod_str.replace(',', ', ')
+        prod_lines = get_wrapped_lines(prod_display, COL_W_RETURN[3] - 4, font_size=10, is_bold=True)
 
-        set_smart_font(prod_display, style='B' if not is_gujarati(prod_display) else '', size=10)
-        # Wrap product code text across cell width (32 - 4 = 28mm available)
-        prod_lines = pdf.multi_cell(COL_W_RETURN[3] - 4, 4.3, prod_display, dry_run=True, output='LINES')
-        if not prod_lines:
-            prod_lines = [prod_display]
-        prod_lines = [l.strip() for l in prod_lines if l.strip()]
-        if not prod_lines:
-            prod_lines = ['-']
+        name_lines = get_wrapped_lines(str(name or 'N/A'), COL_W_RETURN[1] - 3, font_size=9.0, is_bold=True)
+        col5_lines = get_wrapped_lines(str(col5_text or '-'), COL_W_RETURN[5] - 3, font_size=8.0, is_bold=(col5_type == 'alert'))
 
-        safe_lines = []
-        for pl in prod_lines:
-            safe_lines.append(fit_text(pl, COL_W_RETURN[3] - 2, font_size=10, is_bold=True))
-        prod_lines = safe_lines
-
-        n_lines = len(prod_lines)
-        h_row = max(8.5, n_lines * 4.4 + 2)
+        max_lines = max(len(prod_lines), len(name_lines), len(col5_lines), 1)
+        line_h = 3.8
+        h_row = max(8.5, max_lines * line_h + 2.5)
 
         # Check for page overflow
         if pdf.get_y() + h_row > 280:
@@ -3230,49 +3267,58 @@ def export_calendar_pdf():
             pdf.set_fill_color(255, 255, 255)
         pdf.set_draw_color(226, 232, 240)
 
-        # 1. Sr. (8mm)
+        # 1. Sr. (7mm)
         pdf.set_xy(x, y_top)
         pdf.set_font('helvetica', '', 9)
         pdf.set_text_color(100, 116, 139)
         pdf.cell(COL_W_RETURN[0], h_row, str(idx + 1), border=1, align="C", fill=True)
         x += COL_W_RETURN[0]
 
-        # 2. Customer Name (Holder) (40mm)
+        # 2. Customer Name (Holder) (35mm) - Wrapped & Vertically Centered
         pdf.set_xy(x, y_top)
-        c_name = str(name or 'N/A')
-        c_name_fitted = fit_text(c_name, COL_W_RETURN[1] - 3, font_size=9.5, is_bold=True)
-        set_smart_font(c_name_fitted, style='B' if not is_gujarati(c_name_fitted) else '', size=9.5)
+        pdf.rect(x, y_top, COL_W_RETURN[1], h_row, 'DF')
         pdf.set_text_color(15, 23, 42)
-        pdf.cell(COL_W_RETURN[1], h_row, '  ' + c_name_fitted, border=1, align="L", fill=True)
+        start_y = y_top + (h_row - len(name_lines) * line_h) / 2
+        for i, line_text in enumerate(name_lines):
+            pdf.set_xy(x, start_y + i * line_h)
+            set_smart_font(line_text, style='B', size=9.0)
+            pdf.cell(COL_W_RETURN[1], line_h, ' ' + line_text, border=0, align="L")
         x += COL_W_RETURN[1]
 
-        # 3. Mobile (24mm)
+        # 3. Mobile (23mm)
         pdf.set_xy(x, y_top)
         mobile_str = str(mobile or 'N/A')
-        mobile_fitted = fit_text(mobile_str, COL_W_RETURN[2] - 2, font_size=9, is_bold=False)
-        set_smart_font(mobile_fitted, style='', size=9)
+        set_smart_font(mobile_str, style='', size=8.5)
         pdf.set_text_color(30, 41, 59)
-        pdf.cell(COL_W_RETURN[2], h_row, mobile_fitted, border=1, align="C", fill=True)
+        pdf.cell(COL_W_RETURN[2], h_row, mobile_str, border=1, align="C", fill=True)
         x += COL_W_RETURN[2]
 
-        # 4. Product Code (32mm) - WRAPPED
+        # 4. Product Code (24mm) - Wrapped & Vertically Centered
         pdf.set_xy(x, y_top)
         pdf.rect(x, y_top, COL_W_RETURN[3], h_row, 'DF')
         pdf.set_text_color(10, 17, 32)
-        line_h = 4.3
-        text_total_h = n_lines * line_h
-        start_y = y_top + (h_row - text_total_h) / 2
+        start_y = y_top + (h_row - len(prod_lines) * line_h) / 2
         for i, line_text in enumerate(prod_lines):
             pdf.set_xy(x, start_y + i * line_h)
-            set_smart_font(line_text, style='B' if not is_gujarati(line_text) else '', size=10)
+            set_smart_font(line_text, style='B', size=10)
             pdf.cell(COL_W_RETURN[3], line_h, line_text, border=0, align="C")
         x += COL_W_RETURN[3]
 
-        # 5. Today's Action / Handover To (62mm)
+        # 5. Remaining Payment (21mm)
         pdf.set_xy(x, y_top)
-        text5 = str(col5_text or '-')
-        text5_fitted = fit_text(text5, COL_W_RETURN[4] - 3, font_size=8.5, is_bold=(col5_type == 'alert'))
-        set_smart_font(text5_fitted, style='B' if (col5_type == 'alert' and not is_gujarati(text5_fitted)) else '', size=8.5)
+        rem_val = int(remaining) if isinstance(remaining, (int, float)) else _safe_int(remaining)
+        rem_text = f"Rs. {rem_val}"
+        pdf.set_font('helvetica', 'B' if rem_val > 0 else '', 9)
+        if rem_val > 0:
+            pdf.set_text_color(185, 28, 28)  # Alert Red
+        else:
+            pdf.set_text_color(21, 128, 61)   # Success Green
+        pdf.cell(COL_W_RETURN[4], h_row, rem_text, border=1, align="C", fill=True)
+        x += COL_W_RETURN[4]
+
+        # 6. Today's Action / Handover To (61mm) - Wrapped & Vertically Centered
+        pdf.set_xy(x, y_top)
+        pdf.rect(x, y_top, COL_W_RETURN[5], h_row, 'DF')
         if col5_type == 'alert':
             pdf.set_text_color(185, 28, 28)  # Alert Red
         elif col5_type == 'success':
@@ -3281,14 +3327,18 @@ def export_calendar_pdf():
             pdf.set_text_color(29, 78, 216)  # Info Blue
         else:
             pdf.set_text_color(100, 116, 139)
-        pdf.cell(COL_W_RETURN[4], h_row, '  ' + text5_fitted, border=1, align="L", fill=True)
-        x += COL_W_RETURN[4]
+        start_y = y_top + (h_row - len(col5_lines) * line_h) / 2
+        for i, line_text in enumerate(col5_lines):
+            pdf.set_xy(x, start_y + i * line_h)
+            set_smart_font(line_text, style='B' if col5_type == 'alert' else '', size=8.0)
+            pdf.cell(COL_W_RETURN[5], line_h, ' ' + line_text, border=0, align="L")
+        x += COL_W_RETURN[5]
 
-        # 6. Marked Return (24mm) - Checkbox square
+        # 7. Marked Return (19mm) - Checkbox square
         pdf.set_xy(x, y_top)
-        pdf.cell(COL_W_RETURN[5], h_row, '', border=1, align="C", fill=True)
+        pdf.cell(COL_W_RETURN[6], h_row, '', border=1, align="C", fill=True)
         box_sz = 4.5
-        bx = x + (COL_W_RETURN[5] - box_sz) / 2
+        bx = x + (COL_W_RETURN[6] - box_sz) / 2
         by = y_top + (h_row - box_sz) / 2
         pdf.set_draw_color(71, 85, 105)
         pdf.set_line_width(0.4)
@@ -3360,6 +3410,7 @@ def export_calendar_pdf():
                 name=r['name'],
                 mobile=r['mobile'],
                 product=r['product'],
+                remaining=r.get('remaining', 0),
                 col5_text=r['status'],
                 col5_type=r['status_type']
             )
@@ -3395,6 +3446,7 @@ def export_calendar_pdf():
                 name=r['name'],
                 mobile=r['mobile'],
                 product=r['product'],
+                remaining=r.get('remaining', 0),
                 col5_text=r['yesterday'],
                 col5_type=r['yesterday_type'],
                 col6_text=r['tomorrow']
