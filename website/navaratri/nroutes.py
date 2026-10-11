@@ -1661,8 +1661,251 @@ def check():
     return render_template("navaratri/check.html")
 
     
+def get_logs_income_analytics(selected_cycle=None):
+    """
+    Extracts daily and day-of-week income received from activity logs of the selected cycle.
+    Parses bookings, payments, adjustments, and costume sales.
+    """
+    if not selected_cycle:
+        try:
+            selected_cycle = get_selected_cycle()
+        except Exception:
+            selected_cycle = None
+
+    empty_result = {
+        "income_by_date": [],
+        "income_by_day_of_week": [
+            {"day_name": d, "short_day": d[:3], "amount": 0.0, "transactions_count": 0, "percentage": 0.0}
+            for d in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        ],
+        "income_summary": {
+            "total_income": 0.0,
+            "total_transactions": 0,
+            "peak_date": "-",
+            "peak_date_amount": 0.0,
+            "peak_dow": "-",
+            "peak_dow_amount": 0.0,
+            "avg_daily_income": 0.0,
+            "avg_txn_amount": 0.0,
+            "active_days_count": 0
+        },
+        "top_income_dates": []
+    }
+
+    if not selected_cycle:
+        return empty_result
+
+    collection_name = selected_cycle.get("collection_name")
+    if not collection_name:
+        return empty_result
+
+    try:
+        from collections import defaultdict
+        logs_col = db[f"{collection_name}_logs"]
+        raw_logs = list(logs_col.find({
+            "action": {"$in": ["payment", "book", "sale", "product_sold", "edit"]}
+        }).sort("timestamp", 1))
+
+        income_transactions = []
+
+        for log in raw_logs:
+            action = log.get("action")
+            details = str(log.get("details", ""))
+            date_stamp = log.get("date_stamp", "")
+            customer_name = log.get("name", "") or "—"
+            mobile = log.get("mobile", "") or ""
+
+            amt = 0.0
+            source = ""
+
+            # 1. Direct payment action
+            if action == "payment":
+                m = re.search(r'Added payment of ₹\s*([0-9]+(?:\.[0-9]+)?)', details)
+                if m:
+                    amt = float(m.group(1))
+                    source = "Profile Payment"
+                else:
+                    m = re.search(r'Paid remaining amount:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
+                    if m:
+                        amt = float(m.group(1))
+                        source = "Remaining Payment"
+                    else:
+                        m = re.search(r'Paid:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
+                        if m:
+                            amt = float(m.group(1))
+                            source = "Payment"
+
+            # 2. Booking actions
+            elif action == "book":
+                m = re.search(r'Added Paid:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
+                if m:
+                    amt = float(m.group(1))
+                    source = "Add-on Booking"
+                else:
+                    m = re.search(r'Given:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
+                    if m:
+                        amt = float(m.group(1))
+                        source = "Initial Booking"
+                    else:
+                        m = re.search(r'Paid:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
+                        if m:
+                            amt = float(m.group(1))
+                            source = "Initial Booking"
+
+            # 3. Costume Sale
+            elif action in ["sale", "product_sold"]:
+                m = re.search(r'Paid:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
+                if m:
+                    amt = float(m.group(1))
+                    source = "Costume Sale"
+                else:
+                    m = re.search(r'Total:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
+                    if m:
+                        amt = float(m.group(1))
+                        source = "Costume Sale"
+
+            # 4. Edit actions
+            elif action == "edit":
+                m_diff = re.search(r'Paid Amount:\s*₹\s*([0-9]+(?:\.[0-9]+)?)\s*->\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
+                if m_diff:
+                    old_amt = float(m_diff.group(1))
+                    new_amt = float(m_diff.group(2))
+                    diff = new_amt - old_amt
+                    if diff != 0:
+                        amt = diff
+                        source = "Payment Adjustment"
+                else:
+                    m_given = re.search(r'Updated customer profile via profile page.*Given:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
+                    if m_given:
+                        amt = float(m_given.group(1))
+                        source = "Profile Creation"
+
+            if amt != 0 and date_stamp:
+                parsed_dt = None
+                for fmt in ["%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d"]:
+                    try:
+                        parsed_dt = datetime.strptime(date_stamp.strip(), fmt)
+                        break
+                    except Exception:
+                        continue
+
+                income_transactions.append({
+                    "date": date_stamp.strip(),
+                    "dt": parsed_dt,
+                    "amount": amt,
+                    "source": source,
+                    "customer": customer_name,
+                    "mobile": mobile
+                })
+
+        total_income = sum(t["amount"] for t in income_transactions)
+        total_txns = len(income_transactions)
+
+        # Date-wise aggregation
+        date_map = defaultdict(lambda: {
+            "dt": None,
+            "total": 0.0,
+            "count": 0,
+            "sources": defaultdict(float)
+        })
+
+        for t in income_transactions:
+            d_str = t["date"]
+            date_map[d_str]["dt"] = t["dt"]
+            date_map[d_str]["total"] += t["amount"]
+            date_map[d_str]["count"] += 1
+            date_map[d_str]["sources"][t["source"]] += t["amount"]
+
+        sorted_date_items = sorted(
+            date_map.items(),
+            key=lambda x: x[1]["dt"] if x[1]["dt"] else datetime.min
+        )
+
+        income_by_date = []
+        peak_date = "-"
+        peak_date_amount = 0.0
+
+        for d_str, data in sorted_date_items:
+            dt = data["dt"]
+            day_name = dt.strftime("%A") if dt else "Unknown"
+            short_label = dt.strftime("%d %b") if dt else d_str
+            amt = round(data["total"], 2)
+
+            if amt > peak_date_amount:
+                peak_date_amount = amt
+                peak_date = f"{d_str} ({day_name})"
+
+            income_by_date.append({
+                "date": d_str,
+                "short_label": short_label,
+                "day_name": day_name,
+                "display_label": f"{short_label} ({day_name[:3]})",
+                "amount": amt,
+                "transactions_count": data["count"],
+                "sources": {k: round(v, 2) for k, v in data["sources"].items()}
+            })
+
+        # Day of week aggregation (Monday - Sunday)
+        days_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        dow_map = {d: {"total": 0.0, "count": 0} for d in days_order}
+
+        for t in income_transactions:
+            if t["dt"]:
+                d_name = t["dt"].strftime("%A")
+                if d_name in dow_map:
+                    dow_map[d_name]["total"] += t["amount"]
+                    dow_map[d_name]["count"] += 1
+
+        peak_dow = "-"
+        peak_dow_amount = 0.0
+        income_by_day_of_week = []
+
+        for d_name in days_order:
+            amt = round(dow_map[d_name]["total"], 2)
+            cnt = dow_map[d_name]["count"]
+            pct = round((amt / total_income * 100), 1) if total_income > 0 else 0.0
+
+            if amt > peak_dow_amount:
+                peak_dow_amount = amt
+                peak_dow = d_name
+
+            income_by_day_of_week.append({
+                "day_name": d_name,
+                "short_day": d_name[:3],
+                "amount": amt,
+                "transactions_count": cnt,
+                "percentage": pct
+            })
+
+        avg_daily_income = round(total_income / len(income_by_date), 2) if income_by_date else 0.0
+        avg_txn_amount = round(total_income / total_txns, 2) if total_txns > 0 else 0.0
+
+        top_dates = sorted(income_by_date, key=lambda x: x["amount"], reverse=True)[:5]
+
+        return {
+            "income_by_date": income_by_date,
+            "income_by_day_of_week": income_by_day_of_week,
+            "income_summary": {
+                "total_income": round(total_income, 2),
+                "total_transactions": total_txns,
+                "peak_date": peak_date,
+                "peak_date_amount": peak_date_amount,
+                "peak_dow": peak_dow,
+                "peak_dow_amount": peak_dow_amount,
+                "avg_daily_income": avg_daily_income,
+                "avg_txn_amount": avg_txn_amount,
+                "active_days_count": len(income_by_date)
+            },
+            "top_income_dates": top_dates
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return empty_result
+
+
 # Helper functions to extract detailed analytics for the modern dashboard
-def get_navaratri_analytics(traditional_data):
+def get_navaratri_analytics(traditional_data, selected_cycle=None):
     def safe_int(val):
         try:
             return int(float(str(val).strip()))
@@ -1882,6 +2125,8 @@ def get_navaratri_analytics(traditional_data):
     choli_codes_sorted = sorted(list(choli_all_set), key=natural_sort_key)
     kediya_codes_sorted = sorted(list(kediya_all_set), key=natural_sort_key)
 
+    logs_income = get_logs_income_analytics(selected_cycle)
+
     return {
         "total_customers_trad": total_customers_trad,
         "total_collection_trad": total_collection_trad,
@@ -1922,7 +2167,11 @@ def get_navaratri_analytics(traditional_data):
         },
         "wear_tear_alerts": wear_tear_alerts,
         "style_pairings": style_pairings,
-        "catalog_rotations": catalog_rotations
+        "catalog_rotations": catalog_rotations,
+        "income_by_date": logs_income.get("income_by_date", []),
+        "income_by_day_of_week": logs_income.get("income_by_day_of_week", []),
+        "income_summary": logs_income.get("income_summary", {}),
+        "top_income_dates": logs_income.get("top_income_dates", [])
     }
 
 def get_fancy_analytics(fancy_data):
@@ -2010,7 +2259,7 @@ def dashboard_summary():
             return f"Error: Database connection failed - {e}"
 
         traditional_data = list(collection.find())
-        trad_analytics = get_navaratri_analytics(traditional_data)
+        trad_analytics = get_navaratri_analytics(traditional_data, selected_cycle=selected_cycle)
 
         fancy_data = list(fancy_collection.find())
         fancy_analytics = get_fancy_analytics(fancy_data)
@@ -4032,7 +4281,7 @@ def navaratri_dashboard():
             return f"Error: Database connection failed - {e}"
 
         traditional_data = list(collection.find())
-        trad_analytics = get_navaratri_analytics(traditional_data)
+        trad_analytics = get_navaratri_analytics(traditional_data, selected_cycle=selected_cycle)
 
         context = {
             "selected_cycle": selected_cycle,
@@ -4060,6 +4309,20 @@ def navaratri_dashboard():
             highest_booking_person="Error",
             highest_booking_value=0,
             avg_trad=0,
+            income_by_date=[],
+            income_by_day_of_week=[],
+            income_summary={
+                "total_income": 0,
+                "total_transactions": 0,
+                "peak_date": "-",
+                "peak_date_amount": 0,
+                "peak_dow": "-",
+                "peak_dow_amount": 0,
+                "avg_daily_income": 0,
+                "avg_txn_amount": 0,
+                "active_days_count": 0
+            },
+            top_income_dates=[],
             has_error=True,
             error_message=str(e)
         )
@@ -4461,10 +4724,13 @@ def navaratri_logs():
                 log["sort_ts"] = sort_ts
                 logs.append(log)
 
+    income_analytics = get_logs_income_analytics(selected_cycle)
+
     return render_template(
         "navaratri/navaratri_logs.html",
         logs=logs,
-        selected_cycle=selected_cycle
+        selected_cycle=selected_cycle,
+        income_summary=income_analytics.get("income_summary", {})
     )
 
 

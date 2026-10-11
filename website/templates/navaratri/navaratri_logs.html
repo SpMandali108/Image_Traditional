@@ -467,6 +467,9 @@
             </h1>
         </div>
         <div class="top-actions">
+            <a href="/navaratri_dashboard#income" class="back-btn" style="border-color: rgba(16,185,129,0.5); color: #34d399; background: rgba(16,185,129,0.12);">
+                <i class="bi bi-graph-up me-1"></i> 💰 Income Graph
+            </a>
             <form onsubmit="confirmClearLogs(event)" style="display:inline-flex; align-items:center; gap:0.4rem;">
                 <input type="password" id="clear-logs-pass" placeholder="Admin Password" class="f-input" required style="max-width:140px; padding:0.3rem 0.6rem; font-size:0.78rem;">
                 <button type="submit" class="back-btn btn-danger-outline">
@@ -486,6 +489,13 @@
                 <div class="stat-text">
                     <span class="stat-label">Total Logs</span>
                     <span class="stat-val" id="cnt-all">0</span>
+                </div>
+            </div>
+            <div class="stat-card stat-all" onclick="window.location.href='/navaratri_dashboard#income'" style="border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.08);" title="View Income & Day-wise Analytics Graph">
+                <div class="stat-icon" style="background: rgba(16,185,129,0.2); color: #34d399;">₹</div>
+                <div class="stat-text">
+                    <span class="stat-label" style="color: #34d399;">Income Logged</span>
+                    <span class="stat-val" style="color: #34d399;">₹{{ income_summary.total_income|int if income_summary else 0 }}</span>
                 </div>
             </div>
             <div class="stat-card stat-book" data-action="book" onclick="filterByStat('book')">
