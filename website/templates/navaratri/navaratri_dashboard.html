@@ -525,6 +525,63 @@
     table.modern-table th, table.modern-table td { padding: 0.85rem 1rem; font-size: 0.88rem; }
     .action-btn { min-height: 42px; font-size: 0.85rem; }
   }
+
+  /* ── Income & Day Analytics Additions ── */
+  .view-toggle-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--panel-border);
+    color: var(--text-secondary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .view-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+  }
+  .view-toggle-btn.active {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.5);
+    color: var(--neon-emerald);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+  }
+  .source-pill {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+  .source-pill.booking {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #34d399;
+  }
+  .source-pill.payment {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    color: #60a5fa;
+  }
+  .source-pill.addon {
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(139, 92, 246, 0.35);
+    color: #c4b5fd;
+  }
+  .source-pill.sale {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #fbbf24;
+  }
+  .source-pill.adjustment {
+    background: rgba(236, 72, 153, 0.15);
+    border: 1px solid rgba(236, 72, 153, 0.35);
+    color: #f472b6;
+  }
 </style>
 {% endblock %}
 
@@ -555,6 +612,9 @@
   <nav class="tabs-nav">
     <button class="tab-btn active" onclick="switchTab(event, 'overview-tab')">
       📊 Overview
+    </button>
+    <button class="tab-btn" onclick="switchTab(event, 'income-tab')" style="border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); color: var(--neon-emerald);">
+      💰 Income & Day Analytics
     </button>
     <button class="tab-btn" onclick="switchTab(event, 'product-ai-tab')" style="border: 1px solid rgba(139, 92, 246, 0.4); background: rgba(139, 92, 246, 0.1); color: var(--neon-purple);">
       🔮 Costume AI Insights
@@ -636,14 +696,34 @@
     </div>
 
     <!-- Charts Section -->
-    <div class="charts-grid" style="grid-template-columns: 1fr;">
+    <div class="charts-grid" style="grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); margin-bottom: 2rem;">
       <div class="card-glass chart-card">
         <div class="chart-title-header">
           <h2>📅 Booking Timeline & Load Trend</h2>
-          <span style="font-size: 0.8rem; color: var(--text-muted);"> Rented Items Rented over Cycle Dates </span>
+          <span style="font-size: 0.8rem; color: var(--text-muted);"> Rented Items over Cycle Dates </span>
         </div>
         <div class="chart-container-inner">
           <canvas id="timelineChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Daily Income Received Chart (from Logs) -->
+      <div class="card-glass chart-card">
+        <div class="chart-title-header">
+          <h2>💰 Daily Income Inflow (From Logs)</h2>
+          <div style="display: flex; gap: 0.4rem; align-items: center;">
+            <button type="button" class="view-toggle-btn active" id="overviewToggleDate" onclick="toggleOverviewIncomeChart('date')">📅 Date-wise</button>
+            <button type="button" class="view-toggle-btn" id="overviewToggleDay" onclick="toggleOverviewIncomeChart('day')">📆 Day-wise</button>
+            <button type="button" class="action-btn" onclick="activateTab('income-tab')" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; border-color: rgba(16, 185, 129, 0.4); color: var(--neon-emerald);">Full View →</button>
+          </div>
+        </div>
+        <div class="chart-container-inner">
+          <canvas id="overviewIncomeChart"></canvas>
+        </div>
+        <div class="kpi-sub" style="margin-top: 0.85rem; padding-top: 0.55rem; border-top: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.76rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+          <span>💵 Inflow: <strong style="color: var(--neon-emerald);">₹{{ income_summary.total_income|int }}</strong> ({{ income_summary.total_transactions }} txns)</span>
+          <span>🚀 Peak: <strong style="color: #c4b5fd;">{{ income_summary.peak_date }}</strong></span>
+          <span>📅 Daily Avg: <strong style="color: #38bdf8;">₹{{ income_summary.avg_daily_income|int }}</strong></span>
         </div>
       </div>
     </div>
@@ -728,6 +808,202 @@
               {% endfor %}
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: INCOME & DAY ANALYTICS ── -->
+  <div id="income-tab" class="tab-content">
+
+    <!-- KPI Metric Summary for Income -->
+    <div class="kpi-grid">
+      <div class="card-glass kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-title">Total Logged Income</span>
+          <span class="kpi-icon">💰</span>
+        </div>
+        <div class="kpi-value" style="color: var(--neon-emerald);">₹{{ income_summary.total_income|int }}</div>
+        <div class="kpi-sub green">{{ income_summary.total_transactions }} transactions logged</div>
+      </div>
+
+      <div class="card-glass kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-title">Peak Inflow Date</span>
+          <span class="kpi-icon">🚀</span>
+        </div>
+        <div class="kpi-value" style="font-size: 1.45rem;">₹{{ income_summary.peak_date_amount|int }}</div>
+        <div class="kpi-sub" style="color: #c4b5fd;">{{ income_summary.peak_date }}</div>
+      </div>
+
+      <div class="card-glass kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-title">Best Day of Week</span>
+          <span class="kpi-icon">📆</span>
+        </div>
+        <div class="kpi-value" style="font-size: 1.55rem; color: #38bdf8;">{{ income_summary.peak_dow }}</div>
+        <div class="kpi-sub" style="color: #38bdf8;">₹{{ income_summary.peak_dow_amount|int }} total collected</div>
+      </div>
+
+      <div class="card-glass kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-title">Daily Average Inflow</span>
+          <span class="kpi-icon">📈</span>
+        </div>
+        <div class="kpi-value">₹{{ income_summary.avg_daily_income|int }}</div>
+        <div class="kpi-sub">Across {{ income_summary.active_days_count }} active collection days</div>
+      </div>
+
+      <div class="card-glass kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-title">Average Receipt / Txn</span>
+          <span class="kpi-icon">🧾</span>
+        </div>
+        <div class="kpi-value">₹{{ income_summary.avg_txn_amount|int }}</div>
+        <div class="kpi-sub">Average cash collected per log event</div>
+      </div>
+
+      <div class="card-glass kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-title">Active Collection Days</span>
+          <span class="kpi-icon">🗓️</span>
+        </div>
+        <div class="kpi-value">{{ income_summary.active_days_count }} Days</div>
+        <div class="kpi-sub green">Dates with cash activity</div>
+      </div>
+    </div>
+
+    <!-- Dual Income Charts Section -->
+    <div class="charts-grid" style="grid-template-columns: 3fr 2fr; margin-bottom: 2rem;">
+      <!-- Chart A: Date-wise Timeline Graph -->
+      <div class="card-glass chart-card">
+        <div class="chart-title-header">
+          <h2>📅 Date-wise Daily Income Inflow Graph</h2>
+          <span class="cycle-badge" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; background: rgba(16, 185, 129, 0.15); color: var(--neon-emerald); border-color: rgba(16, 185, 129, 0.4);">Chronological (₹)</span>
+        </div>
+        <div class="chart-container-inner" style="height: 320px;">
+          <canvas id="incomeDateChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart B: Day-of-Week Revenue Distribution -->
+      <div class="card-glass chart-card">
+        <div class="chart-title-header">
+          <h2>📆 Day-of-Week Revenue Analytics</h2>
+          <span class="cycle-badge" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);">Monday – Sunday</span>
+        </div>
+        <div class="chart-container-inner" style="height: 320px;">
+          <canvas id="incomeDayOfWeekChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details Grid for Income -->
+    <div class="details-grid">
+      <!-- 1. Day-wise Income Audit Table -->
+      <div class="card-glass">
+        <div class="chart-title-header">
+          <h2>📋 Day-wise Income Audit Breakdown</h2>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">From System Action Logs</span>
+        </div>
+
+        <div class="search-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="incomeTableSearch" onkeyup="filterIncomeTable()" placeholder="Filter dates or weekdays (e.g. Sunday, Oct)..." class="search-input">
+        </div>
+
+        <div class="table-container" style="max-height: 480px;">
+          <table class="modern-table" id="incomeTable">
+            <thead>
+              <tr>
+                <th>Date & Day</th>
+                <th>Transactions</th>
+                <th>Inflow Share</th>
+                <th>Daily Collection</th>
+                <th>Breakdown</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for d in income_by_date %}
+              <tr>
+                <td class="searchable-income">
+                  <div style="font-weight: 700; color: #ffffff;">{{ d.date }}</div>
+                  <div style="font-size: 0.75rem; color: var(--neon-emerald); font-weight: 600;">{{ d.day_name }}</div>
+                </td>
+                <td style="font-weight: 600;">{{ d.transactions_count }} txns</td>
+                <td>
+                  {% set total_inc = income_summary.total_income if income_summary.total_income > 0 else 1 %}
+                  {% set pct = ((d.amount / total_inc) * 100)|round(1) %}
+                  <div class="progress-track" style="width: 70px;">
+                    <div class="progress-fill" style="width: {{ pct }}%; background: var(--neon-emerald);"></div>
+                  </div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">{{ pct }}%</span>
+                </td>
+                <td style="font-weight: 800; color: var(--neon-emerald); font-size: 1rem;">₹{{ d.amount|int }}</td>
+                <td>
+                  <div style="display: flex; flex-wrap: wrap; gap: 0.25rem;">
+                    {% for src, amt in d.sources.items() %}
+                      <span class="source-pill {% if 'Booking' in src %}booking{% elif 'Payment' in src %}payment{% elif 'Sale' in src %}sale{% else %}adjustment{% endif %}">
+                        {{ src }}: ₹{{ amt|int }}
+                      </span>
+                    {% endfor %}
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr class="no-hover"><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">No income logs recorded yet</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. Top Income Days Leaderboard & Day-of-Week Summary -->
+      <div class="card-glass">
+        <div class="chart-title-header">
+          <h2>🏆 Top Earning Days Leaderboard</h2>
+          <span class="cycle-badge" style="font-size: 0.75rem; padding: 0.25rem 0.75rem;">Ranked by Cash</span>
+        </div>
+
+        <div class="table-container" style="margin-bottom: 1.5rem;">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Date</th>
+                <th>Weekday</th>
+                <th>Transactions</th>
+                <th>Total Inflow</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in top_income_dates %}
+              <tr>
+                <td><span class="rank-tag {% if loop.index <= 3 %}rank-{{ loop.index }}{% endif %}">{{ loop.index }}</span></td>
+                <td style="font-weight: 700;">{{ item.date }}</td>
+                <td style="color: var(--neon-purple); font-weight: 600;">{{ item.day_name }}</td>
+                <td>{{ item.transactions_count }} txns</td>
+                <td style="font-weight: 800; color: var(--neon-emerald); font-size: 1.05rem;">₹{{ item.amount|int }}</td>
+              </tr>
+              {% else %}
+              <tr class="no-hover"><td colspan="5" style="text-align: center; color: var(--text-muted);">No data available</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Weekday Contribution Breakdown Cards -->
+        <div class="chart-title-header" style="margin-top: 1.25rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1rem;">
+          <h2>📊 Day of Week Summary</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem;">
+          {% for dow in income_by_day_of_week %}
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 0.75rem; text-align: center;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">{{ dow.short_day }}</div>
+            <div style="font-size: 1rem; font-weight: 800; color: {% if dow.day_name == income_summary.peak_dow %}var(--neon-emerald){% else %}#ffffff{% endif %}; margin: 0.25rem 0;">₹{{ dow.amount|int }}</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted);">{{ dow.percentage }}% ({{ dow.transactions_count }} txns)</div>
+          </div>
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -1191,6 +1467,7 @@
 <!-- JavaScript Logic -->
 <script>
   // ── Tab Management ──
+  // ── Tab Management ──
   function switchTab(evt, tabId) {
     // Hide all tab content
     const contents = document.querySelectorAll(".tab-content");
@@ -1201,21 +1478,54 @@
     buttons.forEach(btn => btn.classList.remove("active"));
 
     // Show current tab & activate button
-    document.getElementById(tabId).classList.add("active");
-    evt.currentTarget.classList.add("active");
+    const target = document.getElementById(tabId);
+    if (target) target.classList.add("active");
+
+    if (evt && evt.currentTarget) {
+      evt.currentTarget.classList.add("active");
+    } else {
+      buttons.forEach(btn => {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId)) {
+          btn.classList.add("active");
+        }
+      });
+    }
+
+    // Trigger Chart.js recalculation when tabs become visible
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 50);
   }
 
   function activateTab(tabId) {
-    // Helper to jump to a tab from another tab element
-    const buttons = document.querySelectorAll(".tab-btn");
-    buttons.forEach(btn => {
-      if(btn.getAttribute('onclick').includes(tabId)) {
-        btn.click();
-      }
-    });
+    switchTab(null, tabId);
   }
 
   // ── Client-side Real-time Search Filters ──
+  function filterIncomeTable() {
+    const input = document.getElementById("incomeTableSearch");
+    if (!input) return;
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("incomeTable");
+    if (!table) return;
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) {
+      let trItem = tr[i];
+      if (trItem.classList.contains("no-hover")) continue;
+      
+      let searchableCell = trItem.getElementsByClassName("searchable-income")[0];
+      if (searchableCell) {
+        let txtValue = searchableCell.textContent || searchableCell.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          trItem.style.display = "";
+        } else {
+          trItem.style.display = "none";
+        }
+      }
+    }
+  }
+
   function filterLedgerTable() {
     const input = document.getElementById("ledgerSearchInput");
     const filter = input.value.toUpperCase();
@@ -1266,6 +1576,49 @@
   const paymentStatus = {{ payment_status | tojson }};
   const groupStats = {{ top_groups | tojson }};
   const referenceStats = {{ top_references | tojson }};
+  const incomeByDate = {{ income_by_date | tojson }};
+  const incomeByDayOfWeek = {{ income_by_day_of_week | tojson }};
+  const incomeSummary = {{ income_summary | tojson }};
+
+  // Overview income chart toggle logic
+  let overviewIncomeChartInstance = null;
+  function toggleOverviewIncomeChart(mode) {
+    const dateBtn = document.getElementById("overviewToggleDate");
+    const dayBtn = document.getElementById("overviewToggleDay");
+    if (!overviewIncomeChartInstance) return;
+
+    if (mode === 'date') {
+      if (dateBtn) dateBtn.classList.add("active");
+      if (dayBtn) dayBtn.classList.remove("active");
+
+      const labels = incomeByDate.map(i => i.display_label || i.date);
+      const data = incomeByDate.map(i => i.amount);
+
+      overviewIncomeChartInstance.config.type = 'line';
+      overviewIncomeChartInstance.data.labels = labels.length > 0 ? labels : ["No Logs"];
+      overviewIncomeChartInstance.data.datasets[0].label = 'Daily Collection (₹)';
+      overviewIncomeChartInstance.data.datasets[0].data = data.length > 0 ? data : [0];
+      overviewIncomeChartInstance.data.datasets[0].borderColor = '#10b981';
+      overviewIncomeChartInstance.data.datasets[0].backgroundColor = 'rgba(16, 185, 129, 0.12)';
+      overviewIncomeChartInstance.data.datasets[0].fill = true;
+      overviewIncomeChartInstance.update();
+    } else {
+      if (dayBtn) dayBtn.classList.add("active");
+      if (dateBtn) dateBtn.classList.remove("active");
+
+      const labels = incomeByDayOfWeek.map(i => i.day_name);
+      const data = incomeByDayOfWeek.map(i => i.amount);
+
+      overviewIncomeChartInstance.config.type = 'bar';
+      overviewIncomeChartInstance.data.labels = labels;
+      overviewIncomeChartInstance.data.datasets[0].label = 'Weekly Collection (₹)';
+      overviewIncomeChartInstance.data.datasets[0].data = data;
+      overviewIncomeChartInstance.data.datasets[0].borderColor = '#38bdf8';
+      overviewIncomeChartInstance.data.datasets[0].backgroundColor = 'rgba(56, 189, 248, 0.4)';
+      overviewIncomeChartInstance.data.datasets[0].fill = false;
+      overviewIncomeChartInstance.update();
+    }
+  }
   
   // Utilization Dataset
   const utilData = {{ utilization | tojson }};
@@ -1566,6 +1919,200 @@
         }
       }
     });
+
+    // 5. Overview Tab Income Chart (Line / Bar Toggle)
+    const overviewIncomeCanvas = document.getElementById('overviewIncomeChart');
+    if (overviewIncomeCanvas) {
+      const overviewLabels = incomeByDate.map(item => item.display_label || item.date);
+      const overviewData = incomeByDate.map(item => item.amount);
+
+      overviewIncomeChartInstance = new Chart(overviewIncomeCanvas.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: overviewLabels.length > 0 ? overviewLabels : ["No Logs"],
+          datasets: [{
+            label: 'Daily Collection (₹)',
+            data: overviewData.length > 0 ? overviewData : [0],
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.12)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 3,
+            pointBackgroundColor: '#10b981',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 1.5,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const idx = context.dataIndex;
+                  const item = incomeByDate[idx];
+                  const val = context.parsed.y || 0;
+                  return ` Income: ₹${val.toLocaleString()} (${item ? item.transactions_count : 0} txns)`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: { color: '#9ca3af' }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: {
+                color: '#9ca3af',
+                callback: function(val) { return '₹' + val.toLocaleString(); }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 6. Dedicated Income Tab - Date-wise Daily Income Inflow Graph
+    const incomeDateCanvas = document.getElementById('incomeDateChart');
+    if (incomeDateCanvas) {
+      const dateLabels = incomeByDate.map(item => item.display_label || item.date);
+      const dateAmounts = incomeByDate.map(item => item.amount);
+
+      new Chart(incomeDateCanvas.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: dateLabels.length > 0 ? dateLabels : ["No Logs"],
+          datasets: [{
+            label: 'Daily Income Received (₹)',
+            data: dateAmounts.length > 0 ? dateAmounts : [0],
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 3,
+            pointBackgroundColor: '#10b981',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const idx = context.dataIndex;
+                  const item = incomeByDate[idx];
+                  const val = context.parsed.y || 0;
+                  return ` Inflow: ₹${val.toLocaleString()} (${item ? item.transactions_count : 0} txns)`;
+                },
+                afterLabel: function(context) {
+                  const idx = context.dataIndex;
+                  const item = incomeByDate[idx];
+                  if (item && item.sources) {
+                    const lines = [];
+                    for (const [src, amt] of Object.entries(item.sources)) {
+                      lines.push(`  • ${src}: ₹${amt.toLocaleString()}`);
+                    }
+                    return lines;
+                  }
+                  return [];
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: { color: '#9ca3af', font: { weight: '600' } }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: {
+                color: '#9ca3af',
+                callback: function(val) { return '₹' + val.toLocaleString(); }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 7. Dedicated Income Tab - Day-of-Week Revenue Distribution Chart
+    const incomeDowCanvas = document.getElementById('incomeDayOfWeekChart');
+    if (incomeDowCanvas) {
+      const dowLabels = incomeByDayOfWeek.map(item => item.day_name);
+      const dowAmounts = incomeByDayOfWeek.map(item => item.amount);
+      const dowColors = [
+        '#6366f1',
+        '#3b82f6',
+        '#06b6d4',
+        '#14b8a6',
+        '#10b981',
+        '#f59e0b',
+        '#ec4899'
+      ];
+
+      new Chart(incomeDowCanvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: dowLabels,
+          datasets: [{
+            label: 'Collection by Day of Week (₹)',
+            data: dowAmounts,
+            backgroundColor: dowColors,
+            borderRadius: 8,
+            borderWidth: 1,
+            borderColor: 'rgba(255, 255, 255, 0.1)'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const idx = context.dataIndex;
+                  const item = incomeByDayOfWeek[idx];
+                  const val = context.parsed.y || 0;
+                  return ` Total Inflow: ₹${val.toLocaleString()} (${item ? item.transactions_count : 0} txns, ${item ? item.percentage : 0}%)`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#f1f5f9', font: { weight: '600' } }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: {
+                color: '#9ca3af',
+                callback: function(val) { return '₹' + val.toLocaleString(); }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Handle deep link hash
+    if (window.location.hash === '#income') {
+      activateTab('income-tab');
+    }
   });
 </script>
 {% endblock %}
