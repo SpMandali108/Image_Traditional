@@ -491,10 +491,10 @@
                     <span class="stat-val" id="cnt-all">0</span>
                 </div>
             </div>
-            <div class="stat-card stat-all" onclick="window.location.href='/navaratri_dashboard#income'" style="border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.08);" title="View Income & Day-wise Analytics Graph">
+            <div class="stat-card stat-all" onclick="window.location.href='/navaratri_dashboard#income'" style="border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.08);" title="View Initial & Add-on Income Graph (Excludes Profile Payments)">
                 <div class="stat-icon" style="background: rgba(16,185,129,0.2); color: #34d399;">₹</div>
                 <div class="stat-text">
-                    <span class="stat-label" style="color: #34d399;">Income Logged</span>
+                    <span class="stat-label" style="color: #34d399;">Booking Income</span>
                     <span class="stat-val" style="color: #34d399;">₹{{ income_summary.total_income|int if income_summary else 0 }}</span>
                 </div>
             </div>

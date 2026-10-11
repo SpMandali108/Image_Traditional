@@ -1702,14 +1702,14 @@ def get_logs_income_analytics(selected_cycle=None):
     try:
         from collections import defaultdict
         logs_col = db[f"{collection_name}_logs"]
+        # Only initial payments and add-ons from bookings (excluding profile payments and adjustments)
         raw_logs = list(logs_col.find({
-            "action": {"$in": ["payment", "book", "sale", "product_sold", "edit"]}
+            "action": "book"
         }).sort("timestamp", 1))
 
         income_transactions = []
 
         for log in raw_logs:
-            action = log.get("action")
             details = str(log.get("details", ""))
             date_stamp = log.get("date_stamp", "")
             customer_name = log.get("name", "") or "—"
@@ -1718,69 +1718,24 @@ def get_logs_income_analytics(selected_cycle=None):
             amt = 0.0
             source = ""
 
-            # 1. Direct payment action
-            if action == "payment":
-                m = re.search(r'Added payment of ₹\s*([0-9]+(?:\.[0-9]+)?)', details)
-                if m:
-                    amt = float(m.group(1))
-                    source = "Profile Payment"
+            # 1. Add-on booking payment (incremental payment for added products)
+            m_addon = re.search(r'Added Paid:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
+            if m_addon:
+                amt = float(m_addon.group(1))
+                source = "Booking Add-on"
+            else:
+                # 2. Initial booking payment
+                m_given = re.search(r'Given:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
+                if m_given:
+                    amt = float(m_given.group(1))
+                    source = "Initial Payment"
                 else:
-                    m = re.search(r'Paid remaining amount:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
-                    if m:
-                        amt = float(m.group(1))
-                        source = "Remaining Payment"
-                    else:
-                        m = re.search(r'Paid:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
-                        if m:
-                            amt = float(m.group(1))
-                            source = "Payment"
+                    m_paid = re.search(r'Paid:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
+                    if m_paid:
+                        amt = float(m_paid.group(1))
+                        source = "Initial Payment"
 
-            # 2. Booking actions
-            elif action == "book":
-                m = re.search(r'Added Paid:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
-                if m:
-                    amt = float(m.group(1))
-                    source = "Add-on Booking"
-                else:
-                    m = re.search(r'Given:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
-                    if m:
-                        amt = float(m.group(1))
-                        source = "Initial Booking"
-                    else:
-                        m = re.search(r'Paid:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
-                        if m:
-                            amt = float(m.group(1))
-                            source = "Initial Booking"
-
-            # 3. Costume Sale
-            elif action in ["sale", "product_sold"]:
-                m = re.search(r'Paid:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
-                if m:
-                    amt = float(m.group(1))
-                    source = "Costume Sale"
-                else:
-                    m = re.search(r'Total:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
-                    if m:
-                        amt = float(m.group(1))
-                        source = "Costume Sale"
-
-            # 4. Edit actions
-            elif action == "edit":
-                m_diff = re.search(r'Paid Amount:\s*₹\s*([0-9]+(?:\.[0-9]+)?)\s*->\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
-                if m_diff:
-                    old_amt = float(m_diff.group(1))
-                    new_amt = float(m_diff.group(2))
-                    diff = new_amt - old_amt
-                    if diff != 0:
-                        amt = diff
-                        source = "Payment Adjustment"
-                else:
-                    m_given = re.search(r'Updated customer profile via profile page.*Given:\s*₹\s*([0-9]+(?:\.[0-9]+)?)', details)
-                    if m_given:
-                        amt = float(m_given.group(1))
-                        source = "Profile Creation"
-
-            if amt != 0 and date_stamp:
+            if amt > 0 and date_stamp:
                 parsed_dt = None
                 for fmt in ["%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d"]:
                     try:
