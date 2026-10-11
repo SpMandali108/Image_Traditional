@@ -710,7 +710,7 @@
       <!-- Daily Income Received Chart (from Logs) -->
       <div class="card-glass chart-card">
         <div class="chart-title-header">
-          <h2>💰 Daily Income Inflow (From Logs)</h2>
+          <h2>💰 Daily Booking Income (Initial & Add-ons)</h2>
           <div style="display: flex; gap: 0.4rem; align-items: center;">
             <button type="button" class="view-toggle-btn active" id="overviewToggleDate" onclick="toggleOverviewIncomeChart('date')">📅 Date-wise</button>
             <button type="button" class="view-toggle-btn" id="overviewToggleDay" onclick="toggleOverviewIncomeChart('day')">📆 Day-wise</button>
@@ -820,11 +820,11 @@
     <div class="kpi-grid">
       <div class="card-glass kpi-card">
         <div class="kpi-header">
-          <span class="kpi-title">Total Logged Income</span>
+          <span class="kpi-title">Initial & Add-on Income</span>
           <span class="kpi-icon">💰</span>
         </div>
         <div class="kpi-value" style="color: var(--neon-emerald);">₹{{ income_summary.total_income|int }}</div>
-        <div class="kpi-sub green">{{ income_summary.total_transactions }} transactions logged</div>
+        <div class="kpi-sub green">{{ income_summary.total_transactions }} txns (excludes profile payments)</div>
       </div>
 
       <div class="card-glass kpi-card">
@@ -860,16 +860,16 @@
           <span class="kpi-icon">🧾</span>
         </div>
         <div class="kpi-value">₹{{ income_summary.avg_txn_amount|int }}</div>
-        <div class="kpi-sub">Average cash collected per log event</div>
+        <div class="kpi-sub">Average cash collected per booking event</div>
       </div>
 
       <div class="card-glass kpi-card">
         <div class="kpi-header">
-          <span class="kpi-title">Active Collection Days</span>
+          <span class="kpi-title">Active Booking Days</span>
           <span class="kpi-icon">🗓️</span>
         </div>
         <div class="kpi-value">{{ income_summary.active_days_count }} Days</div>
-        <div class="kpi-sub green">Dates with cash activity</div>
+        <div class="kpi-sub green">Dates with booking cash inflow</div>
       </div>
     </div>
 
@@ -878,8 +878,8 @@
       <!-- Chart A: Date-wise Timeline Graph -->
       <div class="card-glass chart-card">
         <div class="chart-title-header">
-          <h2>📅 Date-wise Daily Income Inflow Graph</h2>
-          <span class="cycle-badge" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; background: rgba(16, 185, 129, 0.15); color: var(--neon-emerald); border-color: rgba(16, 185, 129, 0.4);">Chronological (₹)</span>
+          <h2>📅 Date-wise Booking Income Inflow Graph</h2>
+          <span class="cycle-badge" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; background: rgba(16, 185, 129, 0.15); color: var(--neon-emerald); border-color: rgba(16, 185, 129, 0.4);">Initial & Add-ons (₹)</span>
         </div>
         <div class="chart-container-inner" style="height: 320px;">
           <canvas id="incomeDateChart"></canvas>
@@ -889,8 +889,8 @@
       <!-- Chart B: Day-of-Week Revenue Distribution -->
       <div class="card-glass chart-card">
         <div class="chart-title-header">
-          <h2>📆 Day-of-Week Revenue Analytics</h2>
-          <span class="cycle-badge" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);">Monday – Sunday</span>
+          <h2>📆 Day-of-Week Booking Analytics</h2>
+          <span class="cycle-badge" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);">Monday – Sunday (No Profile Payments)</span>
         </div>
         <div class="chart-container-inner" style="height: 320px;">
           <canvas id="incomeDayOfWeekChart"></canvas>
@@ -903,8 +903,8 @@
       <!-- 1. Day-wise Income Audit Table -->
       <div class="card-glass">
         <div class="chart-title-header">
-          <h2>📋 Day-wise Income Audit Breakdown</h2>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">From System Action Logs</span>
+          <h2>📋 Day-wise Booking Income Breakdown</h2>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Initial Payments & Booking Add-ons Only</span>
         </div>
 
         <div class="search-wrapper">
